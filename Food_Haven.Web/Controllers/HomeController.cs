@@ -19,6 +19,8 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -270,6 +272,70 @@ namespace Food_Haven.Web.Controllers
             catch (Exception e)
             {
                 return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+            }
+        }
+
+
+        public IActionResult ListProducts(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
+        {
+            try
+            {
+                // Bắt đầu với truy vấn gốc từ service
+                var query = _product.GetAll();
+                var price = _productvarian.GetAll();
+
+                // Lọc theo tên sản phẩm
+                if (!string.IsNullOrEmpty(searchName))
+                {
+                    query = query.Where(p => p.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase));
+                }
+
+                // Lọc theo giá
+                if (minPrice.HasValue || maxPrice.HasValue)
+                {
+                    decimal min = minPrice ?? 0;
+                    decimal max = maxPrice ?? decimal.MaxValue;
+                    price = price.Where(p => p.SellPrice >= min && p.SellPrice <= max);
+                    filterCount++;
+                }
+
+                // Thực thi truy vấn và chuyển sang ViewModel nếu cần
+                var list = query.Select(p => new ProductsViewModel
+                {
+                    ID = p.ID,
+                    Name = p.Name,
+                    LongDescription = p.LongDescription,
+
+                    // Lấy giá từ biến thể đầu tiên (nếu có)
+                    Price = p.ProductTypes
+              .OrderBy(v => v.SellPrice) // hoặc FirstOrDefault nếu chỉ cần 1
+              .Select(v => v.SellPrice)
+              .FirstOrDefault(),
+
+                    // Lấy danh sách ảnh (ví dụ chuỗi URL hoặc danh sách)
+                    Img = p.ProductImages
+                      .Select(img => img.ImageUrl)
+                      .ToList()
+                }).ToList();
+
+
+                // Gán ViewBag
+                ViewBag.MinPrice = minPrice ?? 0;
+                ViewBag.MaxPrice = maxPrice ?? 2000;
+                ViewBag.FilterCount = filterCount;
+
+                return View(list);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi trong ListProducts: {ex.Message}\n{ex.StackTrace}");
+
+                ViewBag.MinPrice = minPrice ?? 0;
+                ViewBag.MaxPrice = maxPrice ?? 2000;
+                ViewBag.FilterCount = filterCount;
+                ViewBag.ErrorMessage = "Đã xảy ra lỗi khi tải danh sách sản phẩm.";
+
+                return View(new List<ProductsViewModel>());
             }
         }
 

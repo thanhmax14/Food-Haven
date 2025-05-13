@@ -34,5 +34,7 @@ namespace Repository.ViewModels
         public List<string> Img { get; set; } = new List<string>();
         public Guid StoreId { get; set; }
         public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
+
+
     }
 }
