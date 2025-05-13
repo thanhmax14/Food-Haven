@@ -28,13 +28,13 @@ namespace Repository.Categorys
         public async Task<List<CategoryListViewModel>> GetCategoryListAsync()
         {
             return await _context.Categories
-                .OrderBy(c => c.Number) // Sắp xếp theo thứ tự hiển thị
+                .OrderBy(c => c.DisplayOrder) // Sắp xếp theo thứ tự hiển thị
                 .Select(c => new CategoryListViewModel
                 {
                     ID = c.ID,
                     Img = !string.IsNullOrEmpty(c.ImageUrl) ? "/uploads/CategoryImage/" + c.ImageUrl : "/uploads/default.png",
                     Name = c.Name,
-                    Number = c.Number,
+                    Number = int.Parse(c.DisplayOrder),
                     Commission = c.Commission,
                     CreatedDate = c.CreatedDate,
                     ModifiedDate = c.ModifiedDate
@@ -45,7 +45,7 @@ namespace Repository.Categorys
         public void CreateCategory(CategoryCreateViewModel model)
         {
             // Kiểm tra nếu Number đã tồn tại trong cơ sở dữ liệu
-            bool isNumberExists = _context.Categories.Any(c => c.Number == model.Number);
+            bool isNumberExists = _context.Categories.Any(c => c.DisplayOrder == model.Number+"");
             if (isNumberExists)
             {
                 throw new Exception("The display order (Number) already exists. Please choose another.");
@@ -74,8 +74,7 @@ namespace Repository.Categorys
             {
                 ID = model.ID,
                 Name = model.Name,
-                Commission = model.Commission,
-                Number = model.Number,
+                Commission = model.Commission,            
                 ImageUrl = fileName, // Chỉ lưu tên file vào database
                 CreatedDate = DateTime.UtcNow,
                 ModifiedDate = null
@@ -88,7 +87,7 @@ namespace Repository.Categorys
 
         public bool IsNumberExists(int number)
         {
-            return _context.Categories.Any(c => c.Number == number);
+            return _context.Categories.Any(c => c.DisplayOrder == number+"");
         }
 
         public void UpdateCategory(CategoryUpdateViewModel model)
@@ -100,7 +99,7 @@ namespace Repository.Categorys
             }
 
             // Kiểm tra nếu số thứ tự (Number) đã tồn tại
-            bool isNumberExists = _context.Categories.Any(c => c.Number == model.Number && c.ID != model.ID);
+            bool isNumberExists = _context.Categories.Any(c => c.DisplayOrder == model.Number+"" && c.ID != model.ID);
             if (isNumberExists)
             {
                 throw new Exception("The display order (Number) already exists. Please choose another.");
@@ -158,7 +157,7 @@ namespace Repository.Categorys
             // Cập nhật thông tin danh mục
             category.Name = model.Name;
             category.Commission = model.Commission;
-            category.Number = model.Number;
+            category.DisplayOrder = model.Number+"";
             category.ModifiedDate = DateTime.UtcNow.Date; // Chỉ lấy ngày, không lấy giờ
 
             _context.SaveChanges();

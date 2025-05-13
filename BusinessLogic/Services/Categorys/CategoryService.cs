@@ -88,7 +88,7 @@ namespace BusinessLogic.Services.Categorys
                 ID = category.ID,
                 Name = category.Name,
                 Commission = category.Commission,
-                Number = category.Number,
+               
                 Img = category.ImageUrl,
                 CreatedDate = category.CreatedDate,
                 ModifiedDate = category.ModifiedDate

@@ -14,8 +14,8 @@ namespace Models
         public string? ImageUrl { get; set; }
         public string DisplayOrder { get; set; }
         public string Name { get; set; }
-        public int Number { get; set; } = 0;
         public float Commission { get; set; }
+        public bool IsActive { get; set; } = false;
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public ICollection<Product> Products { get; set; }
