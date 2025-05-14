@@ -1,4 +1,5 @@
-﻿using BusinessLogic.Services.BalanceChanges;
+﻿using System.Data;
+using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
@@ -93,32 +94,68 @@ namespace Food_Haven.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return Json(new { success = false, message = "Người dùng không tồn tại" });
+                return Json(new { success = false, message = "User not found" });
             }
-            if(!string.IsNullOrEmpty(obj.userView.PhoneNumber)) {
+            if (!string.IsNullOrEmpty(obj.userView.PhoneNumber))
+            {
                 var existPhone = await _userManager.Users.Where(x => x.PhoneNumber == obj.userView.PhoneNumber && x.Id != user.Id).FirstOrDefaultAsync();
                 if (existPhone != null)
                 {
                     return Json(new { success = false, message = "NumberPhone exist" });
-                }   
+                }
             }
-            if(obj.userView.Birthday <= DateTime.Today) {
+            if (obj.userView.Birthday <= DateTime.Today)
+            {
                 user.Birthday = obj.userView.Birthday;
-             } else {
+            }
+            else
+            {
                 return Json(new { success = false, message = "Date of birth cannot be greater than the current date." });
-             }
+            }
             user.Email = obj.userView.Email;
             user.Address = obj.userView.Address;
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                return Json(new { success = true, message = "Cập nhật thông tin thành công" });
+                return Json(new { success = true, message = "Profile updated successfully" });
             }
             else
             {
-                return Json(new { success = false, message = result.Errors.FirstOrDefault()?.Description ?? "Cập nhật thất bại" });
+                return Json(new { success = false, message = result.Errors.FirstOrDefault()?.Description ?? "Update failed" });
             }
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> RegisterSeller(IndexUserViewModels obj)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found" });
+            }
+            else if (string.IsNullOrEmpty(user.Address) || string.IsNullOrEmpty(user.PhoneNumber) ||
+            user.Birthday == null || user.Birthday == DateTime.MinValue)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Please complete all required information before registering as a seller."
+                });
+            }
+            user.RequestSeller = "1";
+            user.ModifyUpdate = DateTime.Now;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Register Seller successfully" });
+            }
+            else
+            {
+                return Json(new { success = false, message = result.Errors.FirstOrDefault()?.Description ?? "Register Seller failed" });
+
+            }
+
         }
 
     }
