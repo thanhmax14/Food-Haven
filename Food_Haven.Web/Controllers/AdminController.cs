@@ -37,9 +37,183 @@ namespace Food_Haven.Web.Controllers
             _storeRepository = storeRepository;
             _categoryService = categoryService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            if (!await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                var list = new List<UsersViewModel>();
+                var obj = _userManager.Users.ToList();
+                if (obj.Any())
+                {
+                    foreach (var user in obj)
+                    {
+                        // Kiểm tra nếu là Admin thì bỏ qua
+                        if (_userManager.IsInRoleAsync(user, "Admin").Result)
+                            continue;
+                        list.Add(new UsersViewModel
+                        {
+                            Birthday = user.Birthday,
+                            Address = user.Address,
+                            img = user.ImageUrl,
+                            RequestSeller = user.RequestSeller,
+                            isUpdateProfile = user.IsProfileUpdated,
+                            ModifyUpdate = user.ModifyUpdate,
+                            PhoneNumber = user.PhoneNumber,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            IsBanByadmin = user.IsBannedByAdmin,
+                        });
+                    }
+                }
+                return View(list);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving users", error = ex.Message });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> HiddenAccount([FromBody] UsersViewModel obj)
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            if (!await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                if (obj == null || string.IsNullOrEmpty(obj.Email))
+                {
+                    return Json(new { success = false, message = "Invalid request data" });
+                }
+                var user = await _userManager.FindByEmailAsync(obj.Email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+                user.IsBannedByAdmin = true;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return Json(new { success = false, message = "Failed to update user" });
+                }
+                return Json(new { success = true, message = "User account Banned successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the user", error = ex.Message });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> ShowAccount([FromBody] UsersViewModel obj)
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                if (obj == null || string.IsNullOrEmpty(obj.Email))
+                {
+                    return Json(new { success = false, message = "Invalid request data" });
+                }
+                var user = await _userManager.FindByEmailAsync(obj.Email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+                user.IsBannedByAdmin = false;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return Json(new { success = false, message = "Failed to update user" });
+                }
+                return Json(new { success = true, message = "User account unbanned successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the user", error = ex.Message });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> UpdateByAdmin(string email)
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+                var model = new AdminViewModel
+                {
+                    Email = user.Email,
+                    Address = user.Address,
+                    Birthday = user.Birthday,
+                    PhoneNumber = user.PhoneNumber,
+                    UserName = user.UserName,
+                };
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving the user", error = ex.Message });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateByAdmin([FromBody] UsersViewModel obj)
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                if (obj == null || string.IsNullOrEmpty(obj.Email))
+                {
+                    return Json(new { success = false, message = "Invalid request data" });
+                }
+                var user = await _userManager.FindByEmailAsync(obj.Email);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+                user.Address = obj.Address;
+                user.Birthday = obj.Birthday;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return Json(new { success = false, message = "Failed to update user" });
+
+                }
+                return Json(new { success = true, message = "User account updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the user", error = ex.Message });
+            }
+
         }
         public async Task<IActionResult> ManagementSeller()
         {
