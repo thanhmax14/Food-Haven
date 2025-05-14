@@ -1391,62 +1391,62 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $("#updateProfileForm").submit(function (event) {
-                event.preventDefault();
+<script>
+    $(document).ready(function () {
+        $("#updateProfileForm").submit(function (event) {
+            event.preventDefault();
 
-                var birthdayValue = $("#Birthday").val();
-               var formData = {
-    userView: {
-        UserName: $("#UserName").val(),
-        Email: $("#Email").val(),
-        PhoneNumber: $("#PhoneNumber").val(),
-        Address: $("#Address").val(),
-        Birthday: birthdayValue ? birthdayValue : null,
-    }
-};
+            var birthdayValue = $("#Birthday").val();
+            var formData = {
+                userView: {
+                    UserName: $("#UserName").val(),
+                    Email: $("#Email").val(),
+                    PhoneNumber: $("#PhoneNumber").val(),
+                    Address: $("#Address").val(),
+                    Birthday: birthdayValue ? birthdayValue : null,  // Nếu trường Birthday rỗng, gửi null
+                }
+            };
 
-                $.ajax({
-                    url: "/Users/UpdateProfile",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(formData),
-                    beforeSend: function () {
+            $.ajax({
+                url: "/Users/UpdateProfile",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                beforeSend: function () {
+                    Swal.fire({
+                        title: "Đang cập nhật...",
+                        text: "Vui lòng chờ...",
+                        icon: "info",
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    });
+                },
+                success: function (response) {
+                    if (response.success) {
                         Swal.fire({
-                            title: "Đang cập nhật...",
-                            text: "Vui lòng chờ...",
-                            icon: "info",
-                            showConfirmButton: false,
-                            allowOutsideClick: false
+                            title: "Thành công!",
+                            text: "Cập nhật thông tin thành công!",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            $("#account-detail").load(location.href + " #account-detail > *");
                         });
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            Swal.fire({
-                                title: "Thành công!",
-                                text: "Cập nhật thông tin thành công!",
-                                icon: "success",
-                                confirmButtonText: "OK"
-                            }).then(() => {
-                                $("#account-detail").load(location.href + " #account-detail > *");
-                            });
-                        } else {
-                            Swal.fire("Lỗi!", response.message || "Cập nhật thất bại!", "error");
-                        }
-                    },
-                    error: function (xhr) {
-                        let errorMessage = "Không thể kết nối với máy chủ.";
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-                        Swal.fire("Lỗi!", errorMessage, "error");
+                    } else {
+                        Swal.fire("Lỗi!", response.message || "Cập nhật thất bại!", "error");
                     }
-                });
+                },
+                error: function (xhr) {
+                    let errorMessage = "Không thể kết nối với máy chủ.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    Swal.fire("Lỗi!", errorMessage, "error");
+                }
             });
         });
+    });
+</script>
 
-    </script>
     <script>
         $(document).ready(function () {
             $("#btnRegisterSeller").click(function (e) {

@@ -8,6 +8,7 @@ using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.StoreDetail;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Repository.ViewModels;
 
@@ -40,6 +41,7 @@ namespace Food_Haven.Web.Controllers
             _order = orders;
             _orderDetailService = orderDetailService;
         }
+        [HttpGet]
         public async Task<IActionResult> Index(string id)
         {
             // Kiểm tra người dùng có đăng nhập hay không
@@ -76,7 +78,7 @@ namespace Food_Haven.Web.Controllers
                     Email = user.Email,
                     /*   StoreDeatilId = storeId */
                 };
-
+                list.userView = UserModel;
                 return View(list);
             }
             catch (Exception ex)
@@ -84,5 +86,40 @@ namespace Food_Haven.Web.Controllers
                 return StatusCode(500, new { message = "Lỗi server", error = ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfile([FromBody] IndexUserViewModels obj)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "Người dùng không tồn tại" });
+            }
+            if(!string.IsNullOrEmpty(obj.userView.PhoneNumber)) {
+                var existPhone = await _userManager.Users.Where(x => x.PhoneNumber == obj.userView.PhoneNumber && x.Id != user.Id).FirstOrDefaultAsync();
+                if (existPhone != null)
+                {
+                    return Json(new { success = false, message = "NumberPhone exist" });
+                }   
+            }
+            if(obj.userView.Birthday <= DateTime.Today) {
+                user.Birthday = obj.userView.Birthday;
+             } else {
+                return Json(new { success = false, message = "Date of birth cannot be greater than the current date." });
+             }
+            user.Email = obj.userView.Email;
+            user.Address = obj.userView.Address;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Json(new { success = true, message = "Cập nhật thông tin thành công" });
+            }
+            else
+            {
+                return Json(new { success = false, message = result.Errors.FirstOrDefault()?.Description ?? "Cập nhật thất bại" });
+            }
+        }
+
     }
 }
