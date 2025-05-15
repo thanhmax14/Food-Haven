@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿using System.Net.Http.Headers;
 using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
@@ -13,19 +12,48 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-=======
-﻿using Microsoft.AspNetCore.Mvc;
->>>>>>> parent of ad1b828 (Merge branch 'main' into FixLogin)
 
 namespace Food_Haven.Web.Controllers
 {
     public class SellerController : Controller
     {
+        private readonly IReviewService _reviewService;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IProductService _productService;
+        private readonly IStoreDetailService _storeDetailService;
+        private HttpClient client = null;
+        private string _url;
+
+        private readonly StoreDetailsRepository _storeRepository;
+        private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IProductVariantService _variantService;
+        private readonly IOrdersServices _order;
+        private readonly IBalanceChangeService _balance;
+        private readonly IOrderDetailService _orderDetail;
+
+        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, StoreDetailsRepository storeRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail)
+        {
+            _reviewService = reviewService;
+            _userManager = userManager;
+            _productService = productService;
+            _storeDetailService = storeDetailService;
+            client = new HttpClient();
+            var contentype = new MediaTypeWithQualityHeaderValue("application/json");
+            client.DefaultRequestHeaders.Accept.Add(contentype);
+            _storeRepository = storeRepository;
+            _mapper = mapper;
+            _webHostEnvironment = webHostEnvironment;
+            _variantService = variantService;
+            _order = order;
+            _balance = balance;
+            _orderDetail = orderDetail;
+        }
+
         public IActionResult Index()
         {
             return View();
         }
-<<<<<<< HEAD
         public async Task<IActionResult> FeedbackList()
         {
             var result = new List<ReivewViewModel>();
@@ -240,7 +268,5 @@ namespace Food_Haven.Web.Controllers
                 return StatusCode(500, new ErroMess { success = false, msg = "System error: " + ex.Message });
             }
         }
-=======
->>>>>>> parent of ad1b828 (Merge branch 'main' into FixLogin)
     }
 }

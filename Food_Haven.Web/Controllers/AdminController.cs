@@ -340,7 +340,6 @@ namespace Food_Haven.Web.Controllers
         }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
         public async Task<IActionResult> WithdrawList()
         {
@@ -561,7 +560,5 @@ namespace Food_Haven.Web.Controllers
         }
 
 >>>>>>> parent of a71dcf0 (Merge pull request #15 from thanhmax14/sang_addAll02)
-=======
->>>>>>> parent of ad1b828 (Merge branch 'main' into FixLogin)
     }
 }
