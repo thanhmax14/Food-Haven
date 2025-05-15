@@ -429,7 +429,7 @@
                 <!--End nav-tabs-->
                 <div class="row product-grid">
 
-            @*         @if (Model.Any())
+                   @if (Model.Any())
                     {
                         @Html.AntiForgeryToken()
                         foreach (var item in Model)
@@ -453,14 +453,15 @@
                                         </div>
                                         <div class="product-action-1">
                                             <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist('@item.ID')"><i id="iconsave" class="fi-rs-heart"></i></a>
-                                            @* <a aria-label="Compare" class="action-btn" href=""> *@
-                                            @*     <i class="fi-rs-shuffle"></i> *@
-                                            @* </a> *@
-                                            @* <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal" *@
-                                            @*    data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a> *@
-                                      @*   </div>
+                                            <a aria-label="Compare" class="action-btn" href="">
+                                                <i class="fi-rs-shuffle"></i>
+                                            </a>
+                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
+                                               data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                                        </div>
 
                                     </div>
+
                                     <div class="product-content-wrap">
                                         <div class="product-category">
                                             <a href="shop-grid-right.html">@item.CategoryName</a>
@@ -505,7 +506,7 @@
                             </div>
 
                         }
-                    } *@ 
+                    } 
                     <!--end product card-->
                     <!--end product card-->
                     <!--end product card-->
