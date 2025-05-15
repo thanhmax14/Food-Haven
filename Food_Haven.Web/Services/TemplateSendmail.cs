@@ -174,5 +174,433 @@
 "</html>";
             return body;
         }
+
+        public static string TemplateResetPassword( string Link)
+        {
+            return "<!DOCTYPE html>\n" +
+"<html xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" lang=\"en\">\n" +
+"\n" +
+"<head>\n" +
+"    <title></title>\n" +
+"    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
+"    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n" +
+"    <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]-->\n" +
+"    <style>\n" +
+"        * {\n" +
+"            box-sizing: border-box\n" +
+"        }\n" +
+"\n" +
+"        body {\n" +
+"            margin: 0;\n" +
+"            padding: 0\n" +
+"        }\n" +
+"\n" +
+"        a[x-apple-data-detectors] {\n" +
+"            color: inherit !important;\n" +
+"            text-decoration: inherit !important\n" +
+"        }\n" +
+"\n" +
+"        #MessageViewBody a {\n" +
+"            color: inherit;\n" +
+"            text-decoration: none\n" +
+"        }\n" +
+"\n" +
+"        p {\n" +
+"            line-height: inherit\n" +
+"        }\n" +
+"\n" +
+"        .desktop_hide,\n" +
+"        .desktop_hide table {\n" +
+"            mso-hide: all;\n" +
+"            display: none;\n" +
+"            max-height: 0;\n" +
+"            overflow: hidden\n" +
+"        }\n" +
+"\n" +
+"        .image_block img+div {\n" +
+"            display: none\n" +
+"        }\n" +
+"\n" +
+"        @media (max-width:660px) {\n" +
+"            .social_block.desktop_hide .social-table {\n" +
+"                display: inline-block !important\n" +
+"            }\n" +
+"\n" +
+"            .image_block img.fullWidth {\n" +
+"                max-width: 100% !important\n" +
+"            }\n" +
+"\n" +
+"            .mobile_hide {\n" +
+"                display: none\n" +
+"            }\n" +
+"\n" +
+"            .row-content {\n" +
+"                width: 100% !important\n" +
+"            }\n" +
+"\n" +
+"            .stack .column {\n" +
+"                width: 100%;\n" +
+"                display: block\n" +
+"            }\n" +
+"\n" +
+"            .mobile_hide {\n" +
+"                min-height: 0;\n" +
+"                max-height: 0;\n" +
+"                max-width: 0;\n" +
+"                overflow: hidden;\n" +
+"                font-size: 0\n" +
+"            }\n" +
+"\n" +
+"            .desktop_hide,\n" +
+"            .desktop_hide table {\n" +
+"                display: table !important;\n" +
+"                max-height: none !important\n" +
+"            }\n" +
+"        }\n" +
+"    </style>\n" +
+"</head>\n" +
+"\n" +
+"<body style=\"background-color:#f8f8f9;margin:0;padding:0;-webkit-text-size-adjust:none;text-size-adjust:none\">\n" +
+"    <table class=\"nl-container\" width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"        style=\"mso-table-lspace:0;mso-table-rspace:0;background-color:#f8f8f9\">\n" +
+"        <tbody>\n" +
+"            <tr>\n" +
+"                <td>\n" +
+"                    <table class=\"row row-1\" align=\"center\" width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                        role=\"presentation\" style=\"mso-table-lspace:0;mso-table-rspace:0;background-color:#1aa19c\">\n" +
+"                        <tbody>\n" +
+"                            <tr>\n" +
+"                                <td>\n" +
+"                                    <table class=\"row-content stack\" align=\"center\" border=\"0\" cellpadding=\"0\"\n" +
+"                                        cellspacing=\"0\" role=\"presentation\"\n" +
+"                                        style=\"mso-table-lspace:0;mso-table-rspace:0;color:#000;background-color:#1aa19c;width:640px;margin:0 auto\"\n" +
+"                                        width=\"640\">\n" +
+"                                        <tbody>\n" +
+"                                            <tr>\n" +
+"                                                <td class=\"column column-1\" width=\"100%\"\n" +
+"                                                    style=\"mso-table-lspace:0;mso-table-rspace:0;font-weight:400;text-align:left;vertical-align:top;border-top:0;border-right:0;border-bottom:0;border-left:0\">\n" +
+"                                                    <table class=\"divider_block block-1\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\">\n" +
+"                                                                    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                                                                        role=\"presentation\" width=\"100%\"\n" +
+"                                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                                        <tr>\n" +
+"                                                                            <td class=\"divider_inner\"\n" +
+"                                                                                style=\"font-size:1px;line-height:1px;border-top:4px solid #1aa19c\">\n" +
+"                                                                                <span>&#8202;</span></td>\n" +
+"                                                                        </tr>\n" +
+"                                                                    </table>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                </td>\n" +
+"                                            </tr>\n" +
+"                                        </tbody>\n" +
+"                                    </table>\n" +
+"                                </td>\n" +
+"                            </tr>\n" +
+"                        </tbody>\n" +
+"                    </table>\n" +
+"                    <table class=\"row row-2\" align=\"center\" width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                        role=\"presentation\" style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                        <tbody>\n" +
+"                            <tr>\n" +
+"                                <td>\n" +
+"                                    <table class=\"row-content stack\" align=\"center\" border=\"0\" cellpadding=\"0\"\n" +
+"                                        cellspacing=\"0\" role=\"presentation\"\n" +
+"                                        style=\"mso-table-lspace:0;mso-table-rspace:0;color:#000;width:640px;margin:0 auto\"\n" +
+"                                        width=\"640\">\n" +
+"                                        <tbody>\n" +
+"                                            <tr>\n" +
+"                                                <td class=\"column column-1\" width=\"100%\"\n" +
+"                                                    style=\"mso-table-lspace:0;mso-table-rspace:0;font-weight:400;text-align:left;padding-bottom:5px;padding-top:5px;vertical-align:top;border-top:0;border-right:0;border-bottom:0;border-left:0\">\n" +
+"                                                    <table class=\"image_block block-1\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"width:100%;padding-right:0;padding-left:0\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\"\n" +
+"                                                                    style=\"line-height:10px\"><a href=\"www.example.com\"\n" +
+"                                                                        target=\"_blank\" style=\"outline:none\"\n" +
+"                                                                        tabindex=\"-1\"><img\n" +
+"                                                                            src=\"https://d1oco4z2z1fhwp.cloudfront.net/templates/default/4036/5f4fa970-2c78-4218-9e89-9953d812ddb4.png\"\n" +
+"                                                                            style=\"display:block;height:auto;border:0;max-width:160px;width:100%\"\n" +
+"                                                                            width=\"160\" alt=\"Your logo.\"\n" +
+"                                                                            title=\"Your logo.\"></a></div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                </td>\n" +
+"                                            </tr>\n" +
+"                                        </tbody>\n" +
+"                                    </table>\n" +
+"                                </td>\n" +
+"                            </tr>\n" +
+"                        </tbody>\n" +
+"                    </table>\n" +
+"                    <table class=\"row row-3\" align=\"center\" width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                        role=\"presentation\" style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                        <tbody>\n" +
+"                            <tr>\n" +
+"                                <td>\n" +
+"                                    <table class=\"row-content stack\" align=\"center\" border=\"0\" cellpadding=\"0\"\n" +
+"                                        cellspacing=\"0\" role=\"presentation\"\n" +
+"                                        style=\"mso-table-lspace:0;mso-table-rspace:0;background-color:#fff;color:#000;width:640px;margin:0 auto\"\n" +
+"                                        width=\"640\">\n" +
+"                                        <tbody>\n" +
+"                                            <tr>\n" +
+"                                                <td class=\"column column-1\" width=\"100%\"\n" +
+"                                                    style=\"mso-table-lspace:0;mso-table-rspace:0;font-weight:400;text-align:left;vertical-align:top;border-top:0;border-right:0;border-bottom:0;border-left:0\">\n" +
+"                                                    <table class=\"image_block block-1\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\" style=\"width:100%\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\"\n" +
+"                                                                    style=\"line-height:10px\"><a href=\"www.example.com\"\n" +
+"                                                                        target=\"_blank\" style=\"outline:none\"\n" +
+"                                                                        tabindex=\"-1\"><img\n" +
+"                                                                            src=\"https://d1oco4z2z1fhwp.cloudfront.net/templates/default/4036/___passwordreset.gif\"\n" +
+"                                                                            style=\"display:block;height:auto;border:0;max-width:640px;width:100%\"\n" +
+"                                                                            width=\"640\" alt=\"Image of lock &amp; key.\"\n" +
+"                                                                            title=\"Image of lock &amp; key.\"></a></div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"divider_block block-2\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\" style=\"padding-top:30px\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\">\n" +
+"                                                                    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                                                                        role=\"presentation\" width=\"100%\"\n" +
+"                                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                                        <tr>\n" +
+"                                                                            <td class=\"divider_inner\"\n" +
+"                                                                                style=\"font-size:1px;line-height:1px;border-top:0 solid #bbb\">\n" +
+"                                                                                <span>&#8202;</span></td>\n" +
+"                                                                        </tr>\n" +
+"                                                                    </table>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"paragraph_block block-3\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0;word-break:break-word\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:10px\">\n" +
+"                                                                <div\n" +
+"                                                                    style=\"color:#555;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:30px;line-height:120%;text-align:center;mso-line-height-alt:36px\">\n" +
+"                                                                    <p style=\"margin:0;word-break:break-word\">\n" +
+"                                                                        <span style=\"color:#2b303a;\"><strong>Forgot Your\n" +
+"                                                                                Password?</strong></span>\n" +
+"                                                                    </p>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"paragraph_block block-4\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0;word-break:break-word\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:10px\">\n" +
+"                                                                <div\n" +
+"                                                                    style=\"color:#555;font-family:Montserrat,Trebuchet MS,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Tahoma,sans-serif;font-size:15px;line-height:150%;text-align:center;mso-line-height-alt:22.5px\">\n" +
+"                                                                    <p style=\"margin:0;word-break:break-word\"><span\n" +
+"                                                                            style=\"color:#808389;\"><strong>Note:</strong> This link is only valid for <strong>10 minutes</strong>. Please use it before it expires.</span></p>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"button_block block-5\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-left:10px;padding-right:10px;padding-top:15px;text-align:center\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\">\n" +
+"                                                                    <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"www.example.com\" style=\"height:62px;width:209px;v-text-anchor:middle;\" arcsize=\"57%\" stroke=\"false\" fillcolor=\"#f7a50c\"><w:anchorlock/><v:textbox inset=\"0px,0px,0px,0px\"><center style=\"color:#ffffff; font-family:Arial, sans-serif; font-size:16px\"><![endif]-->\n" +
+"                                                                    <a href=\""+Link+"\" target=\"_blank\"\n" +
+"                                                                        style=\"text-decoration:none;display:inline-block;color:#ffffff;background-color:#f7a50c;border-radius:35px;width:auto;border-top:0px solid transparent;font-weight:undefined;border-right:0px solid transparent;border-bottom:0px solid transparent;border-left:0px solid transparent;padding-top:15px;padding-bottom:15px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;text-align:center;mso-border-alt:none;word-break:keep-all;\"><span\n" +
+"                                                                            style=\"padding-left:30px;padding-right:30px;font-size:16px;display:inline-block;letter-spacing:normal;\"><span\n" +
+"                                                                                style=\"margin: 0; word-break: break-word; line-height: 32px;\"><strong>RESET\n" +
+"                                                                                    PASSWORD</strong></span></span></a>\n" +
+"                                                                    <!--[if mso]></center></v:textbox></v:roundrect><![endif]-->\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"divider_block block-6\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-bottom:12px;padding-top:60px\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\">\n" +
+"                                                                    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                                                                        role=\"presentation\" width=\"100%\"\n" +
+"                                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                                        <tr>\n" +
+"                                                                            <td class=\"divider_inner\"\n" +
+"                                                                                style=\"font-size:1px;line-height:1px;border-top:0 solid #bbb\">\n" +
+"                                                                                <span>&#8202;</span></td>\n" +
+"                                                                        </tr>\n" +
+"                                                                    </table>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                </td>\n" +
+"                                            </tr>\n" +
+"                                        </tbody>\n" +
+"                                    </table>\n" +
+"                                </td>\n" +
+"                            </tr>\n" +
+"                        </tbody>\n" +
+"                    </table>\n" +
+"                    <table class=\"row row-4\" align=\"center\" width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                        role=\"presentation\" style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                        <tbody>\n" +
+"                            <tr>\n" +
+"                                <td>\n" +
+"                                    <table class=\"row-content stack\" align=\"center\" border=\"0\" cellpadding=\"0\"\n" +
+"                                        cellspacing=\"0\" role=\"presentation\"\n" +
+"                                        style=\"mso-table-lspace:0;mso-table-rspace:0;color:#000;background-color:#410125;width:640px;margin:0 auto\"\n" +
+"                                        width=\"640\">\n" +
+"                                        <tbody>\n" +
+"                                            <tr>\n" +
+"                                                <td class=\"column column-1\" width=\"100%\"\n" +
+"                                                    style=\"mso-table-lspace:0;mso-table-rspace:0;font-weight:400;text-align:left;vertical-align:top;border-top:0;border-right:0;border-bottom:0;border-left:0\">\n" +
+"                                                    <table class=\"image_block block-1\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"width:100%;padding-right:0;padding-left:0\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\"\n" +
+"                                                                    style=\"line-height:10px\"><a href=\"www.example.com\"\n" +
+"                                                                        target=\"_blank\" style=\"outline:none\"\n" +
+"                                                                        tabindex=\"-1\"><img class=\"fullWidth\"\n" +
+"                                                                            src=\"https://d1oco4z2z1fhwp.cloudfront.net/templates/default/4036/aa73bcbb-1ce0-453a-8b6f-4f9e10336b9c.png\"\n" +
+"                                                                            style=\"display:block;height:auto;border:0;max-width:416px;width:100%\"\n" +
+"                                                                            width=\"416\" alt=\"Your logo. \"\n" +
+"                                                                            title=\"Your logo. \"></a></div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"social_block block-2\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-bottom:10px;padding-left:10px;padding-right:10px;padding-top:28px;text-align:center\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\">\n" +
+"                                                                    <table class=\"social-table\" width=\"208px\" border=\"0\"\n" +
+"                                                                        cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                                                                        role=\"presentation\"\n" +
+"                                                                        style=\"mso-table-lspace:0;mso-table-rspace:0;display:inline-block\">\n" +
+"                                                                        <tr>\n" +
+"                                                                            <td style=\"padding:0 10px 0 10px\"><a\n" +
+"                                                                                    href=\"https://www.facebook.com\"\n" +
+"                                                                                    target=\"_blank\"><img\n" +
+"                                                                                        src=\"https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-white/facebook@2x.png\"\n" +
+"                                                                                        width=\"32\" height=\"32\"\n" +
+"                                                                                        alt=\"Facebook\" title=\"Facebook\"\n" +
+"                                                                                        style=\"display:block;height:auto;border:0\"></a>\n" +
+"                                                                            </td>\n" +
+"                                                                            <td style=\"padding:0 10px 0 10px\">\n" +
+"                                                                                <a href=\"https://www.twitter.com\"\n" +
+"                                                                                    target=\"_blank\"><img\n" +
+"                                                                                        src=\"https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-white/twitter@2x.png\"\n" +
+"                                                                                        width=\"32\" height=\"32\"\n" +
+"                                                                                        alt=\"Twitter\" title=\"Twitter\"\n" +
+"                                                                                        style=\"display:block;height:auto;border:0\"></a>\n" +
+"                                                                            </td>\n" +
+"                                                                            <td style=\"padding:0 10px 0 10px\"><a\n" +
+"                                                                                    href=\"https://www.instagram.com\"\n" +
+"                                                                                    target=\"_blank\"><img\n" +
+"                                                                                        src=\"https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-white/instagram@2x.png\"\n" +
+"                                                                                        width=\"32\" height=\"32\"\n" +
+"                                                                                        alt=\"Instagram\"\n" +
+"                                                                                        title=\"Instagram\"\n" +
+"                                                                                        style=\"display:block;height:auto;border:0\"></a>\n" +
+"                                                                            </td>\n" +
+"                                                                            <td style=\"padding:0 10px 0 10px\"><a\n" +
+"                                                                                    href=\"https://www.linkedin.com\"\n" +
+"                                                                                    target=\"_blank\"><img\n" +
+"                                                                                        src=\"https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-white/linkedin@2x.png\"\n" +
+"                                                                                        width=\"32\" height=\"32\"\n" +
+"                                                                                        alt=\"LinkedIn\" title=\"LinkedIn\"\n" +
+"                                                                                        style=\"display:block;height:auto;border:0\"></a>\n" +
+"                                                                            </td>\n" +
+"                                                                        </tr>\n" +
+"                                                                    </table>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"divider_block block-3\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:25px\">\n" +
+"                                                                <div class=\"alignment\" align=\"center\">\n" +
+"                                                                    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"\n" +
+"                                                                        role=\"presentation\" width=\"100%\"\n" +
+"                                                                        style=\"mso-table-lspace:0;mso-table-rspace:0\">\n" +
+"                                                                        <tr>\n" +
+"                                                                            <td class=\"divider_inner\"\n" +
+"                                                                                style=\"font-size:1px;line-height:1px;border-top:1px solid #555961\">\n" +
+"                                                                                <span>&#8202;</span></td>\n" +
+"                                                                        </tr>\n" +
+"                                                                    </table>\n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                    <table class=\"paragraph_block block-4\" width=\"100%\" border=\"0\"\n" +
+"                                                        cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"\n" +
+"                                                        style=\"mso-table-lspace:0;mso-table-rspace:0;word-break:break-word\">\n" +
+"                                                        <tr>\n" +
+"                                                            <td class=\"pad\"\n" +
+"                                                                style=\"padding-bottom:30px;padding-left:40px;padding-right:40px;padding-top:20px\">\n" +
+"                                                                <div\n" +
+"                                                                    style=\"color:#555;font-family:Montserrat,Trebuchet MS,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Tahoma,sans-serif;font-size:12px;line-height:120%;text-align:center;mso-line-height-alt:14.399999999999999px\">\n" +
+"                                                                    <p style=\"margin:0;word-break:break-word\"><span\n" +
+"                                                                            style=\"color:#95979c;\">Copyright ©\n" +
+"                                                                            2021</span></p>\n" +
+"                                                                    \n" +
+"                                                                   \n" +
+"                                                                </div>\n" +
+"                                                            </td>\n" +
+"                                                        </tr>\n" +
+"                                                    </table>\n" +
+"                                                </td>\n" +
+"                                            </tr>\n" +
+"                                        </tbody>\n" +
+"                                    </table>\n" +
+"                                </td>\n" +
+"                            </tr>\n" +
+"                        </tbody>\n" +
+"                    </table>\n" +
+"                </td>\n" +
+"            </tr>\n" +
+"        </tbody>\n" +
+"    </table><!-- End -->\n" +
+"</body>\n" +
+"\n" +
+"</html>";
+        }
     }
 }
