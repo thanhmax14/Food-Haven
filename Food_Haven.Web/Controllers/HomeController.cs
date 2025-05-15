@@ -75,6 +75,7 @@ namespace Food_Haven.Web.Controllers
             _balance = balance;
             _order = order;
             _payos = payos;
+             
         }
 
         public IActionResult Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
