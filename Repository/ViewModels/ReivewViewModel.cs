@@ -4,15 +4,17 @@
     {
 
         public Guid ID { get; set; }
-        public string? Comment { get; set; }
-        public DateTime CommentDate { get; set; } = DateTime.Now;
+        public string? Cmt { get; set; }
+        public DateTime Datecmt { get; set; } = DateTime.Now;
 
-        public string? Reply { get; set; }
+        public string? Relay { get; set; }
 
 
-        public DateTime? ReplyDate { get; set; } = DateTime.Now;
+        public DateTime? DateRelay { get; set; } = DateTime.Now;
         //1 (true) → ẩn
         //0 (false) → hiện
+
+
         public bool Status { get; set; } = false;
         public int Rating { get; set; } = 5;
 

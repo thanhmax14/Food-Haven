@@ -154,6 +154,9 @@ namespace Food_Haven.Web.Controllers
             }
             else
             {
+
+
+
                 return Json(new { success = false, message = result.Errors.FirstOrDefault()?.Description ?? "Register Seller failed" });
 
             }

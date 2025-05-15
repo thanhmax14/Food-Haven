@@ -28,4 +28,8 @@
 	  <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="APIController\" />
+	</ItemGroup>
+
 </Project>
