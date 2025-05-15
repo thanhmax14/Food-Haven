@@ -183,9 +183,13 @@ namespace BusinessLogic.Services.StoreDetail
             return stores;
         }
 
-        //public Task<bool> UpdateStoreStatusAsync(Guid storeId, bool newStatus)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public async Task<bool> IsStoreActiveAsync(Guid storeId)
+        {
+            return await _repositorys.IsStoreActiveAsync(storeId);
+        }
+        public Models.StoreDetails GetStoreByUserId(string userId)
+        {
+            return _repositorys.GetStoreByUserId(userId);
+        }
     }
 }
