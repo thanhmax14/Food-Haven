@@ -243,6 +243,25 @@ namespace Repository.StoreDetails
                    ?? throw new Exception("Store not found");
         }
 
+        public async Task<bool> IsStoreActiveAsync(Guid storeId)
+        {
+            var store = await _context.StoreDetails.FindAsync(storeId);
+            return store?.IsActive ?? false;
+        }
+        public Models.StoreDetails GetStoreByUserId(string userId)
+        {
+            return _context.StoreDetails.FirstOrDefault(s => s.UserID == userId);
+        }
 
+        public async Task<bool> IsStoreActiveByUserIdAsync(string userId)
+        {
+            var store = await GetStoreByUserIdAsync(userId);
+            return store?.IsActive ?? false;
+        }
+
+        public async Task<Models.StoreDetails> GetStoreByUserIdAsync(string userId)
+        {
+            return await _context.StoreDetails.FirstOrDefaultAsync(s => s.UserID == userId);
+        }
     }
 }
