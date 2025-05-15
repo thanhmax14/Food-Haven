@@ -134,7 +134,7 @@ namespace Food_Haven.Web.Controllers
                 ViewBag.MinPrice = minPrice ?? 0;
                 ViewBag.MaxPrice = maxPrice ?? 2000;
                 ViewBag.FilterCount = filterCount;
-                ViewBag.ErrorMessage = "Đã xảy ra lỗi khi tải danh sách sản phẩm.";
+                ViewBag.ErrorMessage = "An error occurred while loading the product list.";
 
                 return View(new List<ProductsViewModel>());
             }
@@ -409,12 +409,12 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Lỗi trong ListProducts: {ex.Message}\n{ex.StackTrace}");
+                Console.WriteLine($"Error in ListProducts: {ex.Message}\n{ex.StackTrace}");
 
                 ViewBag.MinPrice = minPrice ?? 0;
                 ViewBag.MaxPrice = maxPrice ?? 2000;
                 ViewBag.FilterCount = filterCount;
-                ViewBag.ErrorMessage = "Đã xảy ra lỗi khi tải danh sách sản phẩm.";
+                ViewBag.ErrorMessage = "An error occurred while loading the product list.";
 
                 return View(new List<ProductsViewModel>());
             }
