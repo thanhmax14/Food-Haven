@@ -21,6 +21,13 @@ using System.Text.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Food_Haven.Web.Services;
+using BusinessLogic.Hash;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -97,24 +104,25 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password, bool? rememberMe, string ReturnUrl = null)
         {
+        
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Json(new { status = "error", msg = "Tên Người Dùng Không Được Để Trống" });
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                return Json(new { status = "error", msg = "Mật Khẩu Không Được Để Trống" });
+            }
             if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl) && ReturnUrl != Url.Action("Login", "Home")
-                && ReturnUrl != Url.Action("Register", "Home") && ReturnUrl != Url.Action("Forgot", "Home")
-                && ReturnUrl != Url.Action("ResetPassword", "Home")
-                )
+            && ReturnUrl != Url.Action("Register", "Home") && ReturnUrl != Url.Action("Forgot", "Home")
+            && ReturnUrl != Url.Action("ResetPassword", "Home")
+            )
             {
                 ViewData["ReturnUrl"] = ReturnUrl;
             }
             else
             {
                 ViewData["ReturnUrl"] = "/";
-            }
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                return BadRequest(new { status = "error", msg = "Tên Người Dùng Không Được Để Trống" });
-            }
-            if (string.IsNullOrEmpty(password))
-            {
-                return Json(new { status = "error", msg = "Mật Khẩu Không Được Để Trống" });
             }
             // Xử lý ReturnUrl tương tự GET
             try
@@ -166,9 +174,10 @@ namespace Food_Haven.Web.Controllers
                     return Ok(new
                     {
                         status = "success",
-                        msg = "Đăng nhập thành công"
+                        msg = "Đăng nhập thành công",
+                        redirectUrl = ReturnUrl
 
-                    });
+                    }) ;
                 }
             }
             catch (Exception e)
@@ -262,8 +271,17 @@ namespace Food_Haven.Web.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "User");
-                    return Json(new { status = "success", msg = "Đăng ký thành công." });
+                   var resultAddrole= await _userManager.AddToRoleAsync(user, "User");
+                    if (resultAddrole.Succeeded)
+                    {
+                        var token = EncryptData.Encrypt(await _userManager.GenerateEmailConfirmationTokenAsync(user), "Xinchao123@");
+                        var confirmationLink = Url.Action("Index", "Home", new { userId = Uri.EscapeDataString(EncryptData.Encrypt(user.Id, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
+                        await _emailSender.SendEmailAsync(user.Email, "Email Verification",
+                            $"{TemplateSendmail.TemplateVerifyLinkCode(model.Username,confirmationLink)}");
+
+                        return Json(new { status = "success", msg = "Đăng kí thành công vui lòng xác nhận email." });
+                    }
+                    return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng liên hệ quản trị." });
 
                 }
                 var firstResultError = result.Errors.FirstOrDefault()?.Description;
@@ -338,6 +356,129 @@ namespace Food_Haven.Web.Controllers
                 return View(new List<ProductsViewModel>());
             }
         }
+        public async Task<IActionResult> Logout()
+        {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var getUser = await this._userManager.FindByIdAsync(userId);
+                getUser.LastAccess = DateTime.Now;
+                await this._userManager.UpdateAsync(getUser);
+            }
+            await _signInManager.SignOutAsync();
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index");
+        }
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+                return Json(new { success = false, message = "Yêu cầu không hợp lệ." });
+           try
+            {
+                userId = EncryptData.Decrypt(Uri.UnescapeDataString(userId), "Xinchao123@");
+                token = EncryptData.Decrypt(Uri.UnescapeDataString(token), "Xinchao123@");
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Yêu cầu không hợp lệ." });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+                return Json(new { success = true, message = "Xác nhận email thành công!" });
+
+            return Json(new { success = false, message = "Liên kết đã hết hạn hoặc không hợp lệ." });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResendConfirmationEmail(string username)
+        {
+
+            try
+            {
+                var user = await _userManager.FindByNameAsync(username) ?? await _userManager.FindByEmailAsync(username);
+                if (user == null)
+                {
+                    return BadRequest(new { status = "error", msg = "Tài khoản không tồn tại." });
+                }
+                if (await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    return BadRequest(new { status = "error", msg = "Email đã được xác nhận." });
+                }
+                var token = EncryptData.Encrypt(await _userManager.GenerateEmailConfirmationTokenAsync(user), "Xinchao123@");
+                var confirmationLink = Url.Action("Index", "Home", new { userId = Uri.EscapeDataString(EncryptData.Encrypt(user.Id, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
+                await _emailSender.SendEmailAsync(user.Email, "Email Verification",
+                    $"{TemplateSendmail.TemplateVerifyLinkCode(user.UserName, confirmationLink)}");
+
+                return Json(new { status = "success", msg = "Một email xác nhận mới đã được gửi." });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+            }
+        }
+
+        [AllowAnonymous]
+        public IActionResult LoginWithProdider(string provider)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Home");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            if (provider == "Google")
+            {
+                return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+            }
+            else if (provider == "Microsoft")
+            {
+                return Challenge(properties, MicrosoftAccountDefaults.AuthenticationScheme);
+            }
+            return RedirectToAction("Login");
+        }
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                user = new AppUser
+                {
+                    UserName = email,
+                    Email = email
+                };
+
+                var createUserResult = await _userManager.CreateAsync(user);
+
+                if (!createUserResult.Succeeded)
+                {
+                    ModelState.AddModelError(string.Empty, "Error creating user.");
+                    return RedirectToAction("Login");
+                }
+                await _userManager.AddToRoleAsync(user, "user");
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: true);
+
+            return RedirectToAction("Index", "Home");
+        }
+
 
     }
+
+
 }

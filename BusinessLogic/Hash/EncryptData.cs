@@ -119,22 +119,74 @@ namespace BusinessLogic.Hash
         }
 
 
-/*
-        var originalData = "thanh";
+        /*
+                var originalData = "thanh";
 
-        // Chuyển object thành byte array
+                // Chuyển object thành byte array
 
-        var str = EncryptData.ObjectToByteArray(originalData);
-        Console.WriteLine($"Original: {originalData}");
+                var str = EncryptData.ObjectToByteArray(originalData);
+                Console.WriteLine($"Original: {originalData}");
 
 
-        var encryptedData = EncryptData.Encryption(str, "12345678");
-        Console.WriteLine($"Encrypted: {encryptedData}");
+                var encryptedData = EncryptData.Encryption(str, "12345678");
+                Console.WriteLine($"Encrypted: {encryptedData}");
 
-        // Giải mã
-        var decryptedBytes = EncryptData.Decryption(encryptedData, "12345678");
-        var decryptedData = EncryptData.ByteArrayToObject<string>(decryptedBytes);
-        Console.WriteLine($"Decrypted: {decryptedData}");*/
+                // Giải mã
+                var decryptedBytes = EncryptData.Decryption(encryptedData, "12345678");
+                var decryptedData = EncryptData.ByteArrayToObject<string>(decryptedBytes);
+                Console.WriteLine($"Decrypted: {decryptedData}");*/
+        public static string Encrypt(string plainText, string password)
+        {
+            // Tạo salt ngẫu nhiên
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
 
+            // Tạo key và IV từ password + salt
+            var key = new Rfc2898DeriveBytes(password, salt, 100_000); // 100.000 vòng lặp
+            using (var aes = Aes.Create())
+            {
+                aes.Key = key.GetBytes(32); // 256-bit key
+                aes.IV = key.GetBytes(16);  // 128-bit IV
+
+                using (var ms = new MemoryStream())
+                {
+                    ms.Write(salt, 0, salt.Length); // Ghi salt trước
+
+                    using (var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                    using (var sw = new StreamWriter(cs))
+                    {
+                        sw.Write(plainText);
+                    }
+
+                    return Convert.ToBase64String(ms.ToArray());
+                }
+            }
+        }
+        public static string Decrypt(string encryptedText, string password)
+        {
+            byte[] data = Convert.FromBase64String(encryptedText);
+
+            // Lấy salt từ 16 byte đầu
+            byte[] salt = new byte[16];
+            Array.Copy(data, 0, salt, 0, salt.Length);
+
+            var key = new Rfc2898DeriveBytes(password, salt, 100_000);
+
+            using (var aes = Aes.Create())
+            {
+                aes.Key = key.GetBytes(32);
+                aes.IV = key.GetBytes(16);
+
+                using (var ms = new MemoryStream(data, salt.Length, data.Length - salt.Length))
+                using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                using (var sr = new StreamReader(cs))
+                {
+                    return sr.ReadToEnd();
+                }
+            }
+        }
     }
 }
