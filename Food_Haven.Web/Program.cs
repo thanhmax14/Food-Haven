@@ -7,6 +7,7 @@ using Models;
 using Models.DBContext;
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
@@ -66,9 +67,58 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ReturnUrlParameter = "ReturnUrl";
     options.ExpireTimeSpan = TimeSpan.FromDays(14);
     options.SlidingExpiration = true;
+
 });
 
+//Add Authentication
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) 
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Home/Login";
+        options.LogoutPath = "/Home/Logout";
+        options.AccessDeniedPath = "/Error/404";
+        options.ReturnUrlParameter = "ReturnUrl";
+        options.ExpireTimeSpan = TimeSpan.FromDays(14);
+        options.SlidingExpiration = true;
+    })
+.AddGoogle(options =>
+{
+    options.ClientId = "175622117461-85t7echfkmokt7rbikpi3tggtjrhiuam.apps.googleusercontent.com";
+    options.ClientSecret = "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";
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Lưu thông tin đăng nhập qua Cookies
+    options.CallbackPath = "/signin-google";
+
+    // Hiển thị trang chọn tài khoản
+    options.Events.OnRedirectToAuthorizationEndpoint = context =>
+    {
+        context.Response.Redirect(context.RedirectUri + "&prompt=select_account");
+        return Task.CompletedTask;
+    };
+
+    // Xử lý lỗi khi xác thực
+    options.Events.OnRemoteFailure = u =>
+    {
+        u.Response.Redirect("/Home/Login");
+        u.HandleResponse();
+        return Task.CompletedTask;
+    };
+}).AddMicrosoftAccount(microsoftOptions =>
+{
+    microsoftOptions.ClientId = "847933ee-a194-47e0-abe4-321be2134cda";
+    microsoftOptions.ClientSecret = "hsW8Q~aF1aEGXwxetTMQ3AfXFv6yZQqSDf-fzaql";
+    microsoftOptions.CallbackPath = "/signin-microsoft";
+    microsoftOptions.Scope.Add("email");
+    microsoftOptions.Scope.Add("profile");
+    microsoftOptions.Scope.Add("openid");
+    microsoftOptions.SaveTokens = true;
+});
+
+// Thời gian hết hạn token xác nhận email
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromMinutes(10);
+});
 
 
 

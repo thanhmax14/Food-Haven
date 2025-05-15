@@ -36,5 +36,43 @@
         });
 
     </script> *@
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        const token = urlParams.get('token');
+
+        if (userId && token) {
+            $.ajax({
+                url: '/Home/ConfirmEmail',
+                type: 'GET',
+                data: {
+                    userId: userId,
+                    token: token
+                },
+                success: function (data) {
+                    Swal.fire({
+                        icon: data.success ? 'success' : 'error',
+                        title: data.success ? 'Thành công' : 'Thất bại',
+                        text: data.message
+                    }).then(() => {
+                        // Xóa tham số userId và token khỏi URL mà không reload trang
+                        const cleanUrl = window.location.origin + window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã xảy ra lỗi trong quá trình xác nhận.'
+                    }).then(() => {
+                        const cleanUrl = window.location.origin + window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    });
+                }
+            });
+        } 
+    </script>
 </body>
 </html>
