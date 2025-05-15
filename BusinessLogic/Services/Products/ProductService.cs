@@ -186,5 +186,9 @@ namespace BusinessLogic.Services.Products
         {
             return  _repositorys.GetProductsByCurrentUser(userId);
         }
+        public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
+        {
+            return await _repositorys.IsStoreActiveByProductIdAsync(productId);
+        }
     }
 }
