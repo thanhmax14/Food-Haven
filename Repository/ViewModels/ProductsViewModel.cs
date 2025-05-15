@@ -29,6 +29,7 @@ namespace Repository.ViewModels
 
       
         public Guid CateID { get; set; }
+        public Guid ProductTypeId { get; set; }
 
 
         public List<string> Img { get; set; } = new List<string>();

@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
-using Food_Haven.Web.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-using Models;
-using Models.DBContext;
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Models;
+using Models.DBContext;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
