@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@model List<Repository.ViewModels.wishlistViewModels>
+
+
+<!DOCTYPE html>
 <html class="no-js" lang="en">
 
 <head>
@@ -11,9 +14,10 @@
     <meta property="og:type" content="" />
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
+    <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
+    <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
-    <script src="https://cdn.jsdelivr.net/npm/cute-alert@0.0.3/dist/cute-alert.min.js"></script>
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- SweetAlert2 JS -->
@@ -210,137 +214,85 @@
         </div>
     </div>
     <!--End header-->
-    <main class="main pages">
+    <main class="main">
         <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
                     <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                    <span></span> Pages <span></span> My Account
+                    <span></span> Shop <span></span> Fillter
                 </div>
             </div>
         </div>
-        <div class="page-content pt-150 pb-150">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-8 col-lg-10 col-md-12 m-auto">
-                        <div class="row">
-                            <div class="col-lg-6 pr-30 d-none d-lg-block">
-                                <img class="border-radius-15" src="~/assets/imgs/page/login-1.png" alt="" />
-                            </div>
-                            <div class="col-lg-6 col-md-8">
-                                <div class="login_wrap widget-taber-content background-white">
-                                    <div class="padding_eight_all bg-white">
-                                        <div class="heading_s1">
-                                            <h1 class="mb-5">Login</h1>
-                                            <p class="mb-30">
-                                                Don't have an account? <a asp-controller="Home" asp-action="Register">
-                                                    Create
-                                                    here
-                                                </a>
-                                            </p>
-                                           
-                                        </div>
-                                        <div class="heading_s1">
-                                         
-                                            <p class="mb-30">
-                                                <button onclick="window.location.href='@Url.Action("LoginWithProdider", "Home", new { provider = "Google" })'"
-                                                        type="button"
-                                                        class="login-with-google-btn">
-                                                    Sign in with Google
-                                                </button>
-
-                                            </p>
-
-                                        </div>
-                                     
-                                        ﻿@{
-
-                                            string returnUrl = ViewData["ReturnUrl"]?.ToString() ?? "/";
-                                        }
-                                        <form>
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" id="ReturnUrl" value="@returnUrl" />
-                                            <div class="form-group">
-                                                <input type="text" id="username"
-                                                       placeholder="Username or Email *" />
-                                            </div>
-                                            <div class="form-group">
-                                                <input id="password" type="password" name="password"
-                                                       placeholder="Your password *" />
-                                            </div>
-                                        </form>
-                                           
-                                            <div class="login_footer form-group mb-50">
-                                                <div class="chek-form">
-                                                    <div class="custome-checkbox">
-                                                        <input class="form-check-input" type="checkbox" name="checkbox"
-                                                           id="remembers_me"  />
-                                                        <label class="form-check-label"
-                                                           for="remembers_me"><span>Remember me</span></label>
+        <div class="container mb-30 mt-50">
+            <div class="row">
+                <div class="col-xl-10 col-lg-12 m-auto">
+                    <div class="mb-50">
+                        <h1 class="heading-2 mb-10">Your Wishlist</h1>
+                        <h6 class="text-body">There are <span class="text-brand">@Model.Count()</span> products in this list</h6>
+                    </div>
+                    <div class="table-responsive shopping-summery">
+                        <table class="table table-wishlist">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th class="custome-checkbox start pl-30">
+                                        @* <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="" /> *@
+                                        <label>NO.</label>
+                                    </th>
+                                    <th scope="col" colspan="2">Product</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Stock Status</th>
+                                    <th scope="col">Action</th>
+                                    <th scope="col" class="end">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                        
+                                @if (Model.Any())
+                                {
+                                    var count = 0;
+                                    foreach(var item in Model)
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        count++;
+                                        <tr id="row-@item.ProductID">
+                                            <td class="custome-checkbox pl-30">
+                                                @* <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox2" value="" /> *@
+                                                <label>@count</label>
+                                            </td>
+                                            <td class="image product-thumbnail"><img src="@item.img" alt="#" /></td>
+                                            <td class="product-des product-name">
+                                                <h6><a class="product-name mb-10" href="shop-product-right.html">@item.name</a></h6>
+                                                <div class="product-rate-cover">
+                                                    <div class="product-rate d-inline-block">
+                                                        <div class="product-rating" style="width: @item.vote%"></div>
                                                     </div>
+                                                    <span class="font-small ml-5 text-muted"> (4.0)</span>
                                                 </div>
-                                            <a asp-controller ="Home" asp-action="Forgot">Forgot password?</a>
-                                            </div>
-                                            <div class="form-group">
-                                            <button type="button" id="btnLogin" class="btn btn-heading btn-block hover-up"
-                                                        name="login">
-                                                    Log in
-                                                </button>
-                                            </div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                            </td>
+                                            <td class="price" data-title="Price">
+                                                <h3 class="text-brand">$@item.price</h3>
+                                            </td>
+                                            <td class="text-center detail-info" data-title="Stock">
+                                                <span class="stock-status in-stock mb-0"> In Stock </span>
+                                            </td>
+                                            <td class="text-right" data-title="Cart">
+                                                <button class="btn btn-sm">Add to cart</button>
+                                            </td>
+                                            <td class="action text-center" data-title="Remove">
+                                                <a class="text-body" onclick="Remove('@item.ProductID')"><i class="fi-rs-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                               
+                              
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-    <style>
-        .login-with-google-btn {
-            transition: background-color .3s, box-shadow .3s;
-            padding: 12px 16px 12px 42px;
-            border: none;
-            border-radius: 3px;
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
-            color: #757575;
-            font-size: 14px;
-            font-weight: 500;
-            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
-            background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
-            background-color: white;
-            background-repeat: no-repeat;
-            background-position: 12px 11px;
-            &:hover
-
-        {
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
-        }
-
-        &:active {
-            background-color: #eeeeee;
-        }
-
-        &:focus {
-            outline: none;
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25), 0 0 0 3px #c8dafc;
-        }
-
-        &:disabled {
-            filter: grayscale(100%);
-            background-color: #ebebeb;
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
-            cursor: not-allowed;
-        }
-
-        }
-
-        body {
-            text-align: center;
-           
-        }
-    </style>
     <footer class="main">
         <section class="newsletter mb-15">
             <div class="container">
@@ -352,18 +304,13 @@
                                     Stay home & get your daily <br />
                                     needs from our shop
                                 </h2>
-                                <p class="mb-45">
-                                    Start You'r Daily Shopping with <span class="text-brand">
-                                        Nest
-                                        Mart
-                                    </span>
-                                </p>
+                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest Mart</span></p>
                                 <form class="form-subcriber d-flex">
                                     <input type="email" placeholder="Your emaill address" />
                                     <button class="btn" type="submit">Subscribe</button>
                                 </form>
                             </div>
-                            <img src="~/assets/imgs/banner/banner-13.png" alt="newsletter" />
+                            <img src="~/assets/imgs/banner/banner-9.png" alt="newsletter" />
                         </div>
                     </div>
                 </div>
@@ -447,32 +394,14 @@
                     <div class="col">
                         <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
                             <div class="logo mb-30">
-                                <a href="index.html" class="mb-15">
-                                    <img src="~/assets/imgs/theme/logo.svg"
-                                         alt="logo" />
-                                </a>
+                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
                                 <p class="font-lg text-heading">Awesome grocery store website template</p>
                             </div>
                             <ul class="contact-infor">
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>
-                                        Address:
-                                    </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>
-                                        Call
-                                        Us:
-                                    </strong><span>(+91) - 540-025-124553</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-email-2.svg"
-                                         alt="" /><strong>Email:</strong><span>sale@Nest.com</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-clock.svg"
-                                         alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span>
-                                </li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call Us:</strong><span>(+91) - 540-025-124553</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg" alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg" alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
                             </ul>
                         </div>
                     </div>
@@ -528,14 +457,8 @@
                         <h4 class="widget-title">Install App</h4>
                         <p class="wow fadeIn animated">From App Store or Google Play</p>
                         <div class="download-app">
-                            <a href="#" class="hover-up mb-sm-2 mb-lg-0">
-                                <img class="active"
-                                     src="~/assets/imgs/theme/app-store.jpg" alt="" />
-                            </a>
-                            <a href="#" class="hover-up mb-sm-2">
-                                <img src="~/assets/imgs/theme/google-play.jpg"
-                                     alt="" />
-                            </a>
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg" alt="" /></a>
                         </div>
                         <p class="mb-20">Secured Payment Gateways</p>
                         <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
@@ -549,10 +472,7 @@
                     <div class="footer-bottom"></div>
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
-                    <p class="font-sm mb-0">
-                        &copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
-                        Template <br />All rights reserved
-                    </p>
+                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce Template <br />All rights reserved</p>
                 </div>
                 <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
                     <div class="hotline d-lg-inline-flex mr-30">
@@ -615,191 +535,68 @@
 
 </html>
 
-<script type="text/javascript">
-    $("#btnLogin").on("click", function () {
-        $('#btnLogin').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...').prop('disabled', true);
-        var username = $("#username").val();
-        var password = $("#password").val();
-        var ReturnUrl = $("#ReturnUrl").val();
-        var rememberMe = $("#remembers_me").is(":checked");
-        var token = $("input[name='__RequestVerificationToken']").val();
-        $.ajax({
-            url: '@Url.Action("Login", "Home")',
-            method: "POST",
-            dataType: "JSON",
-            data: {
-                username: username,
-                password: password,
-                ReturnUrl: ReturnUrl,
-                rememberMe: rememberMe,
-                __RequestVerificationToken: token
-            },
-            success: function (response) {
-                if (response.status == 'success') {
-                    cuteToast({
-                        type: "success",
-                        message: response.msg,
-                        timer: 5000
-                    });
-                    setTimeout("location.href = '" + response.redirectUrl + "';", 100);
-                } else if (response.status == 'verify') {
-                    Swal.fire({
-                        title: "Nhập mã xác minh 2 bước",
-                        input: "text",
-                        inputAttributes: {
-                            autocapitalize: "off"
-                        },
-                        showCancelButton: true,
-                        confirmButtonText: "Xác nhận",
-                        showLoaderOnConfirm: true,
-                        preConfirm: async (otp) => {
-                            if (!otp) {
-                                Swal.showValidationMessage("Vui lòng nhập mã xác minh.");
-                            }
-                            return otp;
-                        },
-                        allowOutsideClick: () => !Swal.isLoading()
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            var otp = result.value;
+<script>
 
-                            $.ajax({
-                                url: '@Url.Action("VerifyTwoFactor", "Home")',
-                                method: "POST",
-                                dataType: "JSON",
-                                data: {
-                                    username: username,
-                                    otp: otp,
-                                    __RequestVerificationToken: token,
-                                    ReturnUrl: ReturnUrl,
+    function Remove(id) {
+        console.log("oke");
+        var icon = document.getElementById("row-" + id);
 
-                                },
-                                success: function (response) {
-                                    if (response.status == 'success') {
-                                     
-
-
-                                        new Notify({
-                                            status: 'success',
-                                            title: 'Thành công!',
-                                            text: response.msg || 'Gửi thành công!',
-                                            effect: 'fade',
-                                            speed: 300,
-                                            showIcon: true,
-                                            showCloseButton: true,
-                                            autoclose: true,
-                                            autotimeout: 3000,
-                                            position: 'right top'
-                                        });
-                                        setTimeout("location.href = '" + response.redirectUrl + "';", 100);
-                                    } else {
-                                        Swal.fire('Thất bại', response.msg, 'error');
-                                    }
-                                },
-                                error: function () {
-                                    new Notify({
-                                        status: 'error',
-                                        title: 'Thất Bại',
-                                        text: response.msg || 'Gửi thất bại!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                }
-                            });
-                        }
-                    });
-                } else if (response.status == 'comfirm') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Account Not Verified',
-                        text: "Your account has not been verified yet. Please check your email to confirm your registration.",
-                        footer: '<a href="#" onclick="resendVerificationEmail()" style="text-decoration: underline;">Click here to resend the verification email</a>',
-                    }).then((result) => {
-
-                    });
-                } else {
-                    Swal.fire(
-                        'Thất bại',
-                        response.msg,
-                        'error'
-                    );
-                }
-                $('#btnLogin').html('Đăng Nhập').prop('disabled', false);
-            },
-            error: function () {
-                cuteToast({
-                    type: "error",
-                    message: 'Không thể xử lý',
-                    timer: 5000
-                });
-                $('#btnLogin').html('Đăng Nhập').prop('disabled', false);
-            }
-        });
-    });
-
-    function resendVerificationEmail() {
-        var username = $("#username").val();
-        var token = $("input[name='__RequestVerificationToken']").val();
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Do you want to resend the verification email?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Show loading alert with timer and progress bar
-                let timerInterval;
-                Swal.fire({
-                    title: "Sending Email...",
-                    html: "Please wait, we are resending the email. <b></b> milliseconds remaining.",
-                    timer: 4000, // Adjust the timer value as needed
-                    timerProgressBar: true,
-                    didOpen: () => {
-                        Swal.showLoading();
-                        const timer = Swal.getPopup().querySelector("b");
-                        timerInterval = setInterval(() => {
-                            timer.textContent = `${Swal.getTimerLeft()}`;
-                        }, 100);
-                    },
-                    willClose: () => {
-                        clearInterval(timerInterval);
-                    }
-                }).then((result) => {
-                    // AJAX call to resend the verification email
+        if (true) {
+            Swal.fire({
+                title: "Bạn có chắc chắn?",
+                text: "Bạn muốn xóa khỏi danh sách yêu thích?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Có, xóa!",
+                cancelButtonText: "Hủy"
+            }).then((result) => {
+                if (result.isConfirmed) {
                     $.ajax({
-                        url: '/Home/ResendConfirmationEmail', 
-                        type: 'POST',
-                        data: {
-                            username: username,
-                            __RequestVerificationToken: token
+                        url: "/Home/RemoveWish",
+                        type: "POST",
+                        data: { id: id },
+                        headers: {
+                            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
                         },
                         success: function (response) {
-                            Swal.fire({
-                                icon: "info",
-                                title: "Verification Email Resent",
-                                text: "A new verification email has been sent to your inbox. Please check your email.",
-                            });
-
+                            if (response.success) {
+                                new Notify({
+                                    status: 'success',
+                                    title: 'Thành công!',
+                                    text: response.message || 'Gửi thành công!',
+                                    effect: 'fade',
+                                    speed: 300,
+                                    showIcon: true,
+                                    showCloseButton: true,
+                                    autoclose: true,
+                                    autotimeout: 3000,
+                                    position: 'right top'
+                                });
+                                icon.remove();
+                            } else if (response.notAuth) {
+                                Swal.fire('Thất bại', response.message, 'error');
+                            } else {
+                                Swal.fire('Thất bại', response.message, 'error');
+                            }
                         },
                         error: function () {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error",
-                                text: "There was an issue resending the email. Please try again later.",
+                            new Notify({
+                                status: 'error',
+                                title: 'Thất Bại',
+                                text: response.message || 'Gửi thất bại!',
+                                effect: 'fade',
+                                speed: 300,
+                                showIcon: true,
+                                showCloseButton: true,
+                                autoclose: true,
+                                autotimeout: 3000,
+                                position: 'right top'
                             });
                         }
                     });
-                });
-            }
-        });
-    }
+                }
+            });
+        }
 
+    }
 </script>

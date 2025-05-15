@@ -304,7 +304,7 @@
                                             </a>
                                         </li>*@
                                         <li class="nav-item">
-                                            <a class="nav-link" href="page-login.html">
+                                            <a class="nav-link" href="/home/logout">
                                                 <i class="fi-rs-sign-out mr-10"></i>Logout
                                             </a>
                                         </li>
@@ -327,7 +327,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-pane fade show active" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                                    <div class="tab-pane fade show" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                                         <div class="card">
                                             <div class="card-header">
                                                 <h3 class="mb-0">Your Orders</h3>
@@ -1803,19 +1803,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
 
                 } else {
-                    Swal.fire(
-                        'Thất bại',
-                        response.msg,
-                        'error'
-                    );
+                    new Notify({
+                        status: 'error',
+                        title: 'Thất Bại',
+                        text: response.msg || 'Gửi thất bại!',
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top'
+                    });
                 }
                 $('#btnDeposit').html('Add Payment').prop('disabled', false);
             },
             error: function () {
-                cuteToast({
-                    type: "error",
-                    message: 'Không thể xử lý',
-                    timer: 5000
+                new Notify({
+                    status: 'error',
+                    title: 'Thất Bại',
+                    text: response.msg || 'Gửi thất bại!',
+                    effect: 'fade',
+                    speed: 300,
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    position: 'right top'
                 });
                 $('#btnDeposit').html('Add Payment').prop('disabled', false);
             }
