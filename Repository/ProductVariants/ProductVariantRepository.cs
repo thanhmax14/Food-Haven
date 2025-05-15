@@ -103,5 +103,22 @@ namespace Repository.ProductVariants
             _context.SaveChanges();
             return true;
         }
+
+        public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
+        {
+            return await _context.Products
+                .Where(v => v.ID == productId)
+                .Select(v => v.StoreDetails.IsActive)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<bool?> IsStoreActiveByVariantIdAsync(Guid variantId)
+        {
+            var productVariant = await _context.ProductTypes
+                .Include(pv => pv.Product) // Đảm bảo có thông tin Product
+                .ThenInclude(p => p.StoreDetails) // Lấy thông tin Store từ Product
+                .FirstOrDefaultAsync(pv => pv.ID == variantId);
+
+            return productVariant?.Product?.StoreDetails?.IsActive;
+        }
     }
 }
