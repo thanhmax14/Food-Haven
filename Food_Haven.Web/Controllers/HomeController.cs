@@ -814,8 +814,93 @@ namespace Food_Haven.Web.Controllers
 
             return View(viewModel);
         }
+        [HttpGet]
+        public IActionResult Forgot()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Forgot(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return Json(new { status = "error", msg = "Email không hợp lệ" });
+            }
+            try
+            {
 
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return Json(new { status = "error", msg = "Email không tồn tại trong hệ thống." });
+                }
+                var token = EncryptData.Encrypt(await _userManager.GeneratePasswordResetTokenAsync(user), "Xinchao123@");
+                var confirmationLink = Url.Action("ResetPassword", "Home", new { email = Uri.EscapeDataString(EncryptData.Encrypt(user.Email, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
+                await _emailSender.SendEmailAsync(user.Email, "Request forgot password",
+                    $"{TemplateSendmail.TemplateResetPassword(confirmationLink)}");
+                return Json(new { status = "success", msg = "Đăng kí thành công vui lòng xác nhận email." });
 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            if (token == null || email == null)
+            {
+                return BadRequest("Invalid request");
+            }
+
+            return View(new ResetPasswordViewModel { Token = token, Email = email });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                if (ModelState.ContainsKey("Password") && ModelState["Password"].Errors.Any())
+                {
+                    return Json(new { status = "error", msg = "" + ModelState["Password"].Errors[0].ErrorMessage });
+                }
+
+                if (ModelState.ContainsKey("ConfirmPassword") && ModelState["ConfirmPassword"].Errors.Any())
+                {
+                    return Json(new { status = "error", msg = "" + ModelState["ConfirmPassword"].Errors[0].ErrorMessage });
+                }
+            }
+            
+            var user = await _userManager.FindByEmailAsync(EncryptData.Decrypt(Uri.UnescapeDataString(model.Email), "Xinchao123@"));
+            if (user == null)
+            {
+                return Json(new { status = "error", msg = "Email không tồn tại trong hệ thống." });
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, EncryptData.Decrypt(Uri.UnescapeDataString(model.Token), "Xinchao123@"), model.Password);
+            if (result.Succeeded)
+            {
+                return Json(new { status = "success", msg = "Mật khẩu đã được thay đổi thành công." });
+            }
+
+            var firstResultError = result.Errors.FirstOrDefault()?.Description;
+            if (firstResultError == "Invalid token.")
+            {
+                firstResultError = "Link cập nhật mật khẩu đã hết hạn!!";
+            }
+
+            return Json(new { status = "error", msg = firstResultError ?? "Cập nhật mật khẩu thất bại." });
+
+        }   
     }
 
 
