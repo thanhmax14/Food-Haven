@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
-<<<<<<< Updated upstream
 using Microsoft.AspNetCore.Authentication.Cookies;
-=======
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
->>>>>>> Stashed changes
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
