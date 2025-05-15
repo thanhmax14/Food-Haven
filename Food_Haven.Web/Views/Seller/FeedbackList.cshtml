@@ -5,7 +5,6 @@
     data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
-<!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 <head>
 
@@ -242,7 +241,7 @@
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a  href="feedbackList.html">Tables</a></li>
+                                    <li class="breadcrumb-item">Tables</li>
                                     <li class="breadcrumb-item active">Feedback List</li>
                                     @* <a class="dropdown-item" target="_blank" asp-controller="Seller" asp-action="ReplyFeedback" asp-route-id="@Model." *@
                                     @*    role="tab" aria-controls="address" aria-selected="true"> *@
@@ -398,8 +397,8 @@
 
                                             new Notify({
                                                 status: 'success',
-                                                title: 'Thành công!',
-                                                text: response.msg || 'Gửi thành công!',
+                                                title: 'Success!',
+                                                text: response.msg || 'Send successfully!',
                                                 effect: 'fade',
                                                 speed: 300,
                                                 showIcon: true,
@@ -414,8 +413,8 @@
                                         } else {
                                             new Notify({
                                                 status: 'error',
-                                                title: 'Thất Bại',
-                                                text: response.msg || 'Gửi thất bại!',
+                                                title: 'Failure',
+                                                text: response.msg || 'Send failed!',
                                                 effect: 'fade',
                                                 speed: 300,
                                                 showIcon: true,
@@ -429,8 +428,8 @@
                                     error: function () {
                                         new Notify({
                                             status: 'error',
-                                            title: 'Thất Bại',
-                                            text: 'Gửi thất bại!',
+                                            title: 'Failure',
+                                            text: 'Send failed!',
                                             effect: 'fade',
                                             speed: 300,
                                             showIcon: true,
@@ -463,8 +462,8 @@
                                         if (response.success) {
                                             new Notify({
                                                 status: 'success',
-                                                title: 'Thành công!',
-                                                text: response.msg || 'Gửi thành công!',
+                                                title: 'Success!',
+                                                text: response.msg || 'Send successfully!',
                                                 effect: 'fade',
                                                 speed: 300,
                                                 showIcon: true,
@@ -479,8 +478,8 @@
                                         } else {
                                             new Notify({
                                                 status: 'error',
-                                                title: 'Thất Bại',
-                                                text: response.msg || 'Gửi thất bại!',
+                                                title: 'Failure',
+                                                text: response.msg || 'Send failed!',
                                                 effect: 'fade',
                                                 speed: 300,
                                                 showIcon: true,
@@ -494,8 +493,8 @@
                                     error: function () {
                                         new Notify({
                                             status: 'error',
-                                            title: 'Thất Bại',
-                                            text: 'Gửi thất bại!',
+                                            title: 'Failure',
+                                            text: 'Send failed!',
                                             effect: 'fade',
                                             speed: 300,
                                             showIcon: true,
@@ -590,6 +589,6 @@
 </body>
 
 
-<!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+
 
 </html>
