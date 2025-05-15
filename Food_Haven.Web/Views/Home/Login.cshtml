@@ -676,20 +676,10 @@
                                 },
                                 success: function (response) {
                                     if (response.status == 'success') {
-                                     
-
-
-                                        new Notify({
-                                            status: 'success',
-                                            title: 'Thành công!',
-                                            text: response.msg || 'Gửi thành công!',
-                                            effect: 'fade',
-                                            speed: 300,
-                                            showIcon: true,
-                                            showCloseButton: true,
-                                            autoclose: true,
-                                            autotimeout: 3000,
-                                            position: 'right top'
+                                        cuteToast({
+                                            type: "success",
+                                            message: response.msg,
+                                            timer: 5000
                                         });
                                         setTimeout("location.href = '" + response.redirectUrl + "';", 100);
                                     } else {
@@ -697,17 +687,10 @@
                                     }
                                 },
                                 error: function () {
-                                    new Notify({
-                                        status: 'error',
-                                        title: 'Thất Bại',
-                                        text: response.msg || 'Gửi thất bại!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
+                                    cuteToast({
+                                        type: "error",
+                                        message: 'Không thể xử lý',
+                                        timer: 5000
                                     });
                                 }
                             });

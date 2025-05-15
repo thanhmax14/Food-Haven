@@ -452,11 +452,7 @@
                                             </a>
                                         </div>
                                         <div class="product-action-1">
-
-                                            <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@item.ID')">
-                                                <i class="fi-rs-heart"></i>
-                                            </a>
-
+                                            <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist('@item.ID')"><i id="iconsave" class="fi-rs-heart"></i></a>
                                             <a aria-label="Compare" class="action-btn" href="">
                                                 <i class="fi-rs-shuffle"></i>
                                             </a>
@@ -2197,93 +2193,9 @@
                 }
             });
         }
-
-
-        function AddWishlist(el, id) {
-            var icon = el.querySelector("i");
-            const actionBtn = el;
-
-            if (icon.classList.contains("text-danger")) {
-                Swal.fire({
-                    title: "Bạn có chắc chắn?",
-                    text: "Bạn muốn xóa khỏi danh sách yêu thích?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Có, xóa!",
-                    cancelButtonText: "Hủy"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "/Home/RemoveWish",
-                            type: "POST",
-                            data: { id: id },
-                            headers: {
-                                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Thành công!',
-                                        text: response.message || 'Gửi thành công!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    icon.classList.remove("text-danger");
-                                    actionBtn.setAttribute("aria-label", "Add To Wishlist");
-                                } else {
-                                    Swal.fire('Thất bại', response.message, 'error');
-                                }
-                            },
-                            error: function () {
-                                alert("Lỗi xảy ra khi xóa khỏi wishlist.");
-                            }
-                        });
-                    }
-                });
-            } else {
-                $.ajax({
-                    url: "/Home/AddWish",
-                    type: "POST",
-                    data: { id: id },
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        if (response.success) {             
-                            new Notify({
-                                status: 'success',
-                                title: 'Thành công!',
-                                text: response.message || 'Gửi thành công!',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
-
-                            icon.classList.add("text-danger");
-                            actionBtn.setAttribute("aria-label", "Remove wishlist");
-                        } else {
-                            Swal.fire('Thất bại', response.message, 'error');
-                        }
-                    },
-                    error: function () {
-                        alert("Lỗi xảy ra khi thêm vào wishlist.");
-                    }
-                });
-            }
-        }
-
-
     </script>
+
+
 
 
 
@@ -2316,4 +2228,3 @@
 </body>
 
 </html>
-
