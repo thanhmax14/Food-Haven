@@ -8,13 +8,10 @@ namespace Repository.ViewModels
 {
     public class CartViewModels
     {
-        public Guid CartID { get; set; }
         public Guid ProductID { get; set; }
-        public Guid ProductTypeID { get; set; }
         public int quantity { get; set; } = 0;
         public string? img { get; set; }
         public string? ProductName { get; set; }
-        public string? ProductTyName { get; set; }
         public float vote { get; set; }
         public decimal price { get; set; } = 0;
         public decimal Subtotal { get; set; }

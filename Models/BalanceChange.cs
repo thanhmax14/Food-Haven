@@ -1,12 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Models
 {
     public class BalanceChange
     {
         [Key]
-        public Guid ID { get; set; } = Guid.NewGuid();
+        public Guid ID { get; set; }=Guid.NewGuid();
         public decimal MoneyBeforeChange { get; set; } = 0;
         public decimal MoneyChange { get; set; } = 0;
         public decimal MoneyAfterChange { get; set; } = 0;

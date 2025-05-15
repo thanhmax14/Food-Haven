@@ -134,7 +134,7 @@ namespace Food_Haven.Web.Controllers
                 ViewBag.MinPrice = minPrice ?? 0;
                 ViewBag.MaxPrice = maxPrice ?? 2000;
                 ViewBag.FilterCount = filterCount;
-                ViewBag.ErrorMessage = "An error occurred while loading the product list.";
+                ViewBag.ErrorMessage = "Đã xảy ra lỗi khi tải danh sách sản phẩm.";
 
                 return View(new List<ProductsViewModel>());
             }
@@ -167,7 +167,7 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password, bool? rememberMe, string ReturnUrl = null)
         {
-
+        
             if (string.IsNullOrWhiteSpace(username))
             {
                 return Json(new { status = "error", msg = "Tên Người Dùng Không Được Để Trống" });
@@ -240,7 +240,7 @@ namespace Food_Haven.Web.Controllers
                         msg = "Đăng nhập thành công",
                         redirectUrl = ReturnUrl
 
-                    });
+                    }) ;
                 }
             }
             catch (Exception e)
@@ -334,13 +334,13 @@ namespace Food_Haven.Web.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    var resultAddrole = await _userManager.AddToRoleAsync(user, "User");
+                   var resultAddrole= await _userManager.AddToRoleAsync(user, "User");
                     if (resultAddrole.Succeeded)
                     {
                         var token = EncryptData.Encrypt(await _userManager.GenerateEmailConfirmationTokenAsync(user), "Xinchao123@");
                         var confirmationLink = Url.Action("Index", "Home", new { userId = Uri.EscapeDataString(EncryptData.Encrypt(user.Id, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
                         await _emailSender.SendEmailAsync(user.Email, "Email Verification",
-                            $"{TemplateSendmail.TemplateVerifyLinkCode(model.Username, confirmationLink)}");
+                            $"{TemplateSendmail.TemplateVerifyLinkCode(model.Username,confirmationLink)}");
 
                         return Json(new { status = "success", msg = "Đăng kí thành công vui lòng xác nhận email." });
                     }
@@ -409,12 +409,12 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in ListProducts: {ex.Message}\n{ex.StackTrace}");
+                Console.WriteLine($"Lỗi trong ListProducts: {ex.Message}\n{ex.StackTrace}");
 
                 ViewBag.MinPrice = minPrice ?? 0;
                 ViewBag.MaxPrice = maxPrice ?? 2000;
                 ViewBag.FilterCount = filterCount;
-                ViewBag.ErrorMessage = "An error occurred while loading the product list.";
+                ViewBag.ErrorMessage = "Đã xảy ra lỗi khi tải danh sách sản phẩm.";
 
                 return View(new List<ProductsViewModel>());
             }
@@ -438,7 +438,7 @@ namespace Food_Haven.Web.Controllers
         {
             if (userId == null || token == null)
                 return Json(new { success = false, message = "Yêu cầu không hợp lệ." });
-            try
+           try
             {
                 userId = EncryptData.Decrypt(Uri.UnescapeDataString(userId), "Xinchao123@");
                 token = EncryptData.Decrypt(Uri.UnescapeDataString(token), "Xinchao123@");
@@ -541,101 +541,101 @@ namespace Food_Haven.Web.Controllers
         }
 
 
+      
 
-
-        public async Task<IActionResult> GetAllCategory(string searchName)
-        {
-            var list = new List<CategoryViewModel>();
-            try
+            public async Task<IActionResult> GetAllCategory(string searchName)
             {
-                IEnumerable<Categories> categories;
+                var list = new List<CategoryViewModel>();
+                try
+                {
+                    IEnumerable<Categories> categories;
 
-                if (!string.IsNullOrEmpty(searchName))
-                {
-                    categories = await _categoryService.ListAsync(
-                        u => u.Name.ToLower().Contains(searchName.ToLower()),
-                        orderBy: x => x.OrderByDescending(s => s.CreatedDate)
-                    );
-                }
-                else
-                {
-                    categories = await _categoryService.ListAsync(
-                        orderBy: x => x.OrderByDescending(c => c.CreatedDate)
-                    );
-                }
-
-                foreach (var item in categories)
-                {
-                    list.Add(new CategoryViewModel
+                    if (!string.IsNullOrEmpty(searchName))
                     {
-                        ID = item.ID,
-                        Name = item.Name,
-                        CreatedDate = item.CreatedDate,
-                        Commission = item.Commission,
-                        Img = item.ImageUrl,
-                        ModifiedDate = item.ModifiedDate,
-
-                    });
-                }
-
-                return View(list);
-            }
-            catch (Exception)
-            {
-                return View(list);
-            }
-        }
-
-
-
-        public async Task<IActionResult> GetAllStore(string searchName)
-        {
-            var list = new List<StoreViewModel>();
-
-            try
-            {
-                IEnumerable<StoreDetails> stores;
-
-                if (!string.IsNullOrEmpty(searchName))
-                {
-                    stores = await _storeDetailService.ListAsync(
-                        s => s.IsActive && s.Name.ToLower().Contains(searchName.ToLower()),
-                        orderBy: x => x.OrderByDescending(s => s.CreatedDate)
-                    );
-                }
-                else
-                {
-                    stores = await _storeDetailService.ListAsync(
-                        s => s.IsActive,
-                        orderBy: x => x.OrderByDescending(s => s.CreatedDate)
-                    );
-                }
-
-                foreach (var item in stores)
-                {
-                    list.Add(new StoreViewModel
+                        categories = await _categoryService.ListAsync(
+                            u => u.Name.ToLower().Contains(searchName.ToLower()),
+                            orderBy: x => x.OrderByDescending(s => s.CreatedDate)
+                        );
+                    }
+                    else
                     {
-                        ID = item.ID,
-                        Name = item.Name,
-                        Address = item.Address,
-                        Phone = item.Phone,
-                        Img = item.ImageUrl,
-                        CreatedDate = item.CreatedDate,
-                        ModifiedDate = item.ModifiedDate,
-                        ShortDescriptions = item.ShortDescriptions,
-                        LongDescriptions = item.LongDescriptions,
-                        IsActive = item.IsActive,
-                        Status = item.Status
-                    });
-                }
+                        categories = await _categoryService.ListAsync(
+                            orderBy: x => x.OrderByDescending(c => c.CreatedDate)
+                        );
+                    }
 
-                return View(list);
+                    foreach (var item in categories)
+                    {
+                        list.Add(new CategoryViewModel
+                        {
+                            ID = item.ID,
+                            Name = item.Name,
+                            CreatedDate = item.CreatedDate,
+                            Commission = item.Commission,
+                            Img = item.ImageUrl,
+                            ModifiedDate = item.ModifiedDate,
+                            
+                        });
+                    }
+
+                    return View(list);
+                }
+                catch (Exception)
+                {
+                    return View(list);
+                }
             }
-            catch (Exception)
+
+      
+
+            public async Task<IActionResult> GetAllStore(string searchName)
             {
-                return View(list); // Trả về view rỗng nếu lỗi
+                var list = new List<StoreViewModel>();
+
+                try
+                {
+                    IEnumerable<StoreDetails> stores;
+
+                    if (!string.IsNullOrEmpty(searchName))
+                    {
+                        stores = await _storeDetailService.ListAsync(
+                            s => s.IsActive && s.Name.ToLower().Contains(searchName.ToLower()),
+                            orderBy: x => x.OrderByDescending(s => s.CreatedDate)
+                        );
+                    }
+                    else
+                    {
+                        stores = await _storeDetailService.ListAsync(
+                            s => s.IsActive,
+                            orderBy: x => x.OrderByDescending(s => s.CreatedDate)
+                        );
+                    }
+
+                    foreach (var item in stores)
+                    {
+                        list.Add(new StoreViewModel
+                        {
+                            ID = item.ID,
+                            Name = item.Name,
+                            Address = item.Address,
+                            Phone = item.Phone,
+                            Img = item.ImageUrl,
+                            CreatedDate = item.CreatedDate,
+                            ModifiedDate = item.ModifiedDate,
+                            ShortDescriptions = item.ShortDescriptions,
+                            LongDescriptions = item.LongDescriptions,
+                            IsActive = item.IsActive,
+                            Status = item.Status
+                        });
+                    }
+
+                    return View(list);
+                }
+                catch (Exception)
+                {
+                    return View(list); // Trả về view rỗng nếu lỗi
+                }
             }
-        }
 
         public async Task<IActionResult> GetStoreDetail(Guid id)
         {
@@ -767,7 +767,7 @@ namespace Food_Haven.Web.Controllers
             {
                 ID = category.ID,
                 Name = category.Name,
-
+               
                 Commission = category.Commission,
                 CreatedDate = category.CreatedDate,
                 ModifiedDate = category.ModifiedDate,
@@ -814,8 +814,6 @@ namespace Food_Haven.Web.Controllers
 
             return View(viewModel);
         }
-
-
         [HttpGet]
         public IActionResult Forgot()
         {
@@ -881,7 +879,7 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { status = "error", msg = "" + ModelState["ConfirmPassword"].Errors[0].ErrorMessage });
                 }
             }
-
+            
             var user = await _userManager.FindByEmailAsync(EncryptData.Decrypt(Uri.UnescapeDataString(model.Email), "Xinchao123@"));
             if (user == null)
             {
@@ -904,105 +902,14 @@ namespace Food_Haven.Web.Controllers
 
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
         public async Task<IActionResult> AddWish(Guid id)
-
-        public async Task<IActionResult> Cart()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return RedirectToAction("Login", "Home");
-            }
-
-            // Lấy danh sách giỏ hàng theo User
-            var carts = await _cart.ListAsync(x => x.UserID == user.Id);
-
-            // Lấy tất cả biến thể sản phẩm (chỉ lấy active)
-            var productVariantIds = carts.Select(c => c.ProductTypesID).ToList();
-            var productVariants = await _productvarian.ListAsync(v => productVariantIds.Contains(v.ID) && v.IsActive);
-
-            // Lấy danh sách ProductID từ các biến thể để truy vấn sản phẩm
-            var productIds = productVariants.Select(v => v.ProductID).Distinct().ToList();
-            var products = await _product.ListAsync(p => productIds.Contains(p.ID));
-
-            var result = new List<CartViewModels>();
-
-            foreach (var cart in carts)
-            {
-                // Tìm biến thể từ giỏ hàng
-                var variant = productVariants.FirstOrDefault(v => v.ID == cart.ProductTypesID);
-                if (variant == null)
-                {
-                    continue; // Không có biến thể hợp lệ
-                }
-
-                // Tìm sản phẩm từ biến thể
-                var product = products.FirstOrDefault(p => p.ID == variant.ProductID);
-                if (product == null)
-                {
-                    continue; // Không có sản phẩm tương ứng
-                }
-
-                // Lấy ảnh sản phẩm
-                var productImg = await _productimg.FindAsync(x => x.ProductID == product.ID);
-
-                // Tạo view model cho giỏ hàng
-                var cartItem = new CartViewModels
-                {
-                    ProductTypeID = cart.ProductTypesID,
-                    CartID = cart.ID,
-                    ProductID = cart.ProductTypesID,
-                    ProductName = product.Name ?? "Không có tên",
-                    quantity = cart.Quantity,
-                    price = variant.SellPrice,
-                    Subtotal = cart.Quantity * variant.SellPrice,
-                    img = productImg?.ImageUrl ?? "/images/default.jpg",
-                    Stock = variant.Stock,
-                    ProductTyName = variant.Name,
-                };
-
-                result.Add(cartItem);
-            }
-
-            return View(result);
-        }
-        [HttpPost]
-        public async Task<IActionResult> DeleteCart([FromBody] CartViewModels obj)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Home");
-            }
-            try
-            {
-                var cartItem = await _cart.FindAsync(z => z.ID == obj.CartID && z.UserID == user.Id);
-                if (cartItem == null)
-                {
-                    return BadRequest(new { success = false, message = "Product not found in the cart." });
-                }
-
-                await _cart.DeleteAsync(cartItem);
-                await _cart.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Product deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "An error occurred while deleting the product.", error = ex.Message });
-            }
-        }
-        [HttpPost]
-        public async Task<IActionResult> AddToCart([FromBody] CartViewModels obj)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-
                 return Json(new { notAuth = true, message = "Bạn phải đăng nhập thể thực hiện hành động này!" });
             }
             var check = await this._product.FindAsync(x => x.ID == id);
@@ -1123,190 +1030,16 @@ namespace Food_Haven.Web.Controllers
         }
         [HttpPost]
         public async Task<IActionResult> GetBalance()
-
-                return Json(new { success = false, message = "You are not logged in." });
-            }
-            var product = await _product.FindAsync(x => x.ID == obj.ProductID);
-            // 🔍 Check if the product variant exists
-            var productVariant = await _productvarian.FindAsync(x => x.ProductID == product.ID);
-            if (productVariant == null)
-            {
-                return Json(new { success = false, message = "Product does not exist!" });
-            }
-
-            // 🔥 Check stock quantity
-            if (obj.quantity > productVariant.Stock)
-            {
-                return Json(new { success = false, message = $"Quantity exceeds stock! Only {productVariant.Stock} items left." });
-            }
-
-            // 🔍 Check if cart item already exists
-            var existingCartItem = await _cart.FindAsync(x => x.UserID == user.Id && x.ProductTypesID == productVariant.ID);
-            int currentQuantity = existingCartItem?.Quantity ?? 0;
-            int newTotalQuantity = currentQuantity + obj.quantity;
-
-            if (newTotalQuantity > productVariant.Stock)
-            {
-                return Json(new { success = false, message = $"Quantity exceeds stock! Only {productVariant.Stock} items available." });
-            }
-
-            if (existingCartItem != null)
-            {
-                existingCartItem.Quantity += obj.quantity;
-                await _cart.UpdateAsync(existingCartItem);
-            }
-            else
-            {
-                var newCart = new Cart
-                {
-                    ID = Guid.NewGuid(),
-                    CreatedDate = DateTime.Now,
-                    UserID = user.Id,
-                    ProductTypesID = productVariant.ID,
-                    Quantity = obj.quantity
-                };
-                await _cart.AddAsync(newCart);
-            }
-            await _cart.SaveChangesAsync();
-
-            return Json(new { success = true, message = "Added to cart successfully!" });
-        }
-        [HttpPost]
-        public async Task<IActionResult> CheckQuantity([FromBody] CartViewModels obj)
-        {
-            // Kiểm tra người dùng đăng nhập
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized(new { message = "Vui lòng đăng nhập để thực hiện thao tác này." });
-            }
-
-            // 🔍 Tìm ProductVarian theo ProductTypeID
-            var productVarian = await _productvarian.FindAsync(x => x.ID == obj.ProductTypeID);
-            if (productVarian == null)
-            {
-                return NotFound(new { message = "Loại sản phẩm không tồn tại." });
-            }
-
-            // 🔍 Lấy Product dựa trên ProductID từ ProductVarian
-            var product = await _product.FindAsync(x => x.ID == productVarian.ProductID);
-            if (product == null)
-            {
-                return NotFound(new { message = "Sản phẩm không tồn tại." });
-            }
-
-            // 🔍 Tìm cart item theo ProductTypeID và UserID
-            var cartItem = await _cart.FindAsync(x => x.ProductTypesID == obj.ProductTypeID && x.UserID == user.Id);
-            if (cartItem == null)
-            {
-                return NotFound(new { message = "Không tìm thấy sản phẩm trong giỏ hàng." });
-            }
-
-            int currentQuantity = cartItem.Quantity;
-
-            // 🚨 Kiểm tra tồn kho khi tăng số lượng
-            if (obj.quantity > currentQuantity && obj.quantity > productVarian.Stock)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = $"Số lượng vượt quá tồn kho. Chỉ còn {productVarian.Stock} sản phẩm.",
-                    isMaxStock = true
-                });
-            }
-
-            // ✅ Cập nhật số lượng trong giỏ hàng
-            cartItem.Quantity = obj.quantity;
-            await _cart.UpdateAsync(cartItem);
-            await _cart.SaveChangesAsync();
-
-            // ✅ Trả về Product.ID cùng với kết quả
-            return Ok(new
-            {
-                success = true,
-                message = "Cập nhật số lượng thành công.",
-                productId = product.ID // Trả về Product.ID (ví dụ: 14ac68f0-85a7-45d1-83bb-3d8d2f092f0b)
-            });
-        }
-        [HttpGet]
-        public async Task<IActionResult> CartPart()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return PartialView("_Cart", new List<CartViewModels>());
-            }
-
-            var carts = await _cart.ListAsync(x => x.UserID == user.Id);
-            var productVariantIds = carts.Select(c => c.ProductTypesID).ToList();
-            var productVariants = await _productvarian.ListAsync(v => productVariantIds.Contains(v.ID) && v.IsActive);
-            var productIds = productVariants.Select(v => v.ProductID).ToList();
-            var products = await _product.ListAsync(p => productIds.Contains(p.ID));
-
-            var result = new List<CartViewModels>();
-
-            foreach (var cart in carts)
-            {
-                var variant = productVariants.FirstOrDefault(v => v.ID == cart.ProductTypesID);
-                if (variant == null) continue;
-
-                var product = products.FirstOrDefault(p => p.ID == variant.ProductID);
-                if (product == null) continue;
-
-                var productImg = await _productimg.FindAsync(x => x.ProductID == product.ID);
-
-                var cartItem = new CartViewModels
-                {
-                    ProductTypeID = cart.ProductTypesID,
-                    CartID = cart.ID,
-                    ProductID = cart.ProductTypesID,
-                    ProductName = product.Name ?? "Không có tên",
-                    quantity = cart.Quantity,
-                    price = variant.SellPrice,
-                    Subtotal = cart.Quantity * variant.SellPrice,
-                    img = productImg?.ImageUrl ?? "/images/default.jpg",
-                    Stock = variant.Stock,
-                    ProductTyName = variant.Name,
-                };
-
-                result.Add(cartItem);
-            }
-
-            return PartialView("_Cart", result);
-        }
-        [HttpPost]
-        public async Task<IActionResult> DeleteAllCart()
-
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-
                 return Json(new ErroMess { msg = "Bạn phải đăng nhập thể thực hiện hành động này!" });
             }
             var balance = await this._balance.GetBalance(user.Id);
             return Json(new ErroMess { success = true, msg = $"{balance}" });
         }
 
-
-                return Json(new { success = false, message = "You are not logged in." });
-            }
-            try
-            {
-                var cartItem = await _cart.ListAsync(x => x.UserID == user.Id);
-                foreach (var item in cartItem)
-                {
-                    await _cart.DeleteAsync(item);
-                }
-                await _cart.SaveChangesAsync();
-                return Json(new { success = true, message = "All products deleted from cart." });
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, message = "An error occurred while deleting all products.", error = ex.Message });
-            }
-        }
     }
 
 
