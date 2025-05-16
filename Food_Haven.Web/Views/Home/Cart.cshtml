@@ -945,7 +945,7 @@
             if (currentQty > stockQty) {
                 row.addClass("outofstock");
                 if (!row.find(".out-of-stock-label").length) {
-                    row.find(".product-des").append('<span class="out-of-stock-label">⚠️ Số lượng trong kho đã thay đổi!</span>');
+                    row.find(".product-des").append('<span class="out-of-stock-label">Quantity exceeds stock and has been adjusted to available amount !</span>');
                 }
                 row.find(".qty-up").prop("disabled", true);
                 row.find(".qty-down").prop("disabled", false);
