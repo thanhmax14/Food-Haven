@@ -32,12 +32,13 @@ namespace Repository.Categorys
                 .Select(c => new CategoryListViewModel
                 {
                     ID = c.ID,
-                    Img = !string.IsNullOrEmpty(c.ImageUrl) ? "/uploads/CategoryImage/" + c.ImageUrl : "/uploads/default.png",
+                    Img = !string.IsNullOrEmpty(c.ImageUrl) ? "/uploads/" + c.ImageUrl : "/uploads/default.png",
                     Name = c.Name,
                     Number = int.Parse(c.DisplayOrder),
                     Commission = c.Commission,
                     CreatedDate = c.CreatedDate,
-                    ModifiedDate = c.ModifiedDate
+                    ModifiedDate = c.ModifiedDate,
+                    IsActive = c.IsActive // Lấy thêm trường IsActive
                 })
                 .ToListAsync();
         }
@@ -55,7 +56,7 @@ namespace Repository.Categorys
 
             if (model.Image != null && model.Image.Length > 0)
             {
-                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/CategoryImage");
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
@@ -74,10 +75,12 @@ namespace Repository.Categorys
             {
                 ID = model.ID,
                 Name = model.Name,
-                Commission = model.Commission,            
+                Commission = model.Commission,
+                DisplayOrder = model.Number.ToString(),  // <-- Cần thêm dòng này
                 ImageUrl = fileName, // Chỉ lưu tên file vào database
                 CreatedDate = DateTime.UtcNow,
-                ModifiedDate = null
+                ModifiedDate = null,
+                IsActive = true
             };
 
             _context.Categories.Add(category);
@@ -99,14 +102,14 @@ namespace Repository.Categorys
             }
 
             // Kiểm tra nếu số thứ tự (Number) đã tồn tại
-            bool isNumberExists = _context.Categories.Any(c => c.DisplayOrder == model.Number+"" && c.ID != model.ID);
+            bool isNumberExists = _context.Categories.Any(c => c.DisplayOrder == model.Number + "" && c.ID != model.ID);
             if (isNumberExists)
             {
                 throw new Exception("The display order (Number) already exists. Please choose another.");
             }
 
             // Đường dẫn thư mục lưu ảnh
-            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/CategoryImage");
+            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
             if (!Directory.Exists(uploadsFolder))
             {
                 Directory.CreateDirectory(uploadsFolder);
@@ -175,5 +178,16 @@ namespace Repository.Categorys
                 ?? throw new Exception("Category not found");
         }
 
+        public async Task<bool> ToggleCategoryStatusAsync(Guid categoryId, bool isActive)
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+            if (category == null) return false;
+
+            category.IsActive = isActive;
+            category.ModifiedDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

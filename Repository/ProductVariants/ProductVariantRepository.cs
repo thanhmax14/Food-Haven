@@ -20,7 +20,7 @@ namespace Repository.ProductVariants
             _context = context;
         }
 
-        public async Task<List<ProductVariantViewModel>> GetVariantsByProductIdAsync(Guid productId)
+        public async Task<List<ProductVariantViewModel>> GetProductTypeByProductIdAsync(Guid productId)
         {
             var variants = await _context.ProductTypes
                 .Where(v => v.ProductID == productId)
@@ -53,7 +53,8 @@ namespace Repository.ProductVariants
                 Stock = model.Stock,
                 ManufactureDate = model.ManufactureDate,
                 ProductID = model.ProductID,
-                ModifiedDate = DateTime.UtcNow
+                ModifiedDate = DateTime.UtcNow,
+                IsActive = true
             };
 
             await _context.ProductTypes.AddAsync(productVariant);
@@ -102,6 +103,22 @@ namespace Repository.ProductVariants
             variant.IsActive = isActive;
             _context.SaveChanges();
             return true;
+        }
+        public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
+        {
+            return await _context.Products
+                .Where(v => v.ID == productId)
+                .Select(v => v.StoreDetails.IsActive)
+                .FirstOrDefaultAsync();
+        }
+        public async Task<bool?> IsStoreActiveByVariantIdAsync(Guid variantId)
+        {
+            var productVariant = await _context.ProductTypes
+                .Include(pv => pv.Product) // Đảm bảo có thông tin Product
+                .ThenInclude(p => p.StoreDetails) // Lấy thông tin Store từ Product
+                .FirstOrDefaultAsync(pv => pv.ID == variantId);
+
+            return productVariant?.Product?.StoreDetails?.IsActive;
         }
     }
 }

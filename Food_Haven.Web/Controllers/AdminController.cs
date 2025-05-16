@@ -559,6 +559,133 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, msg = "System error: " + ex.Message });
             }
         }
+        public async Task<IActionResult> ViewStoreRegistration()
+        {
+            var stores = await _storeService.GetStoreRegistrationRequestsAsync();
+
+            if (stores == null || stores.Count == 0)
+            {
+                TempData["Message"] = "No inactive stores found.";
+            }
+
+            return View(stores);
+        }
+
+        [HttpPost]
+        [Route("Admin/UpdateStoreStatus/{storeId}/{newStatus}")]
+        public async Task<JsonResult> UpdateStoreStatus(Guid storeId, string newStatus)
+        {
+            bool isUpdated = await _storeService.UpdateStoreStatusAsync(storeId, newStatus);
+
+            if (!isUpdated)
+            {
+                return Json(new { success = false, message = "Store not found" });
+            }
+
+            return Json(new { success = true, message = "Store status updated successfully", newStatus });
+        }
+        public async Task<IActionResult> ViewAdminStore()
+        {
+            var stores = await _storeService.GetInactiveStoresAsync();
+
+            if (stores == null || stores.Count == 0)
+            {
+                TempData["Message"] = "No inactive stores found.";
+            }
+
+            return View(stores);
+        }
+
+        [HttpPost]
+        [Route("Admin/UpdateStoreIsActive")]
+        public async Task<JsonResult> UpdateStoreIsActive(Guid storeId, bool isActive)
+        {
+            bool isUpdated = await _storeService.UpdateStoreIsActiveAsync(storeId, isActive);
+
+            if (!isUpdated)
+            {
+                return Json(new { success = false, message = "Store not found" });
+            }
+
+            return Json(new { success = true, message = "Store status updated successfully", isActive });
+        }
+        public async Task<IActionResult> ViewCategories()
+        {
+            var categories = await _categoryService.GetCategoriesAsync();
+            return View(categories);
+        }
+        [HttpGet]
+        public IActionResult CheckNumberExists(int number)
+        {
+            bool exists = _categoryService.CheckNumberExists(number);
+            return Json(new { exists });
+        }
+
+
+        [HttpGet]
+        public IActionResult CreateCategory()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CreateCategory(CategoryCreateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                _categoryService.CreateCategory(model);
+
+                // Gán thông báo thành công vào ViewBag
+                ViewBag.SuccessMessage = "Category created successfully!";
+
+                // Trả lại View để hiển thị SweetAlert rồi mới redirect bằng JS
+                return View();
+            }
+
+            return View(model); // Nếu lỗi thì giữ nguyên form
+        }
+        [HttpGet("Admin/UpdateCategory/{id}")]
+        public IActionResult UpdateCategory(Guid id)
+        {
+            var model = _categoryService.GetCategoryForUpdate(id);
+            if (model == null)
+            {
+                return NotFound();
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateCategory(CategoryUpdateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                _categoryService.UpdateCategory(model);
+
+                // Nạp lại model sau khi cập nhật để lấy thông tin hình ảnh mới hoặc cũ
+                var updatedModel = _categoryService.GetCategoryForUpdate(model.ID);
+                ViewBag.SuccessMessage = "Category updated successfully!";
+                return View(updatedModel);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ToggleCategoryStatus(Guid categoryId, bool isActive)
+        {
+            bool success = await _categoryService.ToggleCategoryStatusAsync(categoryId, isActive);
+            return Json(new { success });
+        }
 
     }
 }
