@@ -35,5 +35,6 @@ namespace BusinessLogic.Services.Categorys
         bool CheckNumberExists(int number);
         void UpdateCategory(CategoryUpdateViewModel model);
         CategoryUpdateViewModel GetCategoryForUpdate(Guid id);
+        Task<bool> ToggleCategoryStatusAsync(Guid categoryId, bool isActive);
     }
 }

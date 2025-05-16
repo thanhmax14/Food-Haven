@@ -56,9 +56,9 @@ namespace BusinessLogic.Services.ProductVariantVariants
             Func<IQueryable<ProductTypes>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductTypes, object>> includeProperties = null) =>
             await _repository.ListAsync(filter, orderBy, includeProperties);
         public async Task<int> SaveChangesAsync() => await _repository.SaveChangesAsync();
-        public async Task<List<ProductVariantViewModel>> GetVariantsByProductIdAsync(Guid productId)
+        public async Task<List<ProductVariantViewModel>> GetProductTypeByProductIdAsync(Guid productId)
         {
-            return await _repositorys.GetVariantsByProductIdAsync(productId);
+            return await _repositorys.GetProductTypeByProductIdAsync(productId);
         }
         public async Task CreateProductVariantAsync(ProductVariantCreateViewModel model)
         {
@@ -77,6 +77,14 @@ namespace BusinessLogic.Services.ProductVariantVariants
         public bool UpdateProductVariantStatus(Guid variantId, bool isActive)
         {
             return _repositorys.UpdateProductVariantStatus(variantId, isActive);
+        }
+        public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
+        {
+            return await _repositorys.IsStoreActiveByProductIdAsync(productId);
+        }
+        public async Task<bool?> IsStoreActiveByVariantIdAsync(Guid variantId)
+        {
+            return await _repositorys.IsStoreActiveByVariantIdAsync(variantId);
         }
     }
 }
