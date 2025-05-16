@@ -269,7 +269,7 @@
                                             </a>
                                         </li>
                                        
-                                        @if (Model.userView.RequestSeller == "0" || Model.userView.RequestSeller == "1")
+                                        @if (Model.userView.RequestSeller == "0" || Model.userView.RequestSeller == "1" || Model.userView.RequestSeller == "3") // Nếu chưa đăng ký seller
                                         {
                                             <li class="nav-item">
                                                 <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address"
@@ -314,7 +314,7 @@
                             <div class="col-md-10">
                                 <div class="tab-content account dashboard-content pl-50">
                                     <div class="tab-pane fade active show" id="dashboard" role="tabpanel"
-                                         aria-labelledby="dashboard-tab">
+                                             aria-labelledby="dashboard-tab">
                                         <div class="card">
                                             <div class="card-header">
                                                 <h3 class="mb-0">Hello Rosie!</h3>
@@ -697,31 +697,20 @@ document.addEventListener("DOMContentLoaded", function () {
                                                         </div>
                                                     </div>
                                                 }
-                                                else if (Model.userView.RequestSeller == "1")
+                                               else if (Model.userView.RequestSeller == "1") // Pending approval
                                                 {
-                                                       <div class="alert alert-info mt-3" id="approvalMessage">
-                                                <h5>Announcement!</h5>
-                                                <p>Your request has been submitted. Please wait for admin approval.</p>
-                                                </div> 
+                                                    <div class="alert alert-info mt-3" id="approvalMessage">
+                                                        <h5>Announcement!</h5>
+                                                        <p>Your request has been submitted. Please wait for admin approval.</p>
+                                                    </div>
                                                 }
-                                                else if (Model.userView.RequestSeller == "3") // Nếu đã đăng ký và chờ duyệt
-                                                 {
-                                                   @*   <div class="alert alert-info mt-3" id="approvalMessage">
-                                                         <h5>Announcement!</h5>
-                                                         <p>Your request has been submitted. Please wait for admin approval.</p>
-                                                     </div> *@
-                                                    <div class="alert alert-danger mt-3" id="rejectedMessage">
-                                                        <h5>Rejected!</h5>
-                                                        <p>Your request to become a seller has been denied. Please contact support for more information.</p>
-                                                    </div>
-                                                 }
-                                              @*   else // Nếu bị từ chối hoặc giá trị khác
+                                                else if (Model.userView.RequestSeller?.Trim() == "3") // Rejected
                                                 {
                                                     <div class="alert alert-danger mt-3" id="rejectedMessage">
                                                         <h5>Rejected!</h5>
                                                         <p>Your request to become a seller has been denied. Please contact support for more information.</p>
                                                     </div>
-                                                } *@
+                                                }
                                             </div>
 
                                         </div>
@@ -743,28 +732,25 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     <div class="row">
                                                         <div class="form-group col-md-6">
                                                             <label>UserName <span class="required">*</span></label>
-                                                            <input required class="form-control" id="UserName" name="UserName" type="text" value="@Model.userView.UserName" />
+                                                            <input required class="form-control" id="UserName" name="UserName" type="text" value="@Model.userView.UserName" readonly/>
 
                                                         </div>
                                                         <div class="form-group col-md-6">
                                                             <label>Email <span class="required">*</span></label>
-                                                            <input required class="form-control" id="Email" name="Email" type="text" value="@Model.userView.Email" />
+                                                            <input required class="form-control" id="Email" name="Email" type="text" value="@Model.userView.Email" readonly/>
                                                         </div>
-                                                        <div class="form-group col-md-12">
+                                                        <div class="form-group col-md-6">
                                                             <label>Phone Number <span class="required">*</span></label>
                                                             <input  class="form-control" id="PhoneNumber" name="PhoneNumber" type="text" value="@Model.userView.PhoneNumber" />
 
                                                         </div>
-                                                        <div class="form-group col-md-12">
-                                                            <label>Address <span class="required">*</span></label>
-                                                            <input  class="form-control" id="Address" name="Address" type="text" value="@Model.userView.Address" />
-
-                                                        </div>
-                                                        <div class="form-group col-md-12">
+                                                          <div class="form-group col-md-6">
                                                             <label>Birthday <span class="required">*</span></label>
                                                             <input  class="form-control" id="Birthday" name="Birthday" type="date" value="@(Model.userView.Birthday != null ? Model.userView.Birthday.Value.ToString("yyyy-MM-dd") : "")" />
-
-
+                                                        </div>
+                                                        <div class="form-group col-md-12">
+                                                            <label>Address <span class="required">*</span></label>
+                                                            <textarea class="form-control" id="Address" name="Address" rows="3">@Model.userView.Address</textarea>
                                                         </div>
                                                         @* <div class="form-group col-md-12">
                                                         <label>
@@ -1407,42 +1393,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             };
 
-            $.ajax({
-                url: "/Users/UpdateProfile",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(formData),
-                beforeSend: function () {
-                    Swal.fire({
-                        title: "Đang cập nhật...",
-                        text: "Vui lòng chờ...",
-                        icon: "info",
-                        showConfirmButton: false,
-                        allowOutsideClick: false
-                    });
-                },
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            title: "Thành công!",
-                            text: "Cập nhật thông tin thành công!",
-                            icon: "success",
-                            confirmButtonText: "OK"
-                        }).then(() => {
-                            $("#account-detail").load(location.href + " #account-detail > *");
-                        });
-                    } else {
-                        Swal.fire("Lỗi!", response.message || "Cập nhật thất bại!", "error");
-                    }
-                },
-                error: function (xhr) {
-                    let errorMessage = "Không thể kết nối với máy chủ.";
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage = xhr.responseJSON.message;
-                    }
-                    Swal.fire("Lỗi!", errorMessage, "error");
-                }
+          $.ajax({
+    url: "/Users/UpdateProfile",
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify(formData),
+    beforeSend: function () {
+        Swal.fire({
+            title: "Updating...",
+            text: "Please wait...",
+            icon: "info",
+            showConfirmButton: false,
+            allowOutsideClick: false
+        });
+    },
+    success: function (response) {
+        if (response.success) {
+            Swal.fire({
+                title: "Success!",
+                text: "Profile updated successfully!",
+                icon: "success",
+                confirmButtonText: "OK"
+            }).then(() => {
+                $("#account-detail").load(location.href + " #account-detail > *");
             });
+        } else {
+            Swal.fire("Error!", response.message || "Profile update failed!", "error");
+        }
+    },
+    error: function (xhr) {
+        let errorMessage = "Cannot connect to the server.";
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMessage = xhr.responseJSON.message;
+        }
+        Swal.fire("Error!", errorMessage, "error");
+    }
+});
+
         });
     });
 </script>
