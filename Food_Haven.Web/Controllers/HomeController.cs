@@ -948,7 +948,7 @@ namespace Food_Haven.Web.Controllers
                 {
                     ProductTypeID = cart.ProductTypesID,
                     CartID = cart.ID,
-                    ProductID = cart.ProductTypesID,
+                    ProductID = product.ID,
                     ProductName = product.Name ?? "Không có tên",
                     quantity = cart.Quantity,
                     price = variant.SellPrice,
