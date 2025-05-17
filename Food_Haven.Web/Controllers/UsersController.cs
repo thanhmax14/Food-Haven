@@ -81,6 +81,8 @@ namespace Food_Haven.Web.Controllers
 
                 var UserModel = new UsersViewModel
                 {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
                     Birthday = user.Birthday,
                     Address = user.Address,
                     img = user.ImageUrl,
@@ -187,7 +189,9 @@ namespace Food_Haven.Web.Controllers
             }
             user.Email = obj.userView.Email;
             user.Address = obj.userView.Address;
-
+            user.FirstName = obj.userView.FirstName;
+            user.LastName = obj.userView.LastName;
+            user.IsProfileUpdated = true;
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
@@ -208,7 +212,7 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = "User not found" });
             }
             else if (string.IsNullOrEmpty(user.Address) || string.IsNullOrEmpty(user.PhoneNumber) ||
-            user.Birthday == null || user.Birthday == DateTime.MinValue)
+            user.Birthday == null || user.Birthday == DateTime.MinValue || string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName))
             {
                 return Json(new
                 {

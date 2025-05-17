@@ -8,10 +8,10 @@ namespace Repository.ViewModels
 {
     public class UsersViewModel
     {
-     /*   public DateTime? joinin { get; set; } = DateTime.Now;
-        public DateTime lastAssces { get; set; } = DateTime.Now;
+    /*  public DateTime? joinin { get; set; } = DateTime.Now;
+        public DateTime lastAssces { get; set; } = DateTime.Now; */
         public string? FirstName { get; set; } = default;
-        public string? LastName { get; set; } = default;*/
+        public string? LastName { get; set; } = default; 
         public DateTime? Birthday { get; set; }
         public string? Address { get; set; } = default;
         public string? RequestSeller { get; set; }
