@@ -23,6 +23,7 @@ namespace Models
         public Guid ProductID { get; set; }
         public virtual Product Product { get; set; }
         public ICollection<Cart> Carts { get; set; }
+        public ICollection<OrderDetail> OrderDetails { get; set; }
     }
 
 }

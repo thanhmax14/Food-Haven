@@ -18,10 +18,8 @@ namespace BusinessLogic.Hash
         public static string GenerateUniqueCode(int prefixLength = 4, int randomLength = 6)
         {
             var randomPrefix = GenerateRandomString(prefixLength);
-            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); // Mili giây
             var randomPart = GenerateRandomString(randomLength);
-            /* var guidPart = Guid.NewGuid().ToString("N"); // Thêm GUID để đảm bảo tính duy nhất*/
-            return $"{randomPrefix}{timestamp}{randomPart}";
+            return $"{randomPrefix}{randomPart}"; // Hoàn toàn ngẫu nhiên
         }
 
 

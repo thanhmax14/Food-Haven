@@ -15,8 +15,8 @@ namespace Repository.OrdersRepository
         {
             return await _context.Orders
                                  .Include(o => o.OrderDetails)
-                                 .ThenInclude(od => od.Product)
-                                 .ThenInclude(p => p.Categories)
+                                 .ThenInclude(od => od.ProductTypes)
+                                 .ThenInclude(p => p.Carts)
                                  .FirstOrDefaultAsync(o => o.ID == orderId) ?? throw new Exception("Order not found");
         }
 

@@ -10,7 +10,7 @@ namespace Models.DBContext
 {
     public class FoodHavenDbContext : IdentityDbContext<AppUser>
     {
-      public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
+        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
         }
 
@@ -106,9 +106,9 @@ namespace Models.DBContext
             .HasForeignKey(h => h.UserID).OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<OrderDetail>()
-            .HasOne(h => h.Product)
+            .HasOne(h => h.ProductTypes)
             .WithMany(h => h.OrderDetails)
-            .HasForeignKey(h => h.ProductID).OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(h => h.ProductTypesID).OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<OrderDetail>()
            .HasOne(h => h.Order)

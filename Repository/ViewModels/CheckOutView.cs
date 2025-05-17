@@ -14,8 +14,11 @@ namespace Repository.ViewModels
         public string address { get; set; }
         public string phone { get; set; }
         public string email { get; set; }
-/*        public string firstName { get; set; }
-        public string firstName { get; set; }*/
+
+        public string Note { get; set; } = "";
+     
+        /*        public string firstName { get; set; }
+                public string firstName { get; set; }*/
     }
     public class ListItems
     {
