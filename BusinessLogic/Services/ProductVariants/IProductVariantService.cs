@@ -29,10 +29,12 @@ namespace BusinessLogic.Services.ProductVariants
             Expression<Func<ProductTypes, bool>> filter = null,
             Func<IQueryable<ProductTypes>, IOrderedQueryable<ProductTypes>> orderBy = null,
             Func<IQueryable<ProductTypes>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<ProductTypes, object>> includeProperties = null);
-        Task<List<ProductVariantViewModel>> GetVariantsByProductIdAsync(Guid productId);
+        Task<List<ProductVariantViewModel>> GetProductTypeByProductIdAsync(Guid productId);
         Task CreateProductVariantAsync(ProductVariantCreateViewModel model);
         Task<bool> UpdateProductVariantAsync(ProductVariantEditViewModel model);
         Task<ProductVariantEditViewModel> GetProductVariantForEditAsync(Guid variantId);
         bool UpdateProductVariantStatus(Guid variantId, bool isActive);
+        Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
+        Task<bool?> IsStoreActiveByVariantIdAsync(Guid variantId);
     }
 }

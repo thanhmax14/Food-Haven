@@ -295,6 +295,12 @@ namespace Repository.Products
 
             return products;
         }
-
+        public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
+        {
+            return await (from p in _context.Products
+                          join s in _context.StoreDetails on p.StoreID equals s.ID
+                          where p.ID == productId
+                          select s.IsActive).FirstOrDefaultAsync();
+        }
     }
 }

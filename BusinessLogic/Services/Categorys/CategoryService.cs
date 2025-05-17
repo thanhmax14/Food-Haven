@@ -83,12 +83,16 @@ namespace BusinessLogic.Services.Categorys
             var category = _repositorys.GetCategoryById(id);
             if (category == null) return null;
 
+            // Parse DisplayOrder từ string sang int
+            int number = 0;
+            int.TryParse(category.DisplayOrder, out number); // an toàn, tránh lỗi runtime nếu chuỗi không hợp lệ
+
             return new CategoryUpdateViewModel
             {
                 ID = category.ID,
                 Name = category.Name,
                 Commission = category.Commission,
-               
+                Number = number, // gán giá trị đã parse
                 Img = category.ImageUrl,
                 CreatedDate = category.CreatedDate,
                 ModifiedDate = category.ModifiedDate
@@ -98,6 +102,10 @@ namespace BusinessLogic.Services.Categorys
         public void UpdateCategory(CategoryUpdateViewModel model)
         {
             _repositorys.UpdateCategory(model);
+        }
+        public async Task<bool> ToggleCategoryStatusAsync(Guid categoryId, bool isActive)
+        {
+            return await _repositorys.ToggleCategoryStatusAsync(categoryId, isActive);
         }
     }
 }

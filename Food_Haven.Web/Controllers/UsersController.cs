@@ -1,5 +1,6 @@
-﻿using System.Data;
+using System.Data;
 using BusinessLogic.Hash;
+using System.Text.RegularExpressions;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.OrderDetailService;
@@ -106,14 +107,31 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new { success = false, message = "User not found" });
             }
-            if (!string.IsNullOrEmpty(obj.userView.PhoneNumber))
+            if (!string.IsNullOrWhiteSpace(obj.userView.PhoneNumber))
             {
-                var existPhone = await _userManager.Users.Where(x => x.PhoneNumber == obj.userView.PhoneNumber && x.Id != user.Id).FirstOrDefaultAsync();
+                var inputPhone = obj.userView.PhoneNumber.Trim();
+
+                // Kiểm tra đúng 10 chữ số
+                if (!Regex.IsMatch(inputPhone, @"^\d{10}$"))
+                {
+                    return Json(new { success = false, message = "Phone number must be exactly 10 digits." });
+                }
+
+                var existPhone = await _userManager.Users
+                    .AsNoTracking()
+                    .Where(x => !string.IsNullOrEmpty(x.PhoneNumber) &&
+                                x.PhoneNumber == inputPhone &&
+                                x.Id != user.Id)
+                    .FirstOrDefaultAsync();
+
                 if (existPhone != null)
                 {
-                    return Json(new { success = false, message = "NumberPhone exist" });
+                    return Json(new { success = false, message = "Phone number already exists." });
                 }
+
+                user.PhoneNumber = inputPhone;
             }
+
             if (obj.userView.Birthday <= DateTime.Today)
             {
                 user.Birthday = obj.userView.Birthday;
@@ -162,9 +180,6 @@ namespace Food_Haven.Web.Controllers
             }
             else
             {
-
-
-
                 return Json(new { success = false, message = result.Errors.FirstOrDefault()?.Description ?? "Register Seller failed" });
 
             }

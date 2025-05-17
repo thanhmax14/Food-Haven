@@ -15,5 +15,6 @@ namespace Repository.ViewModels
         public float Commission { get; set; } // % hoa hồng
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public bool IsActive { get; set; } // Thêm cột này
     }
 }
