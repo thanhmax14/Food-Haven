@@ -133,12 +133,13 @@ namespace Repository.Products
 
             return product.ID;
         }
-
         public async Task<List<Categories>> GetCategoriesAsync()
         {
-            return await _context.Categories.ToListAsync();
+            var categories = await _context.Categories.ToListAsync(); // lấy từ DB trước
+            return categories
+                .OrderBy(c => int.TryParse(c.DisplayOrder, out var order) ? order : int.MaxValue)
+                .ToList();
         }
-
         public async Task<ProductUpdateViewModel> GetProductByIdAsync(Guid productId)
         {
             var product = await _context.Products

@@ -412,6 +412,7 @@ namespace Food_Haven.Web.Controllers
 
             return View(products);
         }
+
         [HttpGet]
         public async Task<IActionResult> CreateProduct()
         {
@@ -448,6 +449,8 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProduct(ProductViewModel model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (!ModelState.IsValid)
             {
                 var categories = await _productService.GetCategoriesAsync();
@@ -460,11 +463,72 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
-            await _productService.CreateProductAsync(model);
+            var productImages = new List<ProductImageViewModel>();
 
-            // Gán ViewBag để hiển thị thông báo ở view
-            ViewBag.ProductCreated = true;
-            ViewBag.StoreID = model.StoreID;
+            // Main Image
+            if (model.MainImage != null && model.MainImage.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.MainImage.FileName)}";
+                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                if (!Directory.Exists(uploadFolder))
+                    Directory.CreateDirectory(uploadFolder);
+
+                var filePath = Path.Combine(uploadFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.MainImage.CopyToAsync(stream);
+                }
+
+                productImages.Add(new ProductImageViewModel
+                {
+                    ImageUrl = $"/uploads/{fileName}",
+                    IsMain = true,
+                    FileName = fileName,
+                    ContentType = model.MainImage.ContentType
+                });
+            }
+
+            // Gallery Images
+            if (model.GalleryImages != null && model.GalleryImages.Any())
+            {
+                foreach (var img in model.GalleryImages)
+                {
+                    if (img != null && img.Length > 0)
+                    {
+                        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(img.FileName)}";
+                        var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                        if (!Directory.Exists(uploadFolder))
+                            Directory.CreateDirectory(uploadFolder);
+
+                        var filePath = Path.Combine(uploadFolder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await img.CopyToAsync(stream);
+                        }
+
+                        productImages.Add(new ProductImageViewModel
+                        {
+                            ImageUrl = $"/uploads/{fileName}",
+                            IsMain = false,
+                            FileName = fileName,
+                            ContentType = img.ContentType
+                        });
+                    }
+                }
+            }
+
+            var isSuccess = await _productService.CreateProductAsync(model, userId, productImages);
+
+            if (isSuccess)
+            {
+                TempData["ProductCreated"] = true;
+                TempData["StoreID"] = model.StoreID;
+                return RedirectToAction("CreateProduct"); // redirect lại trang Create để hiển thị SweetAlert
+            }
 
             var categoriesAfter = await _productService.GetCategoriesAsync();
             model.Categories = categoriesAfter.Select(c => new SelectListItem
@@ -473,7 +537,7 @@ namespace Food_Haven.Web.Controllers
                 Text = c.Name
             }).ToList();
 
-            return View(model); // Giữ lại trang Create để hiện thông báo rồi chuyển trang bằng JS
+            return View(model);
         }
 
         [HttpGet]
