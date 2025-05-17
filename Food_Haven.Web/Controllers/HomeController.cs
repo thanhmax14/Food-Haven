@@ -1306,6 +1306,29 @@ namespace Food_Haven.Web.Controllers
             var balance = await this._balance.GetBalance(user.Id);
             return Json(new ErroMess { success = true, msg = $"{balance}" });
         }
+        [HttpGet]
+        public async Task<IActionResult> SearchCategoryList()
+        {
+            try
+            {
+                var list = await _categoryService.ListAsync();
+                var listCategoryViewModel = list.Select(x => new CategoryViewModel
+                {
+                    ID = x.ID,
+                    Name = x.Name,
+                    CreatedDate = x.CreatedDate,
+                    Commission = x.Commission,
+                   /*  Img = x.ImageUrl, */
+                    ModifiedDate = x.ModifiedDate
+                }).ToList();
+                return PartialView("_SearchCategoryList", listCategoryViewModel);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+
+        }
 
     }
 
