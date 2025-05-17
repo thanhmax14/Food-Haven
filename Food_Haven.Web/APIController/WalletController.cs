@@ -33,6 +33,29 @@ namespace Food_Haven.Web.APIController
             _ordersServices = ordersServices;
             _detail = detail;
         }
+        [HttpGet("{userID}")]
+        public async Task<IActionResult> GetBalanceByUser(string userID)
+        {
+            if (string.IsNullOrWhiteSpace(userID))
+            {
+                return BadRequest(new ErroMess { msg = "Vui lòng nhập userID" });
+            }
+
+            try
+            {
+                var getUser = await this._userManager.FindByIdAsync(userID);
+                if (getUser == null)
+                    return BadRequest(new ErroMess { msg = "Người dùng không tồn tại trong hệ thống" });
+
+                return Ok(await this._balance.GetBalance(getUser.Id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErroMess { msg = ex.Message });
+            }
+        }
+
+
 
         [HttpPost("webhook-url")]
         public async Task<IActionResult> ReceivePaymentAsync([FromBody] WebhookType webhook)
