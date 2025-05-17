@@ -18,6 +18,8 @@ using Net.payOS;
 using Net.payOS.Types;
 using Repository.BalanceChange;
 using Repository.ViewModels;
+using System.Text.Json;
+using System.Text;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -329,5 +331,499 @@ namespace Food_Haven.Web.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Buy([FromForm] List<Guid> productIds)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new ErroMess { msg = "Bạn chưa đăng nhập!!" });
+            }
+
+            if (productIds == null || !productIds.Any())
+            {
+                return Json(new ErroMess { msg = "Vui lòng chọn sản phẩm cần mua!" });
+            }
+            var listItem = new List<ListItems>();
+            foreach (var id in productIds)
+            {
+                var product = await _productWarian.GetAsyncById(id);
+                if (product == null)
+                {
+                    return Json(new ErroMess { msg = "Sản phẩm mua không tồn tại!" });
+                }
+                var checkcart = await this._cart.FindAsync(u => u.UserID == user.Id && u.ProductTypesID == id);
+                if (checkcart == null)
+                {
+                    return Json(new ErroMess { msg = "Sản phẩm mua không tồn tại trong giỏ hàng!" });
+                }
+                var getQuatity = await this._productWarian.FindAsync(u => u.ID == id);
+                if (checkcart.Quantity > getQuatity.Stock)
+                {
+                    return Json(new ErroMess { msg = "Số lượng sản phẩm mua vượt quá số lượng tồn kho!" });
+                }
+
+                var getImg = await this._img.FindAsync(u => u.ProductID == id);
+
+                var img = "https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-1-1.jpg";
+                if (getImg != null)
+                {
+                    img = getImg.ImageUrl;
+                }
+
+
+                listItem.Add(new ListItems
+                {
+                    ItemName = product.Name,
+                    ItemImage = img,
+                    ItemPrice = getQuatity.SellPrice,
+                    ItemQuantity = checkcart.Quantity,
+                    productID = product.ID
+                });
+
+            }
+
+            var temInfo = new CheckOutView
+            {
+                address = user.Address,
+                email = user.Email,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                phone = user.PhoneNumber,
+                itemCheck = listItem
+            };
+
+            HttpContext.Session.Set("BillingTourInfo", JsonSerializer.SerializeToUtf8Bytes(temInfo));
+
+            return Json(new { success = true, message = "Danh sách sản phẩm đã được xử lý.", selectedProducts = productIds, redirectUrl = "/Users/CheckOut" });
+        }
+
+
+        public async Task<IActionResult> CheckOut()
+        {
+            var a = base.HttpContext.Session.GetString("BillingTourInfo");
+
+
+            if (HttpContext.Session.TryGetValue("BillingTourInfo", out byte[] data))
+            {
+                var billingInfo = JsonSerializer.Deserialize<CheckOutView>(data);
+                if (billingInfo != null)
+                {
+                    return View(billingInfo);
+                }
+            }
+            return RedirectToAction("NotFoundPage", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitPayment(string paymentOption)
+        {
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new ErroMess { msg = "Bạn chưa đăng nhập!!" });
+            }
+            if (string.IsNullOrWhiteSpace(paymentOption))
+            {
+                return Json(new ErroMess { msg = "Vui lòng chọn phương thức thanh toán!" });
+            }
+            if (paymentOption.ToLower() == "OnlineGateway".ToLower())
+            {
+                if (HttpContext.Session.TryGetValue("BillingTourInfo", out byte[] data))
+                {
+                    var billingInfo = JsonSerializer.Deserialize<CheckOutView>(data);
+                    if (billingInfo != null)
+                    {
+                        var buyRequest = new BuyRequest();
+                        foreach (var item in billingInfo.itemCheck)
+                        {
+                            buyRequest.Products.Add(item.productID, item.ItemQuantity);
+
+                        }
+                        var request = _httpContextAccessor.HttpContext.Request;
+                        var baseUrl = $"{request.Scheme}://{request.Host}";
+                        buyRequest.IsOnline = true;
+                        buyRequest.UserID = user.Id;
+                        buyRequest.SuccessUrl = $"{baseUrl}/home/invoice";
+                        buyRequest.CalledUrl = $"{baseUrl}/home/invoice";
+
+
+
+
+
+
+                        if (buyRequest.Products == null || !buyRequest.Products.Any())
+                        {
+                            return Json(new ErroMess { msg = "Vui lòng chọn sản phẩm cần mua!" });
+                        }
+
+                        var temOrderDeyail = new List<OrderDetail>();
+                        decimal totelPrice = 0;
+
+
+                        foreach (var id in buyRequest.Products)
+                        {
+                            var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
+                            if (checkcart != null)
+                            {
+                                var getQuatity = await this._productWarian.FindAsync(u => u.ProductID == id.Key && u.IsActive);
+
+                                if (getQuatity == null)
+                                {
+                                    return NotFound(new ErroMess { msg = "Sản phẩm mua không tồn tại!" });
+                                }
+
+                                if (id.Value < getQuatity.Stock)
+                                {
+                                    totelPrice += getQuatity.SellPrice * id.Value;
+                                }
+                            }
+                        }
+                        var orderID = Guid.NewGuid();
+
+                        foreach (var id in buyRequest.Products)
+                        {
+                            var product = await _product.GetAsyncById(id.Key);
+                            if (product == null)
+                            {
+                                return Json(new ErroMess { msg = "Sản phẩm mua không tồn tại!" });
+                            }
+                            /* var checkcart = await this._cart.FindAsync(u => u.UserID == request.UserID && u.ProductID == id.Key);
+                             if (checkcart == null)
+                             {
+                                 return NotFound(new ErroMess { msg = "Sản phẩm mua không tồn tại trong giỏ hàng!" });
+                             }*/
+                            var getQuatity = await this._productWarian.FindAsync(u => u.ProductID == id.Key);
+                            if (id.Value > getQuatity.Stock)
+                            {
+                                return Json(new ErroMess { msg = "Số lượng sản phẩm mua vượt quá số lượng tồn kho!" });
+                            }
+
+                            temOrderDeyail.Add(new OrderDetail
+                            {
+                                ID = Guid.NewGuid(),
+                                OrderID = orderID,
+                                ProductID = id.Key,
+                                Quantity = id.Value,
+                                ProductPrice = getQuatity.SellPrice,
+                                TotalPrice = getQuatity.SellPrice * id.Value,
+                                Status = "PROCESSING",
+                                IsActive = false
+                            });
+
+                        }
+                        int orderCode = RandomCode.GenerateOrderCode();
+                        var check = await this._order.FindAsync(u => u.OrderCode == orderCode + "");
+                        while (check != null)
+                        {
+                            orderCode = RandomCode.GenerateOrderCode();
+                            check = await this._order.FindAsync(u => u.OrderCode == orderCode + "");
+                        }
+                        var order = new Order
+                        {
+                            ID = orderID,
+                            UserID = buyRequest.UserID,
+                            TotalPrice = totelPrice,
+                            Status = "PROCESSING",
+                            CreatedDate = DateTime.Now,
+                            PaymentMethod = "wallet",
+                            PaymentStatus = "PROCESSING",
+                            Quantity = buyRequest.Products.Sum(u => u.Value),
+                            OrderCode = "" + orderCode
+
+                        };
+                        /*   var balan = new BalanceChange
+                           {
+                               UserID = user.Id,
+                               MoneyChange = -totelPrice,
+                               MoneyBeforeChange = await _balance.GetBalance(user.Id),
+                               MoneyAfterChange = await _balance.GetBalance(user.Id) - totelPrice,
+                               Method = "Buy",
+                               Status = "PROCESSING",
+                               DisPlay = true,
+                               IsComplele = false,
+                               checkDone = true,
+                               StartTime = DateTime.Now
+                           };*/
+
+
+                        try
+                        {
+                            // await this._balance.AddAsync(balan);
+                            await _order.AddAsync(order);
+                            await this._balance.SaveChangesAsync();
+                            await this._order.SaveChangesAsync();
+                        }
+                        catch
+                        {
+                            order.PaymentStatus = "Failed";
+                            order.Status = "Failed";
+                            /*  balan.Status = "Failed";
+                              balan.DueTime = DateTime.Now;
+                              balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
+                              balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
+                              balan.MoneyChange = totelPrice;*/
+                            await this._order.SaveChangesAsync();
+                            // await this._balance.SaveChangesAsync();
+                            return BadRequest(new ErroMess { msg = "Đã xảy ra lỗi trông quá trình mua!11" });
+                        }
+
+                        try
+                        {
+                            var url = "";
+                            var result = await _managetrans.ExecuteInTransactionAsync(async () =>
+                            {
+                                foreach (var item1 in temOrderDeyail)
+                                {
+                                    await _orderDetailService.AddAsync(item1);
+                                }
+                                long expirationTimestamp = DateTimeOffset.Now.AddMinutes(5).ToUnixTimeSeconds();
+                                ItemData item = new ItemData($"Thực hiện mua hàng ở tài khoản {user.UserName}:", 1, (int)totelPrice);
+                                List<ItemData> items = new List<ItemData> { item };
+                                PaymentData paymentData = new PaymentData(orderCode, (int)totelPrice, "", items, $"{buyRequest.CalledUrl}/{orderCode}",
+                                   $"{buyRequest.SuccessUrl}/{orderCode}"
+                                , null, null, null, null, null, expirationTimestamp
+                                   );
+                                CreatePaymentResult createPayment = await this._payos.createPaymentLink(paymentData);
+                                url = $"https://pay.payos.vn/web/{createPayment.paymentLinkId}/";
+                            });
+                            await this._orderDetailService.SaveChangesAsync();
+                            if (result)
+                            {
+                                var productKeys = buyRequest.Products;
+
+                                foreach (var productId in productKeys)
+                                {
+
+                                    var getWarian = await this._productWarian.FindAsync(u => u.ProductID == productId.Key);
+                                    getWarian.Stock -= productId.Value;
+                                    if (getWarian.Stock == 0 || getWarian.Stock < 0)
+                                    {
+                                        getWarian.Stock = 0;
+                                        getWarian.IsActive = false;
+                                    }
+                                    await this._productWarian.UpdateAsync(getWarian);
+                                    await this._productWarian.SaveChangesAsync();
+                                }
+                                return Json(new { success = true, msg = $"{url}", haveUrl = true, redirectUrl = $"{url}" }); ;
+                            }
+                            else
+                            {
+                                return Json(new ErroMess { msg = "Đã xảy ra lỗi trông quá trình mua!22" });
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            order.PaymentStatus = "Failed";
+                            order.Status = "Failed";
+                            await this._order.SaveChangesAsync();
+                            return Json(new ErroMess { msg = "Đã xảy ra lỗi trông quá trình mua!" });
+                        }
+                    }
+                }
+            }
+
+
+
+            if (paymentOption.ToLower() == "Wallet".ToLower())
+            {
+                if (HttpContext.Session.TryGetValue("BillingTourInfo", out byte[] data))
+                {
+                    var billingInfo = JsonSerializer.Deserialize<CheckOutView>(data);
+                    if (billingInfo != null)
+                    {
+                        var buyRequest = new BuyRequest();
+                        foreach (var item in billingInfo.itemCheck)
+                        {
+                            buyRequest.Products.Add(item.productID, item.ItemQuantity);
+
+                        }
+                        var request = _httpContextAccessor.HttpContext.Request;
+                        var baseUrl = $"{request.Scheme}://{request.Host}";
+                        buyRequest.IsOnline = false;
+                        buyRequest.UserID = user.Id;
+                        buyRequest.SuccessUrl = $"{baseUrl}/home/invoice";
+                        buyRequest.CalledUrl = $"{baseUrl}/home/invoice";
+
+
+                        if (buyRequest.Products == null || !buyRequest.Products.Any())
+                        {
+                            return Json(new ErroMess { msg = "Vui lòng chọn sản phẩm cần mua!" });
+                        }
+
+                        var temOrderDeyail = new List<OrderDetail>();
+                        decimal totelPrice = 0;
+
+
+                        foreach (var id in buyRequest.Products)
+                        {
+                            var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
+                            if (checkcart != null)
+                            {
+                                var getQuatity = await this._productWarian.FindAsync(u => u.ID == id.Key && u.IsActive);
+
+                                if (getQuatity == null)
+                                    return Json(new ErroMess { msg = "Sản phẩm mua không tồn tại!" });
+                                if (checkcart.Quantity < getQuatity.Stock)
+                                {
+                                    totelPrice += getQuatity.SellPrice * id.Value;
+                                }
+                            }
+                        }
+                        var orderID = Guid.NewGuid();
+                        if (await _balance.CheckMoney(user.Id, totelPrice) == false)
+                        {
+                            return Json(new ErroMess { msg = "Số dư trong tài khoản không đủ để mua hàng!" });
+                        }
+                        foreach (var id in buyRequest.Products)
+                        {
+                            var product = await _productWarian.GetAsyncById(id.Key);
+                            if (product == null)
+                            {
+                                return Json(new ErroMess { msg = "Sản phẩm mua không tồn tại!" });
+                            }
+                            var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
+                            if (checkcart == null)
+                            {
+                                return Json(new ErroMess { msg = "Sản phẩm mua không tồn tại trong giỏ hàng!" });
+                            }
+                            var getQuatity = await this._productWarian.FindAsync(u => u.ID == id.Key);
+                            if (checkcart.Quantity > getQuatity.Stock)
+                            {
+                                return Json(new ErroMess { msg = "Số lượng sản phẩm mua vượt quá số lượng tồn kho!" });
+                            }
+
+                            temOrderDeyail.Add(new OrderDetail
+                            {
+                                ID = Guid.NewGuid(),
+                                OrderID = orderID,
+                                ProductID = id.Key,
+                                Quantity = id.Value,
+                                ProductPrice = getQuatity.SellPrice,
+                                TotalPrice = getQuatity.SellPrice * id.Value,
+                                Status = "Success"
+                            });
+
+                        }
+
+                        var order = new Order
+                        {
+                            ID = orderID,
+                            UserID = buyRequest.UserID,
+                            TotalPrice = totelPrice,
+                            Status = "PROCESSING",
+                            CreatedDate = DateTime.Now,
+                            PaymentMethod = "wallet",
+                            PaymentStatus = "PROCESSING",
+                            Quantity = buyRequest.Products.Sum(u => u.Value),
+                            OrderCode = ""
+
+                        };
+                        var balan = new BalanceChange
+                        {
+                            UserID = user.Id,
+                            MoneyChange = -totelPrice,
+                            MoneyBeforeChange = await _balance.GetBalance(user.Id),
+                            MoneyAfterChange = await _balance.GetBalance(user.Id) - totelPrice,
+                            Method = "Buy",
+                            Status = "PROCESSING",
+                            Display = true,
+                            IsComplete = false,
+                            CheckDone = true,
+                            StartTime = DateTime.Now
+                        };
+
+                        if (await _balance.CheckMoney(user.Id, totelPrice))
+                        {
+                            try
+                            {
+                                await this._balance.AddAsync(balan);
+                                await _order.AddAsync(order);
+                                await this._balance.SaveChangesAsync();
+                                await this._order.SaveChangesAsync();
+                            }
+                            catch
+                            {
+                                order.PaymentStatus = "Failed";
+                                order.Status = "Failed";
+                                balan.Status = "Failed";
+                                balan.DueTime = DateTime.Now;
+                                balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
+                                balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
+                                balan.MoneyChange = totelPrice;
+                                await this._order.SaveChangesAsync();
+                                await this._balance.SaveChangesAsync();
+                                return Json(new ErroMess { msg = "Đã xảy ra lỗi trông quá trình mua!" });
+                            }
+                        }
+                        try
+                        {
+                            var result = await _managetrans.ExecuteInTransactionAsync(async () =>
+                            {
+                                foreach (var item in temOrderDeyail)
+                                {
+                                    await _orderDetailService.AddAsync(item);
+                                }
+                            });
+                            await this._orderDetailService.SaveChangesAsync();
+                            if (result)
+                            {
+                                balan.Status = "Success";
+                                order.PaymentStatus = "Success";
+                                order.Status = "Success";
+                                balan.DueTime = DateTime.Now;
+                                var productKeys = buyRequest.Products;
+
+                                foreach (var productId in productKeys)
+                                {
+                                    var getCart = await this._cart.FindAsync(u => u.ProductTypesID == productId.Key);
+
+                                    if (getCart != null)
+                                    {
+                                        await this._cart.DeleteAsync(getCart);
+                                    }
+                                    var getWarian = await this._productWarian.FindAsync(u => u.ProductID == productId.Key);
+                                    getWarian.Stock -= productId.Value;
+                                    if (getWarian.Stock == 0 || getWarian.Stock < 0)
+                                    {
+                                        getWarian.Stock = 0;
+                                        getWarian.IsActive = false;
+                                    }
+                                    await this._productWarian.UpdateAsync(getWarian);
+                                    await this._productWarian.SaveChangesAsync();
+                                }
+                                await this._cart.SaveChangesAsync();
+                                await this._balance.SaveChangesAsync();
+                                await this._order.SaveChangesAsync();
+                                return Ok(new ErroMess { success = true, msg = "Đặt hàng thành công!" });
+                            }
+                            else
+                            {
+                                return Json(new ErroMess { msg = "Đã xảy ra lỗi trông quá trình mua!" });
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            order.PaymentStatus = "Failed";
+                            order.Status = "Failed";
+                            balan.Status = "Failed";
+                            balan.DueTime = DateTime.Now;
+                            balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
+                            balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
+                            balan.MoneyChange = totelPrice;
+                            await this._order.SaveChangesAsync();
+                            await this._balance.SaveChangesAsync();
+
+                            return BadRequest(new ErroMess { msg = "Đã xảy ra lỗi trông quá trình mua!" });
+                        }
+                    }
+                }
+                return Json(new ErroMess { msg = "Đã xảy ra lỗi vui lòng liên hệ admin!>" });
+            }
+            return Json(new ErroMess { msg = "Phương thức thanh toán không hợp lệ!" });
+        }
     }
+
 }
