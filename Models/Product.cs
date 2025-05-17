@@ -31,7 +31,7 @@ namespace Models
 
         public ICollection<Wishlist> Wishlists { get; set; }
 
-        public ICollection<OrderDetail> OrderDetails { get; set; }
+        
 
 
     }

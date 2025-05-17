@@ -21,7 +21,7 @@ namespace Repository.OrdeDetails
         public async Task<List<OrderDetailSellerViewModel>> GetOrderDetailsByOrderIdAsync(Guid orderId)
         {
             var orderDetails = await (from od in _context.OrderDetails
-                                      join p in _context.Products on od.ProductID equals p.ID
+                                      join p in _context.Products on od.ProductTypesID equals p.ID
                                       join o in _context.Orders on od.OrderID equals o.ID
                                       join u in _context.Users on o.UserID equals u.Id into userJoin
                                       from u in userJoin.DefaultIfEmpty() // LEFT JOIN Users

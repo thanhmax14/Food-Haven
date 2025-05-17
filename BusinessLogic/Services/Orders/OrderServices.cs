@@ -75,7 +75,7 @@ namespace BusinessLogic.Services.Orders
                 var orderDetails = order.OrderDetails;
                 if (orderDetails == null || !orderDetails.Any()) return false;
 
-                var productId = orderDetails.First().ProductID;
+                var productId = orderDetails.First().ProductTypesID;
                 var category = await _categoryRepositorys.GetByProductId(productId);
                 if (category == null) return false;
 

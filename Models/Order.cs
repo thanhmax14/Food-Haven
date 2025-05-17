@@ -12,6 +12,7 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
+        public string OrderTracking { get; set; } ="";
         public string OrderCode { get; set; }
         public string Status { get; set; }
         public bool IsActive { get; set; } = true;
@@ -21,6 +22,9 @@ namespace Models
         public string PaymentStatus { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
+        public string Description { get; set; } = "";
+        public string Note { get; set; } = "";
+        public string DeliveryAddress { get; set; } = "";
         [ForeignKey("AppUser")]
         public string UserID { get; set; }
         public virtual AppUser AppUser { get; set; }

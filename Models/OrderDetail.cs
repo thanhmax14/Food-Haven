@@ -23,9 +23,9 @@ namespace Models
         [ForeignKey("Order")]
         public Guid OrderID { get; set; }
         public virtual Order Order { get; set; }
-        [ForeignKey("Product")]
-        public Guid ProductID { get; set; }
-        public virtual Product Product { get; set; }
+        [ForeignKey("ProductTypes")]
+        public Guid ProductTypesID { get; set; }
+        public virtual ProductTypes ProductTypes { get; set; }
         public ICollection<Complain> Complains { get; set; }
 
     }
