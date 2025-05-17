@@ -13,7 +13,8 @@
         <div class="container">
             <div class="header-wrap">
                 <div class="logo logo-width-1">
-                    <a asp-action="Index" asp-controller="Home"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
+                    <a asp-action="Index" asp-controller="Home"><img src="~/assets/imgs/theme/logo.svg"
+                            alt="logo" /></a>
                 </div>
                 <div class="header-right">
                     <div class="search-style-2">
@@ -66,8 +67,7 @@
                             @* </div> *@
                             <div class="header-action-icon-2">
                                 <a href="">
-                                    <img class="svgInject" alt="Nest"
-                                         src="~/assets/imgs/theme/icons/icon-heart.svg" />
+                                    <img class="svgInject" alt="Nest" src="~/assets/imgs/theme/icons/icon-heart.svg" />
                                     @* <span class="pro-count blue">6</span> *@
                                 </a>
                                 <a asp-controller="Home" asp-action="Wishlist"><span class="lable">Wishlist</span></a>
@@ -75,7 +75,7 @@
 
                             <div id="cart-container">
                                 @await Html.PartialAsync("_Cart", new List<CartViewModels>())
-                           </div>
+                            </div>
                             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
                             <script src="https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js"></script>
 
@@ -218,7 +218,7 @@
                                 });
                             </script>
 
-                          
+
 
 
                             @if (SignInManager.IsSignedIn(User))
@@ -273,7 +273,9 @@
                                         </ul>
                                     </div>
                                 </div>
-                            }else{
+                            }
+                            else
+                            {
                                 <div class="header-action-icon-2">
                                     <a href="">
                                         <img class="svgInject" alt="Nest" src="~/assets/imgs/theme/icons/icon-user.svg" />
@@ -291,7 +293,7 @@
                                                     <i class="fi fi-rs-location-alt mr-10"></i>Register
                                                 </a>
                                             </li>
-                                            
+
                                         </ul>
                                     </div>
                                 </div>
@@ -299,7 +301,7 @@
                             }
 
 
-                       
+
                         </div>
                     </div>
                 </div>
@@ -313,252 +315,230 @@
                     <a asp-controller="Home"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
                 </div>
                 <div class="header-nav d-none d-lg-flex">
-                    <div class="main-categori-wrap d-none d-lg-block">
-                         <a class="categories-button-active" href="#"> 
-                             <span class="fi-rs-apps"></span> <span class="et">Browse</span> All Categories 
-                             <i class="fi-rs-angle-down"></i> 
-                         </a> 
-                        <div class="categories-dropdown-wrap categories-dropdown-active-large font-heading">
-                            <div class="d-flex categori-dropdown-inner">
-                                <ul>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-1.svg" alt="" />Milks and
-                                            Dairies
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-2.svg" alt="" />Clothing &
-                                            beauty
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-3.svg" alt="" />Pet Foods &
-                                            Toy
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-4.svg" alt="" />Baking
-                                            material
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-5.svg" alt="" />Fresh
-                                            Fruit
-                                        </a>
-                                    </li>
-                                </ul>
-                                <ul class="end">
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-6.svg" alt="" />Wines &
-                                            Drinks
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-7.svg" alt="" />Fresh
-                                            Seafood
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-8.svg" alt="" />Fast food
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-9.svg" alt="" />Vegetables
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img src="~/assets/imgs/theme/icons/category-10.svg" alt="" />Bread and
-                                            Juice
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="more_slide_open" style="display: none">
-                                <div class="d-flex categori-dropdown-inner">
-                                    <ul>
-                                        <li>
-                                            <a href="">
-                                                <img src="~/assets/imgs/theme/icons/icon-1.svg" alt="" />Milks and
-                                                Dairies
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="">
-                                                <img src="~/assets/imgs/theme/icons/icon-2.svg" alt="" />Clothing &
-                                                beauty
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="end">
-                                        <li>
-                                            <a href="">
-                                                <img src="~/assets/imgs/theme/icons/icon-3.svg" alt="" />Wines &
-                                                Drinks
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="">
-                                                <img src="~/assets/imgs/theme/icons/icon-4.svg" alt="" />Fresh
-                                                Seafood
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="more_categories">
-                                <span class="icon"></span> <span class="heading-sm-1">
-                                    Show
-                                    more...
-                                </span>
-                            </div>
-                        </div>
+                    <div id="category-list-container">
+                        @* @await Html.PartialAsync("_SearchCategoryList", new List<CategoryViewModel>()) *@
                     </div>
-                    <div class="main-menu main-menu-padding-1 main-menu-lh-2 d-none d-lg-block font-heading">
-                        <nav>
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        function bindCategoryEvents() {
+                            $(document).off("click", ".categories-button-active").on("click", ".categories-button-active", function (e) {
+                                e.preventDefault();
+
+                                // Thay đổi toggle để thêm cả 2 class cần thiết
+                                $(this).siblings(".categories-dropdown-wrap").toggleClass("active categories-dropdown-active-large");
+                                console.log("Dropdown clicked!");
+                            });
+
+                            $(document).off("click", ".more_categories").on("click", ".more_categories", function () {
+                                $(".more_slide_open").slideToggle();
+                            });
+                        }
+
+                        function loadCategoryList() {
+                            $.ajax({
+                                url: '@Url.Action("SearchCategoryList", "Home")',
+                                type: "GET",
+                                dataType: "html",
+                                success: function (response) {
+                                    $("#category-list-container").html(response);
+                                    bindCategoryEvents();
+                                    console.log("✅ Category list loaded successfully.");
+                                },
+                                error: function () {
+                                    $("#category-list-container").html('<p>Lỗi khi tải danh mục. Vui lòng thử lại.</p>');
+                                }
+                            });
+                        }
+
+                        loadCategoryList();
+                    });
+                </script>
+                  <style>
+                    .categories-dropdown-wrap {
+                        background: #fff;
+                        padding: 15px;
+                        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.03);
+                        position: absolute;
+                        width: 100%;
+                        min-width: 500px;
+                        max-width: 100vw;
+                        left: 0;
+                        right: 0;
+                        z-index: 2000;
+                        display: none;
+                        box-sizing: border-box;
+                    }
+
+                    .categories-dropdown-wrap.active {
+                        display: block !important;
+                    }
+
+                    .categori-dropdown-inner {
+                        display: flex;
+                        gap: 20px;
+                        width: 100%;
+                        box-sizing: border-box;
+                    }
+
+                    .categori-dropdown-inner ul {
+                        flex: 1 1 0;
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                        min-width: 0;
+                        /* Giúp tránh nội dung ép rộng */
+                    }
+
+                    .categori-dropdown-inner ul li a {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        display: block;
+                        max-width: 100%;
+                    }
+
+                    .more_slide_open {
+                        margin-top: 10px;
+                    }
+
+                    .more_categories {
+                        cursor: pointer;
+                    }
+                </style>
+                <div class="main-menu main-menu-padding-1 main-menu-lh-2 d-none d-lg-block font-heading">
+                    <nav>
+                        <ul>
+                            <li class="hot-deals">
+                                <a></a>
+                            </li>
+                            <li>
+                                <a class="" asp-controller="Home">Home </a>
+
+                            </li>
+                            <li>
+                                <a href="#"></a>
+
+                            </li>
+                            <li>
+                                <a></a>
+                            </li>
+                            <li>
+                                <a href="#"></a>
+
+                            </li>
+                            <li>
+                                <a> </a>
+                                <ul class="sub-menu">
+
+                                    <li>
+                                        <a asp-controller="Home" asp-action="ListProducts"> Products </a>
+
+                                    </li>
+
+                                    <li>
+                                        <a href="#">Shop Invoice</a>
+
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#"></a>
+
+                            </li>
+                            <li class="position-static">
+                                <a asp-controller="Home" asp-action="GetAllCategory">Categories</a>
+
+                            </li>
+                            <li>
+                                <a href="#"></a>
+
+                            </li>
+                            <li>
+                                <a href=""> </a>
+
+                            </li>
+                            <li>
+                                <a href="#"></a>
+
+                            </li>
+                            <li>
+                                <a href="#"> </a>
+
+                            </li>
+                            <li>
+                                <a href="#"></a>
+
+                            </li>
+                            <li>
+                                <a asp-controller="Home" asp-action="GetAllStore">Store</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="hotline d-none d-lg-flex">
+                <img src="~/assets/imgs/theme/icons/icon-headphone.svg" alt="hotline" />
+                <p>1900 - 888<span>24/7 Support Center</span></p>
+            </div>
+            <div class="header-action-icon-2 d-block d-lg-none">
+                <div class="burger-icon burger-icon-white">
+                    <span class="burger-icon-top"></span>
+                    <span class="burger-icon-mid"></span>
+                    <span class="burger-icon-bottom"></span>
+                </div>
+            </div>
+            <div class="header-action-right d-block d-lg-none">
+                <div class="header-action-2">
+                    <div class="header-action-icon-2">
+                        <a href="">
+                            <img alt="Nest" src="~/assets/imgs/theme/icons/icon-heart.svg" />
+                            @* <span class="pro-count white">4</span> *@
+                        </a>
+                    </div>
+                    <div class="header-action-icon-2">
+                        <a class="mini-cart-icon" asp-controller="Home" asp-action="Cart">
+                            <img alt="Nest" src="~/assets/imgs/theme/icons/icon-cart.svg" />
+                            @* <span class="pro-count white">2</span> *@
+                        </a>
+                        <div class="cart-dropdown-wrap cart-dropdown-hm2">
                             <ul>
-                                <li class="hot-deals">
-                                   <a></a>
+                                <li>
+                                    <div class="shopping-cart-img">
+                                        <a href="">
+                                            <img alt="Nest" src="~/assets/imgs/shop/thumbnail-3.jpg" />
+                                        </a>
+                                    </div>
+                                    <div class="shopping-cart-title">
+                                        <h4><a href="">Plain Striola Shirts</a></h4>
+                                        <h3><span>1 × </span>$800.00</h3>
+                                    </div>
+                                    <div class="shopping-cart-delete">
+                                        <a href="#"><i class="fi-rs-cross-small"></i></a>
+                                    </div>
                                 </li>
                                 <li>
-                                    <a class="" asp-controller="Home">Home </a>
-                                   
-                                </li>
-                                <li>
-                                    <a href="#"></a>
-
-                                </li>
-                                <li>
-                                    <a ></a>
-                                </li>
-                                <li>
-                                    <a href="#"></a>
-
-                                </li>
-                                <li>
-                                    <a > </a>
-                                    <ul class="sub-menu">
-                                       
-                                        <li>
-                                            <a asp-controller="Home" asp-action="ListProducts"> Products </a>
-                                           
-                                        </li>
-                                      
-                                        <li>
-                                            <a href="#">Shop Invoice</a>
-                                          
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a href="#"></a>
-                                    
-                                </li>
-                                <li class="position-static">
-                                    <a asp-controller="Home" asp-action="GetAllCategory">Categories</a>
-                                   
-                                </li>
-                                <li>
-                                    <a href="#"></a>
-
-                                </li>
-                                <li>
-                                    <a href=""> </a>
-                                  
-                                </li>
-                                <li>
-                                    <a href="#"></a>
-
-                                </li>
-                                <li>
-                                    <a href="#"> </a>
-                                 
-                                </li>
-                                <li>
-                                    <a href="#"></a>
-
-                                </li>
-                                <li>
-                                    <a asp-controller="Home" asp-action="GetAllStore">Store</a>
+                                    <div class="shopping-cart-img">
+                                        <a href="">
+                                            <img alt="Nest" src="~/assets/imgs/shop/thumbnail-4.jpg" />
+                                        </a>
+                                    </div>
+                                    <div class="shopping-cart-title">
+                                        <h4><a href="">Macbook Pro 2024</a></h4>
+                                        <h3><span>1 × </span>$3500.00</h3>
+                                    </div>
+                                    <div class="shopping-cart-delete">
+                                        <a href="#"><i class="fi-rs-cross-small"></i></a>
+                                    </div>
                                 </li>
                             </ul>
-                        </nav>
-                    </div>
-                </div>
-                <div class="hotline d-none d-lg-flex">
-                    <img src="~/assets/imgs/theme/icons/icon-headphone.svg" alt="hotline" />
-                    <p>1900 - 888<span>24/7 Support Center</span></p>
-                </div>
-                <div class="header-action-icon-2 d-block d-lg-none">
-                    <div class="burger-icon burger-icon-white">
-                        <span class="burger-icon-top"></span>
-                        <span class="burger-icon-mid"></span>
-                        <span class="burger-icon-bottom"></span>
-                    </div>
-                </div>
-                <div class="header-action-right d-block d-lg-none">
-                    <div class="header-action-2">
-                        <div class="header-action-icon-2">
-                            <a href="">
-                                <img alt="Nest" src="~/assets/imgs/theme/icons/icon-heart.svg" />
-                                @* <span class="pro-count white">4</span> *@
-                            </a>
-                        </div>
-                        <div class="header-action-icon-2">
-                            <a class="mini-cart-icon" asp-controller="Home" asp-action="Cart">
-                                <img alt="Nest" src="~/assets/imgs/theme/icons/icon-cart.svg" />
-                                @* <span class="pro-count white">2</span> *@
-                            </a>
-                            <div class="cart-dropdown-wrap cart-dropdown-hm2">
-                                <ul>
-                                    <li>
-                                        <div class="shopping-cart-img">
-                                            <a href="">
-                                                <img alt="Nest"
-                                                     src="~/assets/imgs/shop/thumbnail-3.jpg" />
-                                            </a>
-                                        </div>
-                                        <div class="shopping-cart-title">
-                                            <h4><a href="">Plain Striola Shirts</a></h4>
-                                            <h3><span>1 × </span>$800.00</h3>
-                                        </div>
-                                        <div class="shopping-cart-delete">
-                                            <a href="#"><i class="fi-rs-cross-small"></i></a>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="shopping-cart-img">
-                                            <a href="">
-                                                <img alt="Nest"
-                                                     src="~/assets/imgs/shop/thumbnail-4.jpg" />
-                                            </a>
-                                        </div>
-                                        <div class="shopping-cart-title">
-                                            <h4><a href="">Macbook Pro 2024</a></h4>
-                                            <h3><span>1 × </span>$3500.00</h3>
-                                        </div>
-                                        <div class="shopping-cart-delete">
-                                            <a href="#"><i class="fi-rs-cross-small"></i></a>
-                                        </div>
-                                    </li>
-                                </ul>
-                                <div class="shopping-cart-footer">
-                                    <div class="shopping-cart-total">
-                                        <h4>Total <span>$383.00</span></h4>
-                                    </div>
-                                    <div class="shopping-cart-button">
-                                        <a asp-controller="Home" asp-action="Cart">View cart</a>
-                                        <a href="">Checkout</a>
-                                    </div>
+                            <div class="shopping-cart-footer">
+                                <div class="shopping-cart-total">
+                                    <h4>Total <span>$383.00</span></h4>
+                                </div>
+                                <div class="shopping-cart-button">
+                                    <a asp-controller="Home" asp-action="Cart">View cart</a>
+                                    <a href="">Checkout</a>
                                 </div>
                             </div>
                         </div>
@@ -566,5 +546,6 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </header>

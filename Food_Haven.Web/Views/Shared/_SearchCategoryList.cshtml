@@ -1,0 +1,54 @@
+@model List<Repository.ViewModels.CategoryViewModel>
+
+<div class="main-categori-wrap d-lg-block">
+    <a class="categories-button-active" href="#">
+        <span class="fi-rs-apps"></span> <span class="et">Browse</span> All Categories
+        <i class="fi-rs-angle-down"></i>
+    </a>
+    <div class="categories-dropdown-wrap categories-dropdown-active-large font-heading">
+        <div class="d-flex categori-dropdown-inner">
+            <ul>
+                @foreach (var item in Model.Take(5))
+                {
+                    <li>
+                        <a asp-controller="Home" asp-action="GetAllProductOfCategory" asp-route-id="@item.ID">@item.Name</a>
+                    </li>
+                }
+            </ul>
+            <ul class="end">
+                @foreach (var item in Model.Skip(5).Take(5))
+                {
+                    <li>
+                        <a asp-controller="Home" asp-action="GetAllProductOfCategory" asp-route-id="@item.ID">@item.Name</a>
+                    </li>
+                }
+            </ul>
+        </div>
+        @if (Model.Count > 10)
+        {
+            <div class="more_slide_open" style="display: none">
+                <div class="d-flex categori-dropdown-inner">
+                    <ul>
+                        @foreach (var item in Model.Skip(10).Take(5))
+                        {
+                            <li>
+                                <a asp-controller="Home" asp-action="GetAllProductOfCategory" asp-route-id="@item.ID">@item.Name</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="end">
+                        @foreach (var item in Model.Skip(15).Take(5))
+                        {
+                            <li>
+                                <a asp-controller="Home" asp-action="GetAllProductOfCategory" asp-route-id="@item.ID">@item.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="more_categories" style="cursor: pointer;">
+                <span class="icon"></span> <span class="heading-sm-1">Show more...</span>
+            </div>
+        }
+    </div>
+</div>
