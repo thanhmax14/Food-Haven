@@ -18,7 +18,9 @@ namespace Repository.ViewModels
         public bool IsOnSale { get; set; } = false;
         public Guid CateID { get; set; }
         public Guid StoreID { get; set; }
-        public List<IFormFile> Images { get; set; } // Upload tối đa 5 hình
+        //public List<IFormFile> Images { get; set; } // Upload tối đa 5 hình
+        public IFormFile MainImage { get; set; }  // Ảnh chính
+        public List<IFormFile> GalleryImages { get; set; } = new List<IFormFile>();  // Ảnh phụ
         public List<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
     }
 }

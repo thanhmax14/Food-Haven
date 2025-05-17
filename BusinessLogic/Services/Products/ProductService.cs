@@ -65,7 +65,7 @@ namespace BusinessLogic.Services.Products
             Func<IQueryable<Product>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Product, object>> includeProperties = null) =>
             await _repository.ListAsync(filter, orderBy, includeProperties);
         public async Task<int> SaveChangesAsync() => await _repository.SaveChangesAsync();
-        public async Task<bool> CreateProductAsync(ProductListViewModel model, string userId, List<ProductImageViewModel> images)
+        public async Task<bool> CreateProductAsync(ProductViewModel model, string userId, List<ProductImageViewModel> images)
         {
             var storeId = await GetCurrentStoreIDAsync(userId);
             if (storeId == null)
@@ -80,26 +80,35 @@ namespace BusinessLogic.Services.Products
                 CreatedDate = DateTime.UtcNow,
                 ModifiedDate = null,
                 ManufactureDate = model.ManufactureDate,
-                IsActive = true,
-                IsOnSale = false,
+                IsActive = model.IsActive,
+                IsOnSale = model.IsOnSale,
                 CategoryID = model.CateID,
                 StoreID = storeId
             };
-            var result = await _repositorys.AddAsync(product);
 
-            if (!result)
+            var addProductResult = await _repositorys.AddAsync(product);
+
+            if (!addProductResult)
                 return false;
 
-            var productImages = images.Select((img, index) => new ProductImage
+            if (images != null && images.Any())
             {
-                ID = Guid.NewGuid(),
-                ProductID = product.ID,
-                ImageUrl = img.ImageUrl,
-                IsMain = index == 0 // Hình đầu tiên là hình chính
-            }).ToList();
+                var productImages = images.Select(img => new ProductImage
+                {
+                    ID = Guid.NewGuid(),
+                    ProductID = product.ID,
+                    ImageUrl = img.ImageUrl,
+                    IsMain = img.IsMain
+                }).ToList();
 
-            return await _productImageRepository.AddRangeAsync(productImages);
+                var addImagesResult = await _productImageRepository.AddRangeAsync(productImages);
+
+                return addImagesResult;
+            }
+
+            return true;
         }
+
 
         public Task<Guid> GetCurrentStoreIDAsync(string userId)
         {
@@ -131,33 +140,59 @@ namespace BusinessLogic.Services.Products
             };
 
             List<ProductImage> images = new List<ProductImage>();
-            if (model.Images != null && model.Images.Count > 0)
+            string uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            // Xử lý ảnh chính
+            if (model.MainImage != null && model.MainImage.Length > 0)
             {
-                string uploadPath = Path.Combine(_env.WebRootPath, "uploads");
+                string fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.MainImage.FileName)}";
+                string filePath = Path.Combine(uploadPath, fileName);
 
-                for (int i = 0; i < model.Images.Count && i < 5; i++)
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    var image = model.Images[i];
-                    string fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
-                    string filePath = Path.Combine(uploadPath, fileName);
+                    await model.MainImage.CopyToAsync(stream);
+                }
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                images.Add(new ProductImage
+                {
+                    ID = Guid.NewGuid(),
+                    ImageUrl = $"/uploads/{fileName}",
+                    IsMain = true,
+                    ProductID = product.ID
+                });
+            }
+
+            // Xử lý gallery
+            if (model.GalleryImages != null && model.GalleryImages.Count > 0)
+            {
+                foreach (var img in model.GalleryImages)
+                {
+                    if (img != null && img.Length > 0)
                     {
-                        await image.CopyToAsync(stream);
+                        string fileName = $"{Guid.NewGuid()}{Path.GetExtension(img.FileName)}";
+                        string filePath = Path.Combine(uploadPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await img.CopyToAsync(stream);
+                        }
+
+                        images.Add(new ProductImage
+                        {
+                            ID = Guid.NewGuid(),
+                            ImageUrl = $"/uploads/{fileName}",
+                            IsMain = false,
+                            ProductID = product.ID
+                        });
                     }
-
-                    images.Add(new ProductImage
-                    {
-                        ID = Guid.NewGuid(),
-                        ImageUrl = $"/uploads/{fileName}",
-                        IsMain = (i == 0), // Hình đầu tiên là IsMain
-                        ProductID = product.ID
-                    });
                 }
             }
 
             return await _repositorys.CreateProductAsync(product, images);
         }
+
 
         public async Task<List<Categories>> GetCategoriesAsync()
         {

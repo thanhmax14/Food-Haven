@@ -313,13 +313,39 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label fw-bold">Upload Images (Max 5)</label>
-                                                        <input type="file" name="Images" class="form-control" accept=".png, .jpeg, .jpg" id="imgInput" multiple disabled />
-                                                        <small class="text-muted">First image will be set as main.</small>
-                                                        <div id="imagePreview" class="mt-2 d-flex flex-wrap"></div>
+                                                <div class="mb-4">
+                                                    <h5 class="fs-14 mb-1">Product Image</h5>
+                                                    <p class="text-muted">Add Product main Image.</p>
+                                                    <div class="text-center">
+                                                        <div class="position-relative d-inline-block">
+                                                            <div class="position-absolute top-100 start-100 translate-middle">
+                                                                <label for="product-image-input" class="mb-0"
+                                                                       data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                       title="Select Image">
+                                                                    <div class="avatar-xs">
+                                                                        <div class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                            <i class="ri-image-fill"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </label>
+                                                                <input asp-for="MainImage" class="form-control d-none" value="" id="product-image-input"
+                                                                       type="file" accept="image/png, image/gif, image/jpeg" disabled >
+                                                            </div>
+                                                            <div class="avatar-lg">
+                                                                <div class="avatar-title bg-light rounded">
+                                                                    <img src="#" id="product-img" class="avatar-md h-auto" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
+                                                </div>
+
+                                                <!-- Product Gallery -->
+                                                <div class="mb-4">
+                                                    <label class="form-label">Product Gallery</label>
+                                                    <p class="text-muted">Add Product Gallery Images.</p>
+                                                    <input type="file" name="GalleryImages" id="galleryImageInput" class="form-control" accept="image/*" multiple disabled />
+                                                    <ul class="list-group mt-3" id="galleryPreviewList"></ul>
                                                 </div>
 
                                                 <div class="col-lg-12 text-end">
@@ -395,13 +421,39 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label fw-bold">Upload Images (Max 5)</label>
-                                                        <input type="file" name="Images" class="form-control" accept=".png, .jpeg, .jpg" id="imgInput" multiple />
-                                                        <small class="text-muted">First image will be set as main.</small>
-                                                        <div id="imagePreview" class="mt-2 d-flex flex-wrap"></div>
+                                                <div class="mb-4">
+                                                    <h5 class="fs-14 mb-1">Product Image</h5>
+                                                    <p class="text-muted">Add Product main Image.</p>
+                                                    <div class="text-center">
+                                                        <div class="position-relative d-inline-block">
+                                                            <div class="position-absolute top-100 start-100 translate-middle">
+                                                                <label for="product-image-input" class="mb-0"
+                                                                       data-bs-toggle="tooltip" data-bs-placement="right"
+                                                                       title="Select Image">
+                                                                    <div class="avatar-xs">
+                                                                        <div class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                            <i class="ri-image-fill"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </label>
+                                                                <input asp-for="MainImage" class="form-control d-none" value="" id="product-image-input"
+                                                                       type="file" accept="image/png, image/gif, image/jpeg">
+                                                            </div>
+                                                            <div class="avatar-lg">
+                                                                <div class="avatar-title bg-light rounded">
+                                                                    <img src="#" id="product-img" class="avatar-md h-auto" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
+                                                </div>
+
+                                                <!-- Product Gallery -->
+                                                <div class="mb-4">
+                                                    <label class="form-label">Product Gallery</label>
+                                                    <p class="text-muted">Add Product Gallery Images.</p>
+                                                    <input type="file" name="GalleryImages" id="galleryImageInput" class="form-control" accept="image/*" multiple />
+                                                    <ul class="list-group mt-3" id="galleryPreviewList"></ul>
                                                 </div>
 
                                                 <div class="col-lg-12 text-end">
@@ -417,31 +469,11 @@
                     </div>
                 }
 
-                <script>
-                    document.getElementById("imgInput").addEventListener("change", function (event) {
-                        let files = event.target.files;
-                        let preview = document.getElementById("imagePreview");
-                        preview.innerHTML = "";
-                        for (let i = 0; i < Math.min(files.length, 5); i++) {
-                            let reader = new FileReader();
-                            reader.onload = function (e) {
-                                let img = document.createElement("img");
-                                img.src = e.target.result;
-                                img.classList.add("img-thumbnail", "me-2", "mb-2");
-                                img.style.maxWidth = "100px";
-                                img.style.maxHeight = "100px";
-                                preview.appendChild(img);
-                            };
-                            reader.readAsDataURL(files[i]);
-                        }
-                    });
-                </script>
-
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
                     document.addEventListener("DOMContentLoaded", function () {
-                        var created = '@ViewBag.ProductCreated';
-                        var storeId = '@ViewBag.StoreID';
+                        var created = '@TempData["ProductCreated"]';
+                        var storeId = '@TempData["StoreID"]';
 
                         if (created === 'True') {
                             Swal.fire({
@@ -456,21 +488,94 @@
                     });
                 </script>
 
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © EasyFood.
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
-                                    Design & Develop by EasyFood
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // ======= MAIN IMAGE =======
+                        const mainInput = document.getElementById('product-image-input');
+                        const mainPreview = document.getElementById('product-img');
+
+                        if (mainInput && mainPreview) {
+                            mainInput.addEventListener('change', function (e) {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = function (event) {
+                                        mainPreview.src = event.target.result;
+                                    };
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    mainPreview.src = "/images/placeholder-image.png";
+                                }
+                            });
+                        }
+
+                        // ======= GALLERY IMAGE WITH MAX LIMIT + SWEETALERT =======
+                        const galleryInput = document.getElementById('galleryImageInput');
+                        const galleryList = document.getElementById('galleryPreviewList');
+                        let selectedGalleryFiles = [];
+
+                        galleryInput.addEventListener('change', function (e) {
+                            const newFiles = Array.from(e.target.files);
+                            const total = selectedGalleryFiles.length + newFiles.length;
+
+                            if (total > 4) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Image limit!',
+                                    text: 'You can only select up to 4 images',
+                                    confirmButtonText: 'OK'
+                                });
+                                return;
+                            }
+
+                            selectedGalleryFiles = selectedGalleryFiles.concat(newFiles);
+                            renderGalleryPreviews();
+                        });
+
+                        function renderGalleryPreviews() {
+                            galleryList.innerHTML = '';
+
+                            selectedGalleryFiles.forEach((file, index) => {
+                                const reader = new FileReader();
+                                reader.onload = function (event) {
+                                    const li = document.createElement('li');
+                                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                    li.style.gap = '10px';
+
+                                    li.innerHTML = `
+                                            <div class="d-flex align-items-center" style="gap: 10px;">
+                                                <img src="${event.target.result}" alt="${file.name}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
+                                                <div>
+                                                    <div>${file.name}</div>
+                                                    <div class="text-muted small">${(file.size / 1024).toFixed(1)} KB</div>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                                        `;
+
+                                    li.querySelector('button').addEventListener('click', function () {
+                                        selectedGalleryFiles.splice(index, 1);
+                                        updateInputFiles();
+                                        renderGalleryPreviews();
+                                    });
+
+                                    galleryList.appendChild(li);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+
+                            updateInputFiles();
+                        }
+
+                        function updateInputFiles() {
+                            const dataTransfer = new DataTransfer();
+                            selectedGalleryFiles.forEach(file => {
+                                dataTransfer.items.add(file);
+                            });
+                            galleryInput.files = dataTransfer.files;
+                        }
+                    });
+                </script>
 
             <!-- end main content-->
             <!-- END layout-wrapper -->

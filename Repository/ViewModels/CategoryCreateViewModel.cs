@@ -16,12 +16,12 @@ namespace Repository.ViewModels
         public string Name { get; set; }
 
         [Required]
-        [Range(0, 100, ErrorMessage = "Commission must be between 0% and 100%.")]
+        [Range(0, 100, ErrorMessage = "Commission must be between 0% and 100%!")]
         public float Commission { get; set; } // Hoa hồng %
 
         [Required]
-        public int Number { get; set; } // Thứ tự hiển thị
-
+        [Range(1, int.MaxValue, ErrorMessage = "Display order must be greater than 0!")]
+        public int Number { get; set; }
         public IFormFile Image { get; set; } // Thêm dòng này
     }
 }
