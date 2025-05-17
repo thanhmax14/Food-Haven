@@ -289,7 +289,8 @@
                                         <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
                                         <label class="form-check-label" for="exampleCheckbox11"></label>
                                     </th>
-                                    <th scope="col" colspan="2">Product</th>
+                                    <th scope="col">Product</th>
+                                    <th scope="col">ProductName</th>
                                     <th scope="col">Unit Price</th>
                                     <th scope="col">Quantity</th>
                                     <th scope="col">Subtotal</th>
@@ -305,10 +306,16 @@
                 <label class="form-check-label" for="checkbox-@item.ProductTypeID"></label>
             </td>
             <td class="image product-thumbnail">
+                <a  asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductID">
                 <img src="@(item.img ?? "/images/default-product.png")" alt="@(item.ProductTyName ?? "Sản phẩm không tên")">
+                </a>
             </td>
             <td class="product-des product-name">
-                <h6 class="mb-5"><a class="product-name mb-10 text-heading" href="">@(item.ProductTyName ?? "Sản phẩm không tên")</a></h6>
+            <h6 class="mb-5">
+                <a class="product-name mb-10 text-heading" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductID">
+                    @(item.ProductTyName ?? "Sản phẩm không tên")
+                </a>
+            </h6>
                 <div class="product-rate-cover">
                     <div class="product-rate d-inline-block">
                         <div class="product-rating" style="width:90%"></div>
@@ -925,27 +932,32 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-      $(document).ready(function () {
-    // Hàm kiểm tra số lượng kho
+$(document).ready(function () {
+    var pendingRequests = {};
+    var isProcessing = false;
+    var throttleTimeout = 800;
+
+    console.log("Script initialized at: ", new Date());
+
     function checkStock() {
         $("input.qty-val").each(function () {
             var inputField = $(this);
             var productTypeId = inputField.data("id");
             if (!productTypeId) {
-                console.error("🚨 ProductTypeID không được định nghĩa cho input:", inputField);
+                console.error("ProductTypeID is not defined for input:", inputField);
                 return;
             }
             var stockQty = parseInt(inputField.attr("data-stock")) || 0;
             var currentQty = parseInt(inputField.val()) || 0;
             var row = inputField.closest("tr");
 
-            console.log("🔍 Kiểm tra sản phẩm:", productTypeId);
-            console.log("📦 Kho thực tế:", stockQty, "🛒 Giỏ hàng:", currentQty);
+            console.log("Checking product:", productTypeId);
+            console.log("Stock quantity:", stockQty, "🛒 Cart quantity:", currentQty);
 
             if (currentQty > stockQty) {
                 row.addClass("outofstock");
                 if (!row.find(".out-of-stock-label").length) {
-                    row.find(".product-des").append('<span class="out-of-stock-label">Quantity exceeds stock and has been adjusted to available amount !</span>');
+                    row.find(".product-des").append('<span class="out-of-stock-label">Quantity exceeds stock and has been adjusted!</span>');
                 }
                 row.find(".qty-up").prop("disabled", true);
                 row.find(".qty-down").prop("disabled", false);
@@ -956,7 +968,6 @@
                 row.find(".qty-down").prop("disabled", currentQty <= 1);
             }
 
-            // Cập nhật trạng thái nút
             if (currentQty >= stockQty) {
                 $(".qty-up[data-id='" + productTypeId + "']").hide();
             } else {
@@ -970,51 +981,91 @@
         });
     }
 
-    // Kiểm tra khi trang load
     checkStock();
 
-    // Xử lý tăng/giảm số lượng
-    $(".qty-up, .qty-down").click(function (e) {
+    function throttle(func, wait) {
+        var timeout = null;
+        var previous = 0;
+        return function () {
+            var now = Date.now();
+            var remaining = wait - (now - previous);
+            var context = this, args = arguments;
+            if (remaining <= 0) {
+                if (timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+                previous = now;
+                func.apply(context, args);
+            } else if (!timeout) {
+                timeout = setTimeout(function () {
+                    previous = Date.now();
+                    timeout = null;
+                    func.apply(context, args);
+                }, remaining);
+            }
+        };
+    }
+
+    $(".qty-up, .qty-down").off("click").off("dblclick").on("click", throttle(function (e) {
         e.preventDefault();
+
+        console.log("Click triggered for ProductTypeID:", $(this).data("id"), "at", new Date());
+
+        if (isProcessing) {
+            console.log("Global request is being processed...");
+            return;
+        }
 
         var button = $(this);
         var productTypeId = button.data("id");
         if (!productTypeId) {
-            console.error("🚨 ProductTypeID không được định nghĩa cho nút:", button);
-            alert("⚠️ Lỗi: Không tìm thấy ProductTypeID!");
+            console.error("ProductTypeID is not defined for button:", button);
+            alert("Error: ProductTypeID not found!");
             return;
         }
         productTypeId = productTypeId.toString();
 
+        if (pendingRequests[productTypeId]) {
+            console.log("Request already in progress for ProductTypeID:", productTypeId);
+            return;
+        }
+
         var inputField = $("input[data-id='" + productTypeId + "']");
         if (inputField.length === 0) {
-            console.error("🚨 Không tìm thấy input với ProductTypeID:", productTypeId);
-            alert("⚠️ Lỗi: Không tìm thấy input số lượng!");
+            console.error("Cannot find input with ProductTypeID:", productTypeId);
+            alert("Error: Quantity input not found!");
             return;
         }
 
         var currentQty = parseInt(inputField.val()) || 0;
+        console.log("Before update - ProductTypeID:", productTypeId, "CurrentQty:", currentQty, "Time:", new Date());
+
         var stockQty = parseInt(inputField.attr("data-stock")) || 0;
         var isIncrease = button.hasClass("qty-up");
         var newQty = isIncrease ? currentQty + 1 : currentQty - 1;
 
-        console.log("📌 ProductTypeID:", productTypeId);
-        console.log("📌 Current Quantity:", currentQty);
-        console.log("📌 Stock Quantity:", stockQty);
+        console.log("Calculated newQty:", newQty, "StockQty:", stockQty);
 
         if (isIncrease && newQty > stockQty) {
-            alert("⚠️ Số lượng đặt hàng đã đạt giới hạn kho (" + stockQty + ")");
+            alert("The order quantity has reached the stock limit (" + stockQty + ").");
             inputField.val(stockQty);
             $(".qty-up[data-id='" + productTypeId + "']").hide();
+            checkStock();
             return;
         }
 
         if (!isIncrease && newQty < 1) {
-            alert("⚠️ Số lượng tối thiểu là 1.");
+            alert("Minimum quantity is 1.");
             return;
         }
 
-        button.prop("disabled", true);
+        var buttons = $(".qty-up[data-id='" + productTypeId + "'], .qty-down[data-id='" + productTypeId + "']");
+        buttons.prop("disabled", true);
+        button.html('<i class="fas fa-spinner fa-spin"></i>');
+
+        pendingRequests[productTypeId] = true;
+        isProcessing = true;
 
         $.ajax({
             url: "/Home/CheckQuantity",
@@ -1025,46 +1076,62 @@
                 quantity: newQty
             }),
             success: function (response) {
-                console.log("✅ Response từ Server:", response);
+                console.log("✅ Server response:", response, "Time:", new Date());
                 if (response.success) {
-                    inputField.val(newQty);
+                    var serverQty = response.quantity !== undefined ? response.quantity : newQty;
+                    inputField.val(serverQty);
+                    console.log("Quantity updated successfully:", serverQty);
+
                     if (response.isMaxStock) {
                         alert("⚠️ " + response.message);
                     }
                     if (response.productId) {
-                        console.log("🆔 Product ID:", response.productId);
+                        console.log(" Product ID:", response.productId);
                         $("#product-id-" + productTypeId).text(response.productId);
                     }
-                    if (newQty >= stockQty) {
+
+                    if (serverQty >= stockQty) {
                         $(".qty-up[data-id='" + productTypeId + "']").hide();
                     } else {
                         $(".qty-up[data-id='" + productTypeId + "']").show();
                     }
-                    if (newQty > 1) {
-                        $(".qty-down[data-id='" + productTypeId + "']").show();
-                    } else {
+                    if (serverQty <= 1) {
                         $(".qty-down[data-id='" + productTypeId + "']").hide();
+                    } else {
+                        $(".qty-down[data-id='" + productTypeId + "']").show();
                     }
-                    var unitPrice = parseFloat($("#price-" + productTypeId).text());
-                    var newSubtotal = newQty * unitPrice;
+
+                    var unitPrice = parseFloat($("#price-" + productTypeId).text()) || 0;
+                    var newSubtotal = serverQty * unitPrice;
                     $("#subtotal-" + productTypeId).text(newSubtotal.toFixed(2));
                     updateTotalPrice();
                     checkStock();
                 } else {
+                    alert("⚠️ Update failed: " + response.message);
                     inputField.val(currentQty);
-                    alert("⚠️ Cập nhật thất bại: " + response.message);
+                    console.log(" Quantity reverted to:", currentQty);
+                    checkStock();
                 }
             },
-            error: function () {
-                alert("⚠️ Lỗi server, vui lòng thử lại!");
+            error: function (xhr) {
+                console.error("❌ AJAX error:", xhr, "Time:", new Date());
+                alert("⚠️ Server error, please try again!");
+                inputField.val(currentQty);
+                console.log(" Quantity reverted due to error:", currentQty);
+                checkStock();
             },
             complete: function () {
-                button.prop("disabled", false);
+                delete pendingRequests[productTypeId];
+                isProcessing = false;
+                buttons.prop("disabled", false);
+                button.html(isIncrease ? '<i class="fi-rs-angle-small-up"></i>' : '<i class="fi-rs-angle-small-down"></i>');
             }
         });
+    }, throttleTimeout)).on("dblclick", function (e) {
+        e.preventDefault();
+        console.log(" Double-click detected and prevented for ProductTypeID:", $(this).data("id"));
     });
 
-    // Hàm updateTotalPrice
     function updateTotalPrice() {
         var total = 0;
         var hasCheckedItems = $("input.form-check-input:checked").length > 0;
@@ -1083,9 +1150,10 @@
             });
         }
         $("#cart-total").text(total.toFixed(2));
-        console.log("💰 Tổng giỏ hàng đã cập nhật:", total.toFixed(2));
+        console.log(" Cart total updated:", total.toFixed(2));
     }
 });
+
     </script>
 
 
