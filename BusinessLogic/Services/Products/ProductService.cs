@@ -204,10 +204,11 @@ namespace BusinessLogic.Services.Products
             return await _repositorys.GetProductByIdAsync(productId);
         }
 
-        public async Task UpdateProductAsync(ProductUpdateViewModel model, List<IFormFile> newImages, string webRootPath)
+        public async Task UpdateProductAsync(ProductUpdateViewModel model, string webRootPath)
         {
-            await _repositorys.UpdateProductAsync(model, newImages, webRootPath);
+            await _repositorys.UpdateProductAsync(model, webRootPath);
         }
+
         public async Task<bool> ToggleProductStatus(Guid productId)
         {
             var product = await _repositorys.GetByIdAsync(productId);
@@ -224,6 +225,11 @@ namespace BusinessLogic.Services.Products
         public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
         {
             return await _repositorys.IsStoreActiveByProductIdAsync(productId);
+        }
+
+        public Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId)
+        {
+            return _repositorys.GetImageUrlsByProductIdAsync(productId);
         }
     }
 }

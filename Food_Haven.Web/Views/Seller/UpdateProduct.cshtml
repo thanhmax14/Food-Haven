@@ -1,5 +1,10 @@
 ﻿@model Repository.ViewModels.ProductUpdateViewModel
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+@{
+    var mainImage = Model.ExistingImages?.FirstOrDefault();
+    var totalImages = Model.ExistingImages?.Count ?? 0;
+    var galleryImages = Model.ExistingImages?.Where(i => i != Model.ExistingMainImage).ToList() ?? new List<string>();
+}
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
       data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
@@ -370,119 +375,119 @@
                 }
                 else
                 {
+                    <!-- Update Product Form -->
                     <div class="row">
                         <div class="col-xxl-12">
                             <div class="card">
                                 <div class="card-header align-items-center d-flex">
                                     <h4 class="card-title mb-0 flex-grow-1">Update Your Product</h4>
                                 </div>
-
                                 <div class="card-body">
-                                    <div class="live-preview">
-                                        <form method="post" asp-action="UpdateProduct" enctype="multipart/form-data">
-                                            <input type="hidden" asp-for="ProductID" />
-                                            <input type="hidden" asp-for="StoreID" />
+                                    <form method="post" asp-action="UpdateProduct" enctype="multipart/form-data">
+                                        <input type="hidden" asp-for="ProductID" />
+                                        <input type="hidden" asp-for="StoreID" />
 
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Name" class="form-label">Product Name</label>
-                                                        <input asp-for="Name" class="form-control" placeholder="Enter product name" required />
-                                                        <span asp-validation-for="Name" class="text-danger"></span>
-                                                    </div>
-                                                </div>
+                                        <div class="row">
+                                            <!-- Product Name -->
+                                            <div class="col-md-6 mb-3">
+                                                <label asp-for="Name" class="form-label">Product Name</label>
+                                                <input asp-for="Name" class="form-control" required />
+                                                <span asp-validation-for="Name" class="text-danger"></span>
+                                            </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="ManufactureDate" class="form-label">Manufacture Date</label>
-                                                        <input asp-for="ManufactureDate" class="form-control" type="date" required />
-                                                    </div>
-                                                </div>
+                                            <!-- Manufacture Date -->
+                                            <div class="col-md-6 mb-3">
+                                                <label asp-for="ManufactureDate" class="form-label">Manufacture Date</label>
+                                                <input asp-for="ManufactureDate" type="date" class="form-control" required />
+                                            </div>
 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label asp-for="ShortDescription" class="form-label">Short Description</label>
-                                                        <input asp-for="ShortDescription" class="form-control" placeholder="Enter short description" required />
-                                                        <span asp-validation-for="ShortDescription" class="text-danger"></span>
-                                                    </div>
-                                                </div>
+                                            <!-- Short Description -->
+                                            <div class="col-md-12 mb-3">
+                                                <label asp-for="ShortDescription" class="form-label">Short Description</label>
+                                                <input asp-for="ShortDescription" class="form-control" required />
+                                                <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                                            </div>
 
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label asp-for="LongDescription" class="form-label">Detailed Description</label>
-                                                        <textarea id="ckeditor-classic" asp-for="LongDescription" class="form-control" rows="4" placeholder="Enter detailed product description" required></textarea>
-                                                        <span asp-validation-for="LongDescription" class="text-danger"></span>
-                                                    </div>
-                                                </div>
+                                            <!-- Long Description -->
+                                            <div class="col-md-12 mb-3">
+                                                <label asp-for="LongDescription" class="form-label">Detailed Description</label>
+                                                <textarea asp-for="LongDescription" class="form-control" rows="4" required></textarea>
+                                                <span asp-validation-for="LongDescription" class="text-danger"></span>
+                                            </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="CateID" class="form-label">Category</label>
-                                                        <select asp-for="CateID" asp-items="Model.Categories" class="form-control" required>
-                                                            <option value="">-- Select Category --</option>
-                                                        </select>
-                                                        <span asp-validation-for="CateID" class="text-danger"></span>
-                                                    </div>
-                                                </div>
+                                            <!-- Category -->
+                                            <div class="col-md-6 mb-3">
+                                                <label asp-for="CateID" class="form-label">Category</label>
+                                                <select asp-for="CateID" asp-items="Model.Categories" class="form-control" required>
+                                                    <option value="">-- Select Category --</option>
+                                                </select>
+                                                <span asp-validation-for="CateID" class="text-danger"></span>
+                                            </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Product Status</label>
-                                                        @* <div class="form-check">
-                                                    <input class="form-check-input" asp-for="IsActive" type="checkbox" id="isActive" />
-                                                    <label class="form-check-label" for="isActive"> Active </label>
-                                                    </div> *@
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" asp-for="IsOnSale" type="checkbox" id="isOnSale" />
-                                                            <label class="form-check-label" for="isOnSale"> On Sale </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Current Product Images</label>
-                                                        <div>
-                                                            @if (Model.ExistingImages != null && Model.ExistingImages.Count > 0)
-                                                            {
-                                                                <div class="d-flex flex-wrap">
-                                                                    @foreach (var img in Model.ExistingImages)
-                                                                    {
-                                                                        <div class="me-2 mb-2 position-relative">
-                                                                            <img src="@img" alt="Product Image" class="img-thumbnail existing-image" />
-                                                                            <input type="checkbox" name="RemoveImageUrls" value="@img" class="remove-checkbox" />
-                                                                            <label class="remove-label">Remove</label>
-                                                                        </div>
-                                                                    }
-                                                                </div>
-                                                            }
-                                                            else
-                                                            {
-                                                                <p class="text-muted">No images available</p>
-                                                            }
-                                                        </div>
-
-                                                        <label class="form-label mt-2">Upload New Images</label>
-                                                        <input type="file" name="NewImages" class="form-control" accept=".png, .jpeg, .jpg" multiple>
-                                                        <small class="text-muted">Supported formats: PNG, JPEG, JPG</small>
-
-                                                        <!-- Preview Image -->
-                                                        <div id="previewContainer" class="mt-2 d-flex flex-wrap"></div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-12 text-end">
-                                                    <a href="/Seller/ViewProductList?storeid=@Model.StoreID" class="btn btn-secondary px-4">Back To Products</a>
-                                                    <button type="submit" class="btn btn-primary px-4">Update Product</button>
+                                            <!-- Status -->
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Product Status</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" asp-for="IsOnSale" type="checkbox" />
+                                                    <label class="form-check-label" asp-for="IsOnSale">On Sale</label>
                                                 </div>
                                             </div>
-                                        </form>
-                                    </div>
+
+                                            <!-- Main Image -->
+                                            <div class="mb-4">
+                                                <h5 class="fs-14 mb-1">Product Image</h5>
+                                                <p class="text-muted">Add Product main Image.</p>
+                                                <div class="text-center">
+                                                    <div class="position-relative d-inline-block">
+                                                        <div class="position-absolute top-100 start-100 translate-middle">
+                                                            <label for="product-image-input" class="mb-0">
+                                                                <div class="avatar-xs">
+                                                                    <div class="avatar-title bg-light border rounded-circle text-muted cursor-pointer">
+                                                                        <i class="ri-image-fill"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </label>
+                                                            <input asp-for="MainImage" id="product-image-input" type="file" class="form-control d-none" accept="image/*">
+                                                        </div>
+                                                        <div class="avatar-lg">
+                                                            <div class="avatar-title bg-light rounded">
+                                                                <img src="@Model.ExistingImages?.FirstOrDefault()" id="product-img" class="avatar-md h-auto" style="object-fit: cover;" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Gallery Images Input Section -->
+                                            <div class="mb-4">
+                                                <label class="form-label">Product Gallery</label>
+                                                <p class="text-muted">Add up to 4 gallery images.</p>
+                                                <input asp-for="GalleryImages" id="galleryImageInput" type="file" class="form-control" accept="image/*" multiple />
+                                                <ul class="list-group mt-3" id="galleryPreviewList"></ul>
+                                                <div id="removedImagesContainer"></div>
+
+                                                <div id="existingGalleryImages" class="d-none">
+                                                    @foreach (var img in galleryImages)
+                                                    {
+                                                        <img class="existing-gallery-img" data-url="@img" data-name="@System.IO.Path.GetFileName(img)" />
+                                                    }
+                                                </div>
+                                                <input type="hidden" id="existingGalleryCount" value="@galleryImages.Count" />
+                                            </div>
+
+                                            <!-- Submit Button -->
+                                            <div class="col-lg-12 text-end">
+                                                <a href="/Seller/ViewProductList?storeid=@Model.StoreID" class="btn btn-secondary px-4">Back To Products</a>
+                                                <button type="submit" id="submitBtn" class="btn btn-primary px-4">Update Product</button>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 }
+
 
 
 
@@ -515,25 +520,6 @@
                 </style>
 
                 <script>
-                    document.querySelector('input[name="NewImages"]').addEventListener('change', function (event) {
-                        let container = document.getElementById("previewContainer");
-                        container.innerHTML = "";
-                        for (let file of event.target.files) {
-                            let reader = new FileReader();
-                            reader.onload = function (e) {
-                                let img = document.createElement("img");
-                                img.src = e.target.result;
-                                img.classList.add("img-thumbnail", "me-2", "mb-2");
-                                img.style.maxWidth = "100px";
-                                img.style.maxHeight = "100px";
-                                container.appendChild(img);
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                </script>
-
-                <script>
                     @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
                     {
                         <text>
@@ -546,6 +532,120 @@
                                                                 });
                         </text>
                     }
+                </script>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const mainInput = document.getElementById('product-image-input');
+                        const mainPreview = document.getElementById('product-img');
+                        const removedImagesContainer = document.getElementById('removedImagesContainer');
+                        const existingGalleryCountInput = document.getElementById('existingGalleryCount');
+
+                        let selectedGalleryFiles = [];
+                        let galleryInput = document.getElementById('galleryImageInput');
+                        const galleryList = document.getElementById('galleryPreviewList');
+
+                        function updateGalleryInputState() {
+                            const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
+                            const existingCount = parseInt(existingGalleryCountInput.value) || 0;
+                            const totalImages = (existingCount - removedCount) + selectedGalleryFiles.length;
+                            galleryInput.disabled = totalImages >= 4;
+                        }
+
+                        if (mainInput && mainPreview) {
+                            mainInput.addEventListener('change', function (e) {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = e => mainPreview.src = e.target.result;
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    mainPreview.src = "/images/placeholder-image.png";
+                                }
+                            });
+                        }
+
+                        galleryInput.addEventListener('change', function (e) {
+                            const files = Array.from(e.target.files);
+                            const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
+                            const existingCount = parseInt(existingGalleryCountInput.value) || 0;
+                            const totalIfAdded = (existingCount - removedCount) + selectedGalleryFiles.length + files.length;
+
+                            if (totalIfAdded > 4) {
+                                Swal.fire({ icon: 'warning', title: 'Image limit exceeded!', text: 'Only 4 gallery images allowed.' });
+                                galleryInput.value = '';
+                                return;
+                            }
+
+                            selectedGalleryFiles = selectedGalleryFiles.concat(files);
+                            renderGalleryPreviews();
+                            updateGalleryInputState();
+                        });
+
+                        function renderGalleryPreviews() {
+                            galleryList.querySelectorAll('li[data-type="new"]').forEach(li => li.remove());
+
+                            selectedGalleryFiles.forEach((file, index) => {
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    const li = document.createElement('li');
+                                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                    li.setAttribute('data-type', 'new');
+                                    li.innerHTML = `
+                                        <div class="d-flex align-items-center" style="gap: 10px;">
+                                            <img src="${e.target.result}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
+                                            <div>
+                                                <div>${file.name}</div>
+                                                <div class="text-muted small">${(file.size / 1024).toFixed(1)} KB</div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                                    `;
+                                    li.querySelector('button').addEventListener('click', function () {
+                                        selectedGalleryFiles.splice(index, 1);
+                                        renderGalleryPreviews();
+                                        updateGalleryInputState();
+                                    });
+                                    galleryList.appendChild(li);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                        }
+
+                        const existingGalleryContainer = document.getElementById('existingGalleryImages');
+                        if (existingGalleryContainer) {
+                            const galleryImages = existingGalleryContainer.querySelectorAll('.existing-gallery-img');
+                            galleryImages.forEach(img => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                li.innerHTML = `
+                                    <div class="d-flex align-items-center" style="gap: 10px;">
+                                        <img src="${img.dataset.url}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
+                                        <div>
+                                            <div>${img.dataset.name}</div>
+                                            <div class="text-muted small">Existing image</div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="markToRemove(this, '${img.dataset.url}')">Delete</button>
+                                `;
+                                galleryList.appendChild(li);
+                            });
+                        }
+
+                        window.markToRemove = function (button, imageUrl) {
+                            const li = button.closest('li');
+                            li.remove();
+
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = "RemoveImageUrls";
+                            input.value = imageUrl;
+                            removedImagesContainer.appendChild(input);
+                            updateGalleryInputState();
+                        };
+
+                        updateGalleryInputState();
+                    });
                 </script>
 
                 <footer class="footer">
