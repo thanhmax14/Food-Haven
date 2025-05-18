@@ -9,6 +9,9 @@ namespace Repository.ViewModels
     public class ProductVariantViewModel
     {
         public Guid ID { get; set; }
+        public string Name { get; set; }
+
+        
         public string Size { get; set; }
         public decimal Price { get; set; }
         public decimal? OriginalPrice { get; set; }
@@ -18,5 +21,8 @@ namespace Repository.ViewModels
         public Guid ProductID { get; set; }
         public Guid StoreID { get; set; } // 🆕 Thêm StoreID
         public bool IsActive { get; set; }
+
+        public List<ProductVariantViewModel> Variants { get; set; }
     }
+
 }

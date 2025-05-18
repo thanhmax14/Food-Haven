@@ -715,7 +715,14 @@ namespace Food_Haven.Web.Controllers
 
             // 2. Lấy thông tin variant (size, giá, tồn kho)
             var variants = await _productvarian.ListAsync(v => v.ProductID == id && v.IsActive);
-            viewModel.size = variants.Select(v => v.Name).ToList();
+            viewModel.size = variants.Select(v => v.Name).ToList(); // vẫn giữ để hiển thị dropdown
+            viewModel.Variant = variants.Select(v => new ProductVariantViewModel
+            {
+                Name = v.Name,
+                Price = v.SellPrice,
+                Stock = v.Stock,
+               
+            }).ToList();
             viewModel.Price = variants.FirstOrDefault()?.SellPrice ?? 0;
             viewModel.Stocks = variants.FirstOrDefault()?.Stock ?? 0;
 

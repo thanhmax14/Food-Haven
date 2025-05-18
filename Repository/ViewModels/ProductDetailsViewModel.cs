@@ -26,6 +26,7 @@
 
         public Guid StoreID { get; set; }
 
+        public List<ProductVariantViewModel> Variant { get; set; } = new List<ProductVariantViewModel>();
         public List<CommentViewModels> Comments { get; set; } = new List<CommentViewModels>();
 
     }
