@@ -549,7 +549,9 @@ namespace Food_Haven.Web.Controllers
                 return NotFound();
             }
 
-            // Kiểm tra trạng thái của Store dựa trên productId
+            // ✅ Gọi từ Service thay vì dùng _context
+            model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(productId);
+
             var isStoreActive = await _productService.IsStoreActiveByProductIdAsync(productId);
             ViewBag.IsStoreActive = isStoreActive;
 
@@ -562,15 +564,19 @@ namespace Food_Haven.Web.Controllers
 
             ViewBag.ProductID = productId;
             ViewBag.StoreID = model.StoreID;
+
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProduct(ProductUpdateViewModel model, List<IFormFile> NewImages)
+        public async Task<IActionResult> UpdateProduct(ProductUpdateViewModel model)
         {
             if (!ModelState.IsValid)
             {
+                model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
+                model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
+
                 var categories = await _productService.GetCategoriesAsync();
                 model.Categories = categories.Select(c => new SelectListItem
                 {
@@ -582,13 +588,13 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
-            string webRootPath = _webHostEnvironment.WebRootPath; // Lấy đường dẫn thư mục wwwroot
+            var webRootPath = _webHostEnvironment.WebRootPath;
+            await _productService.UpdateProductAsync(model, webRootPath);
 
-            await _productService.UpdateProductAsync(model, NewImages, webRootPath);
+            model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
+            model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
 
-            // Load lại categories vì return View
-            var updatedCategories = await _productService.GetCategoriesAsync();
-            model.Categories = updatedCategories.Select(c => new SelectListItem
+            model.Categories = (await _productService.GetCategoriesAsync()).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.Name
@@ -598,8 +604,8 @@ namespace Food_Haven.Web.Controllers
             ViewBag.StoreID = model.StoreID;
 
             return View(model);
-            //return RedirectToAction("ViewProductList", "Seller", new { storeId = model.StoreID });
         }
+
         [HttpPost]
         [Route("Seller/ToggleStatus")]
         public async Task<IActionResult> ToggleStatus(Guid productId, bool isActive)

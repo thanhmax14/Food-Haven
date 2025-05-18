@@ -19,9 +19,13 @@ namespace Repository.ViewModels
         public Guid CateID { get; set; }
         public Guid StoreID { get; set; }
         //public List<IFormFile> Images { get; set; } // Upload tối đa 5 hình
-        public IFormFile MainImage { get; set; }  // Ảnh chính
+        public IFormFile? MainImage { get; set; }  // Ảnh chính
         public List<IFormFile> GalleryImages { get; set; } = new List<IFormFile>();  // Ảnh phụ
         public List<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
+
+        public string? ExistingMainImage { get; set; } // Chỉ ảnh chính
+        public List<string>? ExistingGalleryImages { get; set; } = new(); // Chỉ ảnh phụ
+
     }
 }
 

@@ -164,7 +164,7 @@ namespace Repository.Products
             };
         }
 
-        public async Task UpdateProductAsync(ProductUpdateViewModel model, List<IFormFile> newImages, string webRootPath)
+        public async Task UpdateProductAsync(ProductUpdateViewModel model, string webRootPath)
         {
             var product = await _context.Products
                 .Include(p => p.ProductImages)
@@ -177,11 +177,10 @@ namespace Repository.Products
             product.LongDescription = model.LongDescription;
             product.ManufactureDate = model.ManufactureDate;
             product.ModifiedDate = DateTime.UtcNow;
-            //product.IsActive = model.IsActive;
             product.IsOnSale = model.IsOnSale;
             product.CategoryID = model.CateID;
 
-            // Xóa ảnh cũ nếu có trong danh sách RemoveImageUrls
+            // XÓA ảnh được chọn
             if (model.RemoveImageUrls?.Any() == true)
             {
                 var imagesToRemove = product.ProductImages
@@ -190,30 +189,62 @@ namespace Repository.Products
 
                 foreach (var img in imagesToRemove)
                 {
-                    string imgPath = Path.Combine(webRootPath, "uploads", img.ImageUrl);
-                    if (File.Exists(imgPath))
-                    {
-                        File.Delete(imgPath);
-                    }
+                    var path = Path.Combine(webRootPath, "uploads", Path.GetFileName(img.ImageUrl));
+                    if (File.Exists(path)) File.Delete(path);
                 }
 
                 _context.ProductImages.RemoveRange(imagesToRemove);
                 await _context.SaveChangesAsync();
             }
 
-            // Kiểm tra lại số lượng ảnh sau khi xóa
-            int currentImageCount = product.ProductImages.Count;
-            bool hasMainImage = product.ProductImages.Any(i => i.IsMain); // Kiểm tra đã có ảnh chính chưa
-
-            // Xử lý ảnh mới nếu chưa đạt 5 ảnh
-            if (currentImageCount < 5 && newImages?.Any() == true)
+            // XỬ LÝ ẢNH CHÍNH
+            if (model.MainImage != null)
             {
-                int availableSlots = 5 - currentImageCount;
-                var imagesToAdd = new List<Models.ProductImage>();
+                string fileName = Guid.NewGuid() + Path.GetExtension(model.MainImage.FileName);
+                string filePath = Path.Combine(webRootPath, "uploads", fileName);
 
-                foreach (var file in newImages.Take(availableSlots))
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    await model.MainImage.CopyToAsync(stream);
+                }
+
+                // Xóa ảnh chính cũ
+                var oldMain = product.ProductImages.FirstOrDefault(i => i.IsMain);
+                if (oldMain != null)
+                {
+                    var oldPath = Path.Combine(webRootPath, "uploads", Path.GetFileName(oldMain.ImageUrl));
+                    if (File.Exists(oldPath)) File.Delete(oldPath);
+                    _context.ProductImages.Remove(oldMain);
+                }
+
+                _context.ProductImages.Add(new Models.ProductImage
+                {
+                    ProductID = product.ID,
+                    ImageUrl = "/uploads/" + fileName,
+                    IsMain = true
+                });
+            }
+            else if (!string.IsNullOrEmpty(model.ExistingMainImage))
+            {
+                bool exists = product.ProductImages.Any(p => p.ImageUrl == model.ExistingMainImage && p.IsMain);
+                if (!exists)
+                {
+                    _context.ProductImages.Add(new Models.ProductImage
+                    {
+                        ProductID = product.ID,
+                        ImageUrl = model.ExistingMainImage,
+                        IsMain = true
+                    });
+                }
+            }
+
+            // XỬ LÝ ẢNH PHỤ
+            var gallerySlots = 4 - product.ProductImages.Count(i => !i.IsMain);
+            if (model.GalleryImages?.Any() == true)
+            {
+                foreach (var file in model.GalleryImages.Take(gallerySlots))
+                {
+                    string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
                     string filePath = Path.Combine(webRootPath, "uploads", fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -221,22 +252,17 @@ namespace Repository.Products
                         await file.CopyToAsync(stream);
                     }
 
-                    imagesToAdd.Add(new Models.ProductImage
+                    _context.ProductImages.Add(new Models.ProductImage
                     {
-                        ImageUrl = "/uploads/" + fileName, // Lưu đường dẫn tương đối
                         ProductID = product.ID,
-                        IsMain = !hasMainImage // Đặt IsMain = true nếu chưa có ảnh chính
+                        ImageUrl = "/uploads/" + fileName,
+                        IsMain = false
                     });
-
-                    hasMainImage = true; // Sau khi thêm ảnh đầu tiên, đảm bảo các ảnh sau là IsMain = false
                 }
-
-                _context.ProductImages.AddRange(imagesToAdd);
             }
 
             await _context.SaveChangesAsync();
         }
-
 
         public async Task<ProductHideShowViewModel> GetByIdAsync(Guid id)
         {
@@ -303,5 +329,14 @@ namespace Repository.Products
                           where p.ID == productId
                           select s.IsActive).FirstOrDefaultAsync();
         }
+        public async Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId)
+        {
+            return await _context.ProductImages
+                .Where(p => p.ProductID == productId)
+                .OrderByDescending(p => p.IsMain)
+                .Select(p => p.ImageUrl)
+                .ToListAsync();
+        }
+
     }
 }

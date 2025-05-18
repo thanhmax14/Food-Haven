@@ -37,9 +37,11 @@ namespace BusinessLogic.Services.Products
         Task<Guid> CreateProductAsync(ProductViewModel model);
         Task<List<Categories>> GetCategoriesAsync();
         Task<ProductUpdateViewModel> GetProductByIdAsync(Guid productId);
-        Task UpdateProductAsync(ProductUpdateViewModel model, List<IFormFile> newImages, string webRootPath);
+        Task UpdateProductAsync(ProductUpdateViewModel model, string webRootPath);
         Task<bool> ToggleProductStatus(Guid productId);
         List<ProductIndexViewModel> GetProductsByCurrentUser(string userId);
         Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
+        Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId);
+
     }
 }

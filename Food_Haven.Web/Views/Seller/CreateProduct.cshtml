@@ -344,7 +344,7 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Product Gallery</label>
                                                     <p class="text-muted">Add Product Gallery Images.</p>
-                                                    <input type="file" name="GalleryImages" id="galleryImageInput" class="form-control" accept="image/*" multiple disabled />
+                                                    <input asp-for="GalleryImages" type="file" id="galleryImageInput" class="form-control" accept="image/*" multiple disabled />
                                                     <ul class="list-group mt-3" id="galleryPreviewList"></ul>
                                                 </div>
 
@@ -452,13 +452,13 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Product Gallery</label>
                                                     <p class="text-muted">Add Product Gallery Images.</p>
-                                                    <input type="file" name="GalleryImages" id="galleryImageInput" class="form-control" accept="image/*" multiple />
+                                                    <input asp-for="GalleryImages" name="GalleryImages" type="file" id="galleryImageInput" class="form-control" accept="image/*" multiple />
                                                     <ul class="list-group mt-3" id="galleryPreviewList"></ul>
                                                 </div>
 
                                                 <div class="col-lg-12 text-end">
                                                     <a href="/Seller/ViewProductList?storeid=@Model.StoreID" class="btn btn-secondary px-4">Back to List</a>
-                                                    <button type="submit" class="btn btn-primary px-4">Create Product</button>
+                                                    <button type="submit" id="submitBtn" class="btn btn-primary px-4">Create Product</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -490,7 +490,7 @@
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
-                        // ======= MAIN IMAGE =======
+                        // ======= MAIN IMAGE PREVIEW =======
                         const mainInput = document.getElementById('product-image-input');
                         const mainPreview = document.getElementById('product-img');
 
@@ -509,70 +509,53 @@
                             });
                         }
 
-                        // ======= GALLERY IMAGE WITH MAX LIMIT + SWEETALERT =======
+                        // ======= GALLERY IMAGE WITH LIMIT =======
                         const galleryInput = document.getElementById('galleryImageInput');
                         const galleryList = document.getElementById('galleryPreviewList');
+                        const submitBtn = document.getElementById('submitBtn');
                         let selectedGalleryFiles = [];
 
                         galleryInput.addEventListener('change', function (e) {
                             const newFiles = Array.from(e.target.files);
-                            const total = selectedGalleryFiles.length + newFiles.length;
 
-                            if (total > 4) {
+                            const totalSelected = newFiles.length;
+                            if (totalSelected + galleryList.children.length > 4) {
                                 Swal.fire({
                                     icon: 'warning',
-                                    title: 'Image limit!',
-                                    text: 'You can only select up to 4 images',
-                                    confirmButtonText: 'OK'
+                                    title: 'Image limit exceeded!',
+                                    text: `You can only select up to 4 gallery images.`,
                                 });
+                                galleryInput.value = ''; // reset
                                 return;
                             }
 
-                            selectedGalleryFiles = selectedGalleryFiles.concat(newFiles);
-                            renderGalleryPreviews();
+                            renderGalleryPreviews(newFiles);
+                            galleryInput.value = ''; // reset to allow same files to be re-selected
                         });
 
-                        function renderGalleryPreviews() {
-                            galleryList.innerHTML = '';
-
-                            selectedGalleryFiles.forEach((file, index) => {
+                        function renderGalleryPreviews(files) {
+                            files.forEach((file, index) => {
                                 const reader = new FileReader();
                                 reader.onload = function (event) {
                                     const li = document.createElement('li');
                                     li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                                    li.style.gap = '10px';
-
                                     li.innerHTML = `
-                                            <div class="d-flex align-items-center" style="gap: 10px;">
-                                                <img src="${event.target.result}" alt="${file.name}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
-                                                <div>
-                                                    <div>${file.name}</div>
-                                                    <div class="text-muted small">${(file.size / 1024).toFixed(1)} KB</div>
-                                                </div>
-                                            </div>
-                                            <button type="button" class="btn btn-danger btn-sm">Delete</button>
-                                        `;
-
-                                    li.querySelector('button').addEventListener('click', function () {
-                                        selectedGalleryFiles.splice(index, 1);
-                                        updateInputFiles();
-                                        renderGalleryPreviews();
-                                    });
-
+                                    <div class="d-flex align-items-center" style="gap: 10px;">
+                                        <img src="${event.target.result}" alt="${file.name}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
+                                        <div>
+                                            <div>${file.name}</div>
+                                            <div class="text-muted small">${(file.size / 1024).toFixed(1)} KB</div>
+                                        </div>
+                                    </div>
+                                `;
                                     galleryList.appendChild(li);
                                 };
                                 reader.readAsDataURL(file);
                             });
-
-                            updateInputFiles();
                         }
 
-                        function updateInputFiles() {
-                            const dataTransfer = new DataTransfer();
-                            selectedGalleryFiles.forEach(file => {
-                                dataTransfer.items.add(file);
-                            });
-                            galleryInput.files = dataTransfer.files;
+                        function updateSubmitState() {
+                            submitBtn.disabled = selectedGalleryFiles.length > 4;
                         }
                     });
                 </script>
