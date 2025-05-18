@@ -82,7 +82,7 @@ namespace Food_Haven.Web.Controllers
             try
             {
                 // Bắt đầu với truy vấn gốc từ service
-                var query = _product.GetAll();
+                var query = _product.GetAll().Where(p => p.IsActive);
                 var price = _productvarian.GetAll();
 
                 // Lọc theo tên sản phẩm
@@ -361,8 +361,8 @@ namespace Food_Haven.Web.Controllers
         {
             try
             {
-                // Bắt đầu với truy vấn gốc từ service
-                var query = _product.GetAll();
+                // Chỉ lấy sản phẩm IsActive == true
+                var query = _product.GetAll().Where(p => p.IsActive);
                 var price = _productvarian.GetAll();
 
                 // Lọc theo tên sản phẩm
@@ -380,27 +380,20 @@ namespace Food_Haven.Web.Controllers
                     filterCount++;
                 }
 
-                // Thực thi truy vấn và chuyển sang ViewModel nếu cần
                 var list = query.Select(p => new ProductsViewModel
                 {
                     ID = p.ID,
                     Name = p.Name,
                     LongDescription = p.LongDescription,
-
-                    // Lấy giá từ biến thể đầu tiên (nếu có)
                     Price = p.ProductTypes
-              .OrderBy(v => v.SellPrice) // hoặc FirstOrDefault nếu chỉ cần 1
-              .Select(v => v.SellPrice)
-              .FirstOrDefault(),
-
-                    // Lấy danh sách ảnh (ví dụ chuỗi URL hoặc danh sách)
+                        .OrderBy(v => v.SellPrice)
+                        .Select(v => v.SellPrice)
+                        .FirstOrDefault(),
                     Img = p.ProductImages
-                      .Select(img => img.ImageUrl)
-                      .ToList()
+                        .Select(img => img.ImageUrl)
+                        .ToList()
                 }).ToList();
 
-
-                // Gán ViewBag
                 ViewBag.MinPrice = minPrice ?? 0;
                 ViewBag.MaxPrice = maxPrice ?? 2000;
                 ViewBag.FilterCount = filterCount;
@@ -419,6 +412,7 @@ namespace Food_Haven.Web.Controllers
                 return View(new List<ProductsViewModel>());
             }
         }
+
         public async Task<IActionResult> Logout()
         {
 
@@ -705,11 +699,7 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> ProductDetail(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Home");
-            }
+           
 
             var productDetail = await _product.FindAsync(x => x.ID == id);
             if (productDetail == null)
