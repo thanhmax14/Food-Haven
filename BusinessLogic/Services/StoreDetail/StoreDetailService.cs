@@ -67,7 +67,7 @@ namespace BusinessLogic.Services.StoreDetail
             store.UserID = userId;
             store.CreatedDate = DateTime.Now;
             store.ModifiedDate = null;
-            store.Status = "PENDING";
+            store.Status = "Pending";
             store.IsActive = false;
 
             return await _repositorys.AddStoreAsync(store);

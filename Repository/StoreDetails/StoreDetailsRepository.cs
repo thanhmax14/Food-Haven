@@ -76,10 +76,10 @@ namespace Repository.StoreDetails
                         Address = s.Address,
                         Phone = s.Phone,
                         Img = !string.IsNullOrEmpty(s.ImageUrl) ? s.ImageUrl : "default-store.png",
-                        IsActive = s.IsActive, // Giữ nguyên trạng thái hoạt động
-                        Status = s.Status ?? "PENDING", // Lấy trạng thái từ DB hoặc mặc định "PENDING"
+                        IsActive = s.IsActive,
+                        Status = s.Status ?? "Pending",
                         UserName = u.UserName,
-                        UserID = s.UserID // Thêm UserID nếu cần
+                        UserID = s.UserID
                     }
                 )
                 .ToListAsync();
