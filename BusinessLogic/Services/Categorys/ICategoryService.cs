@@ -36,5 +36,6 @@ namespace BusinessLogic.Services.Categorys
         void UpdateCategory(CategoryUpdateViewModel model);
         CategoryUpdateViewModel GetCategoryForUpdate(Guid id);
         Task<bool> ToggleCategoryStatusAsync(Guid categoryId, bool isActive);
+        
     }
 }

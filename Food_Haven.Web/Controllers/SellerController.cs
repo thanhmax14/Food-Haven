@@ -429,7 +429,7 @@ namespace Food_Haven.Web.Controllers
                 return View(new ProductViewModel());
             }
 
-            var categories = await _productService.GetCategoriesAsync();
+            var categories = await _productService.GetActiveCategoriesAsync();
             var store = await _storeDetailService.GetStoreByUserIdAsync(userId); // để lấy StoreID
 
             var model = new ProductViewModel
@@ -453,7 +453,7 @@ namespace Food_Haven.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                var categories = await _productService.GetCategoriesAsync();
+                var categories = await _productService.GetActiveCategoriesAsync();
                 model.Categories = categories.Select(c => new SelectListItem
                 {
                     Value = c.ID.ToString(),
@@ -530,7 +530,7 @@ namespace Food_Haven.Web.Controllers
                 return RedirectToAction("CreateProduct"); // redirect lại trang Create để hiển thị SweetAlert
             }
 
-            var categoriesAfter = await _productService.GetCategoriesAsync();
+            var categoriesAfter = await _productService.GetActiveCategoriesAsync();
             model.Categories = categoriesAfter.Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
@@ -555,7 +555,7 @@ namespace Food_Haven.Web.Controllers
             var isStoreActive = await _productService.IsStoreActiveByProductIdAsync(productId);
             ViewBag.IsStoreActive = isStoreActive;
 
-            var categories = await _productService.GetCategoriesAsync();
+            var categories = await _productService.GetActiveCategoriesAsync();
             model.Categories = categories.Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
@@ -577,7 +577,7 @@ namespace Food_Haven.Web.Controllers
                 model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
                 model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
 
-                var categories = await _productService.GetCategoriesAsync();
+                var categories = await _productService.GetActiveCategoriesAsync();
                 model.Categories = categories.Select(c => new SelectListItem
                 {
                     Value = c.ID.ToString(),
@@ -594,7 +594,7 @@ namespace Food_Haven.Web.Controllers
             model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
             model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
 
-            model.Categories = (await _productService.GetCategoriesAsync()).Select(c => new SelectListItem
+            model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.Name

@@ -76,10 +76,10 @@ namespace Repository.StoreDetails
                         Address = s.Address,
                         Phone = s.Phone,
                         Img = !string.IsNullOrEmpty(s.ImageUrl) ? s.ImageUrl : "default-store.png",
-                        IsActive = s.IsActive, // Giữ nguyên trạng thái hoạt động
-                        Status = s.Status ?? "PENDING", // Lấy trạng thái từ DB hoặc mặc định "PENDING"
+                        IsActive = s.IsActive,
+                        Status = s.Status ?? "Pending",
                         UserName = u.UserName,
-                        UserID = s.UserID // Thêm UserID nếu cần
+                        UserID = s.UserID
                     }
                 )
                 .ToListAsync();
@@ -148,12 +148,11 @@ namespace Repository.StoreDetails
             store.IsActive = isActive;
             store.ModifiedDate = DateTime.UtcNow;
 
-            // Lấy danh sách sản phẩm của store
+            // Lấy toàn bộ sản phẩm và biến thể của store
             var products = await _context.Products
                 .Where(p => p.StoreID == storeId)
                 .ToListAsync();
 
-            // Lấy danh sách biến thể sản phẩm của store
             var productIds = products.Select(p => p.ID).ToList();
             var productVariants = await _context.ProductTypes
                 .Where(v => productIds.Contains(v.ProductID))
@@ -163,26 +162,17 @@ namespace Repository.StoreDetails
             {
                 foreach (var product in products)
                 {
-                    product.IsActive = false; // Tắt tất cả sản phẩm
+                    product.IsActive = false;
                 }
 
                 foreach (var variant in productVariants)
                 {
-                    variant.IsActive = false; // Tắt tất cả biến thể sản phẩm
+                    variant.IsActive = false;
+                    variant.Stock = 0; // Reset tồn kho về 0
                 }
             }
-            else // Nếu store được mở khóa
-            {
-                foreach (var product in products)
-                {
-                    product.IsActive = true; // Bật tất cả sản phẩm
-                }
 
-                foreach (var variant in productVariants)
-                {
-                    variant.IsActive = true; // Bật tất cả biến thể sản phẩm
-                }
-            }
+            // Nếu store được mở trở lại thì KHÔNG bật lại sản phẩm hoặc biến thể (theo yêu cầu)
 
             await _context.SaveChangesAsync();
             return true;

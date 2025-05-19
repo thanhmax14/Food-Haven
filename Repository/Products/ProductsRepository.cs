@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
+using NuGet.Protocol.Core.Types;
 using Repository.BaseRepository;
 using Repository.StoreDetails;
 using Repository.ViewModels;
@@ -337,6 +338,36 @@ namespace Repository.Products
                 .Select(p => p.ImageUrl)
                 .ToListAsync();
         }
+        public async Task<List<Categories>> GetActiveCategoriesAsync()
+        {
+            return await _context.Categories
+                .Where(c => c.IsActive)
+                .ToListAsync();
+        }
+        public async Task<bool> ToggleProductStatus(Guid productId)
+        {
+            var product = await GetByIdAsync(productId);
+            if (product == null) return false;
 
+            bool newStatus = !product.IsActive; // Đảo trạng thái Hide/Show
+
+            // Nếu đang tắt sản phẩm => reset stock về 0 cho toàn bộ biến thể
+            if (!newStatus)
+            {
+                var variants = await _context.ProductTypes
+                    .Where(v => v.ProductID == productId)
+                    .ToListAsync();
+
+                foreach (var variant in variants)
+                {
+                    variant.Stock = 0;
+                    variant.IsActive = false; // cũng tắt biến thể nếu muốn đồng bộ
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return await UpdateStatusAsync(productId, newStatus);
+        }
     }
 }
