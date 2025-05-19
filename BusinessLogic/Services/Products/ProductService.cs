@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Repository.Categorys;
 using Repository.ProductImage;
@@ -211,11 +212,7 @@ namespace BusinessLogic.Services.Products
 
         public async Task<bool> ToggleProductStatus(Guid productId)
         {
-            var product = await _repositorys.GetByIdAsync(productId);
-            if (product == null) return false;
-
-            bool newStatus = !product.IsActive; // Đảo trạng thái Hide/Show
-            return await _repositorys.UpdateStatusAsync(productId, newStatus);
+            return await _repositorys.ToggleProductStatus(productId);
         }
 
         public List<ProductIndexViewModel> GetProductsByCurrentUser(string userId)
@@ -230,6 +227,10 @@ namespace BusinessLogic.Services.Products
         public Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId)
         {
             return _repositorys.GetImageUrlsByProductIdAsync(productId);
+        }
+        public async Task<List<Categories>> GetActiveCategoriesAsync()
+        {
+            return await _repositorys.GetActiveCategoriesAsync();
         }
     }
 }

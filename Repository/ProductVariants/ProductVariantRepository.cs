@@ -101,9 +101,16 @@ namespace Repository.ProductVariants
                 return false;
 
             variant.IsActive = isActive;
+
+            if (!isActive)
+            {
+                variant.Stock = 0;
+            }
+
             _context.SaveChanges();
             return true;
         }
+
         public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
         {
             return await _context.Products

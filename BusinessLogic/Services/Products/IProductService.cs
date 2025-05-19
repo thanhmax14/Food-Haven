@@ -42,6 +42,6 @@ namespace BusinessLogic.Services.Products
         List<ProductIndexViewModel> GetProductsByCurrentUser(string userId);
         Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
         Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId);
-
+        Task<List<Categories>> GetActiveCategoriesAsync();
     }
 }
