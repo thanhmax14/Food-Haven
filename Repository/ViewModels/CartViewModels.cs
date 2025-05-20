@@ -19,6 +19,8 @@ namespace Repository.ViewModels
         public decimal price { get; set; } = 0;
         public decimal Subtotal { get; set; }
         public int Stock { get; set; }
+        public int Rating { get; set; } = 5;
+
         public string UserID { get; set; }
 
     }

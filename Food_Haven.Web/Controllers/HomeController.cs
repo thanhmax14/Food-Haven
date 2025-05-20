@@ -699,7 +699,7 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> ProductDetail(Guid id)
         {
-           
+
 
             var productDetail = await _product.FindAsync(x => x.ID == id);
             if (productDetail == null)
@@ -721,7 +721,7 @@ namespace Food_Haven.Web.Controllers
                 Name = v.Name,
                 Price = v.SellPrice,
                 Stock = v.Stock,
-               
+
             }).ToList();
             viewModel.Price = variants.FirstOrDefault()?.SellPrice ?? 0;
             viewModel.Stocks = variants.FirstOrDefault()?.Stock ?? 0;
@@ -918,7 +918,7 @@ namespace Food_Haven.Web.Controllers
             // Lấy danh sách ProductID từ các biến thể để truy vấn sản phẩm
             var productIds = productVariants.Select(v => v.ProductID).Distinct().ToList();
             var products = await _product.ListAsync(p => productIds.Contains(p.ID));
-
+            var review = await _reviewService.ListAsync(x => x.ProductID == products.Select(p => p.ID).FirstOrDefault());
             var result = new List<CartViewModels>();
 
             foreach (var cart in carts)
@@ -953,6 +953,7 @@ namespace Food_Haven.Web.Controllers
                     img = productImg?.ImageUrl ?? "/images/default.jpg",
                     Stock = variant.Stock,
                     ProductTyName = variant.Name,
+                    Rating = review.Select(x => x.Rating).FirstOrDefault(),
                 };
 
                 result.Add(cartItem);
@@ -1315,7 +1316,7 @@ namespace Food_Haven.Web.Controllers
                     Name = x.Name,
                     CreatedDate = x.CreatedDate,
                     Commission = x.Commission,
-                   /*  Img = x.ImageUrl, */
+                    /*  Img = x.ImageUrl, */
                     ModifiedDate = x.ModifiedDate
                 }).ToList();
                 return PartialView("_SearchCategoryList", listCategoryViewModel);
@@ -1324,8 +1325,40 @@ namespace Food_Haven.Web.Controllers
             {
                 throw;
             }
-
         }
+        [HttpGet]
+        public async Task<IActionResult> SearchProductList(string searchName)
+        {
+            var list = await _product.ListAsync();
+
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                list = list.Where(x => x.Name != null && x.Name.ToLower().Contains(searchName.ToLower())).ToList();
+            }
+            if (string.IsNullOrWhiteSpace(searchName))
+            {
+                // Redirect về trang gốc (ví dụ Index)
+                return RedirectToAction("Index", "Home");
+            }
+
+            var listProductViewModel = list.Select(x => new ProductsViewModel
+            {
+                ID = x.ID,
+                Name = x.Name,
+                CreatedDate = x.CreatedDate,
+                ModifiedDate = x.ModifiedDate,
+                ShortDescription = x.ShortDescription,
+                LongDescription = x.LongDescription,
+                IsActive = x.IsActive,
+                IsOnSale = x.IsOnSale,
+                StoreId = x.StoreID,
+            }).ToList();
+
+            ViewData["SearchKeyword"] = searchName;
+            // Trả về view Index (trong thư mục /Views/Product nếu controller là ProductController)
+            return View("Index", listProductViewModel);
+        }
+
 
     }
 
