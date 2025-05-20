@@ -316,12 +316,13 @@
                     @(item.ProductTyName ?? "Sản phẩm không tên")
                 </a>
             </h6>
-                <div class="product-rate-cover">
+                       @*      <div class="product-rate-cover">
                     <div class="product-rate d-inline-block">
-                        <div class="product-rating" style="width:90%"></div>
+                        <div class="product-rating" style="width:@( (item.Rating / 5.0) * 100 )%"></div>
                     </div>
-                    <span class="font-small ml-5 text-muted"> (4.0)</span>
+                    <span class="font-small ml-5 text-muted">@item.Rating</span>
                 </div>
+ *@
               @*   <!-- Thêm chỗ để hiển thị Product.ID nếu cần -->
                 <span id="product-id-@item.ProductTypeID" class="product-id"></span> *@
             </td>
