@@ -190,12 +190,11 @@
                                                 @*         <span class="font-small ml-5 text-muted"> (32 reviews)</span> *@
                                                 @*     </div> *@
                                                 @* </div> *@
-                                                <div class="clearfix product-price-cover">
-                                                    <div class="product-price primary-color float-left">
-                                                        <span class="current-price text-brand">@Model.Price</span>
-                                                     
+                                              <div class="clearfix product-price-cover">
+                                                        <div class="product-price primary-color float-left">
+                                                            <span class="current-price text-brand">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                        </div>
                                                     </div>
-                                                </div>
                                                 <div class="short-desc mb-30">
                                                     <p class="font-lg">
                                                         @Model.ShortDescription
@@ -203,12 +202,21 @@
                                                 </div>
                                                 <div class="attr-detail attr-size mb-30">
                                                     <strong class="mr-10">Size / Weight:</strong>
-                                                    <ul class="list-filter size-filter font-small d-flex flex-wrap">
-                                                        @foreach (var item in Model.size)
+                                                  <ul class="list-filter size-filter font-small d-flex flex-wrap">
+                                                        @foreach (var variant in Model.Variant)
                                                         {
-                                                            <li class="mr-3"><a href="#">@item</a></li>
+                                                            <li class="mr-3">
+                                                                <a href="#" 
+                                                                class="variant-select" 
+                                                                data-variantid="@variant.ID" 
+                                                                data-target="#price-@variant.ID">
+                                                                @variant.Name
+                                                                </a>
+                                                                <span id="price-@variant.ID" style="margin-left:10px;">@variant.Price</span>
+                                                            </li>
                                                         }
-                                                    </ul>
+                                                </ul>
+
                                                 </div>
 
 
@@ -1312,6 +1320,59 @@
             </div>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+         <script>
+$(document).ready(function() {
+    $('.variant-select').click(function(e) {
+        e.preventDefault();
+
+        var variantId = $(this).data('variantid');
+        var priceMainSelector = '.current-price.text-brand';
+        var targetSpan = $(this).data('target'); // Lấy selector như "#price-<id>"
+
+        if (!variantId) {
+            console.error('Variant ID is undefined or empty.');
+            alert('Không thể lấy ID biến thể.');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetVariantPrice", "Home")',
+            type: 'GET',
+            data: { variantId: variantId },
+            dataType: 'json',
+            success: function(result) {
+               
+    if (result && result.price != null && !isNaN(parseFloat(result.price))) {
+        var price = parseFloat(result.price);
+        var formattedPrice = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+        }).format(price);
+
+        $(priceMainSelector).text(formattedPrice);
+
+        var targetSelector = $('.variant-select[data-variantid="' + result.variantId + '"]').data('target');
+        if (targetSelector) {
+            $(targetSelector).text(formattedPrice);
+        }
+                } else {
+                    console.error('Invalid Price from server:', result);
+                    alert('Không lấy được giá từ server!');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error:', status, error, xhr.responseText);
+                alert('Đã xảy ra lỗi khi gọi giá từ server.');
+            }
+        });
+    });
+});
+</script>
+
+
     <!-- Vendor JS-->
     <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
