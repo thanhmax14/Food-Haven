@@ -317,7 +317,6 @@
                 </div>
                 <div class="header-nav d-none d-lg-flex">
                     <div id="category-list-container">
-                        @* @await Html.PartialAsync("_SearchCategoryList", new List<CategoryViewModel>()) *@
                     </div>
                 </div>
                 <script>
@@ -356,6 +355,10 @@
                     });
                 </script>
                   <style>
+                       .header-bottom {
+        background: #fff;
+        border-bottom: 1px solid #eee;
+    }
                     .categories-dropdown-wrap {
                         background: #fff;
                         padding: 15px;

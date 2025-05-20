@@ -6665,9 +6665,9 @@ h6.post-title {
     align-items: center;
 }
 
-.header-wrap.header-space-between {
+/* .header-wrap.header-space-between {
     justify-content: space-between;
-}
+} */
 
 .header-wrap .header-right {
     width: 100%;
