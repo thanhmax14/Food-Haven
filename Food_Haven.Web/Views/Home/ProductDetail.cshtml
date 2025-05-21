@@ -219,20 +219,21 @@
 
                                                 </div>
 
+                                              <input type="hidden" id="selectedVariantId" value="" />
 
                                                
                                                 <div class="detail-extralink mb-50">
-                                                    <div class="detail-qty border radius">
+                                                   @*  <div class="detail-qty border radius">
                                                         <a href="#" class="qty-down">
                                                             <i class="fi-rs-angle-small-down"></i>
                                                         </a>
-                                                        <input type="text" name="quantity" class="qty-val" value="1" min="1" data-max="@Model.Stocks">
+                                                        <input type="text" name="quantity" class="qty-val" value="1" min="1" data-max="@Model.Quantity">
 
                                                         <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                                    </div>
+                                                    </div> *@
                                                     <div class="product-extra-link2">
-                                                        <button type="submit" class="button button-add-to-cart">
-                                                            <i class="fi-rs-shopping-cart"></i>Add to cart
+                                                        <button type="button" class="button button-add-to-cart" id="btnAddToCart">
+                                                            <i class="fi-rs-shopping-cart"></i> Add to cart
                                                         </button>
                                                         <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                            href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
@@ -1322,54 +1323,165 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-         <script>
-$(document).ready(function() {
-    $('.variant-select').click(function(e) {
-        e.preventDefault();
+   <script>
+  $(document).ready(function () {
 
-        var variantId = $(this).data('variantid');
-        var priceMainSelector = '.current-price.text-brand';
-        var targetSpan = $(this).data('target'); // Lấy selector như "#price-<id>"
-
-        if (!variantId) {
-            console.error('Variant ID is undefined or empty.');
-            alert('Không thể lấy ID biến thể.');
-            return;
-        }
-
-        $.ajax({
-            url: '@Url.Action("GetVariantPrice", "Home")',
-            type: 'GET',
-            data: { variantId: variantId },
-            dataType: 'json',
-            success: function(result) {
-               
-    if (result && result.price != null && !isNaN(parseFloat(result.price))) {
-        var price = parseFloat(result.price);
-        var formattedPrice = new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            maximumFractionDigits: 0
-        }).format(price);
-
-        $(priceMainSelector).text(formattedPrice);
-
-        var targetSelector = $('.variant-select[data-variantid="' + result.variantId + '"]').data('target');
-        if (targetSelector) {
-            $(targetSelector).text(formattedPrice);
-        }
-                } else {
-                    console.error('Invalid Price from server:', result);
-                    alert('Không lấy được giá từ server!');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX error:', status, error, xhr.responseText);
-                alert('Đã xảy ra lỗi khi gọi giá từ server.');
-            }
-        });
+@*     $('.qty-up').click(function (e) {
+      e.preventDefault();
+      var $input = $(this).siblings('.qty-val');
+      var max = parseInt($input.data('max')) || 100;  // max lấy từ data-max hoặc mặc định 100
+      var currentVal = parseInt($input.val()) || 1;
+      if (currentVal < max) {
+        $input.val(currentVal + 1);
+      }
     });
-});
+
+    $('.qty-down').click(function (e) {
+      e.preventDefault();
+      var $input = $(this).siblings('.qty-val');
+      var currentVal = parseInt($input.val()) || 1;
+      if (currentVal > 1) {
+        $input.val(currentVal - 1);
+      }
+    }); *@
+
+    $('.variant-select').click(function (e) {
+      e.preventDefault();
+
+      var variantId = $(this).data('variantid');
+
+      if (!variantId) {
+        new Notify({
+          status: 'error',
+          title: 'Error!',
+          text: 'Cannot get variant ID.',
+          effect: 'fade',
+          speed: 300,
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          position: 'right top'
+        });
+        return;
+      }
+
+      $('#selectedVariantId').val(variantId);
+
+      $.ajax({
+        url: '@Url.Action("GetVariantPrice", "Home")',
+        type: 'GET',
+        data: { variantId: variantId },
+        dataType: 'json',
+        success: function (result) {
+          if (result && result.price != null && !isNaN(parseFloat(result.price))) {
+            var price = parseFloat(result.price);
+            var formattedPrice = new Intl.NumberFormat('vi-VN', {
+              style: 'currency',
+              currency: 'VND',
+              maximumFractionDigits: 0
+            }).format(price);
+
+            $('.current-price.text-brand').text(formattedPrice);
+
+            var targetSelector = $('.variant-select[data-variantid="' + result.variantId + '"]').data('target');
+            if (targetSelector) {
+              $(targetSelector).text(formattedPrice);
+            }
+          } else {
+            new Notify({
+              status: 'error',
+              title: 'Error!',
+              text: 'Failed to retrieve price from server.',
+              effect: 'fade',
+              speed: 300,
+              showIcon: true,
+              showCloseButton: true,
+              autoclose: true,
+              autotimeout: 3000,
+              position: 'right top'
+            });
+          }
+        },
+        error: function () {
+          new Notify({
+            status: 'error',
+            title: 'Server Error!',
+            text: 'An error occurred while getting price.',
+            effect: 'fade',
+            speed: 300,
+            showIcon: true,
+            showCloseButton: true,
+            autoclose: true,
+            autotimeout: 3000,
+            position: 'right top'
+          });
+        }
+      });
+    });
+
+    $('#btnAddToCart').click(function () {
+      var variantId = $('#selectedVariantId').val();
+
+      if (!variantId) {
+        new Notify({
+          status: 'error',
+          title: 'Warning!',
+          text: 'Please choose option before adding to cart.',
+          effect: 'fade',
+          speed: 300,
+          showIcon: true,
+          showCloseButton: true,
+          autoclose: true,
+          autotimeout: 3000,
+          position: 'right top'
+        });
+        return;
+      }
+
+      // Lấy đúng giá trị quantity từ input lúc bấm nút
+      var quantity = parseInt($('.qty-val').val()) || 1;
+
+      AddToCart(variantId, quantity);
+    });
+
+    window.AddToCart = function (variantId, quantity) {
+      $.ajax({
+        url: "/Home/AddToCart",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ ProductTypeID: variantId, quantity: quantity }),
+        success: function (response) {
+          new Notify({
+            status: response.success ? 'success' : 'error',
+            title: response.success ? 'Success!' : 'Error!',
+            text: response.message,
+            effect: 'fade',
+            speed: 300,
+            showIcon: true,
+            showCloseButton: true,
+            autoclose: true,
+            autotimeout: 3000,
+            position: 'right top'
+          });
+        },
+        error: function () {
+          new Notify({
+            status: 'error',
+            title: 'Server Error!',
+            text: "An error occurred, please try again.",
+            effect: 'fade',
+            speed: 300,
+            showIcon: true,
+            showCloseButton: true,
+            autoclose: true,
+            autotimeout: 3000,
+            position: 'right top'
+          });
+        }
+      });
+    };
+  });
 </script>
 
 

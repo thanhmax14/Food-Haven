@@ -993,9 +993,9 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new { success = false, message = "You are not logged in." });
             }
-            var product = await _product.FindAsync(x => x.ID == obj.ProductID);
-            // 🔍 Check if the product variant exists
-            var productVariant = await _productvarian.FindAsync(x => x.ProductID == product.ID);
+/*             var product = await _product.FindAsync(x => x.ID == obj.ProductID);
+ */            // 🔍 Check if the product variant exists
+            var productVariant = await _productvarian.FindAsync(x => x.ID == obj.ProductTypeID);
             if (productVariant == null)
             {
                 return Json(new { success = false, message = "Product does not exist!" });
