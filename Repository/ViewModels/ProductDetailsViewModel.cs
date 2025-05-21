@@ -13,6 +13,7 @@
         public bool IsActive { get; set; } = false;
         public bool IsOnSale { get; set; } // Có đang giảm giá?
         public string? StoreName { get; set; }
+        public int Quantity { get; set; }
 
 
         public Dictionary<string, decimal> SizeWithPrice { get; set; } = new Dictionary<string, decimal>();
