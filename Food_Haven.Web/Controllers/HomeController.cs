@@ -30,6 +30,8 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using BusinessLogic.Services.ProductVariantVariants;
 using BusinessLogic.Services.Reviews;
+using Microsoft.AspNetCore.SignalR;
+using Food_Haven.Web.Hubs;
 
 
 namespace Food_Haven.Web.Controllers
@@ -703,13 +705,15 @@ namespace Food_Haven.Web.Controllers
             if (productDetail == null)
                 return NotFound();
 
+            var ProductType = await _productvarian.ListAsync(x => x.ProductID == productDetail.ID);
             var viewModel = new ProductDetailsViewModel
             {
                 ID = productDetail.ID,
                 Name = productDetail.Name,
                 ShortDescription = productDetail.ShortDescription,
                 LongDescription = productDetail.LongDescription,
-                CreatedDate = productDetail.CreatedDate
+                CreatedDate = productDetail.CreatedDate,
+                Stock = ProductType.FirstOrDefault()?.Stock ?? 0,
             };
 
             // 1. Ảnh sản phẩm
@@ -993,8 +997,8 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new { success = false, message = "You are not logged in." });
             }
-/*             var product = await _product.FindAsync(x => x.ID == obj.ProductID);
- */            // 🔍 Check if the product variant exists
+            /*             var product = await _product.FindAsync(x => x.ID == obj.ProductID);
+             */            // 🔍 Check if the product variant exists
             var productVariant = await _productvarian.FindAsync(x => x.ID == obj.ProductTypeID);
             if (productVariant == null)
             {
@@ -1034,6 +1038,8 @@ namespace Food_Haven.Web.Controllers
                 };
                 await _cart.AddAsync(newCart);
             }
+            var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
+            await hubContext.Clients.User(user.Id).SendAsync("ReceiveCartUpdate");
             await _cart.SaveChangesAsync();
 
             return Json(new { success = true, message = "Added to cart successfully!" });
@@ -1135,7 +1141,8 @@ namespace Food_Haven.Web.Controllers
                     Stock = variant.Stock,
                     ProductTyName = variant.Name,
                 };
-
+             /*    var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
+                await hubContext.Clients.User(user.Id).SendAsync("ReceiveCartUpdate"); */
                 result.Add(cartItem);
             }
 
@@ -1374,7 +1381,8 @@ namespace Food_Haven.Web.Controllers
             return Json(new
             {
                 Price = (double)variant.SellPrice, // Chuyển decimal -> double để JS hiểu
-                VariantId = variant.ID
+                VariantId = variant.ID,
+                Stock = variant.Stock,
             });
         }
 
