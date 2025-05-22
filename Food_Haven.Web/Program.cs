@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
+using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -117,6 +118,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(10);
 });
+builder.Services.AddSignalR();
 
 
 
@@ -164,6 +166,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+app.MapHub<CartHub>("/CartHub");
 
 
 

@@ -14,6 +14,8 @@
         public bool IsOnSale { get; set; } // Có đang giảm giá?
         public string? StoreName { get; set; }
         public int Quantity { get; set; }
+        public int Stock { get; set; }
+
 
 
         public Dictionary<string, decimal> SizeWithPrice { get; set; } = new Dictionary<string, decimal>();

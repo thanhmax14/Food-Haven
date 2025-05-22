@@ -212,8 +212,8 @@
                                                                 data-target="#price-@variant.ID">
                                                                 @variant.Name
                                                                 </a>
-                                                                <span id="price-@variant.ID" style="margin-left:10px;">@variant.Price</span>
-                                                            </li>
+@*                                                                 <span id="price-@variant.ID" style="margin-left:10px;">@variant.Price</span>
+ *@                                                            </li>
                                                         }
                                                 </ul>
 
@@ -232,9 +232,9 @@
                                                         <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                                     </div> *@
                                                     <div class="product-extra-link2">
-                                                        <button type="button" class="button button-add-to-cart" id="btnAddToCart">
-                                                            <i class="fi-rs-shopping-cart"></i> Add to cart
-                                                        </button>
+                                                            <button type="button" class="button button-add-to-cart" id="btnAddToCart">
+                                                                <i class="fi-rs-shopping-cart"></i> Add to cart
+                                                            </button>
                                                         <a aria-label="Add To Wishlist" class="action-btn hover-up"
                                                            href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
                                                       
@@ -251,7 +251,7 @@
                                                     <ul class="float-start">
                                                        
                                                         <li>
-                                                            Stock:<span class="in-stock text-brand ml-5">
+                                                            Stock:<span id="stock-display" class="in-stock text-brand ml-5">
                                                                 @Model.Stocks
                                                             </span>
                                                         </li>
@@ -1323,27 +1323,9 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-   <script>
+@*    <script>
   $(document).ready(function () {
 
-@*     $('.qty-up').click(function (e) {
-      e.preventDefault();
-      var $input = $(this).siblings('.qty-val');
-      var max = parseInt($input.data('max')) || 100;  // max lấy từ data-max hoặc mặc định 100
-      var currentVal = parseInt($input.val()) || 1;
-      if (currentVal < max) {
-        $input.val(currentVal + 1);
-      }
-    });
-
-    $('.qty-down').click(function (e) {
-      e.preventDefault();
-      var $input = $(this).siblings('.qty-val');
-      var currentVal = parseInt($input.val()) || 1;
-      if (currentVal > 1) {
-        $input.val(currentVal - 1);
-      }
-    }); *@
 
     $('.variant-select').click(function (e) {
       e.preventDefault();
@@ -1483,7 +1465,7 @@
     };
   });
 </script>
-
+ *@
 
     <!-- Vendor JS-->
     <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
