@@ -452,7 +452,7 @@
                                                 <div class="mb-4">
                                                     <label class="form-label">Product Gallery</label>
                                                     <p class="text-muted">Add Product Gallery Images.</p>
-                                                    <input asp-for="GalleryImages" name="GalleryImages" type="file" id="galleryImageInput" class="form-control" accept="image/*" multiple />
+                                                    <input asp-for="GalleryImages" type="file" id="galleryImageInput" class="form-control" accept="image/*" multiple />
                                                     <ul class="list-group mt-3" id="galleryPreviewList"></ul>
                                                 </div>
 
@@ -559,7 +559,20 @@
                         }
                     });
                 </script>
-
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <script>document.write(new Date().getFullYear())</script> © EasyFood.
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    Design & Develop by EasyFood
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             <!-- end main content-->
             <!-- END layout-wrapper -->
             <!--start back-to-top-->

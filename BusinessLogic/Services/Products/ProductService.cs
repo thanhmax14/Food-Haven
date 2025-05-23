@@ -88,7 +88,6 @@ namespace BusinessLogic.Services.Products
             };
 
             var addProductResult = await _repositorys.AddAsync(product);
-
             if (!addProductResult)
                 return false;
 
@@ -103,13 +102,11 @@ namespace BusinessLogic.Services.Products
                 }).ToList();
 
                 var addImagesResult = await _productImageRepository.AddRangeAsync(productImages);
-
                 return addImagesResult;
             }
 
             return true;
         }
-
 
         public Task<Guid> GetCurrentStoreIDAsync(string userId)
         {

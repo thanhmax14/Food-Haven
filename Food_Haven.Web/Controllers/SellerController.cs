@@ -464,16 +464,15 @@ namespace Food_Haven.Web.Controllers
             }
 
             var productImages = new List<ProductImageViewModel>();
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
-            // Main Image
+            if (!Directory.Exists(uploadFolder))
+                Directory.CreateDirectory(uploadFolder);
+
+            // Handle Main Image
             if (model.MainImage != null && model.MainImage.Length > 0)
             {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(model.MainImage.FileName)}";
-                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-
-                if (!Directory.Exists(uploadFolder))
-                    Directory.CreateDirectory(uploadFolder);
-
                 var filePath = Path.Combine(uploadFolder, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -490,7 +489,7 @@ namespace Food_Haven.Web.Controllers
                 });
             }
 
-            // Gallery Images
+            // Handle Gallery Images
             if (model.GalleryImages != null && model.GalleryImages.Any())
             {
                 foreach (var img in model.GalleryImages)
@@ -498,11 +497,6 @@ namespace Food_Haven.Web.Controllers
                     if (img != null && img.Length > 0)
                     {
                         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(img.FileName)}";
-                        var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-
-                        if (!Directory.Exists(uploadFolder))
-                            Directory.CreateDirectory(uploadFolder);
-
                         var filePath = Path.Combine(uploadFolder, fileName);
 
                         using (var stream = new FileStream(filePath, FileMode.Create))
@@ -527,9 +521,10 @@ namespace Food_Haven.Web.Controllers
             {
                 TempData["ProductCreated"] = true;
                 TempData["StoreID"] = model.StoreID;
-                return RedirectToAction("CreateProduct"); // redirect lại trang Create để hiển thị SweetAlert
+                return RedirectToAction("CreateProduct");
             }
 
+            // Nếu lỗi, nạp lại danh mục
             var categoriesAfter = await _productService.GetActiveCategoriesAsync();
             model.Categories = categoriesAfter.Select(c => new SelectListItem
             {
