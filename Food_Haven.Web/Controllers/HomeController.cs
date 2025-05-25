@@ -1141,8 +1141,8 @@ namespace Food_Haven.Web.Controllers
                     Stock = variant.Stock,
                     ProductTyName = variant.Name,
                 };
-             /*    var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
-                await hubContext.Clients.User(user.Id).SendAsync("ReceiveCartUpdate"); */
+                /*    var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
+                   await hubContext.Clients.User(user.Id).SendAsync("ReceiveCartUpdate"); */
                 result.Add(cartItem);
             }
 
