@@ -8,13 +8,11 @@ $(document).ready(function () {
     .withUrl("/CartHub")
     .build();
 
-  // Xử lý thông báo cập nhật giỏ hàng
   connection.on("ReceiveCartUpdate", function () {
     console.log("Received SignalR CartUpdate");
     refreshCart();
   });
 
-  // Bắt đầu kết nối SignalR
   connection
     .start()
     .then(function () {
@@ -22,11 +20,31 @@ $(document).ready(function () {
     })
     .catch(function (err) {
       console.error("SignalR error:", err.toString());
-      // Fallback: thử làm mới giỏ hàng nếu kết nối SignalR thất bại
       refreshCart();
     });
 
-  // Sử dụng delegated events để xử lý các phần tử động
+  // Hàm cập nhật Stock tự động mỗi 10 giây
+  function updateStockDisplay() {
+    var variantId = $("#selectedVariantId").val();
+    if (!variantId) return;
+
+    $.ajax({
+      url: "/Home/GetVariantPrice",
+      type: "GET",
+      data: { variantId: variantId },
+      dataType: "json",
+      success: function (result) {
+        if (result && result.stock != null) {
+          $("#stock-display").text(result.stock);
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Auto stock update error:", xhr.status, error);
+      },
+    });
+  }
+
+  // Bắt sự kiện chọn variant
   $(document).on("click", ".variant-select", function (e) {
     e.preventDefault();
 
@@ -53,15 +71,11 @@ $(document).ready(function () {
     $.ajax({
       url: "/Home/GetVariantPrice",
       type: "GET",
-      cache: false, // Ngăn cache
+      cache: false,
       data: { variantId: variantId },
       dataType: "json",
       success: function (result) {
-        if (
-          result &&
-          result.price != null &&
-          !isNaN(parseFloat(result.price))
-        ) {
+        if (result && result.price != null && !isNaN(parseFloat(result.price))) {
           var price = parseFloat(result.price);
           var formattedPrice = new Intl.NumberFormat("vi-VN", {
             style: "currency",
@@ -70,14 +84,16 @@ $(document).ready(function () {
           }).format(price);
 
           $(".current-price.text-brand").text(formattedPrice);
-        $("#stock-display").text(result.stock != null ? result.stock : "N/A");
+          $("#stock-display").text(result.stock != null ? result.stock : "N/A");
 
-          var targetSelector = $(
-            '.variant-select[data-variantid="' + result.variantId + '"]'
-          ).data("target");
+          var targetSelector = $('.variant-select[data-variantid="' + result.variantId + '"]').data("target");
           if (targetSelector) {
             $(targetSelector).text(formattedPrice);
           }
+
+          // Bắt đầu cập nhật stock định kỳ 10s
+          if (window.stockInterval) clearInterval(window.stockInterval);
+          window.stockInterval = setInterval(updateStockDisplay, 10000);
         } else {
           new Notify({
             status: "error",
@@ -131,7 +147,6 @@ $(document).ready(function () {
     }
 
     var quantity = parseInt($(".qty-val").val()) || 1;
-
     AddToCart(variantId, quantity);
   });
 
@@ -154,9 +169,10 @@ $(document).ready(function () {
           autotimeout: 3000,
           position: "right top",
         });
+
         if (response.success) {
           console.log("AddToCart success, refreshing cart");
-          refreshCart(); // Gọi refreshCart ngay sau khi thêm sản phẩm
+          refreshCart();
         }
       },
       error: function (xhr, status, error) {
@@ -183,10 +199,11 @@ $(document).ready(function () {
       console.warn("Cart container not found in DOM");
       return;
     }
+
     $.ajax({
       url: "/Home/CartPart",
       type: "GET",
-      cache: false, // Ngăn cache
+      cache: false,
       success: function (data) {
         console.log("CartPart loaded successfully:", data);
         $("#cart-container").html(data);
@@ -208,4 +225,11 @@ $(document).ready(function () {
       },
     });
   }
+
+  // Dọn dẹp interval nếu rời trang
+  $(window).on("beforeunload", function () {
+    if (window.stockInterval) {
+      clearInterval(window.stockInterval);
+    }
+  });
 });

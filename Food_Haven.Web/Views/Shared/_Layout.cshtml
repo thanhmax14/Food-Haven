@@ -19,30 +19,75 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-notify@latest/dist/simple-notify.min.js"></script>
     <script src="~/js/cart.js"></script>
-     <script>
-        $(document).ready(function () {
-            function getBalance() {
-                $.ajax({
-                    url: '/Home/GetBalance',
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.msg) {
-                            $("#balance-display").text(response.msg);
-                        }else{
-                            console.error(response.msg);
-                        }
-                    },
-                    error: function () {
-                        console.error("Lỗi khi lấy số dư.");
+  <script>
+    $(document).ready(function () {
+        // Lấy số dư (balance) nếu cần
+        function getBalance() {
+            $.ajax({
+                url: '/Home/GetBalance',
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.msg) {
+                        $("#balance-display").text(response.msg);
+                    } else {
+                        console.error(response.msg);
                     }
-                });
-            }
-            getBalance();
-            setInterval(getBalance, 10000);
-        });
+                },
+                error: function () {
+                    console.error("Lỗi khi lấy số dư.");
+                }
+            });
+        }
 
-    </script> 
+        // Lấy stock theo variantId và cập nhật #stock-display
+        function getStock() {
+            var variantId = $("#selectedVariantId").val();
+            if (!variantId) {
+                console.warn("variantId chưa được chọn hoặc trống.");
+                $("#stock-display").text("N/A");
+                return;
+            }
+
+            $.ajax({
+                url: "/Home/GetVariantPrice",
+                type: "GET",
+                data: { variantId: variantId },
+                dataType: "json",
+                success: function (data) {
+                    if (data && data.stock !== undefined) {
+                        // Cập nhật stock vào span
+                        $("#stock-display").text(data.stock);
+                    } else {
+                        console.warn("Dữ liệu stock không hợp lệ:", data);
+                        $("#stock-display").text("N/A");
+                    }
+                },
+                error: function () {
+                    console.error("Lỗi khi lấy thông tin stock.");
+                    $("#stock-display").text("Lỗi");
+                }
+            });
+        }
+
+        // Gọi lần đầu khi trang load
+        getBalance();
+        getStock();
+
+        // Cập nhật lại stock mỗi 10 giây
+        setInterval(function () {
+            getBalance();
+            getStock();
+        }, 10000);
+
+        // Nếu muốn khi user chọn variant khác thì gọi lại getStock ngay lập tức
+        $("#selectedVariantId").on("change", function() {
+            getStock();
+        });
+    });
+</script>
+
+
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);

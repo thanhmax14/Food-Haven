@@ -8,5 +8,6 @@ namespace Food_Haven.Web.Hubs
         {
             await Clients.User(userId).SendAsync("ReceiveCartUpdate");
         }
+       
     }
 }

@@ -20,6 +20,8 @@ using Repository.BalanceChange;
 using Repository.ViewModels;
 using System.Text.Json;
 using System.Text;
+using Microsoft.AspNetCore.SignalR;
+using Food_Haven.Web.Hubs;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -95,49 +97,49 @@ namespace Food_Haven.Web.Controllers
                     /*   StoreDeatilId = storeId */
                 };
                 list.userView = UserModel;
-            /*    var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
-                getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
-                if (getOrder.Any())
-                {
-                    foreach (var item in getOrder)
+                /*    var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
+                    getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
+                    if (getOrder.Any())
                     {
-                        list.OrderViewodels.Add(new OrderViewModel
+                        foreach (var item in getOrder)
                         {
-                            Address = user.Address,
-                            Email = user.Email,
-                            Name = user.FirstName + ", " + user.LastName,
-                            OrderDate = item.CreatedDate,
-                            PaymentMethod = item.PaymentMethod,
-                            Status = item.Status,
-                            Total = item.TotalPrice,
-                            OrderId = item.ID,
-                            Username = user.UserName,
-                            UserId = user.Id
-                        }); ;
+                            list.OrderViewodels.Add(new OrderViewModel
+                            {
+                                Address = user.Address,
+                                Email = user.Email,
+                                Name = user.FirstName + ", " + user.LastName,
+                                OrderDate = item.CreatedDate,
+                                PaymentMethod = item.PaymentMethod,
+                                Status = item.Status,
+                                Total = item.TotalPrice,
+                                OrderId = item.ID,
+                                Username = user.UserName,
+                                UserId = user.Id
+                            }); ;
+                        }
                     }
-                }
 
 
-                var OrderId = getOrder.FirstOrDefault()?.ID;
-                var getOrderDetail = await _orderDetailService.ListAsync(x => x.OrderID == OrderId);
-                if (getOrderDetail.Any())
-                {
-                    var productList = await _productWarian.ListAsync();
-
-                    foreach (var item in getOrderDetail)
+                    var OrderId = getOrder.FirstOrDefault()?.ID;
+                    var getOrderDetail = await _orderDetailService.ListAsync(x => x.OrderID == OrderId);
+                    if (getOrderDetail.Any())
                     {
-                        var product = productList.FirstOrDefault(x => x.ID == item.ID);
-                        var productName = product?.Name;
-                        list.orderDetailsViewModels.Add(new OrderDetailsViewModel
+                        var productList = await _productWarian.ListAsync();
+
+                        foreach (var item in getOrderDetail)
                         {
-                            productName = productName,
-                            ProductPrice = item.ProductPrice,
-                            TotalPrice = item.TotalPrice,
-                            Quantity = item.Quantity,
-                            Status = item.Status,
-                        });
-                    }
-                }*/
+                            var product = productList.FirstOrDefault(x => x.ID == item.ID);
+                            var productName = product?.Name;
+                            list.orderDetailsViewModels.Add(new OrderDetailsViewModel
+                            {
+                                productName = productName,
+                                ProductPrice = item.ProductPrice,
+                                TotalPrice = item.TotalPrice,
+                                Quantity = item.Quantity,
+                                Status = item.Status,
+                            });
+                        }
+                    }*/
                 return View(list);
             }
             catch (Exception ex)
@@ -758,7 +760,7 @@ namespace Food_Haven.Web.Controllers
                             {
                                 return Json(new ErroMess { msg = "Số lượng sản phẩm mua vượt quá số lượng tồn kho!" });
                             }
-                          
+
                             temOrderDeyail.Add(new OrderDetail
                             {
                                 ID = Guid.NewGuid(),
@@ -776,7 +778,7 @@ namespace Food_Haven.Web.Controllers
                         {
                             ID = orderID,
                             UserID = buyRequest.UserID,
-                            OrderTracking= RandomCode.GenerateUniqueCode(),
+                            OrderTracking = RandomCode.GenerateUniqueCode(),
                             TotalPrice = totelPrice,
                             Status = "Pending",
                             CreatedDate = DateTime.Now,
@@ -784,7 +786,7 @@ namespace Food_Haven.Web.Controllers
                             PaymentStatus = "Pending",
                             Quantity = buyRequest.Products.Sum(u => u.Value),
                             OrderCode = "",
-                            DeliveryAddress= model.Address,
+                            DeliveryAddress = model.Address,
                             Note = model.Note,
 
 
@@ -835,7 +837,7 @@ namespace Food_Haven.Web.Controllers
                         }
                         try
                         {
-                           
+
                             var result = await _managetrans.ExecuteInTransactionAsync(async () =>
                             {
                                 foreach (var item in temOrderDeyail)
@@ -874,6 +876,8 @@ namespace Food_Haven.Web.Controllers
                                 await this._cart.SaveChangesAsync();
                                 await this._balance.SaveChangesAsync();
                                 await this._order.SaveChangesAsync();
+                                var hubContext1 = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
+                                await hubContext1.Clients.User(user.Id).SendAsync("ReceiveCartUpdate");
                                 return Json(new ErroMess { success = true, msg = "Đặt hàng thành công!" });
                             }
                             else

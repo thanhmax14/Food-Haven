@@ -1,4 +1,7 @@
-﻿@model List<Repository.ViewModels.CartViewModels>
+﻿@using Microsoft.AspNetCore.Identity
+@using Models
+@model List<Repository.ViewModels.CartViewModels>
+@inject SignInManager<AppUser> SignInManager
 
 <div class="header-action-icon-2">
     <a class="mini-cart-icon" asp-controller="Home" asp-action="Cart">
@@ -8,9 +11,14 @@
     <a asp-controller="Home" asp-action="Cart"><span class="lable">Cart</span></a>
 
     <div class="cart-dropdown-wrap cart-dropdown-hm2">
-        @if (Model == null || !Model.Any())
+        @if (!SignInManager.IsSignedIn(User))
         {
-            <p class="text-center" style="color: red;">Please Login Add To Cart</p>
+            <p class="text-center" style="color: red;">Please Login To Add To Cart</p>
+        }
+
+        else if (Model == null || !Model.Any())
+        {
+            <p class="text-center" style="color: red;">Cart is empty</p>
         }
         else
         {
@@ -28,7 +36,7 @@
                             <h4><span>@item.quantity × </span>@item.price</h4>
                         </div>
                         <div class="shopping-cart-delete">
-                            <a href="#" onclick="DeleteFromCart('@item.ProductID')"><i class="fi-rs-cross-small"></i></a>
+                            <a href="#" onclick="DeleteFromCart('@item.CartID')"><i class="fi-rs-cross-small"></i></a>
                         </div>
 
                     </li>
