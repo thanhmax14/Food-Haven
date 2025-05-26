@@ -10,20 +10,19 @@ namespace Repository.ViewModels
     {
 
         public int stt { get; set; }
-        public string Email { get; set; }
-        public string Name { get; set; }
-        public string Address { get; set; }
+        public string OrderTracking { get; set; }
+        public int  Quantity { get; set; }
         public string PaymentMethod { get; set; }
+        public string StatusPayment { get; set; }
         public string Status { get; set; }
-     //   public string Note { get; set; }
+        public string Note { get; set; }
         public DateTime OrderDate { get; set; }
-/*        public DateTime DeliveryDate { get; set; }*/
-       
+        public DateTime? DeliveryDate { get; set; }
         public decimal Total { get; set; }
-
         public Guid OrderId { get; set; }
-        public string Username { get; set; }
-        public string UserId { get; set; }
+        public string  Desctiption { get; set; }
+        public string DeliveryAddress { get; set; }
+
 
     }
 }
