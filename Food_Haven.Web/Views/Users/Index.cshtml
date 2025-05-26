@@ -39,6 +39,9 @@
         .mr-2 {
             margin-right: 10px;
         }
+        .badge.bg-kitchen { background-color: #17a2b8; } /* for Preparing In Kitchen */
+.badge.bg-failed { background-color: #dc3545; } /* for Cancelled or Failed */
+
     </style>
 
     @await Html.PartialAsync("_Header")
@@ -338,234 +341,345 @@
                                         </div>
                                     </div>
 
-                                    <div class="tab-pane fade" id="order-details" role="tabpanel" aria-labelledby="order-details-tab" style="display: none;">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h3 class="mb-0">Order Details</h3>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="table-responsive" id="table-order-details"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <script>
-     console.log("Hello");
-let detailsGrid = null;
+                                   <div class="tab-pane fade" id="order-details" role="tabpanel" aria-labelledby="order-details-tab">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">Order Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive" id="table-order-details"></div>
+        </div>
+    </div>
+</div>
 
-document.addEventListener("DOMContentLoaded", function () {
-    const orderContainer = document.getElementById("table-orders");
-    orderContainer.innerHTML = "";
+                            <script>
+    let detailsGrid = null;
 
-    const orderData = @Html.Raw(JsonSerializer.Serialize(Model.OrderViewodels));
+    document.addEventListener("DOMContentLoaded", function () {
+        const orderContainer = document.getElementById("table-orders");
+        orderContainer.innerHTML = "";
 
-    new gridjs.Grid({
-        columns: [
-            { name: "Id", hidden: true },
-            { name: "Email", width: "200px" },
-            { name: "Name", width: "200px" },
-            { 
-                name: "Order Date", 
-                width: "220px", 
-                formatter: (cell) => {
-                    const date = new Date(cell);
-                    return date.toLocaleDateString("vi-VN", { 
-                        day: "2-digit", 
-                        month: "2-digit", 
-                        year: "numeric" 
-                    }) + " " + date.toLocaleTimeString("vi-VN", { 
-                        hour: "2-digit", 
-                        minute: "2-digit", 
-                        second: "2-digit" 
-                    });
-                }
-            },
-            { name: "Payment Method", width: "200px" },
-            { name: "Status", width: "150px" },
-            { name: "Total", width: "150px" },
-            { name: "Username", hidden: true },
-            { name: "UserId", hidden: true },
-            {
-                name: "Actions",
-                width: "150px",
-                formatter: (_, row) => {
-                    const orderId = row.cells[0].data;
-                    const username = row.cells[7].data;
-                    const userId = row.cells[8].data;
-                    return gridjs.html(`<button class="btn btn-sm btn-primary view-details" data-id="${orderId}" data-username="${username}" data-userid="${userId}">Details</button>`);
-                }
-            }
-        ],
-        pagination: { enabled: true, limit: 5, summary: true },
-        sort: true,
-        search: true,
-        data: orderData.map(o => [
-            o.OrderId, o.Email, o.Name, o.OrderDate, o.PaymentMethod, o.Status, o.Total, o.Username, o.UserId
-        ])
-    }).render(orderContainer);
+        const orderData = @Html.Raw(JsonSerializer.Serialize(Model.OrderViewodels));
+        let sttCounter = 1;
 
-    document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("view-details")) {
-            const orderId = e.target.getAttribute("data-id");
-            const username = e.target.getAttribute("data-username");
-            const userId = e.target.getAttribute("data-userid");
-            loadOrderDetails(orderId, username, userId);
-        } else if (e.target.classList.contains("feedback-btn")) {
-            const productName = e.target.getAttribute("data-product");
-            const orderId = e.target.getAttribute("data-order-id");
-            const username = e.target.getAttribute("data-username");
-            const userId = e.target.getAttribute("data-userid");
-            const productId = e.target.getAttribute("data-productid"); // Lấy ProductId
-
-            document.getElementById("id-field").value = userId;
-            document.getElementById("product_id-field").value = productId; // Điền ProductId vào input ẩn
-            document.getElementById("product_name-field").value = productName;
-            document.getElementById("email_id-field").value = username;
-
-            const stars = document.querySelectorAll("#star-rating .star");
-            stars.forEach(star => star.classList.remove("selected"));
-            document.getElementById("designation-field").value = "0";
-        }
-    });
-
-    document.querySelectorAll('.nav-link[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function (e) {
-            const targetTab = e.target.getAttribute('href');
-            if (targetTab !== '#order-details') {
-                document.getElementById("order-details").style.display = "none";
-            }
-        });
-    });
-
-    const stars = document.querySelectorAll("#star-rating .star");
-    stars.forEach(star => {
-        star.addEventListener("click", function () {
-            const rating = this.getAttribute("data-value");
-            document.getElementById("designation-field").value = rating;
-
-            stars.forEach(s => {
-                if (s.getAttribute("data-value") <= rating) {
-                    s.classList.add("selected");
-                } else {
-                    s.classList.remove("selected");
-                }
-            });
-        });
-    });
-
-    document.querySelector("#showModal form").addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const userId = document.getElementById("id-field").value;
-        const productId = document.getElementById("product_id-field").value; // Lấy ProductId từ input ẩn
-        const userName = document.getElementById("email_id-field").value;
-        const productName = document.getElementById("product_name-field").value;
-        const reply = document.getElementById("company_name-field").value;
-        const starRating = document.getElementById("designation-field").value;
-
-        console.log("Reply value:", reply);
-        if (!reply.trim()) {
-            alert("Please enter your reply.");
-            return;
-        }
-
-        const feedbackData = {
-            UserId: userId,
-            ProductId: productId, // Gửi ProductId
-            UserName: userName,
-            ProductName: productName,
-            Cmt: reply,
-            StarRating: starRating
-        };
-
-        console.log("Sending feedback data:", feedbackData);
-
-        fetch("/Users/AddFeekback", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(feedbackData)
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    bootstrap.Modal.getInstance(document.getElementById("showModal")).hide();
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                alert("An error occurred while submitting feedback.");
-            });
-    });
-
-    function loadOrderDetails(orderId, username, userId) {
-        fetch(`/Users/GetOrderDetails?orderId=${orderId}&_=${Date.now()}`, {
-            cache: 'no-store'
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                console.log("Response data:", data);
-                if (data.success) {
-                    const detailsContainer = document.getElementById("table-order-details");
-                    detailsContainer.innerHTML = "";
-                    if (detailsGrid) {
-                        detailsGrid.destroy();
+        new gridjs.Grid({
+            columns: [
+                { name: "STT", width: "60px" },
+                { name: "Order Tracking", width: "160px" },
+                { name: "Payment Method", width: "130px" },
+                {
+                    name: "Status Payment",
+                    width: "160px",
+                    formatter: (cell) => {
+                        const value = (cell || "").toLowerCase();
+                        let color = "secondary";
+                        if (value === "success") color = "success";
+                        else if (value === "failed") color = "danger";
+                        else if (value === "waiting payment") color = "warning";
+                        return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
                     }
-                    detailsGrid = new gridjs.Grid({
-                        columns: [
-                            { name: "Product Name", width: "250px" },
-                            { name: "Product Price", width: "150px" },
-                            { name: "Total Price", width: "150px" },
-                            { name: "Quantity", width: "100px" },
-                            { name: "Status", width: "150px" },
-                            {
-                                name: "Actions",
-                                width: "150px",
-                                formatter: (_, row) => {
-                                    const productName = row.cells[0].data;
-                                    const productId = row.cells[5].data; // ProductId ở cột thứ 6
-                                    return gridjs.html(`<button class="btn btn-sm btn-success feedback-btn" data-bs-toggle="modal" data-bs-target="#showModal" data-product="${productName}" data-order-id="${orderId}" data-username="${username}" data-userid="${userId}" data-productid="${productId}">Feedback</button>`);
-                                }
-                            }
-                        ],
-                        pagination: { enabled: true, limit: 5, summary: true },
-                        search: true,
-                        sort: true,
-                        data: data.data.map(od => [
-                            od.productName,
-                            od.productPrice,
-                            od.totalPrice,
-                            od.quantity,
-                            od.status,
-                            od.productId // Thêm ProductId vào dữ liệu
-                        ])
-                    });
-                    detailsGrid.render(detailsContainer);
-
-                    const orderDetailsPane = document.getElementById("order-details");
-                    orderDetailsPane.style.display = "block";
-                    const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
-                    orderDetailsTab.show();
-                } else {
-                    console.log("Success is false:", data.message);
+                },
+                {
+                    name: "Order Status",
+                    width: "180px",
+                    formatter: (cell) => {
+                        const value = (cell || "").toLowerCase();
+                        let color = "secondary";
+                        switch (value) {
+                            case "pending": color = "warning"; break;
+                            case "preparing in kitchen": color = "info"; break;
+                            case "delivering": color = "primary"; break;
+                            case "confirmed": color = "success"; break;
+                            case "cancelled by user":
+                            case "cancelled by restaurant":
+                            case "delivery failed": color = "danger"; break;
+                            case "refunded": color = "dark"; break;
+                        }
+                        return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                    }
+                },
+                { name: "Quantity", width: "90px" },
+                {
+                    name: "Total",
+                    width: "120px",
+                    formatter: (cell) => parseFloat(cell).toLocaleString("vi-VN", {
+                        style: "currency", currency: "VND"
+                    })
+                },
+                {
+                    name: "Order Date",
+                    width: "180px",
+                    formatter: (cell) => {
+                        const date = new Date(cell);
+                        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN");
+                    }
+                },
+                {
+                    name: "Delivery Date",
+                    width: "180px",
+                    formatter: (cell) => {
+                        if (!cell) return "";
+                        const date = new Date(cell);
+                        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN");
+                    }
+                },
+                { name: "Note", width: "200px" },
+                { name: "Delivery Address", width: "220px" },
+                { name: "Description", width: "220px" },
+                {
+                    name: "Actions",
+                    width: "130px",
+                    formatter: (_, row) => {
+                        const orderId = row.cells[1].data;
+                        return gridjs.html(`
+                            <button class="btn btn-sm btn-primary view-details"
+                                    data-id="${orderId}">
+                                View Order
+                            </button>`);
+                    }
                 }
-            })
-            .catch(error => console.error("Fetch error:", error));
+            ],
+            pagination: { enabled: true, limit: 5, summary: true },
+            search: true,
+            sort: true,
+            data: orderData.map((o, index) => [
+                sttCounter++,
+                o.OrderTracking,
+                o.PaymentMethod,
+                o.StatusPayment,
+                o.Status,
+                o.Quantity,
+                o.Total,
+                o.OrderDate,
+                o.DeliveryDate,
+                o.Note,
+                o.DeliveryAddress,
+                o.Desctiption,
+                ""
+            ])
+        }).render(orderContainer);
+
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("view-details")) {
+                const orderId = e.target.getAttribute("data-id");
+                loadOrderDetails(orderId);
+            }
+        });
+
+function loadOrderDetails(orderId) {
+    fetch("/Users/GetOrderDetails", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify(orderId),
+        cache: "no-store"
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const detailsContainer = document.getElementById("table-order-details");
+            detailsContainer.innerHTML = "";
+
+            if (detailsGrid) {
+                detailsGrid.destroy();
+            }
+
+            let sttCounter = 1;
+
+            detailsGrid = new gridjs.Grid({
+                columns: [
+                    { name: "STT", width: "60px" },
+                    { name: "Product Name", width: "250px" },
+                    { name: "Product Price", width: "150px" },
+                    { name: "Total Price", width: "150px" },
+                    { name: "Quantity", width: "100px" },
+                    {
+                        name: "Status",
+                        width: "150px",
+                        formatter: (cell) => {
+                            const value = (cell || "").toLowerCase();
+                            let color = "secondary";
+                            switch (value) {
+                                case "pending": color = "warning"; break;
+                                case "preparing in kitchen": color = "info"; break;
+                                case "delivering": color = "primary"; break;
+                                case "confirmed": color = "success"; break;
+                                case "cancelled by user":
+                                case "cancelled by restaurant":
+                                case "delivery failed": color = "danger"; break;
+                                case "refunded": color = "dark"; break;
+                            }
+                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                        }
+                    }
+                ],
+                pagination: { enabled: true, limit: 5, summary: true },
+                search: true,
+                sort: true,
+                data: data.data.map((od) => [
+                    sttCounter++,
+                    od.productName,
+                    od.productPrice,
+                    od.totalPrice,
+                    od.quantity,
+                    od.status
+                ])
+            });
+
+            detailsGrid.render(detailsContainer);
+
+            const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
+            orderDetailsTab.show();
+
+            // Xóa các nút cũ nếu có
+            document.getElementById("back-to-orders-btn")?.remove();
+            document.getElementById("cancel-entire-order-btn")?.remove();
+            document.getElementById("feedback-order-btn")?.remove();
+
+            // Lấy trạng thái đơn hàng từ server
+            const orderStatus = (data.orderStatus || "").toLowerCase();
+
+            // 👉 Nếu là "pending" → hiển thị nút "Hủy đơn"
+            if (orderStatus === "pending") {
+                const cancelAllBtn = document.createElement("button");
+                cancelAllBtn.id = "cancel-entire-order-btn";
+                cancelAllBtn.className = "btn btn-danger mt-3 float-end";
+                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Hủy đơn hàng";
+                cancelAllBtn.onclick = function () {
+                    Swal.fire({
+                        title: "Xác nhận hủy đơn?",
+                        text: "Toàn bộ đơn hàng này sẽ bị hủy!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Hủy đơn",
+                        cancelButtonText: "Không",
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#6c757d"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch("/Users/CancelOrder", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Accept": "application/json"
+                                },
+                                body: JSON.stringify(orderId)
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success")
+                                        .then(() => {
+                                            document.getElementById("orders-tab")?.click();
+                                        });
+                                } else {
+                                    Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Cancel error:", error);
+                                Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error");
+                            });
+                        }
+                    });
+                };
+                detailsContainer.appendChild(cancelAllBtn);
+            }
+
+            // 👉 Nếu là "confirmed" → hiển thị nút "Gửi đánh giá"
+            else if (orderStatus === "confirmed") {
+                const feedbackBtn = document.createElement("button");
+                feedbackBtn.id = "feedback-order-btn";
+                feedbackBtn.className = "btn btn-success mt-3 float-end";
+                feedbackBtn.innerHTML = "<i class='fi fi-rs-star'></i> Gửi đánh giá";
+                feedbackBtn.onclick = function () {
+                    const modal = new bootstrap.Modal(document.getElementById("showModal"));
+                    modal.show();
+                    document.getElementById("order_id-field").value = orderId;
+                };
+                detailsContainer.appendChild(feedbackBtn);
+            }
+
+            // Nút quay lại luôn hiển thị
+            const backButton = document.createElement("button");
+            backButton.id = "back-to-orders-btn";
+            backButton.className = "btn btn-secondary mt-3 me-2";
+            backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i> Quay lại Orders";
+            backButton.onclick = function () {
+                document.getElementById("orders-tab")?.click();
+            };
+            detailsContainer.appendChild(backButton);
+
+        } else {
+            alert("Không tìm thấy chi tiết đơn hàng.");
+            console.log("Lỗi trả về:", data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Fetch error:", error);
+        alert("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
+    });
+}
+
+
+
+
+    });
+
+
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("cancel-order")) {
+        const orderId = e.target.getAttribute("data-id");
+
+        Swal.fire({
+            title: "Xác nhận hủy đơn?",
+            text: "Bạn sẽ không thể hoàn tác hành động này!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Hủy đơn",
+            cancelButtonText: "Không",
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("/Users/CancelOrder", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(orderId)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success").then(() => {
+                            document.getElementById("orders-tab").click(); // Quay lại danh sách đơn
+                        });
+                    } else {
+                        Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
+                    }
+                })
+                .catch(error => {
+                    console.error("Cancel error:", error);
+                    Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error");
+                });
+            }
+        });
     }
 });
-                                    </script>
 
-                                <div class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+
+
+</script>
+
+ <div class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0">
             <div class="modal-header bg-info-subtle p-3">
@@ -1496,7 +1610,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     </script>
 
-
+    
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    var hash = window.location.hash;
+                                    if (hash) {
+                                        var triggerEl = document.querySelector(`a[href="${hash}"]`);
+                                        if (triggerEl) {
+                                            var tab = new bootstrap.Tab(triggerEl);
+                                            tab.show();
+                                        }
+                                    }
+                                });
+                            </script>
 
     <!-- Vendor JS-->
     <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>

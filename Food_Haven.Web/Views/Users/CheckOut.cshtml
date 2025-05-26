@@ -748,7 +748,10 @@
                                                     autotimeout: 3000,
                                                     position: 'right top'
                                                 });
-                                                
+                                                setTimeout(function () {
+                                                    window.location.href = "/Users#orders";
+                                                }, 3000); 
+
                                             } else {
                                                 new Notify({
                                                     status: 'error',

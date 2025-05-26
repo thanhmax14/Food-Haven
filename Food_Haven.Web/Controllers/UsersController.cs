@@ -22,6 +22,8 @@ using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.SignalR;
 using Food_Haven.Web.Hubs;
+using MailKit.Search;
+using System.Collections.Generic;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -97,30 +99,35 @@ namespace Food_Haven.Web.Controllers
                     /*   StoreDeatilId = storeId */
                 };
                 list.userView = UserModel;
-                /*    var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
+               var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
                     getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
                     if (getOrder.Any())
                     {
+                    var count = 0;
                         foreach (var item in getOrder)
                         {
                             list.OrderViewodels.Add(new OrderViewModel
                             {
-                                Address = user.Address,
-                                Email = user.Email,
-                                Name = user.FirstName + ", " + user.LastName,
-                                OrderDate = item.CreatedDate,
-                                PaymentMethod = item.PaymentMethod,
+                               stt  = count++,
+                               DeliveryAddress = item.DeliveryAddress,
+                               OrderDate = item.CreatedDate,
+                               PaymentMethod = item.PaymentMethod,
                                 Status = item.Status,
                                 Total = item.TotalPrice,
                                 OrderId = item.ID,
-                                Username = user.UserName,
-                                UserId = user.Id
+                                OrderTracking =item.OrderTracking,
+                                DeliveryDate =item.ModifiedDate,
+                                Desctiption =item.Description,
+                                Note =item.Note,
+                                Quantity =item.Quantity,
+                                StatusPayment =item.PaymentStatus
+
                             }); ;
                         }
                     }
 
 
-                    var OrderId = getOrder.FirstOrDefault()?.ID;
+                  /*  var OrderId = getOrder.FirstOrDefault()?.ID;
                     var getOrderDetail = await _orderDetailService.ListAsync(x => x.OrderID == OrderId);
                     if (getOrderDetail.Any())
                     {
@@ -256,7 +263,7 @@ namespace Food_Haven.Web.Controllers
             {
                 number = number,
                 CalleURL = $"{baseUrl}/home/invoice",
-                ReturnUrl = $"{baseUrl}/home/invoice",
+                ReturnUrl = $"{baseUrl}/Users#wallet",
                 UserID = user.Id
             };
 
@@ -597,7 +604,7 @@ namespace Food_Haven.Web.Controllers
                             Quantity = buyRequest.Products.Sum(u => u.Value),
                             OrderCode = "" + orderCode,
                             DeliveryAddress = model.Address,
-                            Note = model.Note
+                            Note = model.Note??""
 
                         };
                         /*   var balan = new BalanceChange
@@ -787,7 +794,7 @@ namespace Food_Haven.Web.Controllers
                             Quantity = buyRequest.Products.Sum(u => u.Value),
                             OrderCode = "",
                             DeliveryAddress = model.Address,
-                            Note = model.Note,
+                            Note = model.Note??"",
 
 
                         };
@@ -878,7 +885,7 @@ namespace Food_Haven.Web.Controllers
                                 await this._order.SaveChangesAsync();
                                 var hubContext1 = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
                                 await hubContext1.Clients.User(user.Id).SendAsync("ReceiveCartUpdate");
-                                return Json(new ErroMess { success = true, msg = "Đặt hàng thành công!" });
+                                return Json(new ErroMess { success = true, msg = "Đặt hàng thành công!, Trở về Order Sau 3s"});
                             }
                             else
                             {
@@ -929,6 +936,139 @@ namespace Food_Haven.Web.Controllers
             }
             return Json(new ErroMess { msg = "Phương thức thanh toán không hợp lệ!" });
         }
+        [HttpPost]
+        public async Task<IActionResult> GetOrderDetails([FromBody] string orderId)
+        {
+            if (string.IsNullOrWhiteSpace(orderId))
+            {
+                return Json(new { success = false, message = "Order ID không hợp lệ." });
+            }
+
+            var order = await _order.FindAsync(u => u.OrderTracking.ToLower() == orderId.ToLower());
+            if (order == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+            }
+
+            var getOrderDetail = await _orderDetailService.ListAsync(x => x.OrderID == order.ID);
+            if (getOrderDetail == null || !getOrderDetail.Any())
+            {
+                return Json(new { success = false, message = "Không có sản phẩm trong đơn hàng." });
+            }
+
+            var productList = await _productWarian.ListAsync();
+
+            var detailDtos = getOrderDetail.Select(item =>
+            {
+                var product = productList.FirstOrDefault(p => p.ID == item.ProductTypesID);
+                return new
+                {
+                    productName = product?.Name ?? "Không rõ",
+                    productPrice = item.ProductPrice,
+                    totalPrice = item.TotalPrice,
+                    quantity = item.Quantity,
+                    status = item.Status
+                };
+            });
+
+            return Json(new
+            {
+                success = true,
+                orderStatus = order.Status,
+                data = detailDtos
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelOrder([FromBody] string orderId)
+        {
+            if (string.IsNullOrWhiteSpace(orderId))
+                return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
+
+            try
+            {
+                var order = await _order.FindAsync(o => o.OrderTracking.ToLower() == orderId.ToLower());
+                if (order == null)
+                    return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+
+                if (!string.Equals(order.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                    return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng đang chờ xử lý." });
+
+                var orderDetails = await _orderDetailService.ListAsync(d => d.OrderID == order.ID);
+                if (orderDetails == null || !orderDetails.Any())
+                    return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+
+                foreach (var item in orderDetails)
+                {
+                    item.Status = "Refunded";
+                    item.ModifiedDate = DateTime.UtcNow;
+                    await _orderDetailService.UpdateAsync(item);
+
+                    var product = await _productWarian.FindAsync(p => p.ID == item.ProductTypesID);
+                    if (product != null)
+                    {
+                        product.Stock += item.Quantity;
+                        product.IsActive = true;
+                        await _productWarian.UpdateAsync(product);
+                    }
+                }
+
+             
+                var currentBalance = await _balance.GetBalance(order.UserID);
+                var refundTransaction = new BalanceChange
+                {
+                    UserID = order.UserID,
+                    MoneyChange = order.TotalPrice,
+                    MoneyBeforeChange = currentBalance,
+                    MoneyAfterChange = currentBalance + order.TotalPrice,
+                    Method = "Refund",
+                    Status = "Success",
+                    Display = true,
+                    IsComplete = true,
+                    CheckDone = true,
+                    StartTime = DateTime.Now,
+                    DueTime = DateTime.Now
+                };
+                await _balance.AddAsync(refundTransaction);
+
+                order.Status = "Cancelled by User";
+                order.PaymentStatus = "Refunded";
+                order.ModifiedDate = DateTime.UtcNow;
+                await _order.UpdateAsync(order);
+
+                
+                await _orderDetailService.SaveChangesAsync();
+                await _productWarian.SaveChangesAsync();
+                await _order.SaveChangesAsync();
+                await _balance.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Đơn hàng đã được hủy và hoàn tiền thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại hoặc liên hệ admin.",
+                 /*   error = ex.Message // ❗ chỉ nên show ra trong môi trường dev*/
+                });
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+
+
 
 }
