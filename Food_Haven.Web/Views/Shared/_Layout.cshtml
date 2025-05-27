@@ -14,7 +14,7 @@
     <script src="~/assets/simple-notify/simple-notify.min.js"></script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-notify@latest/dist/simple-notify.min.js"></script>
@@ -41,31 +41,32 @@
         }
 
         // Lấy stock theo variantId và cập nhật #stock-display
-        function getStock() {
+           function getStock() {
             var variantId = $("#selectedVariantId").val();
+
+            // Nếu chưa có variant được chọn → tự động chọn option đầu tiên
             if (!variantId) {
-                console.warn("variantId chưa được chọn hoặc trống.");
-                $("#stock-display").text("N/A");
-                return;
+                var firstOption = $("#selectedVariantId option:first").val();
+                $("#selectedVariantId").val(firstOption);
+                variantId = firstOption;
             }
 
-            $.ajax({
+              $.ajax({	
                 url: "/Home/GetVariantPrice",
                 type: "GET",
                 data: { variantId: variantId },
                 dataType: "json",
                 success: function (data) {
-                    if (data && data.stock !== undefined) {
-                        // Cập nhật stock vào span
+                    if (data && data.stock != null && !isNaN(data.stock)) {
                         $("#stock-display").text(data.stock);
                     } else {
                         console.warn("Dữ liệu stock không hợp lệ:", data);
-                        $("#stock-display").text("N/A");
+                        $("#stock-display").text("0");
                     }
                 },
                 error: function () {
                     console.error("Lỗi khi lấy thông tin stock.");
-                    $("#stock-display").text("Lỗi");
+                    $("#stock-display").text("0");
                 }
             });
         }
