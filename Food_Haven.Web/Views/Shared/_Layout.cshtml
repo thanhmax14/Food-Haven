@@ -1,12 +1,14 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     @Html.Raw("<link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
     <link href="~/assets/simple-notify/simple-notify.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
-            @RenderBody()
+    @RenderBody()
     <script src="~/assets/cute-alert/cute-alert.js"></script>
     <script src="~/assets/sweetalert2/sweetalert2.js"></script>
     <link rel="stylesheet" href="~/assets/cute-alert/style.css" />
@@ -19,74 +21,90 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-notify@latest/dist/simple-notify.min.js"></script>
     <script src="~/js/cart.js"></script>
-  <script>
-    $(document).ready(function () {
-        // Lấy số dư (balance) nếu cần
-        function getBalance() {
-            $.ajax({
-                url: '/Home/GetBalance',
-                type: 'POST',
-                dataType: 'json',
-                success: function (response) {
-                    if (response.msg) {
-                        $("#balance-display").text(response.msg);
-                    } else {
-                        console.error(response.msg);
+    @* <script src="~/js/PriceAndStock.js"></script> *@
+    <script>
+        $(document).ready(function () {
+            // Lấy số dư (balance) nếu cần
+            function getBalance() {
+                $.ajax({
+                    url: '/Home/GetBalance',
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.msg) {
+                            $("#balance-display").text(response.msg);
+                        } else {
+                            console.error(response.msg);
+                        }
+                    },
+                    error: function () {
+                        console.error("Lỗi khi lấy số dư.");
                     }
-                },
-                error: function () {
-                    console.error("Lỗi khi lấy số dư.");
-                }
-            });
-        }
-
-        // Lấy stock theo variantId và cập nhật #stock-display
-           function getStock() {
-            var variantId = $("#selectedVariantId").val();
-
-            // Nếu chưa có variant được chọn → tự động chọn option đầu tiên
-            if (!variantId) {
-                var firstOption = $("#selectedVariantId option:first").val();
-                $("#selectedVariantId").val(firstOption);
-                variantId = firstOption;
+                });
             }
 
-              $.ajax({	
-                url: "/Home/GetVariantPrice",
-                type: "GET",
-                data: { variantId: variantId },
-                dataType: "json",
-                success: function (data) {
-                    if (data && data.stock != null && !isNaN(data.stock)) {
-                        $("#stock-display").text(data.stock);
-                    } else {
-                        console.warn("Dữ liệu stock không hợp lệ:", data);
-                        $("#stock-display").text("0");
-                    }
-                },
-                error: function () {
-                    console.error("Lỗi khi lấy thông tin stock.");
-                    $("#stock-display").text("0");
+          /*  function getStock() {
+
+                var variantId = $("#selectedVariantId").val();
+
+                // Nếu chưa có variant được chọn → tự động chọn option đầu tiên
+                if (!variantId) {
+                    var firstOption = $("#selectedVariantId option:first").val();
+                    $("#selectedVariantId").val(firstOption);
+                    variantId = firstOption;
                 }
-            });
-        }
 
-        // Gọi lần đầu khi trang load
-        getBalance();
-        getStock();
+                $.ajax({
+                    url: "/Home/GetVariantPrice",
+                    type: "GET",
+                    data: { variantId: variantId },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data && data.stock != null && !isNaN(data.stock)) {
+                            $("#stock-display").text(data.stock);
 
-        // Cập nhật lại stock mỗi 10 giây
-        setInterval(function () {
+                            if (data.price != null && !isNaN(data.price)) {
+                                var formattedPrice = data.price.toLocaleString("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND"
+                                });
+                                $("#price-display").text(formattedPrice);
+                            } else {
+                                console.warn("Giá không hợp lệ:", data);
+                                $("#price-display").text("0 đ");
+                            }
+                        } else {
+                            console.warn("Dữ liệu stock không hợp lệ:", data);
+                            $("#stock-display").text("0");
+                            $("#price-display").text("0 đ");
+                        }
+                    },
+                    error: function () {
+                        console.error("Lỗi khi lấy thông tin từ server.");
+                        $("#stock-display").text("0");
+                        $("#price-display").text("0 đ");
+                    }
+                });
+            }  */
+
+
+            // Gọi lần đầu khi trang load
             getBalance();
-            getStock();
-        }, 10000);
+       /*  getStock(); */
 
-        // Nếu muốn khi user chọn variant khác thì gọi lại getStock ngay lập tức
-        $("#selectedVariantId").on("change", function() {
-            getStock();
+            // Cập nhật lại stock mỗi 10 giây
+            setInterval(function () {
+                getBalance();
+               /*  getStock(); */
+            }, 10000);
+
+            // Nếu muốn khi user chọn variant khác thì gọi lại getStock ngay lập tức
+       /*      $("#selectedVariantId").on("change", function () {
+                getStock();
+            }); 
+            */
         });
-    });
-</script>
+    </script>
 
 
 
@@ -128,4 +146,5 @@
         } 
     </script>
 </body>
+
 </html>
