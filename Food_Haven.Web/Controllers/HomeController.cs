@@ -1080,6 +1080,10 @@ namespace Food_Haven.Web.Controllers
             // 🚨 Kiểm tra tồn kho khi tăng số lượng
             if (obj.quantity > currentQuantity && obj.quantity > productVarian.Stock)
             {
+                var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
+                // Gửi thông báo realtime tồn kho cập nhật cho tất cả client
+                await hubContext.Clients.All.SendAsync("StockUpdated", obj.ProductTypeID, productVarian.Stock);
+
                 return BadRequest(new
                 {
                     success = false,
@@ -1380,7 +1384,7 @@ namespace Food_Haven.Web.Controllers
 
             return Json(new
             {
-                Price = (double)variant.SellPrice, // Chuyển decimal -> double để JS hiểu
+                Price = (double)variant.SellPrice,
                 VariantId = variant.ID,
                 Stock = variant.Stock,
             });

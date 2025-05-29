@@ -192,7 +192,7 @@
                                                 @* </div> *@
                                               <div class="clearfix product-price-cover">
                                                         <div class="product-price primary-color float-left">
-                                                            <span class="current-price text-brand">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                            <span  class="current-price text-brand" id="price-display">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
                                                         </div>
                                                     </div>
                                                 <div class="short-desc mb-30">
@@ -202,25 +202,47 @@
                                                 </div>
                                                 <div class="attr-detail attr-size mb-30">
                                                     <strong class="mr-10">Size / Weight:</strong>
-                                                  <ul class="list-filter size-filter font-small d-flex flex-wrap">
-                                                        @foreach (var variant in Model.Variant)
-                                                        {
-                                                            <li class="mr-3">
-                                                                <a href="#" 
-                                                                class="variant-select" 
-                                                                data-variantid="@variant.ID" 
-                                                                data-target="#price-@variant.ID">
+                                                                                            <ul class="list-filter size-filter font-small d-flex flex-wrap">
+                                                    @foreach (var variant in Model.Variant)
+                                                    {
+                                                        <li class="mr-3">
+                                                            <button type="button"
+                                                                    class="variant-button @(variant == Model.Variant.First() ? "active" : "")"
+                                                                    data-variantid="@variant.ID"
+                                                                    data-target="#price-@variant.ID">
                                                                 @variant.Name
-                                                                </a>
-@*                                                                 <span id="price-@variant.ID" style="margin-left:10px;">@variant.Price</span>
- *@                                                            </li>
-                                                        }
+                                                            </button>
+                                                        </li>
+                                                    }
                                                 </ul>
 
                                                 </div>
+                                    <style>
+    .variant-button {
+        padding: 8px 20px;
+        border: 1px solid #ccc;
+        background-color: white;
+        color: gray;
+        font-size: 14px;
+        border-radius: 2px;
+        cursor: pointer;
+        margin-right: 12px;   /* thêm khoảng cách ngang */
+        margin-bottom: 12px;  /* thêm khoảng cách dọc */
+    }
 
-                                              <input type="hidden" id="selectedVariantId" value="" />
+    .variant-button.active {
+        background-color: #3BB77E;
+        color: white;
+        border: none;
+    }
 
+    .list-filter li {
+        list-style: none;
+    }
+</style>
+
+
+            <input type="hidden" id="selectedVariantId" value="" />
                                                
                                                 <div class="detail-extralink mb-50">
                                                    @*  <div class="detail-qty border radius">

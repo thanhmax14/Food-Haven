@@ -281,7 +281,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-8">
-                    <div class="table-responsive shopping-summery">
+                    <div id = "cart-container1" class="table-responsive shopping-summery">
                         <table class="table table-wishlist">
                             <thead>
                                 <tr class="main-heading">
@@ -932,7 +932,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+   <script>
 $(document).ready(function () {
     var pendingRequests = {};
     var isProcessing = false;
@@ -955,13 +955,13 @@ $(document).ready(function () {
             console.log("Checking product:", productTypeId);
             console.log("Stock quantity:", stockQty, "🛒 Cart quantity:", currentQty);
 
-            if (currentQty > stockQty) {
-                row.addClass("outofstock");
-                if (!row.find(".out-of-stock-label").length) {
-                    row.find(".product-des").append('<span class="out-of-stock-label">Quantity exceeds stock and has been adjusted!</span>');
-                }
-                row.find(".qty-up").prop("disabled", true);
-                row.find(".qty-down").prop("disabled", false);
+                 if (currentQty > stockQty) {
+               row.addClass("outofstock");
+                  if (!row.find(".out-of-stock-label").length) {
+                            row.find(".product-des").append('<span class="out-of-stock-label">Quantity exceeds available stock, please reduce it!</span>');
+                        }
+                        row.find(".qty-up").prop("disabled", true);
+                        row.find(".qty-down").prop("disabled", false);
             } else {
                 row.removeClass("outofstock");
                 row.find(".out-of-stock-label").remove();
@@ -980,7 +980,7 @@ $(document).ready(function () {
                 $(".qty-down[data-id='" + productTypeId + "']").show();
             }
         });
-    }
+    }   
 
     checkStock();
 
@@ -1154,8 +1154,9 @@ $(document).ready(function () {
         console.log(" Cart total updated:", total.toFixed(2));
     }
 });
+</script>
 
-    </script>
+
 
 
 
