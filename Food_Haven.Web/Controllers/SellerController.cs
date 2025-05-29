@@ -1,5 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text;
 using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.OrderDetailService;
@@ -15,6 +17,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Models;
 using Repository.StoreDetails;
 using Repository.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using BusinessLogic.Services.VoucherServices;
+using BusinessLogic.Services.ProductImages;
+using Food_Haven.Web.Services;
+using MailKit.Search;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -34,8 +41,12 @@ namespace Food_Haven.Web.Controllers
         private readonly IOrdersServices _order;
         private readonly IBalanceChangeService _balance;
         private readonly IOrderDetailService _orderDetail;
+        private readonly IStoreDetailService _storedetail;
+        private readonly IProductService _product;
+        private readonly IVoucherServices _voucher;
+        private readonly IProductImageService _productImageService;
 
-        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, StoreDetailsRepository storeRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail)
+        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, StoreDetailsRepository storeRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService)
         {
             _reviewService = reviewService;
             _userManager = userManager;
@@ -51,6 +62,10 @@ namespace Food_Haven.Web.Controllers
             _order = order;
             _balance = balance;
             _orderDetail = orderDetail;
+            _storedetail = storedetail;
+            _product = product;
+            _voucher = voucher;
+            _productImageService = productImageService;
         }
 
         public IActionResult Index()
@@ -769,5 +784,299 @@ namespace Food_Haven.Web.Controllers
             var result = _variantService.UpdateProductVariantStatus(variantId, isActive);
             return Json(new { success = result });
         }
+
+        public async Task<IActionResult> ManageOrder()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetOrder()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new ErroMess { msg = "Bạn chưa đăng nhập!!" });
+
+            var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+            if (getStore == null)
+                return NotFound("Store not found");
+            var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
+            if (!products.Any())
+                return Json(new List<GetSellerOrder>());
+            var productIds = products.Select(p => p.ID).ToList();
+            var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+            if (!productTypes.Any())
+                return Json(new List<GetSellerOrder>());
+            var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+            var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
+            if (!orderDetails.Any())
+                return Json(new List<GetSellerOrder>());
+            var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+            var orders = await _order.ListAsync(o => orderIds.Contains(o.ID), orderBy: q => q.OrderByDescending(x => x.CreatedDate));
+            if (!orders.Any())
+                return Json(new List<GetSellerOrder>());
+            var userIds = orders.Select(o => o.UserID).Distinct().ToList();
+            var users = await _userManager.Users
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.UserName);
+            var result = orders.Select((order, index) => new GetSellerOrder
+            {
+                STT = index + 1,
+                OrderTracking = order.OrderTracking,
+                UserName = users.ContainsKey(order.UserID) ? users[order.UserID] : "Unknown",
+                OrderDate = order.CreatedDate,
+                Quantity = orderDetails.Where(od => od.OrderID == order.ID).Sum(od => od.Quantity),
+                Total = order.TotalPrice,
+                Status = order.Status.ToUpper(),
+                StatusPayment = order.PaymentStatus,
+                Note = order.Note,
+                DeliveryAddress = order.DeliveryAddress,
+                Desctiption = order.Description
+            }).ToList();
+
+            return Json(result);
+        }
+        public async Task<IActionResult> ViewOrderDetails(string id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound("Invalid Order ID");
+            }
+
+            var order = await _order.FindAsync(u => u.OrderTracking == id);
+            if (order == null)
+            {
+                return NotFound("Order not found");
+            }
+
+            var orderDetails = await _orderDetail.ListAsync(od => od.OrderID == order.ID);
+            if (!orderDetails.Any())
+            {
+                return NotFound("Order has no details");
+            }
+
+            var productTypeIds = orderDetails.Select(od => od.ProductTypesID).ToList();
+            var productTypes = await _variantService.ListAsync(pt => productTypeIds.Contains(pt.ID));
+            var productIds = productTypes.Select(pt => pt.ProductID).ToList();
+
+            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+            if (store == null)
+            {
+                return NotFound("Store not found");
+            }
+
+            var products = await _product.ListAsync(p => p.StoreID == store.ID);
+            var storeProductIds = products.Select(p => p.ID).ToHashSet();
+
+            if (!productIds.Any(pid => storeProductIds.Contains(pid)))
+            {
+                return Forbid("You do not have permission to view this order.");
+            }
+
+            var productDict = products.ToDictionary(p => p.ID, p => p.Name);
+            var productTypeDict = productTypes.ToDictionary(pt => pt.ID, pt => pt.Name);
+            var getInfoCustomr = await this._userManager.FindByIdAsync(order.UserID);
+            if( getInfoCustomr == null)
+                return NotFound("Customer not found");
+            var codeVoucher = "";
+            decimal discountVocher = 0m;
+
+            if (order.VoucherID != null && order.VoucherID != Guid.Empty)
+            {
+                var voucher = await _voucher.GetAsyncById(order.VoucherID.Value);
+                if (voucher != null)
+                {
+                    codeVoucher = $"({voucher.Code})";
+
+                    if (voucher.DiscountType == "Percentage")
+                    {
+                        discountVocher = voucher.DiscountAmount;
+                    }
+                    else // fixed amount
+                    {
+                        discountVocher = voucher.DiscountAmount;
+                    }
+                }
+            }
+
+            // Gọi bất đồng bộ để lấy danh sách ảnh sản phẩm tương ứng từng item
+            var itemDetailTasks = orderDetails.Select(async od =>
+            {
+                var pt = productTypeDict.ContainsKey(od.ProductTypesID) ? productTypeDict[od.ProductTypesID] : "Unknown";
+                var pid = productTypes.FirstOrDefault(p => p.ID == od.ProductTypesID)?.ProductID;
+                var pName = pid != null && productDict.ContainsKey(pid.Value) ? productDict[pid.Value] : "Unknown";
+
+                var image = await _productImageService.FindAsync(u => u.ProductID == pid && u.IsMain);
+                var imageUrl = image?.ImageUrl ?? "https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-1-1.jpg";
+
+                return new ManageOrderDetailInfo
+                {
+                    Produtype = pt,
+                    Product = pName,
+                    NameShop = store.Name,
+                    ItemPrice = od.ProductPrice,
+                    Quantity = od.Quantity,
+                    Totals = od.Quantity * od.ProductPrice,
+                    ProductID = pid ?? Guid.Empty,
+                    ImageProduct = imageUrl
+                };
+            });
+
+            // Chờ tất cả item xử lý xong
+            var itemDetailResult = await Task.WhenAll(itemDetailTasks);
+
+
+            // Khởi tạo ViewModel
+            var viewModel = new manageOrderDetail
+            {
+                OrderTracking = order.OrderTracking,
+                OrderID = order.ID,
+                Note = order.Note,
+                Subtotal = orderDetails.Sum(od => od.Quantity * od.ProductPrice),
+                TotalOrder = order.TotalPrice,
+                Discount = discountVocher,
+                NameVocher = !string.IsNullOrEmpty(codeVoucher) ? $"{codeVoucher} ({discountVocher})" : "",
+                PaymentMethod = order.PaymentMethod,
+                IDLogistics = order.OrderTracking,
+                NameCustomer = $"{getInfoCustomr.FirstName} {getInfoCustomr.LastName}",
+                EmailCustomer = getInfoCustomr.Email,
+                PhoneCustomer = getInfoCustomr.PhoneNumber,
+                UserNameCus = getInfoCustomr.UserName,
+                ShippingAddress = order.DeliveryAddress,
+                ImageCus = getInfoCustomr.ImageUrl ?? "~/assets/imgs/theme/icons/icon-user.svg",
+                ItemDetail = itemDetailResult.ToList(),
+                StatusHistories = OrderStatusHistory.Parse(order.Description),
+
+            };
+
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> CancelOrder(Guid id)
+        {
+
+            if (string.IsNullOrWhiteSpace(id+""))
+                return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
+
+            try
+            {
+                var order = await _order.FindAsync(o => o.ID == id);
+                if (order == null)
+                    return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+
+                if (!string.Equals(order.Status, "Pending", StringComparison.OrdinalIgnoreCase) || string.Equals(order.Status, "Preparing In Kitchen", StringComparison.OrdinalIgnoreCase))
+                    return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng đang chờ xử lý và Preparing In Kitchens." });
+
+                var orderDetails = await _orderDetail.ListAsync(d => d.OrderID == order.ID);
+                if (orderDetails == null || !orderDetails.Any())
+                    return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+
+                foreach (var item in orderDetails)
+                {
+                    item.Status = "Refunded";
+                    item.ModifiedDate = DateTime.UtcNow;
+                    await _orderDetail.UpdateAsync(item);
+
+                    var product = await _variantService.FindAsync(p => p.ID == item.ProductTypesID);
+                    if (product != null)
+                    {
+                        product.Stock += item.Quantity;
+                        product.IsActive = true;
+                        await _variantService.UpdateAsync(product);
+                    }
+                }
+
+
+                var currentBalance = await _balance.GetBalance(order.UserID);
+                var refundTransaction = new BalanceChange
+                {
+                    UserID = order.UserID,
+                    MoneyChange = order.TotalPrice,
+                    MoneyBeforeChange = currentBalance,
+                    MoneyAfterChange = currentBalance + order.TotalPrice,
+                    Method = "Refund",
+                    Status = "Success",
+                    Display = true,
+                    IsComplete = true,
+                    CheckDone = true,
+                    StartTime = DateTime.Now,
+                    DueTime = DateTime.Now
+                };
+                await _balance.AddAsync(refundTransaction);
+
+                order.Status = "Cancelled by Shop";
+                order.Description = string.IsNullOrEmpty(order.Description)
+    ? $"CANCELLED BY SHOP-{DateTime.Now}"
+    : $"{order.Description}#CANCELLED BY SHOP-{DateTime.Now}";
+
+                order.PaymentStatus = "Refunded";
+                order.ModifiedDate = DateTime.UtcNow;
+                await _order.UpdateAsync(order);
+
+
+                await _orderDetail.SaveChangesAsync();
+                await _variantService.SaveChangesAsync();
+                await _order.SaveChangesAsync();
+                await _balance.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Đơn hàng đã được hủy thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại hoặc liên hệ admin.",
+                    /*   error = ex.Message // ❗ chỉ nên show ra trong môi trường dev*/
+                });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus(Guid id, string status)
+        {
+            try
+            {
+                var order = await _order.FindAsync(o => o.ID == id);
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+                }
+
+                // Trạng thái hủy sẽ không xử lý ở đây
+                if (status == "CANCELLED BY USER" || status == "CANCELLED BY SHOP")
+                {
+                    return Json(new { success = false, message = "Trạng thái hủy không được xử lý tại đây." });
+                }
+
+                // Ghi chú thời gian thay đổi trạng thái vào Description
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                string entry = $"{status}-{timestamp}";
+                order.Description = string.IsNullOrWhiteSpace(order.Description)
+                    ? entry
+                    : $"{order.Description}#{entry}";
+
+                // Cập nhật trạng thái và thời gian
+                order.Status = status;
+                order.ModifiedDate = DateTime.UtcNow;
+
+                await _order.UpdateAsync(order);
+                await _order.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Cập nhật trạng thái đơn hàng thành công: {status}" });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại sau." });
+            }
+        }
+
+
     }
+
 }
