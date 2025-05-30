@@ -12,10 +12,10 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
-        public string Cmt { get; set; }
-        public string? Relay { get; set; }
+        public string Comment { get; set; }
+        public string? Reply { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-        public DateTime? DateRelay { get; set; }
+        public DateTime? ReplyDate { get; set; }
         public bool IsActive { get; set; } = true;
         [ForeignKey("Recipe")]
         public Guid RecipeID { get; set; }
