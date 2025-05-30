@@ -10,9 +10,9 @@ namespace Models.DBContext
 {
     public class FoodHavenDbContext : IdentityDbContext<AppUser>
     {
-        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
+ /*       public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
-        }
+        }*/
 
         public DbSet<BalanceChange> BalanceChanges { get; set; }
         public DbSet<Categories> Categories { get; set; }
@@ -155,6 +155,103 @@ namespace Models.DBContext
            .WithMany(h => h.Orders)
            .HasForeignKey(h => h.VoucherID).OnDelete(DeleteBehavior.NoAction).IsRequired(false);
 
+            builder.Entity<Recipe>()
+         .HasOne(h => h.TypeOfDish)
+         .WithMany(h => h.Recipes)
+         .HasForeignKey(h => h.TypeOfDishID).OnDelete(DeleteBehavior.NoAction);
+            
+         builder.Entity<Recipe>()
+         .HasOne(h => h.IngredientTag)
+         .WithMany(h => h.Recipes)
+         .HasForeignKey(h => h.IngredientTagID).OnDelete(DeleteBehavior.NoAction);
+
+                        builder.Entity<TypeOfDish>().HasData(
+      new TypeOfDish
+{
+ Name = "Quick and Easy Dinners for One",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Cooking for Two",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Main Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Vegetarian Main Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Side Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Healthy Main Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+}
+);
+
+            builder.Entity<IngredientTag>().HasData(
+                    new IngredientTag
+                    {
+                     
+                        Name = "Fish",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                     
+                        Name = "Chicken",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                   
+                        Name = "Beef",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                  
+                        Name = "Pork",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                      
+                        Name = "Seafood",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                   
+                        Name = "Vegetable",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    }
+                );
+
+
+
+
 
 
 
@@ -169,7 +266,7 @@ namespace Models.DBContext
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+      => optionsBuilder.UseSqlServer("Server=DESKTOP-1E1A6I4;Database =foodhaven;uid=sa;pwd=Thanh;encrypt=true;trustServerCertificate=true;");
 
 
     }
