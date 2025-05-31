@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class Complain
+    public class Complaint
     {
         [Key]
         public Guid ID { get; set; }=Guid.NewGuid();

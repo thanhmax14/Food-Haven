@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,7 +25,7 @@ namespace Models.DBContext
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Complain> Complains { get; set; }
+        public DbSet<Complaint> Complaints { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
         public DbSet<FavoriteRecipe> FavoriteRecipes { get; set; }
         public DbSet<RecipeReview> RecipeReviews { get; set; }
@@ -115,9 +116,9 @@ namespace Models.DBContext
            .WithMany(h => h.OrderDetails)
            .HasForeignKey(h => h.OrderID).OnDelete(DeleteBehavior.NoAction);
 
-            builder.Entity<Complain>()
+            builder.Entity<Complaint>()
            .HasOne(h => h.OrderDetail)
-           .WithMany(h => h.Complains)
+           .WithMany(h => h.Complaints)
            .HasForeignKey(h => h.OrderDetailID).OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Recipe>()
@@ -159,13 +160,13 @@ namespace Models.DBContext
          .HasOne(h => h.TypeOfDish)
          .WithMany(h => h.Recipes)
          .HasForeignKey(h => h.TypeOfDishID).OnDelete(DeleteBehavior.NoAction);
-            
-         builder.Entity<Recipe>()
-         .HasOne(h => h.IngredientTag)
-         .WithMany(h => h.Recipes)
-         .HasForeignKey(h => h.IngredientTagID).OnDelete(DeleteBehavior.NoAction);
 
-                        builder.Entity<TypeOfDish>().HasData(
+            builder.Entity<Recipe>()
+           .HasMany(r => r.IngredientTags)
+           .WithMany(t => t.Recipes)
+           .UsingEntity(j => j.ToTable("RecipeIngredientTags"));
+
+            builder.Entity<TypeOfDish>().HasData(
       new TypeOfDish
 {
  Name = "Quick and Easy Dinners for One",
