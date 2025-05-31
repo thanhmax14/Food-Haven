@@ -25,6 +25,7 @@ using Repository.BalanceChange;
 using BusinessLogic.Services.Orders;
 using Repository.OrdersRepository;
 using BusinessLogic.Services.OrderDetailService;
+using BusinessLogic.Services.VoucherServices;
 
 namespace BusinessLogic.Config
 {
@@ -47,6 +48,7 @@ namespace BusinessLogic.Config
             services.AddScoped<BusinessLogic.Services.Categorys.CategoryService>();
             services.AddScoped<BusinessLogic.Services.Products.ProductService>();
             services.AddScoped<IOrderDetailService, OrderDetailServices>();
+            services.AddScoped<IVoucherServices , VoucherService>();
 
 
             var mailSettings = new MailSettings

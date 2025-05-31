@@ -2,6 +2,7 @@
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
 using Food_Haven.Web.Hubs;
+using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -35,28 +36,26 @@ builder.Services.AddSession(options =>
 });
 builder.Services.Configure<IdentityOptions>(options =>
 {
-
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 3;
+    options.Password.RequiredLength = 9;
     options.Password.RequiredUniqueChars = 1;
+
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 
-
-
-    //setting for user
     options.User.AllowedUserNameCharacters =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
     options.User.RequireUniqueEmail = true;
 
     options.SignIn.RequireConfirmedAccount = true;
     options.SignIn.RequireConfirmedEmail = true;
-
 });
+builder.Services.AddScoped<IPasswordValidator<AppUser>, CustomPasswordValidator<AppUser>>();
+
 // Cấu hình Cookie
 builder.Services.ConfigureApplicationCookie(options =>
 {

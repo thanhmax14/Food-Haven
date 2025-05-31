@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Repository.Wishlists;
 using Repository.OrdersRepository;
 using Repository.OrdeDetails;
+using Repository.Vouchers;
 
 namespace BusinessLogic.Config
 {
@@ -49,6 +50,7 @@ namespace BusinessLogic.Config
             services.AddScoped<Repository.OrdeDetails.OrderDetailRepository>();
             services.AddScoped<Repository.OrdersRepository.OrdersRepository>();
             services.AddScoped<Repository.BalanceChange.BalanceChangeRepository>();
+            services.AddScoped<IVouchersRepository, VouchersRepository>();
         }
 
 

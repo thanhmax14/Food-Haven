@@ -9,12 +9,15 @@ namespace Repository.ViewModels
     public class GetSellerOrder
     {
         public int STT { get; set; }
-        public Guid OrderID { get; set; }
+        public string OrderTracking { get; set; }
         public string UserName { get; set; }
         public DateTime? OrderDate { get; set; }
-        public int quantity { get; set; }
-        public decimal total { get; set; }
-        public string status { get; set; }
-        public string shortID { get; set; }
+        public int Quantity { get; set; }
+        public decimal Total { get; set; }  
+        public string StatusPayment { get; set; }
+        public string Status { get; set; }
+        public string Note { get; set; }
+        public string Desctiption { get; set; }
+        public string DeliveryAddress { get; set; }
     }
 }

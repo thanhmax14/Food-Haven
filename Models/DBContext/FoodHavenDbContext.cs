@@ -155,6 +155,103 @@ namespace Models.DBContext
            .WithMany(h => h.Orders)
            .HasForeignKey(h => h.VoucherID).OnDelete(DeleteBehavior.NoAction).IsRequired(false);
 
+            builder.Entity<Recipe>()
+         .HasOne(h => h.TypeOfDish)
+         .WithMany(h => h.Recipes)
+         .HasForeignKey(h => h.TypeOfDishID).OnDelete(DeleteBehavior.NoAction);
+            
+         builder.Entity<Recipe>()
+         .HasOne(h => h.IngredientTag)
+         .WithMany(h => h.Recipes)
+         .HasForeignKey(h => h.IngredientTagID).OnDelete(DeleteBehavior.NoAction);
+
+                        builder.Entity<TypeOfDish>().HasData(
+      new TypeOfDish
+{
+ Name = "Quick and Easy Dinners for One",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Cooking for Two",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Main Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Vegetarian Main Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Side Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+},
+new TypeOfDish
+{
+ Name = "Healthy Main Dishes",
+ IsActive = true,
+ CreatedDate = DateTime.Now
+}
+);
+
+            builder.Entity<IngredientTag>().HasData(
+                    new IngredientTag
+                    {
+                     
+                        Name = "Fish",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                     
+                        Name = "Chicken",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                   
+                        Name = "Beef",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                  
+                        Name = "Pork",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                      
+                        Name = "Seafood",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    },
+                    new IngredientTag
+                    {
+                   
+                        Name = "Vegetable",
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    }
+                );
+
+
+
+
 
 
 

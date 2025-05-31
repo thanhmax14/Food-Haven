@@ -424,7 +424,7 @@ namespace Food_Haven.Web.Controllers
                     return Json(new ErroMess { msg = "Số lượng sản phẩm mua vượt quá số lượng tồn kho!" });
                 }
 
-                var getImg = await this._img.FindAsync(u => u.ProductID == id);
+                var getImg = await this._img.FindAsync(u => u.ProductID == id && u.IsMain);
 
                 var img = "https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-1-1.jpg";
                 if (getImg != null)
@@ -795,6 +795,7 @@ namespace Food_Haven.Web.Controllers
                             OrderCode = "",
                             DeliveryAddress = model.Address,
                             Note = model.Note??"",
+                            Description= $"Pending-{DateTime.Now}"
 
 
                         };
@@ -831,6 +832,7 @@ namespace Food_Haven.Web.Controllers
                                 }
                                 order.PaymentStatus = "Failed";
                                 order.Status = "Refunded";
+                                order.Description = $"Refunded-{DateTime.Now}";
                                 balan.Status = "Failed";
                                 balan.DueTime = DateTime.Now;
                                 balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
@@ -897,6 +899,7 @@ namespace Food_Haven.Web.Controllers
                                 }
                                 order.PaymentStatus = "Failed";
                                 order.Status = "Refunded";
+                                order.Description = $"Failed-{DateTime.Now}";
                                 balan.Status = "Failed";
                                 balan.DueTime = DateTime.Now;
                                 balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
@@ -918,6 +921,7 @@ namespace Food_Haven.Web.Controllers
                             }
                             order.PaymentStatus = "Failed";
                             order.Status = "Refunded";
+                            order.Description = $"Refunded-{DateTime.Now}";
                             balan.Status = "Failed";
                             balan.DueTime = DateTime.Now;
                             balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
@@ -1032,6 +1036,10 @@ namespace Food_Haven.Web.Controllers
                 await _balance.AddAsync(refundTransaction);
 
                 order.Status = "Cancelled by User";
+                order.Description = string.IsNullOrEmpty(order.Description)
+    ? $"CANCELLED BY USER-{DateTime.Now}"
+    : $"{order.Description}#CANCELLED BY USER-{DateTime.Now}";
+
                 order.PaymentStatus = "Refunded";
                 order.ModifiedDate = DateTime.UtcNow;
                 await _order.UpdateAsync(order);
