@@ -373,7 +373,7 @@ namespace Models.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Models.Complain", b =>
+            modelBuilder.Entity("Models.Complaint", b =>
                 {
                     b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
@@ -403,7 +403,7 @@ namespace Models.Migrations
 
                     b.HasIndex("OrderDetailID");
 
-                    b.ToTable("Complains");
+                    b.ToTable("Complaints");
                 });
 
             modelBuilder.Entity("Models.FavoriteRecipe", b =>
@@ -1157,10 +1157,10 @@ namespace Models.Migrations
                     b.Navigation("ProductTypes");
                 });
 
-            modelBuilder.Entity("Models.Complain", b =>
+            modelBuilder.Entity("Models.Complaint", b =>
                 {
                     b.HasOne("Models.OrderDetail", "OrderDetail")
-                        .WithMany("Complains")
+                        .WithMany("Complaints")
                         .HasForeignKey("OrderDetailID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1404,7 +1404,7 @@ namespace Models.Migrations
 
             modelBuilder.Entity("Models.OrderDetail", b =>
                 {
-                    b.Navigation("Complains");
+                    b.Navigation("Complaints");
                 });
 
             modelBuilder.Entity("Models.Product", b =>

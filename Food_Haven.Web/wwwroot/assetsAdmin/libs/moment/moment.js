@@ -3133,7 +3133,7 @@
     function createAdder(direction, name) {
         return function (val, period) {
             var dur, tmp;
-            //invert the arguments, but complain about it
+            //invert the arguments, but Complaint about it
             if (period !== null && !isNaN(+period)) {
                 deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period). ' +
                 'See http://momentjs.com/guides/#/warnings/add-inverted-param/ for more info.');

@@ -541,7 +541,7 @@ namespace Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Complains",
+                name: "Complaints",
                 columns: table => new
                 {
                     ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -554,9 +554,9 @@ namespace Models.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Complains", x => x.ID);
+                    table.PrimaryKey("PK_Complaints", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Complains_OrderDetails_OrderDetailID",
+                        name: "FK_Complaints_OrderDetails_OrderDetailID",
                         column: x => x.OrderDetailID,
                         principalTable: "OrderDetails",
                         principalColumn: "ID");
@@ -604,8 +604,8 @@ namespace Models.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Complains_OrderDetailID",
-                table: "Complains",
+                name: "IX_Complaints_OrderDetailID",
+                table: "Complaints",
                 column: "OrderDetailID");
 
             migrationBuilder.CreateIndex(
@@ -755,7 +755,7 @@ namespace Models.Migrations
                 name: "Carts");
 
             migrationBuilder.DropTable(
-                name: "Complains");
+                name: "Complaints");
 
             migrationBuilder.DropTable(
                 name: "FavoriteRecipes");

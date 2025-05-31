@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Models
 {
@@ -25,18 +22,22 @@ namespace Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public bool IsActive { get; set; } = false;
+
         [ForeignKey("Categories")]
         public Guid CateID { get; set; }
         public virtual Categories Categories { get; set; }
+
         [ForeignKey("AppUser")]
         public string UserID { get; set; }
         public virtual AppUser AppUser { get; set; }
+
         [ForeignKey("TypeOfDish")]
         public Guid TypeOfDishID { get; set; }
         public virtual TypeOfDish TypeOfDish { get; set; }
-        [ForeignKey("IngredientTag")]
-        public Guid IngredientTagID { get; set; }
-        public virtual IngredientTag IngredientTag { get; set; }
+
+        // ✅ Many-to-Many with IngredientTag
+        public ICollection<IngredientTag> IngredientTags { get; set; } = new List<IngredientTag>();
+
         public ICollection<FavoriteRecipe> FavoriteRecipes { get; set; }
         public ICollection<RecipeReview> RecipeReviews { get; set; }
     }

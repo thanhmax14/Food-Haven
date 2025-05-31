@@ -26,7 +26,7 @@ namespace Models
         [ForeignKey("ProductTypes")]
         public Guid ProductTypesID { get; set; }
         public virtual ProductTypes ProductTypes { get; set; }
-        public ICollection<Complain> Complains { get; set; }
+        public ICollection<Complaint> Complaints { get; set; }
 
     }
 }
