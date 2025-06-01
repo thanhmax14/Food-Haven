@@ -28,6 +28,28 @@
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
       <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <!-- assetsAdmin JS-->
+    <link rel="shortcut icon" href="assetsAdmin/images/favicon.ico">
+    <!-- Plugins css -->
+    <link href="assetsAdmin/libs/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
+    <!-- Layout config Js -->
+    <script src="assetsAdmin/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="assetsAdmin/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <link href="assetsAdmin/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+
+
+
+    <!-- multi.js css -->
+    <link rel="stylesheet" type="text/css" href="assetsAdmin/libs/multi.js/multi.min.css" />
+    <!-- autocomplete css -->
+    <link rel="stylesheet" href="assetsAdmin/libs/%40tarekraafat/autocomplete.js/css/autoComplete.css">
 </head>
 
 <body>
@@ -1533,6 +1555,49 @@ document.addEventListener("click", function (e) {
         });
     });
 </script>
+                                    <script>
+                                        var editorCookingStep = new Quill('#editor-CookingStep', {
+                                            theme: 'snow',
+                                            modules: {
+                                                toolbar: [
+                                                    [{ 'font': [] }, { 'size': [] }],
+                                                    ['bold', 'italic', 'underline', 'strike'],
+                                                    [{ 'color': [] }, { 'background': [] }],
+                                                    [{ 'script': 'super' }, { 'script': 'sub' }],
+                                                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                                                    ['blockquote', 'code-block'],
+                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                    [{ 'align': [] }],
+                                                    [{ 'indent': '-1' }, { 'indent': '+1' }],
+                                                    [{ 'direction': 'rtl' }],
+                                                    ['link', 'image', 'video'],
+                                                    ['clean']
+                                                ]
+                                            }
+                                        });
+
+                                        var editorIngredient = new Quill('#editor-Ingredient', {
+                                            theme: 'snow',
+                                            modules: {
+                                                toolbar: [
+                                                    [{ 'font': [] }, { 'size': [] }],
+                                                    ['bold', 'italic', 'underline', 'strike'],
+                                                    [{ 'color': [] }, { 'background': [] }],
+                                                    [{ 'script': 'super' }, { 'script': 'sub' }],
+                                                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                                                    ['blockquote', 'code-block'],
+                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                                    [{ 'align': [] }],
+                                                    [{ 'indent': '-1' }, { 'indent': '+1' }],
+                                                    [{ 'direction': 'rtl' }],
+                                                    ['link', 'image', 'video'],
+                                                    ['clean']
+                                                ]
+                                            }
+                                        });
+
+
+                                    </script>
 
 
                                     @* ///FEEDBACK *@
@@ -2005,7 +2070,42 @@ document.addEventListener("click", function (e) {
     <!-- Template  JS -->
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
-        <script src="~/assets/js/gridjs/gridjs.umd.js"></script>
+    <script src="~/assets/js/gridjs/gridjs.umd.js"></script>
+    <!-- assetsAdmin JS-->
+    <!-- JAVASCRIPT -->
+    <script src="assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+    <script src="assetsAdmin/libs/node-waves/waves.min.js"></script>
+    <script src="assetsAdmin/libs/feather-icons/feather.min.js"></script>
+    <script src="assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="assetsAdmin/js/plugins.js"></script>
+    <!-- ckeditor -->
+    <script src="assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
+
+    <!-- dropzone js -->
+    <script src="assetsAdmin/libs/dropzone/dropzone-min.js"></script>
+
+    <script src="assetsAdmin/js/pages/ecommerce-product-create.init.js"></script>
+
+    <!-- prismjs plugin -->
+    <script src="assetsAdmin/libs/prismjs/prism.js"></script>
+
+    <script src="assetsAdmin/js/app.js"></script>
+
+
+    <!-- multi.js -->
+    <script src="assetsAdmin/libs/multi.js/multi.min.js"></script>
+    <!-- autocomplete js -->
+    <script src="assetsAdmin/libs/%40tarekraafat/autocomplete.js/autoComplete.min.js"></script>
+
+    <!-- init js -->
+    @* <script src="assetsAdmin/js/pages/form-advanced.init.js"></script> *@
+    <!-- input spin init -->
+    <script src="assetsAdmin/js/pages/form-input-spin.init.js"></script>
+    <!-- input flag init -->
+    <script src="assetsAdmin/js/pages/flag-input.init.js"></script>
+    <script src="assetsAdmin/js/pages/form-editor.init.js"></script>
+    <script src="assetsAdmin/libs/quill/quill.min.js"></script>
 </body>
 
 </html>
