@@ -839,26 +839,18 @@ namespace Food_Haven.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-            {
                 return RedirectToAction("Login", "Home");
-            }
 
             if (string.IsNullOrEmpty(id))
-            {
                 return NotFound("Invalid Order ID");
-            }
 
             var order = await _order.FindAsync(u => u.OrderTracking == id);
             if (order == null)
-            {
                 return NotFound("Order not found");
-            }
 
             var orderDetails = await _orderDetail.ListAsync(od => od.OrderID == order.ID);
             if (!orderDetails.Any())
-            {
                 return NotFound("Order has no details");
-            }
 
             var productTypeIds = orderDetails.Select(od => od.ProductTypesID).ToList();
             var productTypes = await _variantService.ListAsync(pt => productTypeIds.Contains(pt.ID));
@@ -866,25 +858,23 @@ namespace Food_Haven.Web.Controllers
 
             var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
             if (store == null)
-            {
                 return NotFound("Store not found");
-            }
 
             var products = await _product.ListAsync(p => p.StoreID == store.ID);
             var storeProductIds = products.Select(p => p.ID).ToHashSet();
 
             if (!productIds.Any(pid => storeProductIds.Contains(pid)))
-            {
                 return Forbid("You do not have permission to view this order.");
-            }
 
             var productDict = products.ToDictionary(p => p.ID, p => p.Name);
             var productTypeDict = productTypes.ToDictionary(pt => pt.ID, pt => pt.Name);
-            var getInfoCustomr = await this._userManager.FindByIdAsync(order.UserID);
-            if( getInfoCustomr == null)
+            var getInfoCustomer = await _userManager.FindByIdAsync(order.UserID);
+
+            if (getInfoCustomer == null)
                 return NotFound("Customer not found");
+
             var codeVoucher = "";
-            decimal discountVocher = 0m;
+            decimal discountVoucher = 0m;
 
             if (order.VoucherID != null && order.VoucherID != Guid.Empty)
             {
@@ -892,29 +882,24 @@ namespace Food_Haven.Web.Controllers
                 if (voucher != null)
                 {
                     codeVoucher = $"({voucher.Code})";
-
-                    if (voucher.DiscountType == "Percentage")
-                    {
-                        discountVocher = voucher.DiscountAmount;
-                    }
-                    else // fixed amount
-                    {
-                        discountVocher = voucher.DiscountAmount;
-                    }
+                    discountVoucher = voucher.DiscountAmount;
                 }
             }
 
-            // Gọi bất đồng bộ để lấy danh sách ảnh sản phẩm tương ứng từng item
-            var itemDetailTasks = orderDetails.Select(async od =>
+            // ✅ Dùng tuần tự thay vì song song để tránh DbContext lỗi
+            var itemDetailResult = new List<ManageOrderDetailInfo>();
+
+            foreach (var od in orderDetails)
             {
                 var pt = productTypeDict.ContainsKey(od.ProductTypesID) ? productTypeDict[od.ProductTypesID] : "Unknown";
-                var pid = productTypes.FirstOrDefault(p => p.ID == od.ProductTypesID)?.ProductID;
+                var productType = productTypes.FirstOrDefault(p => p.ID == od.ProductTypesID);
+                var pid = productType?.ProductID;
                 var pName = pid != null && productDict.ContainsKey(pid.Value) ? productDict[pid.Value] : "Unknown";
 
                 var image = await _productImageService.FindAsync(u => u.ProductID == pid && u.IsMain);
                 var imageUrl = image?.ImageUrl ?? "https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-1-1.jpg";
 
-                return new ManageOrderDetailInfo
+                itemDetailResult.Add(new ManageOrderDetailInfo
                 {
                     Produtype = pt,
                     Product = pName,
@@ -924,14 +909,9 @@ namespace Food_Haven.Web.Controllers
                     Totals = od.Quantity * od.ProductPrice,
                     ProductID = pid ?? Guid.Empty,
                     ImageProduct = imageUrl
-                };
-            });
+                });
+            }
 
-            // Chờ tất cả item xử lý xong
-            var itemDetailResult = await Task.WhenAll(itemDetailTasks);
-
-
-            // Khởi tạo ViewModel
             var viewModel = new manageOrderDetail
             {
                 OrderTracking = order.OrderTracking,
@@ -939,24 +919,23 @@ namespace Food_Haven.Web.Controllers
                 Note = order.Note,
                 Subtotal = orderDetails.Sum(od => od.Quantity * od.ProductPrice),
                 TotalOrder = order.TotalPrice,
-                Discount = discountVocher,
-                NameVocher = !string.IsNullOrEmpty(codeVoucher) ? $"{codeVoucher} ({discountVocher})" : "",
+                Discount = discountVoucher,
+                NameVocher = !string.IsNullOrEmpty(codeVoucher) ? $"{codeVoucher} ({discountVoucher})" : "",
                 PaymentMethod = order.PaymentMethod,
                 IDLogistics = order.OrderTracking,
-                NameCustomer = $"{getInfoCustomr.FirstName} {getInfoCustomr.LastName}",
-                EmailCustomer = getInfoCustomr.Email,
-                PhoneCustomer = getInfoCustomr.PhoneNumber,
-                UserNameCus = getInfoCustomr.UserName,
+                NameCustomer = $"{getInfoCustomer.FirstName} {getInfoCustomer.LastName}",
+                EmailCustomer = getInfoCustomer.Email,
+                PhoneCustomer = getInfoCustomer.PhoneNumber,
+                UserNameCus = getInfoCustomer.UserName,
                 ShippingAddress = order.DeliveryAddress,
-                ImageCus = getInfoCustomr.ImageUrl ?? "~/assets/imgs/theme/icons/icon-user.svg",
-                ItemDetail = itemDetailResult.ToList(),
+                ImageCus = getInfoCustomer.ImageUrl ?? "~/assets/imgs/theme/icons/icon-user.svg",
+                ItemDetail = itemDetailResult,
                 StatusHistories = OrderStatusHistory.Parse(order.Description),
-
             };
-
 
             return View(viewModel);
         }
+
         [HttpPost]
         public async Task<IActionResult> CancelOrder(Guid id)
         {
@@ -1053,7 +1032,17 @@ namespace Food_Haven.Web.Controllers
                 {
                     return Json(new { success = false, message = "Trạng thái hủy không được xử lý tại đây." });
                 }
+                var orderDetails = await _orderDetail.ListAsync(d => d.OrderID == order.ID);
+                if (orderDetails == null || !orderDetails.Any())
+                    return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
 
+                foreach (var item in orderDetails)
+                {
+                    item.Status = status;
+                    item.ModifiedDate = DateTime.UtcNow;
+                    await _orderDetail.UpdateAsync(item);
+                
+                }
                 // Ghi chú thời gian thay đổi trạng thái vào Description
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 string entry = $"{status}-{timestamp}";
@@ -1066,6 +1055,7 @@ namespace Food_Haven.Web.Controllers
                 order.ModifiedDate = DateTime.UtcNow;
 
                 await _order.UpdateAsync(order);
+                await _orderDetail.SaveChangesAsync();
                 await _order.SaveChangesAsync();
 
                 return Json(new { success = true, message = $"Cập nhật trạng thái đơn hàng thành công: {status}" });
