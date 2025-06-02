@@ -182,23 +182,33 @@
                                             <div class="detail-info pr-30 pl-30">
                                              
                                                 <h2 class="title-detail">@Model.Name</h2>
-                                                @* <div class="product-detail-rating"> *@
-                                                @*     <div class="product-rate-cover text-end"> *@
-                                                @*         <div class="product-rate d-inline-block"> *@
-                                                @*             <div class="product-rating" style="width: 90%"></div> *@
-                                                @*         </div> *@
-                                                @*         <span class="font-small ml-5 text-muted"> (32 reviews)</span> *@
-                                                @*     </div> *@
-                                                @* </div> *@
-                                              <div class="clearfix product-price-cover">
-                                                        <div class="product-price primary-color float-left">
-                                                            <span  class="current-price text-brand" id="price-display">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
-                                                        </div>
-                                                    </div>
-                                                <div class="short-desc mb-30">
+                                                <div class="font-xs">
+                                                    <ul class="mr-50 float-start">
+                                                        <li class="mb-5">By: <span class="text-brand">@Model.StoreName</span></li>
+                                                      
+
+                                                    </ul>
+                                                    <ul class="float-start">
+
+                                                        <li>
+                                                            Owner:<span id="stock-display" class="in-stock text-brand ml-5">
+                                                                @Model.Owner
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+
+                                                </div>
+
+                                                <div class="short-desc mb-30" style="clear: both;">
                                                     <p class="font-lg">
                                                         @Model.ShortDescription
                                                     </p>
+                                                </div>
+
+                                                <div class="clearfix product-price-cover">
+                                                    <div class="product-price primary-color float-left">
+                                                        <span class="current-price text-brand" id="price-display">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                    </div>
                                                 </div>
                                                 <div class="attr-detail attr-size mb-30">
                                                     <strong class="mr-10">Size / Weight:</strong>
@@ -278,6 +288,7 @@
                                                             </span>
                                                         </li>
                                                     </ul>
+
                                                 </div>
                                             </div>
                                             <!-- Detail Info -->

@@ -108,6 +108,8 @@ namespace Food_Haven.Web.Controllers
                     ID = p.ID,
                     Name = p.Name,
                     LongDescription = p.LongDescription,
+                    StoreName = p.StoreDetails.Name,
+                    StoreId = p.StoreDetails.ID,
 
                     // Lấy giá từ biến thể đầu tiên (nếu có)
                     Price = p.ProductTypes
@@ -386,6 +388,7 @@ namespace Food_Haven.Web.Controllers
                 {
                     ID = p.ID,
                     Name = p.Name,
+                   
                     LongDescription = p.LongDescription,
                     Price = p.ProductTypes
                         .OrderBy(v => v.SellPrice)
@@ -710,6 +713,8 @@ namespace Food_Haven.Web.Controllers
             {
                 ID = productDetail.ID,
                 Name = productDetail.Name,
+                StoreName = productDetail.StoreDetails?.Name ?? "Không rõ",
+                Owner = productDetail.StoreDetails?.AppUser?.UserName ?? "Không rõ",
                 ShortDescription = productDetail.ShortDescription,
                 LongDescription = productDetail.LongDescription,
                 CreatedDate = productDetail.CreatedDate,
