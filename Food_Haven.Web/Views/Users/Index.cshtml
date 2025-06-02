@@ -65,7 +65,119 @@
 .badge.bg-failed { background-color: #dc3545; } /* for Cancelled or Failed */
 
     </style>
+    <style>
+        .wrap {
+            width: 250px;
+            height: 50px;
+            background: #fff;
+            border-radius: 10px;
+        }
 
+        .stars {
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .star {
+            color: #ccc;
+            font-size: 28px;
+            transition: color 0.2s;
+        }
+
+            .star.hovered {
+                color: #b0c9f9 !important;
+            }
+
+            .star.selected {
+                color: #007bff !important;
+            }
+
+        .rate {
+            height: 50px;
+            margin-left: -5px;
+            padding: 5px;
+            font-size: 25px;
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+            .rate input[type="radio"] {
+                opacity: 0;
+                position: absolute;
+                pointer-events: none;
+            }
+
+        .face {
+            opacity: 0;
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            background: #91a6ff;
+            border-radius: 5px;
+            top: -50px;
+            left: 2px;
+            transition: 0.2s;
+            pointer-events: none;
+        }
+
+            .face::before {
+                font-family: 'Font Awesome 5 Free';
+                font-weight: 900;
+                content: "\f0dd";
+                color: #91a6ff;
+                position: absolute;
+                left: 9px;
+                bottom: -15px;
+            }
+
+            .face::after {
+                font-family: 'Font Awesome 5 Free';
+                font-weight: 900;
+                color: #fff;
+                position: absolute;
+                left: 5px;
+                top: -1px;
+            }
+
+        .rate:nth-child(1) .face::after {
+            content: "\f119";
+        }
+        /* ☹ */
+        .rate:nth-child(2) .face::after {
+            content: "\f11a";
+        }
+        /* 😐 */
+        .rate:nth-child(3) .face::after {
+            content: "\f118";
+        }
+        /* 🙂 */
+        .rate:nth-child(4) .face::after {
+            content: "\f580";
+        }
+        /* 😊 */
+        .rate:nth-child(5) .face::after {
+            content: "\f59a";
+        }
+        /* 😄 */
+        .rate:hover .face {
+            opacity: 1;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #000;
+            margin: 3px 5px 0 0;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 5px 10px;
+        }
+
+            .badge-warning.selected {
+                background-color: #dc3545;
+                color: #fff;
+            }
+    </style>
     @await Html.PartialAsync("_Header")
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
@@ -381,6 +493,184 @@
     </div>
 </div>
 
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="review_modal" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                                            <div class="modal-content p-4 fs-5">
+                                                <!-- Cỡ chữ lớn hơn -->
+                                                <form class="reviews-view__form">
+                                                    <input type="hidden" id="product-id-field">
+                                                    <input type="hidden" id="product-name-hidden">
+
+                                                    <h3 class="mb-3 fs-4">Đánh giá đơn hàng đã mua</h3>
+                                                    <span id="review_product_name"  class="badge bg-success mb-3 fs-6 py-2 px-3" >
+                                                      
+                                                    </span>
+
+                                                    <div class="wrap mb-4">
+                                                        <div class="stars">
+                                                            <label class="rate"><input type="radio" name="rating" value="1"><i class="fas fa-star star"></i><div class="face"></div></label>
+                                                            <label class="rate"><input type="radio" name="rating" value="2"><i class="fas fa-star star"></i><div class="face"></div></label>
+                                                            <label class="rate"><input type="radio" name="rating" value="3"><i class="fas fa-star star"></i><div class="face"></div></label>
+                                                            <label class="rate"><input type="radio" name="rating" value="4"><i class="fas fa-star star"></i><div class="face"></div></label>
+                                                            <label class="rate"><input type="radio" name="rating" value="5"><i class="fas fa-star star"></i><div class="face"></div></label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="review-text" class="fs-5">Chia sẻ thêm thông tin</label>
+                                                        <textarea class="form-control fs-5" id="review-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;"></textarea>
+
+                                                        <script>
+                                                            document.addEventListener("DOMContentLoaded", function () {
+                                                                const textarea = document.getElementById("review-text");
+
+                                                                textarea.addEventListener("input", function () {
+                                                                    this.style.height = "auto";
+                                                                    this.style.height = this.scrollHeight + "px";
+                                                                });
+                                                            });
+                                                        </script>
+
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm chuẩn chất lượng.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm khá tốt.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm ổn.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Hỗ trợ nhiệt tình.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm kém chất lượng.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Không hỗ trợ khách hàng.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Hàng không sử dụng được.</span>
+                                                    </div>
+
+                                                    <button type="button" class="btn btn-success w-100 mt-3 fs-5" onclick="doRating()">Gửi đánh giá</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <script>
+                                        function setReason(el) {
+                                            el.classList.toggle('selected');
+                                            const textarea = document.getElementById('review-text');
+                                            let lines = textarea.value.split('\n').map(line => line.trim());
+
+                                            if (el.classList.contains('selected')) {
+                                                if (!lines.includes(el.innerText)) {
+                                                    lines.push(el.innerText);
+                                                }
+                                            } else {
+                                                lines = lines.filter(line => line !== el.innerText);
+                                            }
+
+                                            textarea.value = lines.filter(Boolean).join('\n');
+                                        }
+
+                                        let currentRating = 0;
+                                        const rates = document.querySelectorAll('.rate');
+
+                                        rates.forEach((rate, index) => {
+                                            const star = rate.querySelector('.star');
+
+                                            rate.addEventListener('mouseover', () => {
+                                                rates.forEach((r, i) => {
+                                                    const s = r.querySelector('.star');
+                                                    s.classList.remove('selected');
+                                                    s.classList.toggle('hovered', i <= index);
+                                                });
+                                            });
+
+                                            rate.addEventListener('mouseout', () => {
+                                                rates.forEach((r, i) => {
+                                                    const s = r.querySelector('.star');
+                                                    s.classList.remove('hovered');
+                                                    s.classList.toggle('selected', i < currentRating);
+                                                });
+                                            });
+
+                                            rate.addEventListener('click', () => {
+                                                currentRating = index + 1;
+                                                rate.querySelector('input').checked = true;
+                                                rates.forEach((r, i) => {
+                                                    const s = r.querySelector('.star');
+                                                    s.classList.remove('hovered');
+                                                    s.classList.toggle('selected', i < currentRating);
+                                                });
+                                            });
+                                        });
+                                        function doRating() {
+                                            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+                                            const text = document.getElementById("review-text").value.trim();
+                                            const productId = document.getElementById("product-id-field").value;
+                                            const productName = document.getElementById("product-name-hidden").value;
+
+                                            if (!rating) {
+                                                Swal.fire("Chưa chọn số sao!", "Vui lòng chọn số sao để đánh giá.", "warning");
+                                                return;
+                                            }
+
+                                            if (!text) {
+                                                Swal.fire("Thiếu nội dung!", "Vui lòng chia sẻ nội dung đánh giá.", "warning");
+                                                return;
+                                            }
+
+                                            fetch("/Users/SubmitReview", {
+                                                method: "POST",
+                                                headers: {
+                                                    "Content-Type": "application/json"
+                                                },
+                                                body: JSON.stringify({
+                                                    productId: productId,
+                                                    rating: parseInt(rating),
+                                                    content: text
+                                                })
+                                            })
+                                                .then(res => res.json())
+                                                .then(data => {
+                                                    if (data.success) {
+                                                       
+                                                        const modalElement = document.getElementById("review_modal");
+                                                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                                                        modalInstance?.hide();
+
+                                                        Swal.fire("Thành công!", data.message || "Cảm ơn bạn đã đánh giá.", "success")
+                                                            .then(() => document.getElementById("orders-tab")?.click());
+                                                    } else {
+                                                        Swal.fire("Lỗi!", data.message || "Không gửi được đánh giá.", "error");
+                                                    }
+
+                                                })
+                                                .catch(error => {
+                                                    console.error("Submit error:", error);
+                                                    Swal.fire("Lỗi!", "Không thể kết nối máy chủ.", "error");
+                                                });
+                                        }
+                                        function openReviewModal(productId, productName) {
+                                            const modal = new bootstrap.Modal(document.getElementById("review_modal"));
+                                            modal.show();
+
+                                            document.getElementById("product-id-field").value = productId;
+                                            document.getElementById("product-name-hidden").value = productName;
+                                            document.getElementById("review_product_name").innerText = productName;
+
+                                            if (productIdField) {
+                                                productIdField.value = productId;
+                                            } else {
+                                                console.warn("Không tìm thấy input với id='review_product_id'");
+                                            }
+
+                                            if (productNameBadge) {
+                                                productNameBadge.textContent = `Đánh giá sản phẩm: ${productName}`;
+                                            } else {
+                                                console.warn("Không tìm thấy span với id='review_product_name'");
+                                            }
+                                        }
+
+                                    </script>
+
                             <script>
     let detailsGrid = null;
 
@@ -494,166 +784,194 @@
                 loadOrderDetails(orderId);
             }
         });
+                                            function loadOrderDetails(orderId) {
+                                                fetch("/Users/GetOrderDetails", {
+                                                    method: "POST",
+                                                    headers: {
+                                                        "Content-Type": "application/json",
+                                                        "Accept": "application/json"
+                                                    },
+                                                    body: JSON.stringify(orderId),
+                                                    cache: "no-store"
+                                                })
+                                                    .then(response => {
+                                                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                                                        return response.json();
+                                                    })
+                                                    .then(data => {
+                                                        if (data.success) {
+                                                            const detailsContainer = document.getElementById("table-order-details");
+                                                            detailsContainer.innerHTML = "";
 
-function loadOrderDetails(orderId) {
-    fetch("/Users/GetOrderDetails", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        body: JSON.stringify(orderId),
-        cache: "no-store"
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            const detailsContainer = document.getElementById("table-order-details");
-            detailsContainer.innerHTML = "";
+                                                            if (detailsGrid) {
+                                                                detailsGrid.destroy();
+                                                            }
 
-            if (detailsGrid) {
-                detailsGrid.destroy();
-            }
+                                                            let sttCounter = 1;
 
-            let sttCounter = 1;
+                                                            detailsGrid = new gridjs.Grid({
+                                                                columns: [
+                                                                    { name: "STT", width: "60px" },
+                                                                    { name: "Product Name", width: "250px" },
+                                                                    { name: "Product Price", width: "150px" },
+                                                                    { name: "Total Price", width: "150px" },
+                                                                    { name: "Quantity", width: "100px" },
+                                                                    {
+                                                                        name: "Status",
+                                                                        width: "150px",
+                                                                        formatter: (cell) => {
+                                                                            const value = (cell || "").toLowerCase();
+                                                                            let color = "secondary";
+                                                                            switch (value) {
+                                                                                case "pending": color = "warning"; break;
+                                                                                case "preparing in kitchen": color = "info"; break;
+                                                                                case "delivering": color = "primary"; break;
+                                                                                case "confirmed": color = "success"; break;
+                                                                                case "cancelled by user":
+                                                                                case "cancelled by restaurant":
+                                                                                case "delivery failed": color = "danger"; break;
+                                                                                case "refunded": color = "dark"; break;
+                                                                            }
+                                                                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                                                                        }
+                                                                    },
+                                                                    { name: "Feedback", hidden: true },  // index 6
+                                                                    { name: "Complaint", hidden: true }, // index 7
+                                                                    { name: "Product ID", hidden: true }, // index 8 ✅
+                                                                    {
+                                                                        name: "Action",
+                                                                        width: "200px",
+                                                                        formatter: (_, row) => {
+                                                                            const hasFeedback = row.cells[6]?.data;
+                                                                            const hasComplaint = row.cells[7]?.data;
+                                                                            const productName = row.cells[1]?.data || "";
+                                                                            const productId = row.cells[8]?.data || "";
 
-            detailsGrid = new gridjs.Grid({
-                columns: [
-                    { name: "STT", width: "60px" },
-                    { name: "Product Name", width: "250px" },
-                    { name: "Product Price", width: "150px" },
-                    { name: "Total Price", width: "150px" },
-                    { name: "Quantity", width: "100px" },
-                    {
-                        name: "Status",
-                        width: "150px",
-                        formatter: (cell) => {
-                            const value = (cell || "").toLowerCase();
-                            let color = "secondary";
-                            switch (value) {
-                                case "pending": color = "warning"; break;
-                                case "preparing in kitchen": color = "info"; break;
-                                case "delivering": color = "primary"; break;
-                                case "confirmed": color = "success"; break;
-                                case "cancelled by user":
-                                case "cancelled by restaurant":
-                                case "delivery failed": color = "danger"; break;
-                                case "refunded": color = "dark"; break;
-                            }
-                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
-                        }
-                    }
-                ],
-                pagination: { enabled: true, limit: 5, summary: true },
-                search: true,
-                sort: true,
-                data: data.data.map((od) => [
-                    sttCounter++,
-                    od.productName,
-                    od.productPrice,
-                    od.totalPrice,
-                    od.quantity,
-                    od.status
-                ])
-            });
+                                                                            console.log("Debug row:", row.cells.map(c => c.data));
 
-            detailsGrid.render(detailsContainer);
+                                                                            const escapedName = String(productName).replace(/'/g, "\\'");
+                                                                            let buttons = '<div class="d-flex gap-2 justify-content-start">';
 
-            const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
-            orderDetailsTab.show();
+                                                                            if (!hasFeedback) {
+                                                                                buttons += `
+                                        <button class="btn btn-outline-success btn-sm"
+                                          onclick="openReviewModal('${productId}', '${escapedName}')">
+                                          Đánh giá
+                                        </button>`;
+                                                                            }
 
-            // Xóa các nút cũ nếu có
-            document.getElementById("back-to-orders-btn")?.remove();
-            document.getElementById("cancel-entire-order-btn")?.remove();
-            document.getElementById("feedback-order-btn")?.remove();
+                                                                            if (!hasComplaint) {
+                                                                                buttons += `
+                                        <button class="btn btn-outline-danger btn-sm"
+                                          onclick="openComplaintModal('${productId}', '${escapedName}')">
+                                          Khiếu nại
+                                        </button>`;
+                                                                            }
 
-            // Lấy trạng thái đơn hàng từ server
-            const orderStatus = (data.orderStatus || "").toLowerCase();
+                                                                            buttons += '</div>';
+                                                                            return gridjs.html(buttons);
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                pagination: { enabled: true, limit: 5, summary: true },
+                                                                search: true,
+                                                                sort: true,
+                                                                data: data.data.map((od) => [
+                                                                    sttCounter++,
+                                                                    od.productName,
+                                                                    od.productPrice,
+                                                                    od.totalPrice,
+                                                                    od.quantity,
+                                                                    od.status,
+                                                                    od.hasFeedback,
+                                                                    od.hasComplaint,
+                                                                    od.productId // ✅ đúng thứ tự index 8
+                                                                ])
+                                                            });
 
-            // 👉 Nếu là "pending" → hiển thị nút "Hủy đơn"
-            if (orderStatus === "pending") {
-                const cancelAllBtn = document.createElement("button");
-                cancelAllBtn.id = "cancel-entire-order-btn";
-                cancelAllBtn.className = "btn btn-danger mt-3 float-end";
-                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Hủy đơn hàng";
-                cancelAllBtn.onclick = function () {
-                    Swal.fire({
-                        title: "Xác nhận hủy đơn?",
-                        text: "Toàn bộ đơn hàng này sẽ bị hủy!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Hủy đơn",
-                        cancelButtonText: "Không",
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#6c757d"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            fetch("/Users/CancelOrder", {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                    "Accept": "application/json"
-                                },
-                                body: JSON.stringify(orderId)
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success")
-                                        .then(() => {
-                                            document.getElementById("orders-tab")?.click();
-                                        });
-                                } else {
-                                    Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
-                                }
-                            })
-                            .catch(error => {
-                                console.error("Cancel error:", error);
-                                Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error");
-                            });
-                        }
-                    });
-                };
-                detailsContainer.appendChild(cancelAllBtn);
-            }
 
-            // 👉 Nếu là "confirmed" → hiển thị nút "Gửi đánh giá"
-            else if (orderStatus === "confirmed") {
-                const feedbackBtn = document.createElement("button");
-                feedbackBtn.id = "feedback-order-btn";
-                feedbackBtn.className = "btn btn-success mt-3 float-end";
-                feedbackBtn.innerHTML = "<i class='fi fi-rs-star'></i> Gửi đánh giá";
-                feedbackBtn.onclick = function () {
-                    const modal = new bootstrap.Modal(document.getElementById("showModal"));
-                    modal.show();
-                    document.getElementById("order_id-field").value = orderId;
-                };
-                detailsContainer.appendChild(feedbackBtn);
-            }
+                                                            detailsGrid.render(detailsContainer);
 
-            // Nút quay lại luôn hiển thị
-            const backButton = document.createElement("button");
-            backButton.id = "back-to-orders-btn";
-            backButton.className = "btn btn-secondary mt-3 me-2";
-            backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i> Quay lại Orders";
-            backButton.onclick = function () {
-                document.getElementById("orders-tab")?.click();
-            };
-            detailsContainer.appendChild(backButton);
+                                                            // Tabs và buttons như cũ
+                                                            const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
+                                                            orderDetailsTab.show();
 
-        } else {
-            alert("Không tìm thấy chi tiết đơn hàng.");
-            console.log("Lỗi trả về:", data.message);
-        }
-    })
-    .catch(error => {
-        console.error("Fetch error:", error);
-        alert("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
-    });
-}
+                                                            document.getElementById("back-to-orders-btn")?.remove();
+                                                            document.getElementById("cancel-entire-order-btn")?.remove();
+                                                            document.getElementById("feedback-order-btn")?.remove();
+
+                                                            const orderStatus = (data.orderStatus || "").toLowerCase();
+
+                                                            if (orderStatus === "pending") {
+                                                                const cancelAllBtn = document.createElement("button");
+                                                                cancelAllBtn.id = "cancel-entire-order-btn";
+                                                                cancelAllBtn.className = "btn btn-danger mt-3 float-end";
+                                                                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Hủy đơn hàng";
+                                                                cancelAllBtn.onclick = () => {
+                                                                    Swal.fire({
+                                                                        title: "Xác nhận hủy đơn?",
+                                                                        text: "Toàn bộ đơn hàng này sẽ bị hủy!",
+                                                                        icon: "warning",
+                                                                        showCancelButton: true,
+                                                                        confirmButtonText: "Hủy đơn",
+                                                                        cancelButtonText: "Không",
+                                                                        confirmButtonColor: "#d33",
+                                                                        cancelButtonColor: "#6c757d"
+                                                                    }).then((result) => {
+                                                                        if (result.isConfirmed) {
+                                                                            fetch("/Users/CancelOrder", {
+                                                                                method: "POST",
+                                                                                headers: {
+                                                                                    "Content-Type": "application/json",
+                                                                                    "Accept": "application/json"
+                                                                                },
+                                                                                body: JSON.stringify(orderId)
+                                                                            })
+                                                                                .then(res => res.json())
+                                                                                .then(data => {
+                                                                                    if (data.success) {
+                                                                                        Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success")
+                                                                                            .then(() => document.getElementById("orders-tab")?.click());
+                                                                                    } else {
+                                                                                        Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
+                                                                                    }
+                                                                                })
+                                                                                .catch(() => Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error"));
+                                                                        }
+                                                                    });
+                                                                };
+                                                                detailsContainer.appendChild(cancelAllBtn);
+                                                            } else if (orderStatus === "confirmed") {
+                                                                const feedbackBtn = document.createElement("button");
+                                                                feedbackBtn.id = "feedback-order-btn";
+                                                                feedbackBtn.className = "btn btn-success mt-3 float-end";
+                                                                feedbackBtn.innerHTML = "<i class='fi fi-rs-star'></i> Gửi đánh giá";
+                                                                feedbackBtn.onclick = () => {
+                                                                    const modal = new bootstrap.Modal(document.getElementById("showModal"));
+                                                                    modal.show();
+                                                                    document.getElementById("order_id-field").value = orderId;
+                                                                };
+                                                                detailsContainer.appendChild(feedbackBtn);
+                                                            }
+
+                                                            const backButton = document.createElement("button");
+                                                            backButton.id = "back-to-orders-btn";
+                                                            backButton.className = "btn btn-secondary mt-3 me-2";
+                                                            backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i> Quay lại Orders";
+                                                            backButton.onclick = () => document.getElementById("orders-tab")?.click();
+                                                            detailsContainer.appendChild(backButton);
+
+                                                        } else {
+                                                            alert("Không tìm thấy chi tiết đơn hàng.");
+                                                            console.log("Lỗi trả về:", data.message);
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error("Fetch error:", error);
+                                                        alert("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
+                                                    });
+                                            }
+
 
 
 
@@ -708,80 +1026,6 @@ document.addEventListener("click", function (e) {
 
 </script>
 
- <div class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0">
-            <div class="modal-header bg-info-subtle p-3">
-                <h5 class="modal-title" id="exampleModalLabel">Enter Your Review</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
-            </div>
-            <form class="tablelist-form" autocomplete="off">
-                <div class="modal-body">
-                    <input type="hidden" id="id-field" />
-                    <input type="hidden" id="product_id-field" /> <!-- Lưu ProductId -->
-                    <div class="row g-3">
-                        <div class="col-lg-6">
-                            <div>
-                                <label for="email_id-field" class="form-label">User Name</label>
-                                <input type="text" id="email_id-field" class="form-control" placeholder="User Name" required />
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div>
-                                <label for="product_name-field" class="form-label">Product Name</label>
-                                <input type="text" id="product_name-field" class="form-control" placeholder="Product Name" required />
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div>
-                                <label for="company_name-field" class="form-label">Your Reply</label>
-                                <input type="text" id="company_name-field" class="form-control" placeholder="Your Reply" required />
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div>
-                                <label class="form-label">Star Rating</label>
-                                <div class="star-rating" id="star-rating">
-                                    <span class="star" data-value="1">&#9733;</span>
-                                    <span class="star" data-value="2">&#9733;</span>
-                                    <span class="star" data-value="3">&#9733;</span>
-                                    <span class="star" data-value="4">&#9733;</span>
-                                    <span class="star" data-value="5">&#9733;</span>
-                                </div>
-                                <input type="hidden" id="designation-field" name="starRating" value="0" required /> <!-- Lưu giá trị rating -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <div class="hstack gap-2 justify-content-end">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success" id="add-btn">Add Review</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<style>
-.star-rating {
-    font-size: 24px;
-    color: #ddd; /* Màu mặc định của sao (chưa chọn) */
-    cursor: pointer;
-    display: inline-flex;
-    gap: 5px;
-}
-
-.star-rating .star:hover,
-.star-rating .star:hover ~ .star,
-.star-rating .star.selected {
-    color: #f5c518; /* Màu vàng khi hover hoặc được chọn */
-}
-
-.star-rating .star.selected {
-    color: #f5c518; /* Màu vàng cho sao đã chọn */
-}
-</style>
 
 
                                     <div class="tab-pane fade" id="track-orders" role="tabpanel"
