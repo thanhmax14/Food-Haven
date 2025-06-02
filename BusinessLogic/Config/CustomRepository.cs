@@ -1,5 +1,5 @@
 
-﻿using BusinessLogic.Services.BalanceChanges;
+using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.ProductVariants;
@@ -13,7 +13,7 @@ using Repository.Products;
 using Repository.ProductVariants;
 using Repository.Reviews;
 using Repository.StoreDetails;
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Repository.Categorys;
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,12 @@ using Repository.Wishlists;
 using Repository.OrdersRepository;
 using Repository.OrdeDetails;
 using Repository.Vouchers;
+using BusinessLogic.Services.RecipeServices;
+using Repository.RecipeRepository;
+using Repository.IngredientTagRepositorys;
+using BusinessLogic.Services.IngredientTagServices;
+using Repository.TypeOfDishRepositoties;
+using BusinessLogic.Services.TypeOfDishServices;
 
 namespace BusinessLogic.Config
 {
@@ -51,9 +57,15 @@ namespace BusinessLogic.Config
             services.AddScoped<Repository.OrdersRepository.OrdersRepository>();
             services.AddScoped<Repository.BalanceChange.BalanceChangeRepository>();
             services.AddScoped<IVouchersRepository, VouchersRepository>();
+            services.AddScoped<IRecipeRepository, RecipeRepository>();
+            services.AddScoped<IRecipeService, RecipeService>();
+            services.AddScoped<IIngredientTagRepository, IngredientTagRepository>();
+            services.AddScoped<IIngredientTagService, IngredientTagService>();
+             services.AddScoped<ITypeOfDishRepository, TypeOfDishRepository>();
+            services.AddScoped<ITypeOfDishService, TypeOfDishService>();
         }
 
 
 
-        }
+    }
 }

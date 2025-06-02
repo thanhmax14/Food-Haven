@@ -26,6 +26,10 @@ using MailKit.Search;
 using System.Collections.Generic;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.ProductVariantVariants;
+using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.IngredientTagServices;
+using BusinessLogic.Services.TypeOfDishServices;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -46,8 +50,12 @@ namespace Food_Haven.Web.Controllers
         private readonly PayOS _payos;
         private readonly ManageTransaction _managetrans;
         private readonly IReviewService _review;
+        private readonly IRecipeService _recipeService;
+        private readonly ICategoryService _categoryService;
+        private readonly IIngredientTagService _ingredientTagService;
+        private readonly ITypeOfDishService _typeOfDishService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices orders, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices orders, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService)
         {
             _userManager = userManager;
             this.client = client;
@@ -62,6 +70,10 @@ namespace Food_Haven.Web.Controllers
             _payos = payos;
             _managetrans = managetrans;
             _review = review;
+            _recipeService = recipeService;
+            _categoryService = categoryService;
+            _ingredientTagService = ingredientTagService;
+            _typeOfDishService = typeOfDishService;
         }
         [HttpGet]
         public async Task<IActionResult> Index(string id)
@@ -103,54 +115,54 @@ namespace Food_Haven.Web.Controllers
                     /*   StoreDeatilId = storeId */
                 };
                 list.userView = UserModel;
-               var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
-                    getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
-                    if (getOrder.Any())
-                    {
+                var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
+                getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
+                if (getOrder.Any())
+                {
                     var count = 0;
-                        foreach (var item in getOrder)
-                        {
-                            list.OrderViewodels.Add(new OrderViewModel
-                            {
-                               stt  = count++,
-                               DeliveryAddress = item.DeliveryAddress,
-                               OrderDate = item.CreatedDate,
-                               PaymentMethod = item.PaymentMethod,
-                                Status = item.Status,
-                                Total = item.TotalPrice,
-                                OrderId = item.ID,
-                                OrderTracking =item.OrderTracking,
-                                DeliveryDate =item.ModifiedDate,
-                                Desctiption =item.Description,
-                                Note =item.Note,
-                                Quantity =item.Quantity,
-                                StatusPayment =item.PaymentStatus
-
-                            }); ;
-                        }
-                    }
-
-
-                  /*  var OrderId = getOrder.FirstOrDefault()?.ID;
-                    var getOrderDetail = await _orderDetailService.ListAsync(x => x.OrderID == OrderId);
-                    if (getOrderDetail.Any())
+                    foreach (var item in getOrder)
                     {
-                        var productList = await _productWarian.ListAsync();
-
-                        foreach (var item in getOrderDetail)
+                        list.OrderViewodels.Add(new OrderViewModel
                         {
-                            var product = productList.FirstOrDefault(x => x.ID == item.ID);
-                            var productName = product?.Name;
-                            list.orderDetailsViewModels.Add(new OrderDetailsViewModel
-                            {
-                                productName = productName,
-                                ProductPrice = item.ProductPrice,
-                                TotalPrice = item.TotalPrice,
-                                Quantity = item.Quantity,
-                                Status = item.Status,
-                            });
-                        }
-                    }*/
+                            stt = count++,
+                            DeliveryAddress = item.DeliveryAddress,
+                            OrderDate = item.CreatedDate,
+                            PaymentMethod = item.PaymentMethod,
+                            Status = item.Status,
+                            Total = item.TotalPrice,
+                            OrderId = item.ID,
+                            OrderTracking = item.OrderTracking,
+                            DeliveryDate = item.ModifiedDate,
+                            Desctiption = item.Description,
+                            Note = item.Note,
+                            Quantity = item.Quantity,
+                            StatusPayment = item.PaymentStatus
+
+                        }); ;
+                    }
+                }
+
+
+                /*  var OrderId = getOrder.FirstOrDefault()?.ID;
+                  var getOrderDetail = await _orderDetailService.ListAsync(x => x.OrderID == OrderId);
+                  if (getOrderDetail.Any())
+                  {
+                      var productList = await _productWarian.ListAsync();
+
+                      foreach (var item in getOrderDetail)
+                      {
+                          var product = productList.FirstOrDefault(x => x.ID == item.ID);
+                          var productName = product?.Name;
+                          list.orderDetailsViewModels.Add(new OrderDetailsViewModel
+                          {
+                              productName = productName,
+                              ProductPrice = item.ProductPrice,
+                              TotalPrice = item.TotalPrice,
+                              Quantity = item.Quantity,
+                              Status = item.Status,
+                          });
+                      }
+                  }*/
                 return View(list);
             }
             catch (Exception ex)
@@ -608,7 +620,7 @@ namespace Food_Haven.Web.Controllers
                             Quantity = buyRequest.Products.Sum(u => u.Value),
                             OrderCode = "" + orderCode,
                             DeliveryAddress = model.Address,
-                            Note = model.Note??""
+                            Note = model.Note ?? ""
 
                         };
                         /*   var balan = new BalanceChange
@@ -798,8 +810,8 @@ namespace Food_Haven.Web.Controllers
                             Quantity = buyRequest.Products.Sum(u => u.Value),
                             OrderCode = "",
                             DeliveryAddress = model.Address,
-                            Note = model.Note??"",
-                            Description= $"Pending-{DateTime.Now}"
+                            Note = model.Note ?? "",
+                            Description = $"Pending-{DateTime.Now}"
 
 
                         };
@@ -891,7 +903,7 @@ namespace Food_Haven.Web.Controllers
                                 await this._order.SaveChangesAsync();
                                 var hubContext1 = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
                                 await hubContext1.Clients.User(user.Id).SendAsync("ReceiveCartUpdate");
-                                return Json(new ErroMess { success = true, msg = "Đặt hàng thành công!, Trở về Order Sau 3s"});
+                                return Json(new ErroMess { success = true, msg = "Đặt hàng thành công!, Trở về Order Sau 3s" });
                             }
                             else
                             {
@@ -985,7 +997,7 @@ namespace Food_Haven.Web.Controllers
                 var reviewed = await _review.FindAsync(u => u.ProductID == variantExists.ProductID && u.UserID == user.Id);
                 if (!item.IsFeedback)
                 {
-                   hasFeedback=false;
+                    hasFeedback = false;
                 }
 
                 detailDtos.Add(new
@@ -1049,7 +1061,7 @@ namespace Food_Haven.Web.Controllers
                     }
                 }
 
-             
+
                 var currentBalance = await _balance.GetBalance(order.UserID);
                 var refundTransaction = new BalanceChange
                 {
@@ -1076,7 +1088,7 @@ namespace Food_Haven.Web.Controllers
                 order.ModifiedDate = DateTime.UtcNow;
                 await _order.UpdateAsync(order);
 
-                
+
                 await _orderDetailService.SaveChangesAsync();
                 await _productWarian.SaveChangesAsync();
                 await _order.SaveChangesAsync();
@@ -1090,7 +1102,7 @@ namespace Food_Haven.Web.Controllers
                 {
                     success = false,
                     message = "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại hoặc liên hệ admin.",
-                 /*   error = ex.Message // ❗ chỉ nên show ra trong môi trường dev*/
+                    /*   error = ex.Message // ❗ chỉ nên show ra trong môi trường dev*/
                 });
             }
         }
@@ -1110,14 +1122,15 @@ namespace Food_Haven.Web.Controllers
 
 
 
-            var variantExists = await _productWarian.FindAsync(v => v.ID ==orderDetail.ProductTypesID);
-            if (variantExists==null)
+            var variantExists = await _productWarian.FindAsync(v => v.ID == orderDetail.ProductTypesID);
+            if (variantExists == null)
                 return Json(new { success = false, message = "Không tìm thấy phiên bản sản phẩm." });
 
-          /*  var reviewed = await _review.FindAsync(u => u.ProductID == variantExists.ID && u.UserID == user.Id);
-            if (reviewed!=null)
-                return Json(new { success = false, message = "Bạn đã đánh giá sản phẩm này rồi." });*/
-          if( orderDetail.IsFeedback) { 
+            /*  var reviewed = await _review.FindAsync(u => u.ProductID == variantExists.ID && u.UserID == user.Id);
+              if (reviewed!=null)
+                  return Json(new { success = false, message = "Bạn đã đánh giá sản phẩm này rồi." });*/
+            if (orderDetail.IsFeedback)
+            {
                 return Json(new { success = false, message = "Bạn đã đánh giá sản phẩm này rồi." });
             }
 
@@ -1130,37 +1143,90 @@ namespace Food_Haven.Web.Controllers
                     CommentDate = DateTime.UtcNow,
                     //Relay = model.Relay,
                     //DateRelay = model.DateRelay ?? DateTime.UtcNow,
-                    Status =  false, //hiện
+                    Status = false, //hiện
                     Rating = model.Rating,
                     UserID = user.Id,
                     ProductID = variantExists.ProductID,
                 };
-                await _review.AddAsync(newReview); 
+                await _review.AddAsync(newReview);
                 orderDetail.IsFeedback = true;
                 await _orderDetailService.UpdateAsync(orderDetail);
                 await this._review.SaveChangesAsync();
-                await     this._orderDetailService.SaveChangesAsync();
-                       
-                    return Json(new { success = true, message = "Gửi đánh giá thành công!" });
-               
+                await this._orderDetailService.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Gửi đánh giá thành công!" });
+
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Không thể lưu đánh giá." });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> CreateRecipe()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
 
+            var category = await _categoryService.ListAsync();
+            var iIngredientTag = await _ingredientTagService.ListAsync();
+            var typeOfDish = await _typeOfDishService.ListAsync();
+            var model = new RecipeViewModels
+            {
+                CateID = category.First().ID,
+                UserID = user.Id,
+                Categories = category.ToList(), // truyền danh mục vào ViewModel
+                IngredientTags = iIngredientTag.ToList(),
+                typeOfDishes = typeOfDish.ToList()
+            };
 
+            return View(model);
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateRecipe(RecipeViewModels obj)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            var category = await _categoryService.ListAsync();
+            var firstCategory = category.FirstOrDefault();
+            var typeOfDish = await _typeOfDishService.ListAsync();
 
+            // Xử lý thời gian
+            // Sử dụng trực tiếp các thuộc tính đã có trong obj hoặc thay thế bằng giá trị mặc định nếu không tồn tại
+            string preparationTime = obj.PreparationTime ?? "";
+            string cookTime = obj.CookTime ?? "";
+            string totalTime = obj.TotalTime ?? "";
 
-
-
-
-
-
-
-
+            var recipe = new Recipe
+            {
+                ID = Guid.NewGuid(),
+                UserID = user.Id,
+                Title = obj.Title,
+                CookingStep = !string.IsNullOrEmpty(obj.CookingStep) ? obj.CookingStep : "<p>No cooking steps provided</p>", // Giá trị mặc định
+                ShortDescriptions = obj.ShortDescriptions,
+                PreparationTime = obj.PreparationTime ?? "",
+                CookTime = obj.CookTime ?? "",
+                TotalTime = obj.TotalTime ?? "",
+                DifficultyLevel = obj.DifficultyLevel,
+                Ingredient = !string.IsNullOrEmpty(obj.Ingredient) ? obj.Ingredient : "<p>No ingredients provided</p>", // Giá trị mặc định
+                Servings = obj.Servings,
+                CreatedDate = DateTime.Now,
+                IsActive = true,
+                CateID = firstCategory.ID,
+                TypeOfDishID = obj.TypeOfDishID,
+                
+            };
+            await _recipeService.AddAsync(recipe);
+            await _recipeService.SaveChangesAsync();
+            return View(obj);
+        }
 
     }
 
