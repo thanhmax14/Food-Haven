@@ -24,6 +24,8 @@ using Microsoft.AspNetCore.SignalR;
 using Food_Haven.Web.Hubs;
 using MailKit.Search;
 using System.Collections.Generic;
+using BusinessLogic.Services.Reviews;
+using BusinessLogic.Services.ProductVariantVariants;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -43,8 +45,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IOrderDetailService _orderDetailService;
         private readonly PayOS _payos;
         private readonly ManageTransaction _managetrans;
+        private readonly IReviewService _review;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices orders, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices orders, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review)
         {
             _userManager = userManager;
             this.client = client;
@@ -58,6 +61,7 @@ namespace Food_Haven.Web.Controllers
             _orderDetailService = orderDetailService;
             _payos = payos;
             _managetrans = managetrans;
+            _review = review;
         }
         [HttpGet]
         public async Task<IActionResult> Index(string id)
@@ -943,6 +947,11 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetOrderDetails([FromBody] string orderId)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found" });
+            }
             if (string.IsNullOrWhiteSpace(orderId))
             {
                 return Json(new { success = false, message = "Order ID không hợp lệ." });
@@ -960,20 +969,37 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = "Không có sản phẩm trong đơn hàng." });
             }
 
-            var productList = await _productWarian.ListAsync();
+            var productTypeIds = getOrderDetail.Select(x => x.ProductTypesID).Distinct().ToList();
+            var productList = await _productWarian.ListAsync(p => productTypeIds.Contains(p.ID));
 
-            var detailDtos = getOrderDetail.Select(item =>
+            var detailDtos = new List<object>();
+
+            foreach (var item in getOrderDetail)
             {
                 var product = productList.FirstOrDefault(p => p.ID == item.ProductTypesID);
-                return new
+                var hasFeedback = true;
+                var hasComplaint = false;
+                var variantExists = await _productWarian.FindAsync(v => v.ID == item.ProductTypesID);
+                if (variantExists == null)
+                    return Json(new { success = false, message = "Không tìm thấy phiên bản sản phẩm." });
+                var reviewed = await _review.FindAsync(u => u.ProductID == variantExists.ProductID && u.UserID == user.Id);
+                if (!item.IsFeedback)
+                {
+                   hasFeedback=false;
+                }
+
+                detailDtos.Add(new
                 {
                     productName = product?.Name ?? "Không rõ",
                     productPrice = item.ProductPrice,
                     totalPrice = item.TotalPrice,
                     quantity = item.Quantity,
-                    status = item.Status
-                };
-            });
+                    status = item.Status,
+                    hasFeedback,
+                    hasComplaint,
+                    productId = item.ID
+                });
+            }
 
             return Json(new
             {
@@ -981,11 +1007,17 @@ namespace Food_Haven.Web.Controllers
                 orderStatus = order.Status,
                 data = detailDtos
             });
+
         }
 
         [HttpPost]
         public async Task<IActionResult> CancelOrder([FromBody] string orderId)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "User not found" });
+            }
             if (string.IsNullOrWhiteSpace(orderId))
                 return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
 
@@ -1060,6 +1092,61 @@ namespace Food_Haven.Web.Controllers
                     message = "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại hoặc liên hệ admin.",
                  /*   error = ex.Message // ❗ chỉ nên show ra trong môi trường dev*/
                 });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> SubmitReview([FromBody] ReviewRequest model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+            if (model.ProductId == Guid.Empty || model.Rating < 1 || model.Rating > 5 || string.IsNullOrWhiteSpace(model.Content))
+                return Json(new { success = false, message = "Thông tin đánh giá không hợp lệ." });
+            var orderDetail = await _orderDetailService
+                .FindAsync(od => od.ID == model.ProductId && od.Order.UserID == user.Id);
+
+            if (orderDetail == null)
+                return Json(new { success = false, message = "Sản phẩm không thuộc đơn hàng của bạn." });
+
+
+
+            var variantExists = await _productWarian.FindAsync(v => v.ID ==orderDetail.ProductTypesID);
+            if (variantExists==null)
+                return Json(new { success = false, message = "Không tìm thấy phiên bản sản phẩm." });
+
+          /*  var reviewed = await _review.FindAsync(u => u.ProductID == variantExists.ID && u.UserID == user.Id);
+            if (reviewed!=null)
+                return Json(new { success = false, message = "Bạn đã đánh giá sản phẩm này rồi." });*/
+          if( orderDetail.IsFeedback) { 
+                return Json(new { success = false, message = "Bạn đã đánh giá sản phẩm này rồi." });
+            }
+
+            try
+            {
+                var newReview = new Review
+                {
+                    ID = Guid.NewGuid(),
+                    Comment = model.Content,
+                    CommentDate = DateTime.UtcNow,
+                    //Relay = model.Relay,
+                    //DateRelay = model.DateRelay ?? DateTime.UtcNow,
+                    Status =  false, //hiện
+                    Rating = model.Rating,
+                    UserID = user.Id,
+                    ProductID = variantExists.ProductID,
+                };
+                await _review.AddAsync(newReview); 
+                orderDetail.IsFeedback = true;
+                await _orderDetailService.UpdateAsync(orderDetail);
+                await this._review.SaveChangesAsync();
+                await     this._orderDetailService.SaveChangesAsync();
+                       
+                    return Json(new { success = true, message = "Gửi đánh giá thành công!" });
+               
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Không thể lưu đánh giá." });
             }
         }
 
