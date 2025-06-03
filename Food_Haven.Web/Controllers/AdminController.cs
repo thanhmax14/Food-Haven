@@ -10,8 +10,10 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.StoreDetail;
+
 using BusinessLogic.Services.VoucherServices;
 using Microsoft.AspNetCore.Authorization;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +39,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ICategoryService _categoryService;
         private readonly ManageTransaction _managetrans;
+
+        public AdminController(UserManager<AppUser> userManager,ITypeOfDishService typeOfDishService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans)
+
         private readonly IComplaintServices _complaintService;
         private readonly IOrderDetailService _orderDetail;
         private readonly IOrdersServices _order;
@@ -47,7 +52,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IVoucherServices _voucher;
 
         public AdminController(UserManager<AppUser> userManager, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
+
         {
+            _typeOfDishService = typeOfDishService;
             _userManager = userManager;
             _balance = balance;
             client = new HttpClient();
@@ -951,5 +958,58 @@ namespace Food_Haven.Web.Controllers
             }
         }
 
+        public async Task<IActionResult> GetAllTypeOfDish()
+        {
+            var data = await _typeOfDishService.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
+
+            var list = data.Select(item => new TypeOfDishViewModel
+            {
+                ID = item.ID,
+                Name = item.Name,
+                IsActive = item.IsActive,
+                CreatedDate = item.CreatedDate,
+                ModifiedDate = item.ModifiedDate
+            }).ToList();
+
+            return View(list);
+        }
+
+
+
+
+        [HttpGet]
+        public IActionResult CreateTypeOfDish()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateTypeOfDish(TypeOfDishViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var entity = new TypeOfDish
+            {
+                ID = Guid.NewGuid(),
+                Name = model.Name,
+                IsActive = model.IsActive,
+                CreatedDate = DateTime.Now
+            };
+
+            await _typeOfDishService.AddAsync(entity);
+            await _typeOfDishService.SaveChangesAsync(); // ⬅️ BẮT BUỘC để ghi xuống database
+
+            return RedirectToAction("GetAllTypeOfDish");
+        }
+
+
+
+
     }
+
+
 }
+

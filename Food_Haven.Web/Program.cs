@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
+using BusinessLogic.Services.TypeOfDishServices;
 using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -119,14 +120,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 });
 builder.Services.AddSignalR();
 
-
-
-
-
-
-
-
-
+builder.Services.AddScoped<ITypeOfDishService, TypeOfDishService>();
 
 var app = builder.Build();
 
