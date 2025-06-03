@@ -1430,7 +1430,9 @@ namespace Food_Haven.Web.Controllers
                             await _orderDetail.SaveChangesAsync();
                             await _balance.SaveChangesAsync();
                         });
-
+                        complaint.Status = "Product Warranty";
+                        complaint.Reply = $"[Product Warranty] - {note}";
+                        complaint.ReplyDate = DateTime.Now;
                         if (!result)
                             return Json(new { success = false, msg = "Thao tác không thành công." });
                       mess = "Đơn bảo hành miễn phí thành công!";
