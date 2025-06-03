@@ -195,12 +195,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link active" asp-controller="seller" asp-action="ManageOrder">
+                            <a class="nav-link menu-link " asp-controller="seller" asp-action="ManageOrder">
                                 <i class="ri-file-copy-2-line"></i> <span>Sales History</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link " asp-controller="seller" asp-action="Managercomplant">
+                            <a class="nav-link menu-link active" asp-controller="seller" asp-action="Managercomplant">
                                 <i class="ri-file-copy-2-line"></i> <span>Managercomplant</span>
                             </a>
                         </li>
@@ -291,57 +291,45 @@
                             <div class="card-body pt-0">
                                 <div>
                                     <ul class="nav nav-tabs nav-tabs-custom nav-success mb-3" role="tablist">
-                                        <!-- Existing tabs... -->
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Pending active" data-bs-toggle="tab" href="#pending" role="tab" aria-selected="false">
+                                            <a class="nav-link active py-3" data-bs-toggle="tab" href="#pending" role="tab">
                                                 <i class="ri-time-line me-1 align-bottom"></i> Pending
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Preparing" data-bs-toggle="tab" href="#preparing" role="tab" aria-selected="false">
-                                                <i class="ri-restaurant-line me-1 align-bottom"></i> Preparing
+                                            <a class="nav-link py-3" data-bs-toggle="tab" href="#warranty" role="tab">
+                                                <i class="ri-shield-check-line me-1 align-bottom"></i> Product Warranty
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Delivering" data-bs-toggle="tab" href="#delivering" role="tab" aria-selected="false">
-                                                <i class="ri-truck-line me-1 align-bottom"></i> Delivering
+                                            <a class="nav-link py-3" data-bs-toggle="tab" href="#refund" role="tab">
+                                                <i class="ri-currency-line me-1 align-bottom"></i> Refund
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Confirmed" data-bs-toggle="tab" href="#confirmed" role="tab" aria-selected="false">
-                                                <i class="ri-checkbox-circle-line me-1 align-bottom"></i> Confirmed
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link py-3 CancelledUser" data-bs-toggle="tab" href="#cancelledUser" role="tab" aria-selected="false">
-                                                <i class="ri-close-circle-line me-1 align-bottom"></i> Cancelled by User
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link py-3 CancelledShop" data-bs-toggle="tab" href="#cancelledShop" role="tab" aria-selected="false">
-                                                <i class="ri-store-3-line me-1 align-bottom"></i> Cancelled by Shop
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link py-3 FailedDelivery" data-bs-toggle="tab" href="#failedDelivery" role="tab" aria-selected="false">
-                                                <i class="ri-error-warning-line me-1 align-bottom"></i> Delivery Failed
+                                            <a class="nav-link py-3" data-bs-toggle="tab" href="#report" role="tab">
+                                                <i class="ri-alert-line me-1 align-bottom"></i> Report to Admin
                                             </a>
                                         </li>
                                     </ul>
 
-
                                     <div class="tab-content">
-                                        <div class="tab-pane active" id="pending" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="pendingTable"></div></div></div>
-                                        <div class="tab-pane" id="preparing" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="preparingTable"></div></div></div>
-                                        <div class="tab-pane" id="delivering" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="deliveringTable"></div></div></div>
-                                        <div class="tab-pane" id="confirmed" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="confirmedTable"></div></div></div>
-                                        <div class="tab-pane" id="cancelledUser" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="cancelledUserTable"></div></div></div>
-                                        <div class="tab-pane" id="cancelledShop" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="cancelledShopTable"></div></div></div>
-                                        <div class="tab-pane" id="failedDelivery" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="failedDeliveryTable"></div></div></div>
-
+                                        <div class="tab-pane active" id="pending" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1"><div id="pendingTable"></div></div>
+                                        </div>
+                                        <div class="tab-pane" id="warranty" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1"><div id="warrantyTable"></div></div>
+                                        </div>
+                                        <div class="tab-pane" id="refund" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1"><div id="refundTable"></div></div>
+                                        </div>
+                                        <div class="tab-pane" id="report" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1"><div id="reportTable"></div></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
 
                             <!-- Grid.js Script -->
                             <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
@@ -350,146 +338,149 @@
 
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
-                                    function fetchOrders() {
-                                        fetch("/seller/GetOrder", {
+                                    function fetchComplaints() {
+                                        fetch("/seller/GetComplaint", {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({})
                                         })
                                             .then(response => response.json())
                                             .then(data => {
-                                                console.log("Orders Data:", data);
-
-                                                if (!data || data === false || (data.msg && typeof data.msg === "string")) {
-                                                    console.warn("Không có dữ liệu đơn hàng hoặc lỗi:", data?.msg || "No data");
-                                                    renderTables([]);
+                                                if (!data || !Array.isArray(data)) {
+                                                    console.warn("❌ Dữ liệu không hợp lệ");
                                                     return;
                                                 }
-
-                                                renderTables(data);
+                                                renderComplaintTables(data);
                                             })
-                                            .catch(error => console.error("Error fetching orders:", error));
+                                            .catch(error => console.error("❌ Lỗi khi tải khiếu nại:", error));
                                     }
 
-                                    function renderTables(orders) {
-                                        function createGrid(elementId, filterStatus = null) {
-                                            const filteredData = filterStatus
-                                                ? orders.filter(order => order.status?.toUpperCase() === filterStatus.toUpperCase())
-                                                : orders;
-
-                                            new gridjs.Grid({
-                                                columns: [
-                                                    { id: "stt", name: "STT" },
-                                                    {
-                                                        id: "orderTracking",
-                                                        name: "Order Code",
-                                                        formatter: (cell) => {
-                                                            return gridjs.html(`<a  href="/seller/ViewOrderDetails/${cell}" target="_blank" class="fw-medium link-primary">${cell}</a>`);
-                                                        }
-                                                    },
-                                                    { id: "userName", name: "Customer" },
-                                                    {
-                                                        id: "orderDate",
-                                                        name: "Order Date",
-                                                        formatter: (e) => {
-                                                            if (!e) return "N/A";
-                                                            const date = new Date(e);
-                                                            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
-                                                        }
-                                                    },
-                                                    { id: "quantity", name: "Quantity" },
-                                                    { id: "total", name: "Total", formatter: cell => `$${(cell || 0).toLocaleString()}` },
-                                                    {
-                                                        id: "status",
-                                                        name: "Status",
-                                                        formatter: cell => {
-                                                            const color = {
-                                                                "SUCCESS": "success",
-                                                                "FAILED": "danger",
-                                                                "PROCESSING": "warning",
-                                                                "PENDING": "secondary",
-                                                                "PREPARING IN KITCHEN": "warning",
-                                                                "DELIVERING": "info",
-                                                                "CONFIRMED": "success",
-                                                                "CANCELLED BY USER": "danger",
-                                                                "CANCELLED BY SHOP": "danger",
-                                                                "DELIVERY FAILED": "danger"
-                                                            }[cell?.toUpperCase()] || "secondary";
-
-                                                            return gridjs.html(`<span class="badge bg-${color}-subtle text-${color} text-uppercase">${cell || 'N/A'}</span>`);
-                                                        }
-                                                    },
-                                                    {
-                                                        name: "Action",
-                                                        formatter: (cell, row) => {
-                                                            const orderId = row.cells[1]?.data; // orderTracking
-                                                            const status = row.cells[6]?.data?.toUpperCase(); // status column (cột thứ 7)
-
-                                                            const viewBtn = `
-                                                                            <a href="/seller/ViewOrderDetails/${orderId}" target="_blank" class="btn btn-sm btn-outline-primary me-1">
-                                                <i class="ri-eye-line"></i> Xem
-                                            </a>`;
-
-                                                            const cancelBtn = (status === "PENDING" || status === "PREPARING IN KITCHEN")
-                                                                ? `<button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('${orderId}')">
-                                                   <i class="ri-close-line"></i> Hủy
-                                               </button>`
-                                                                : "";
-
-                                                            return gridjs.html(viewBtn + cancelBtn);
-                                                        }
-                                                    }
-
-                                                ],
-                                                data: filteredData.map((item, index) => ({
-                                                    ...item,
-                                                    stt: index + 1 // ✅ Reset STT cho từng bảng
-                                                })),
-                                                sort: true,
-                                                pagination: { enabled: true, limit: 5 },
-                                                search: true,
-                                                language: {
-                                                    search: {
-                                                        placeholder: 'Tìm kiếm đơn hàng...'
-                                                    },
-                                                    pagination: {
-                                                        previous: 'Trước',
-                                                        next: 'Sau',
-                                                        showing: 'Hiển thị',
-                                                        results: () => 'đơn hàng'
-                                                    },
-                                                    loading: 'Đang tải...',
-                                                    noRecordsFound: 'Không có đơn hàng nào.'
-                                                }
-                                            }).render(document.getElementById(elementId));
-                                        }
-
-
-                                        const statusMappings = {
-                                            "pendingTable": "PENDING",
-                                            "preparingTable": "PREPARING IN KITCHEN",
-                                            "deliveringTable": "DELIVERING",
-                                            "confirmedTable": "CONFIRMED",
-                                            "cancelledUserTable": "CANCELLED BY USER",
-                                            "cancelledShopTable": "CANCELLED BY SHOP",
-                                            "failedDeliveryTable": "DELIVERY FAILED"
+                                    function renderComplaintTables(complaints) {
+                                        const statusMap = {
+                                            pendingTable: "PENDING",
+                                            warrantyTable: "PRODUCT WARRANTY",
+                                            refundTable: "REFUND",
+                                            reportTable: "REPORT TO ADMIN"
                                         };
 
-                                        Object.entries(statusMappings).forEach(([elementId, status]) => {
-                                            const container = document.getElementById(elementId);
-                                            if (!container) {
-                                                console.warn(`❌ Không tìm thấy phần tử ID "${elementId}" trong DOM.`);
-                                                return;
+                                        Object.entries(statusMap).forEach(([elementId, status]) => {
+                                            const filtered = complaints.filter(c => c.status?.toUpperCase() === status.toUpperCase());
+                                            const upperStatus = status.toUpperCase();
+
+                                            const baseColumns = [
+                                                {
+                                                    id: "id",
+                                                    name: "ID",
+                                                    hidden: true // 👈 Ẩn cột này khỏi giao diện
+                                                },
+                                                { id: "stt", name: "STT" },
+                                                { id: "orderCode", name: "Order" },
+                                                { id: "userName", name: "User" },
+                                                {
+                                                    id: "description", name: "User Description",
+                                                    formatter: text => text || "Không có mô tả"
+                                                }
+                                            ];
+
+                                            // Seller Reply cho Refund / Warranty / Report
+                                            if (["REFUND", "PRODUCT WARRANTY", "REPORT TO ADMIN"].includes(upperStatus)) {
+                                                baseColumns.push({
+                                                    id: "sellerReply", name: "Seller Reply",
+                                                    formatter: reply => reply || "Chưa phản hồi"
+                                                });
                                             }
 
-                                            container.innerHTML = "";
-                                            createGrid(elementId, status);
+                                            // Admin Reply + Report Status cho Report
+                                            if (upperStatus === "REPORT TO ADMIN") {
+                                                baseColumns.push({
+                                                    id: "adminReply", name: "Admin Reply",
+                                                    formatter: reply => reply || "Chưa phản hồi"
+                                                });
+                                                baseColumns.push({
+                                                    id: "reportStatus", name: "Report Status",
+                                                    formatter: value => {
+                                                        const colorMap = {
+                                                            Pending: "warning",
+                                                            Accept: "success",
+                                                            Reject: "danger"
+                                                        };
+                                                        const color = colorMap[value] || "secondary";
+                                                        return gridjs.html(`<span class="badge bg-${color}">${value}</span>`);
+                                                    }
+                                                });
+                                            }
+
+                                            // Created Date
+                                            baseColumns.push({
+                                                id: "createdDate", name: "Order Date",
+                                                formatter: (e) => {
+                                                    if (!e) return "N/A";
+                                                    const date = new Date(e);
+                                                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                                                },
+                                                sort: true
+                                            });
+
+                                            // Reply Date
+                                            baseColumns.push({
+                                                id: "replyDate", name: "Reply Date",
+                                                formatter: (e) => {
+                                                    if (!e) return "Chưa phản hồi";
+                                                    const date = new Date(e);
+                                                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                                                }
+                                            });
+
+                                            baseColumns.push({
+                                                name: "Action",
+                                                formatter: (cell, row) => {
+                                                    const id = row.cells[0].data; // id phải nằm ở cột đầu tiên
+                                                    return gridjs.html(`
+                                            <a href="/seller/Detailcomplant/${id}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="ri-eye-line"></i> View
+                                            </a>
+                                        `);
+                                                }
+                                            });
+
+
+
+
+                                            const target = document.getElementById(elementId);
+                                            if (!target) return;
+                                            target.innerHTML = "";
+
+                                            new gridjs.Grid({
+                                                columns: baseColumns,
+                                                data: filtered.map((c, index) => ({
+                                                    ...c,
+                                                    stt: index + 1
+                                                })),
+                                                pagination: { enabled: true, limit: 5 },
+                                                sort: true,
+                                                search: { enabled: true },
+                                                language: {
+                                                    search: { placeholder: 'Tìm kiếm khiếu nại...' },
+                                                    pagination: {
+                                                        previous: 'Trước', next: 'Sau', showing: 'Hiển thị', results: () => 'khiếu nại'
+                                                    },
+                                                    noRecordsFound: 'Không có dữ liệu.'
+                                                }
+                                            }).render(target);
                                         });
                                     }
 
-                                    fetchOrders();
+                                    fetchComplaints();
                                 });
                             </script>
+
+
+
+
+
+
+
+
                             <style>
                                 /* Màu số phân trang là đen */
                                 .gridjs .gridjs-pages button {

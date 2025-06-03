@@ -1,28 +1,24 @@
-﻿@model Repository.ViewModels.manageOrderDetail
-
-@{
-    Layout =null;
-}
+﻿@model Repository.ViewModels.ComplantDetailViewmodels;
 
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
     data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
-<!-- Mirrored from themesbrand.com/velzon/html/master/apps-ecommerce-order-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:20:46 GMT -->
+<!-- Mirrored from themesbrand.com/velzon/html/master/apps-ecommerce-product-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:20:21 GMT -->
 
 <head>
 
     <meta charset="utf-8" />
-    <title>Order Details | Velzon - Admin & Dashboard Template</title>
+    <title>Product Details | Velzon - Admin & Dashboard Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="~/assetsAdmin/images/favicon.ico">
 
-    <!-- Sweet Alert css-->
-    <link href="~/assetsAdmin/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <!--Swiper slider css-->
+    <link href="~/assetsAdmin/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Layout config Js -->
     <script src="~/assetsAdmin/js/layout.js"></script>
@@ -34,15 +30,6 @@
     <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="/~/assetsAdmin/libs/gridjs/gridjs.umd.js">
-    <link rel="stylesheet" href="/~/assetsAdmin/libs/gridjs/theme/mermaid.min.css">
-    <!-- Grid.js CSS -->
-    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-    <!-- Bootstrap CSS -->
-    <!-- Remix Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <!-- Lord Icon -->
-    <script src="https://cdn.lordicon.com/libs/mssddfmo/lord-icon-2.1.0.js"></script>
 
 </head>
 
@@ -59,19 +46,19 @@
                         <div class="navbar-brand-box horizontal-logo">
                             <a href="index.html" class="logo logo-dark">
                                 <span class="logo-sm">
-                                    <img src="assets/images/logo-sm.png" alt="" height="22">
+                                    <img src="~/assetsAdmin/images/logo-sm.png" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="assets/images/logo-dark.png" alt="" height="17">
+                                    <img src="~/assetsAdmin/images/logo-dark.png" alt="" height="17">
                                 </span>
                             </a>
 
                             <a href="index.html" class="logo logo-light">
                                 <span class="logo-sm">
-                                    <img src="assets/images/logo-sm.png" alt="" height="22">
+                                    <img src="~/assetsAdmin/images/logo-sm.png" alt="" height="22">
                                 </span>
                                 <span class="logo-lg">
-                                    <img src="assets/images/logo-light.png" alt="" height="17">
+                                    <img src="~/assetsAdmin/images/logo-light.png" alt="" height="17">
                                 </span>
                             </a>
                         </div>
@@ -140,7 +127,7 @@
                                         <!-- item -->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item py-2">
                                             <div class="d-flex">
-                                                <img src="assets/images/users/avatar-2.jpg"
+                                                <img src="~/assetsAdmin/images/users/avatar-2.jpg"
                                                     class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="m-0">Angela Bernier</h6>
@@ -151,7 +138,7 @@
                                         <!-- item -->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item py-2">
                                             <div class="d-flex">
-                                                <img src="assets/images/users/avatar-3.jpg"
+                                                <img src="~/assetsAdmin/images/users/avatar-3.jpg"
                                                     class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="m-0">David Grasso</h6>
@@ -162,7 +149,7 @@
                                         <!-- item -->
                                         <a href="javascript:void(0);" class="dropdown-item notify-item py-2">
                                             <div class="d-flex">
-                                                <img src="assets/images/users/avatar-5.jpg"
+                                                <img src="~/assetsAdmin/images/users/avatar-5.jpg"
                                                     class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="m-0">Mike Bunch</h6>
@@ -209,7 +196,7 @@
                             <button type="button"
                                 class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img id="header-lang-img" src="assets/images/flags/us.svg" alt="Header Language"
+                                <img id="header-lang-img" src="~/assetsAdmin/images/flags/us.svg" alt="Header Language"
                                     height="20" class="rounded">
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
@@ -217,7 +204,7 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language py-2"
                                     data-lang="en" title="English">
-                                    <img src="assets/images/flags/us.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/us.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">English</span>
                                 </a>
@@ -225,7 +212,7 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="sp"
                                     title="Spanish">
-                                    <img src="assets/images/flags/spain.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/spain.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">Española</span>
                                 </a>
@@ -233,14 +220,14 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="gr"
                                     title="German">
-                                    <img src="assets/images/flags/germany.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/germany.svg" alt="user-image" class="me-2 rounded"
                                         height="18"> <span class="align-middle">Deutsche</span>
                                 </a>
 
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="it"
                                     title="Italian">
-                                    <img src="assets/images/flags/italy.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/italy.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">Italiana</span>
                                 </a>
@@ -248,7 +235,7 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="ru"
                                     title="Russian">
-                                    <img src="assets/images/flags/russia.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/russia.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">русский</span>
                                 </a>
@@ -256,7 +243,7 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="ch"
                                     title="Chinese">
-                                    <img src="assets/images/flags/china.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/china.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">中国人</span>
                                 </a>
@@ -264,7 +251,7 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="fr"
                                     title="French">
-                                    <img src="assets/images/flags/french.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/french.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">français</span>
                                 </a>
@@ -272,7 +259,7 @@
                                 <!-- item-->
                                 <a href="javascript:void(0);" class="dropdown-item notify-item language" data-lang="ar"
                                     title="Arabic">
-                                    <img src="assets/images/flags/ae.svg" alt="user-image" class="me-2 rounded"
+                                    <img src="~/assetsAdmin/images/flags/ae.svg" alt="user-image" class="me-2 rounded"
                                         height="18">
                                     <span class="align-middle">Arabic</span>
                                 </a>
@@ -302,19 +289,19 @@
                                     <div class="row g-0">
                                         <div class="col">
                                             <a class="dropdown-icon-item" href="#!">
-                                                <img src="assets/images/brands/github.png" alt="Github">
+                                                <img src="~/assetsAdmin/images/brands/github.png" alt="Github">
                                                 <span>GitHub</span>
                                             </a>
                                         </div>
                                         <div class="col">
                                             <a class="dropdown-icon-item" href="#!">
-                                                <img src="assets/images/brands/bitbucket.png" alt="bitbucket">
+                                                <img src="~/assetsAdmin/images/brands/bitbucket.png" alt="bitbucket">
                                                 <span>Bitbucket</span>
                                             </a>
                                         </div>
                                         <div class="col">
                                             <a class="dropdown-icon-item" href="#!">
-                                                <img src="assets/images/brands/dribbble.png" alt="dribbble">
+                                                <img src="~/assetsAdmin/images/brands/dribbble.png" alt="dribbble">
                                                 <span>Dribbble</span>
                                             </a>
                                         </div>
@@ -323,19 +310,19 @@
                                     <div class="row g-0">
                                         <div class="col">
                                             <a class="dropdown-icon-item" href="#!">
-                                                <img src="assets/images/brands/dropbox.png" alt="dropbox">
+                                                <img src="~/assetsAdmin/images/brands/dropbox.png" alt="dropbox">
                                                 <span>Dropbox</span>
                                             </a>
                                         </div>
                                         <div class="col">
                                             <a class="dropdown-icon-item" href="#!">
-                                                <img src="assets/images/brands/mail_chimp.png" alt="mail_chimp">
+                                                <img src="~/assetsAdmin/images/brands/mail_chimp.png" alt="mail_chimp">
                                                 <span>Mail Chimp</span>
                                             </a>
                                         </div>
                                         <div class="col">
                                             <a class="dropdown-icon-item" href="#!">
-                                                <img src="assets/images/brands/slack.png" alt="slack">
+                                                <img src="~/assetsAdmin/images/brands/slack.png" alt="slack">
                                                 <span>Slack</span>
                                             </a>
                                         </div>
@@ -381,7 +368,7 @@
                                         </div>
                                         <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
                                             <div class="d-flex align-items-center">
-                                                <img src="assets/images/products/img-1.png"
+                                                <img src="~/assetsAdmin/images/products/img-1.png"
                                                     class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mt-0 mb-1 fs-14">
@@ -407,7 +394,7 @@
 
                                         <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
                                             <div class="d-flex align-items-center">
-                                                <img src="assets/images/products/img-2.png"
+                                                <img src="~/assetsAdmin/images/products/img-2.png"
                                                     class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mt-0 mb-1 fs-14">
@@ -432,7 +419,7 @@
 
                                         <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
                                             <div class="d-flex align-items-center">
-                                                <img src="assets/images/products/img-3.png"
+                                                <img src="~/assetsAdmin/images/products/img-3.png"
                                                     class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mt-0 mb-1 fs-14">
@@ -458,7 +445,7 @@
 
                                         <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
                                             <div class="d-flex align-items-center">
-                                                <img src="assets/images/products/img-6.png"
+                                                <img src="~/assetsAdmin/images/products/img-6.png"
                                                     class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mt-0 mb-1 fs-14">
@@ -484,7 +471,7 @@
 
                                         <div class="d-block dropdown-item dropdown-item-cart text-wrap px-3 py-2">
                                             <div class="d-flex align-items-center">
-                                                <img src="assets/images/products/img-5.png"
+                                                <img src="~/assetsAdmin/images/products/img-5.png"
                                                     class="me-3 rounded-circle avatar-sm p-2 bg-light" alt="user-pic">
                                                 <div class="flex-grow-1">
                                                     <h6 class="mt-0 mb-1 fs-14">
@@ -630,7 +617,7 @@
                                             <div
                                                 class="text-reset notification-item d-block dropdown-item position-relative">
                                                 <div class="d-flex">
-                                                    <img src="assets/images/users/avatar-2.jpg"
+                                                    <img src="~/assetsAdmin/images/users/avatar-2.jpg"
                                                         class="me-3 rounded-circle avatar-xs flex-shrink-0"
                                                         alt="user-pic">
                                                     <div class="flex-grow-1">
@@ -692,7 +679,7 @@
                                             <div
                                                 class="text-reset notification-item d-block dropdown-item position-relative">
                                                 <div class="d-flex">
-                                                    <img src="assets/images/users/avatar-8.jpg"
+                                                    <img src="~/assetsAdmin/images/users/avatar-8.jpg"
                                                         class="me-3 rounded-circle avatar-xs flex-shrink-0"
                                                         alt="user-pic">
                                                     <div class="flex-grow-1">
@@ -732,7 +719,7 @@
                                         <div data-simplebar style="max-height: 300px;" class="pe-2">
                                             <div class="text-reset notification-item d-block dropdown-item">
                                                 <div class="d-flex">
-                                                    <img src="assets/images/users/avatar-3.jpg"
+                                                    <img src="~/assetsAdmin/images/users/avatar-3.jpg"
                                                         class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
                                                         <a href="#!" class="stretched-link">
@@ -759,7 +746,7 @@
 
                                             <div class="text-reset notification-item d-block dropdown-item">
                                                 <div class="d-flex">
-                                                    <img src="assets/images/users/avatar-2.jpg"
+                                                    <img src="~/assetsAdmin/images/users/avatar-2.jpg"
                                                         class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
                                                         <a href="#!" class="stretched-link">
@@ -787,7 +774,7 @@
 
                                             <div class="text-reset notification-item d-block dropdown-item">
                                                 <div class="d-flex">
-                                                    <img src="assets/images/users/avatar-6.jpg"
+                                                    <img src="~/assetsAdmin/images/users/avatar-6.jpg"
                                                         class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
                                                         <a href="#!" class="stretched-link">
@@ -816,7 +803,7 @@
 
                                             <div class="text-reset notification-item d-block dropdown-item">
                                                 <div class="d-flex">
-                                                    <img src="assets/images/users/avatar-8.jpg"
+                                                    <img src="~/assetsAdmin/images/users/avatar-8.jpg"
                                                         class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
                                                         <a href="#!" class="stretched-link">
@@ -869,7 +856,7 @@
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="d-flex align-items-center">
                                     <img class="rounded-circle header-profile-user"
-                                        src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
+                                        src="~/assetsAdmin/images/users/avatar-1.jpg" alt="Header Avatar">
                                     <span class="text-start ms-xl-2">
                                         <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">Anna
                                             Adame</span>
@@ -947,19 +934,19 @@
                 <!-- Dark Logo-->
                 <a href="index.html" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="assets/images/logo-sm.png" alt="" height="22">
+                        <img src="~/assetsAdmin/images/logo-sm.png" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="assets/images/logo-dark.png" alt="" height="17">
+                        <img src="~/assetsAdmin/images/logo-dark.png" alt="" height="17">
                     </span>
                 </a>
                 <!-- Light Logo-->
                 <a href="index.html" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="assets/images/logo-sm.png" alt="" height="22">
+                        <img src="~/assetsAdmin/images/logo-sm.png" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="assets/images/logo-light.png" alt="" height="17">
+                        <img src="~/assetsAdmin/images/logo-light.png" alt="" height="17">
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
@@ -972,7 +959,7 @@
                 <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="d-flex align-items-center gap-2">
-                        <img class="rounded header-profile-user" src="assets/images/users/avatar-1.jpg"
+                        <img class="rounded header-profile-user" src="~/assetsAdmin/images/users/avatar-1.jpg"
                             alt="Header Avatar">
                         <span class="text-start">
                             <span class="d-block fw-medium sidebar-user-name-text">Anna Adame</span>
@@ -2344,12 +2331,12 @@
                         <div class="col-12">
                             <div
                                 class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                                <h4 class="mb-sm-0">Order Details</h4>
+                                <h4 class="mb-sm-0">Product Details</h4>
 
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Ecommerce</a></li>
-                                        <li class="breadcrumb-item active">Order Details</li>
+                                        <li class="breadcrumb-item active">Product Details</li>
                                     </ol>
                                 </div>
 
@@ -2359,504 +2346,370 @@
                     <!-- end page title -->
 
                     <div class="row">
-                        <div class="col-xl-9">
+                        <div class="col-lg-12">
                             <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex align-items-center">
-                                        <h5 class="card-title flex-grow-1 mb-0">Order #@Model.OrderTracking</h5>
-                                        <div class="flex-shrink-0">
-                                            <a href="apps-invoices-details.html" class="btn btn-success btn-sm"><i
-                                                    class="ri-download-2-fill align-middle me-1"></i> Invoice</a>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="card-body">
-                                    <div class="table-responsive table-card">
-                                        <table class="table table-nowrap align-middle table-borderless mb-0">
-                                            <thead class="table-light text-muted">
-                                                <tr>
-                                                    <th scope="col">Product Details</th>
-                                                    <th scope="col">Item Price</th>
-                                                    <th scope="col">Quantity</th>                                                   
-                                                    <th scope="col">Status</th>                                                   
-                                                    <th scope="col" class="text-end">Total Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                                    <div class="row gx-lg-5">
+                                        <div class="col-xl-4 col-md-8 mx-auto">
+                                            <div class="product-img-slider sticky-side-div">
+                                                <div class="swiper product-thumbnail-slider p-2 rounded bg-light">
+                                                    <div class="swiper-wrapper">
+                                                        @if (Model.image.Any())
+                                                        {
+                                                            foreach (var image in Model.image)
+                                                            {
+                                                                <div class="swiper-slide">
+                                                                    <img src="@image" alt="" class="img-fluid d-block" />
+                                                                </div>
+                                                            }
+                                                        }
+                                                       
+                                                    </div>
+                                                    <div class="swiper-button-next material-shadow"></div>
+                                                    <div class="swiper-button-prev material-shadow"></div>
+                                                </div>
+                                                <!-- end swiper thumbnail slide -->
+                                                <div class="swiper product-nav-slider mt-2">
+                                                    <div class="swiper-wrapper">
+                                                           @if (Model.image.Any())
+                                                        {
+                                                            foreach (var image in Model.image)
+                                                            {
+                                                                <div class="swiper-slide">
+                                                                    <div class="nav-slide-item">
+                                                                        <img src="@image" alt=""
+                                                                             class="img-fluid d-block" />
+                                                                    </div>
+                                                                </div>
 
-                                                @if (Model.ItemDetail.Any())
-                                                {
-                                                    @foreach(var item in Model.ItemDetail){
-                                                     <tr>
-                                                    <td>
-                                                        <div class="d-flex">
-                                                            <div class="flex-shrink-0 avatar-md bg-light rounded p-1">
-                                                                <img src="@item.ImageProduct" alt="Image Product"
-                                                                    class="img-fluid d-block">
+                                                            }
+                                                        }
+                                                       
+                                                    </div>
+                                                </div>
+                                                <!-- end swiper nav slide -->
+                                            </div>
+                                        </div>
+                                        <!-- end col -->
+
+                                        <div class="col-xl-8">
+                                            <div class="mt-xl-0 mt-5">
+                                                <div class="d-flex">
+                                                    <div class="flex-grow-1">
+                                                        <h4>@Model.ProductName</h4>
+                                                        <div class="hstack gap-3 flex-wrap">
+                                                            <div class="text-muted">
+                                                                ProductType : <span class="text-body fw-medium">@Model.ProductType</span>
                                                             </div>
-                                                            <div class="flex-grow-1 ms-3">
-                                                                <h5 class="fs-15"><a
-                                                                        href="/Home/ProductDetail/@item.ProductID"
-                                                                        class="link-primary">@item.Produtype</a></h5>
-                                                                <p class="text-muted mb-0">Product: <span
-                                                                        class="fw-medium">@item.Product</span></p>
-                                                                <p class="text-muted mb-0">Shop: <span
-                                                                        class="fw-medium">@item.NameShop</span></p>
+                                                            <div class="vr"></div>
+                                                            <div class="text-muted">Shop : <span
+                                                                    class="text-body fw-medium">@Model.NameShop</span>
+                                                            </div>
+                                                            <div class="vr"></div>
+                                                            <div class="text-muted">Date Complant : <span
+                                                                    class="text-body fw-medium">@Model.CreateDate</span>
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                    <td>@item.ItemPrice</td>
-                                                    <td>@item.Quantity</td>                                                 
-                                                    <td>@item.Status</td>                                                 
-                                                    <td class="fw-medium text-end">
-                                                        @item.Totals
-                                                    </td>
-                                                </tr>
-                                                    }
-
-                                                      <tr class="border-top border-top-dashed">
-                                                    <td colspan="3" class="align-top">
-                                                        <div class="p-2">
-                                                            <strong>Ghi chú đơn hàng:</strong><br />
-                                                            <span style="white-space: pre-line">
-                                                              @Model.Note
-                                                            </span>
-
-
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        <div>
+                                                            <a href="apps-ecommerce-add-product.html"
+                                                                class="btn btn-light" data-bs-toggle="tooltip"
+                                                                data-bs-placement="top" title="Edit"><i
+                                                                    class="ri-pencil-fill align-bottom"></i></a>
                                                         </div>
-                                                    </td>
-                                                    <td colspan="2" class="fw-medium p-0">
-                                                        <table class="table table-borderless mb-0">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Sub Total :</td>
-                                                                    <td class="text-end">@Model.Subtotal</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Discount <span
-                                                                            class="text-muted">@Model.NameVocher</span> :</td>
-                                                                    <td class="text-end">-@Model.Discount</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Shipping Charge :</td>
-                                                                    <td class="text-end">0</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Estimated Tax :</td>
-                                                                    <td class="text-end">0</td>
-                                                                </tr>
-                                                                <tr class="border-top border-top-dashed">
-                                                                    <th scope="row">Total (VND) :</th>
-                                                                    <th class="text-end">@Model.TotalOrder</th>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                                }else{
-                                                      <tr class="border-top border-top-dashed">
-                                                    <td colspan="3" class="align-top">
-                                                        <div class="p-2">
-                                                            <strong>Ghi chú đơn hàng:</strong><br />
-                                                            <span style="white-space: pre-line">
-                                                             
-                                                            </span>
+                                                    </div>
+                                                </div>
+
+                                                <!-- <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+                                                    <div class="text-muted fs-16">
+                                                        <span class="mdi mdi-star text-warning"></span>
+                                                        <span class="mdi mdi-star text-warning"></span>
+                                                        <span class="mdi mdi-star text-warning"></span>
+                                                        <span class="mdi mdi-star text-warning"></span>
+                                                        <span class="mdi mdi-star text-warning"></span>
+                                                    </div>
+                                                    <div class="text-muted">( 5.50k Customer Review )</div>
+                                                </div> -->
+<div class="mt-3 d-flex align-items-center justify-content-between">
+    <!-- Trạng thái khiếu nại -->
+    <div>
+        <span class="fw-bold me-2">Trạng thái:</span>
+        <span class="badge 
+            @(Model.Status == "Pending" ? "bg-warning" :
+              Model.Status == "Refund" ? "bg-success" :
+              Model.Status == "Product Warranty" ? "bg-info" :
+              Model.Status == "Report to Admin" ? "bg-danger" :
+              "bg-secondary")">
+            @Model.Status
+        </span>
+    </div>
+ 
+</div>
 
 
-                                                        </div>
-                                                    </td>
-                                                    <td colspan="2" class="fw-medium p-0">
-                                                        <table class="table table-borderless mb-0">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Sub Total :</td>
-                                                                    <td class="text-end">0</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Discount <span
-                                                                            class="text-muted"></span> :</td>
-                                                                    <td class="text-end">-0</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Shipping Charge :</td>
-                                                                    <td class="text-end">0</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Estimated Tax :</td>
-                                                                    <td class="text-end">0</td>
-                                                                </tr>
-                                                                <tr class="border-top border-top-dashed">
-                                                                    <th scope="row">Total (VND) :</th>
-                                                                    <th class="text-end">0</th>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                                }
+                                                <!-- end row -->
+
+                                                <div class="mt-4 text-muted">
+                                                    <h5 class="fs-14">Khiếu nại từ người dùng (@Model.UserName) :</h5>
+                                                    <p>
+                                                        @Model.Description
+                                                    </p>
+                                                </div>
+
+
+
                                               
 
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end card-->
-                            <div class="card">
-                                <div class="card-header">
-                                    @{
-                                        var latestStatus = Model.StatusHistories.LastOrDefault()?.Status ?? "";
-                                    }
+                                                <!-- product-content -->
 
-                                    <div class="d-sm-flex align-items-center">
-                                        <h5 class="card-title flex-grow-1 mb-0">Order Status</h5>
-                                        <div class="flex-shrink-0 mt-2 mt-sm-0" id="order-action-buttons">
-
-                                            @if (latestStatus == "PENDING")
-                                            {
-                                                <a href="javascript:void(0);" class="btn btn-soft-danger btn-sm mt-2 mt-sm-0"
-                                                   onclick="handleStatusChange('@Url.Action("CancelOrder", "Seller", new { id = Model.OrderID })', 'CANCELLED ')">
-                                                    <i class="mdi mdi-archive-remove-outline align-middle me-1"></i> Cancel Order
-                                                </a>
-
-                                                <a href="javascript:void(0);" class="btn btn-soft-info btn-sm mt-2 mt-sm-0"
-                                                   onclick="handleStatusChange('@Url.Action("UpdateOrderStatus", "Seller", new { id = Model.OrderID, status = "PREPARING IN KITCHEN" })', 'PREPARING IN KITCHEN')">
-                                                    <i class="ri-restaurant-line align-middle me-1"></i> Set Preparing in Kitchen
-                                                </a>
-                                            }
-                                            else if (latestStatus == "PREPARING IN KITCHEN")
-                                            {
-                                                <a href="javascript:void(0);" class="btn btn-soft-danger btn-sm mt-2 mt-sm-0"
-                                                   onclick="handleStatusChange('@Url.Action("CancelOrder", "Seller", new { id = Model.OrderID })', 'CANCELLED')">
-                                                    <i class="mdi mdi-archive-remove-outline align-middle me-1"></i> Cancel Order
-                                                </a>
-
-                                                <a href="javascript:void(0);" class="btn btn-soft-primary btn-sm mt-2 mt-sm-0"
-                                                   onclick="handleStatusChange('@Url.Action("UpdateOrderStatus", "Seller", new { id = Model.OrderID, status = "DELIVERING" })', 'DELIVERING')">
-                                                    <i class="ri-truck-line align-middle me-1"></i> Set Delivering
-                                                </a>
-                                            }
-                                            else if (latestStatus == "DELIVERING")
-                                            {
-                                                <a href="javascript:void(0);" class="btn btn-dark btn-sm mt-2 mt-sm-0 text-white"
-                                                   onclick="handleStatusChange('@Url.Action("UpdateOrderStatus", "Seller", new { id = Model.OrderID, status = "DELIVERY FAILED" })', 'DELIVERY FAILED')">
-                                                    <i class="ri-error-warning-line align-middle me-1"></i> Mark as Failed
-                                                </a>
-
-                                                <a href="javascript:void(0);" class="btn btn-success btn-sm mt-2 mt-sm-0"
-                                                   onclick="handleStatusChange('@Url.Action("UpdateOrderStatus", "Seller", new { id = Model.OrderID, status = "CONFIRMED" })', 'CONFIRMED')">
-                                                    <i class="ri-checkbox-circle-line align-middle me-1"></i> Confirm Delivery
-                                                </a>
-                                            }
-                                        </div>
-                                    </div>
+                                                <div class="mt-5">
+                                                    <div class="row gy-4 gx-0">
+                                                        <div class="col-lg-8">
+                                                            <div class="ps-lg-4">
 
 
+                                                                @if (!string.IsNullOrWhiteSpace(Model.SellerReply))
+                                                                {
+                                                         <div class="d-flex flex-wrap align-items-start gap-3 mb-3">
+                                                                    <h5 class="fs-14">Chi tiết phản hồi:</h5>
+                                                                </div>
 
-                                </div>
-                                @{
-                                    var allSteps = new List<string>
-                                {
-                                "PENDING",
-                                "PREPARING IN KITCHEN",
-                                "DELIVERING",
-                                "CONFIRMED",            // Chỉ hiện khi chưa failed
-                                "DELIVERY FAILED",      // Chỉ hiện khi thật sự có
-                                "CANCELLED BY USER",
-                                "CANCELLED BY SHOP"
-                                };
+                                                                <div class="me-lg-n3 pe-lg-4" data-simplebar style="max-height: 225px;">
+                                                                    <ul class="list-unstyled mb-0">
+                                                                        <li class="py-2">
+                                                                            <!-- Phản hồi từ Seller -->
+                                                                            <div class="bg-light rounded p-3 mt-2">
+                                                                                <div class="d-flex align-items-center mb-2">
+                                                                                    <div class="badge bg-info-subtle text-info me-2">
+                                                                                        Phản hồi từ Shop 
+                                                                                    </div>
+                                                                                    <h6 class="fs-13 mb-0">@Model.NameShop  - @Model.DateReply</h6>
+                                                                                </div>
+                                                                                <p class="text-muted mb-0 fst-italic">
+                                                                                   @Model.SellerReply
+                                                                                </p>
+                                                                            </div>
 
-                                    bool isCancelled = Model.StatusHistories.Any(x => x.Status == "CANCELLED BY USER" || x.Status == "CANCELLED BY SHOP");
-                                    bool hasFailed = Model.StatusHistories.Any(x => x.Status == "DELIVERY FAILED");
-                                }
+                                                                          @if(!string.IsNullOrWhiteSpace(Model.AdminrReply)){
+                                                                                <!-- Phản hồi từ Admin -->
+                                                                            <div class="bg-light rounded p-3 mt-2">
+                                                                                <div class="d-flex align-items-center mb-2">
+                                                                                    <div class="badge bg-danger-subtle text-danger me-2">
+                                                                                        Phản hồi từ Admin
+                                                                                    </div>
+                                                                                    <h6 class="fs-13 mb-0">Quản trị viên  - @Model.DateAdminCreate</h6>
+                                                                                </div>
+                                                                                <p class="text-muted mb-0 fst-italic">
+                                                                                   @Model.AdminrReply
+                                                                                </p>
+                                                                            </div>
+                                                                          }
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                                }
+                                                       
+                                                            </div>
+                                                        </div>
+                                                        <!-- end col -->
+                                                    </div>
+                                                </div>
+                                                <!-- Nếu Seller chưa phản hồi -->
+                                                @if (Model.Status == "Pending")
+                                                {
+                                                    <div class="mt-3">
+                                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                                                data-bs-target="#resolveModal">
+                                                            Giải quyết khiếu nại
+                                                        </button>
+                                                    </div>
+                                                }
 
-                                @foreach (var step in allSteps)
-                                {
-                                    var status = Model.StatusHistories.FirstOrDefault(x => x.Status == step);
-                                    bool isReached = status != null;
+                                                <!-- Modal giải quyết khiếu nại -->
+                                                <div class="modal fade" id="resolveModal" tabindex="-1"
+                                                     aria-labelledby="resolveModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content border-0">
+                                                            <div class="modal-header bg-light">
+                                                                <h5 class="modal-title" id="resolveModalLabel">Giải quyết khiếu nại</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                @Html.AntiForgeryToken()
+                                                                <!-- Input ẩn chứa complaint ID -->
+                                                                <input type="hidden" id="complaintId" value="@Model.ComplantID" />
 
-                                    // Nếu đã hủy, chỉ hiển thị các bước trước đó và bước hủy (nếu có)
-                                    if (isCancelled)
-                                    {
-                                        // Nếu không phải là CANCELLED và không có trong lịch sử thì bỏ qua
-                                        if (!isReached && step != "CANCELLED BY USER" && step != "CANCELLED BY SHOP")
-                                        {
-                                            continue;
-                                        }
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Hành động xử lý</label>
+                                                                    <select class="form-select" id="resolutionAction" required>
+                                                                        <option value="">-- Chọn hành động --</option>
+                                                                        <option value="refund">Hoàn tiền</option>
+                                                                        <option value="warranty">Bảo hành</option>
+                                                                        <option value="dispute">Tranh chấp</option>
+                                                                    </select>
+                                                                    <span class="text-danger d-none" id="actionError">Vui lòng chọn hành động xử lý.</span>
+                                                                </div>
 
-                                        // Không hiển thị các bước sau hủy (vì đơn đã dừng)
-                                        var cancelTime = Model.StatusHistories.FirstOrDefault(x => x.Status == "CANCELLED BY USER" || x.Status == "CANCELLED BY SHOP")?.Time;
-                                        if (cancelTime != null && status != null && status.Time > cancelTime)
-                                        {
-                                            continue;
-                                        }
-                                    }
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Mô tả chi tiết</label>
+                                                                    <textarea class="form-control" id="resolutionNote" rows="3"
+                                                                              placeholder="Nhập mô tả xử lý..." required></textarea>
+                                                                    <span class="text-danger d-none" id="noteError">Vui lòng nhập mô tả chi tiết.</span>
+                                                                </div>
 
-                                    // Nếu DELIVERY FAILED đã xảy ra thì không hiển thị CONFIRMED
-                                    if (step == "CONFIRMED" && hasFailed)
-                                    {
-                                        continue;
-                                    }
+                                                                <div class="text-end">
+                                                                    <button type="button" class="btn btn-success" id="btnResolveSubmit">
+                                                                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                                        <span class="btn-text">Xác nhận xử lý</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
 
-                                    // DELIVERY FAILED chỉ hiển thị khi thật sự có
-                                    if (step == "DELIVERY FAILED" && !isReached)
-                                    {
-                                        continue;
-                                    }
-
-                                    // CANCELLED chỉ hiện nếu đã xảy ra
-                                    if ((step == "CANCELLED BY USER" || step == "CANCELLED BY SHOP") && !isReached)
-                                    {
-                                        continue;
-                                    }
-
-                                    var icon = step switch
-                                    {
-                                        "PENDING" => "ri-time-line",
-                                        "PREPARING IN KITCHEN" => "ri-restaurant-line",
-                                        "DELIVERING" => "ri-truck-line",
-                                        "CONFIRMED" => "ri-checkbox-circle-line",
-                                        "CANCELLED BY USER" => "ri-close-circle-line",
-                                        "CANCELLED BY SHOP" => "ri-store-3-line",
-                                        "DELIVERY FAILED" => "ri-error-warning-line",
-                                        _ => "ri-information-line"
-                                    };
-
-                                    var badgeColor = step switch
-                                    {
-                                        "PENDING" => "warning",
-                                        "PREPARING IN KITCHEN" => "info",
-                                        "DELIVERING" => "primary",
-                                        "CONFIRMED" => "success",
-                                        "CANCELLED BY USER" or "CANCELLED BY SHOP" => "danger",
-                                        "DELIVERY FAILED" => "dark text-white",
-                                        _ => "secondary"
-                                    };
-
-                                    var readableText = step switch
-                                    {
-                                        "PENDING" => "An order has been placed and is waiting for approval.",
-                                        "PREPARING IN KITCHEN" => "Seller is preparing your items.",
-                                        "DELIVERING" => "Your item is on the way.",
-                                        "CONFIRMED" => "Order successfully delivered and confirmed.",
-                                        "DELIVERY FAILED" => "Delivery was not successful. Please contact support.",
-                                        "CANCELLED BY USER" => "The order was cancelled by the customer.",
-                                        "CANCELLED BY SHOP" => "The order was cancelled by the shop.",
-                                        _ => "In progress..."
-                                    };
-
-                                    string collapseId = $"collapse_{step.Replace(" ", "")}";
-                                    string timeText = isReached ? status.Time.ToString("dd MMM yyyy - hh:mmtt") : "";
-                                    string collapseClass = isReached ? "accordion-collapse collapse show" : "accordion-collapse collapse";
-                                    string disabledClass = isReached ? "" : "opacity-50 pointer-events-none";
-
-                                    <div class="accordion-item border-0 @disabledClass">
-                                        <div class="accordion-header">
-                                            <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse"
-                                               href="#@collapseId" aria-expanded="true">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-shrink-0 avatar-xs">
-                                                        <div class="avatar-title bg-@badgeColor rounded-circle material-shadow">
-                                                            <i class="@icon"></i>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="fs-15 mb-0 fw-semibold">
-                                                            @step
-                                                            @if (isReached)
-                                                            {
-                                                                <span class="fw-normal"> - @timeText</span>
-                                                            }
-                                                        </h6>
-                                                    </div>
                                                 </div>
-                                            </a>
-                                        </div>
-                                        <div id="@collapseId" class="@collapseClass">
-                                            <div class="accordion-body ms-2 ps-5 pt-0">
-                                                <h6 class="mb-1">@readableText</h6>
-                                                @if (isReached)
-                                                {
-                                                    <p class="text-muted">@timeText</p>
-                                                }
+
                                             </div>
+                                            <!-- end card body -->
                                         </div>
                                     </div>
-                                }
-
-
+                                    <!-- end col -->
+                                </div>
+                                <!-- end row -->
                             </div>
-                            <!--end card-->
+                            <!-- end card body -->
                         </div>
-                        <!--end col-->
-                        <div class="col-xl-3">
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex">
-                                        <h5 class="card-title flex-grow-1 mb-0"><i
-                                                class="mdi mdi-truck-fast-outline align-middle me-1 text-muted"></i>
-                                            Logistics Details</h5>
-                                        <div class="flex-shrink-0">
-                                            <a href="javascript:void(0);"
-                                                class="badge bg-primary-subtle text-primary fs-11">Track Order</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="text-center">
-                                        <lord-icon src="https://cdn.lordicon.com/uetqnvvg.json" trigger="loop"
-                                            colors="primary:#405189,secondary:#0ab39c"
-                                            style="width:80px;height:80px"></lord-icon>
-                                        <h5 class="fs-16 mt-2">RQK Logistics</h5>
-                                        <p class="text-muted mb-0">ID: @Model.IDLogistics</p>
-                                        <p class="text-muted mb-0">Payment Mode : @Model.PaymentMethod</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end card-->
-
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex">
-                                        <h5 class="card-title flex-grow-1 mb-0">Customer Details</h5>
-                                        <div class="flex-shrink-0">
-                                            <a href="javascript:void(0);" class="link-secondary">View Profile</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled mb-0 vstack gap-3">
-                                        <li>
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <img src="@Model.ImageCus"  width="48px" height="48px"
-                                                        class="avatar-sm rounded material-shadow">
-                                                </div>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="fs-14 mb-1"><span style="white-space: pre-line">@Model.UserNameCus</span></h6>
-                                                    <p class="text-muted mb-0">Customer</p>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li><i
-                                                class="ri-mail-line me-2 align-middle text-muted fs-16"></i>@Model.EmailCustomer
-                                        </li>
-                                        <li><i class="ri-phone-line me-2 align-middle text-muted fs-16"></i>+(84)
-                                           @Model.PhoneCustomer </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!--end card-->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0"><i
-                                            class="ri-map-pin-line align-middle me-1 text-muted"></i> Billing Address
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled vstack gap-2 fs-13 mb-0">
-                                        <li class="fw-medium fs-14">@Model.NameCustomer</li>
-                                        <li>+(84) @Model.PhoneCustomer</li>
-                                        <li style="white-space: pre-line">@Model.ShippingAddress</li>
-                                      @*   <li>New York - 25645</li>
-                                        <li>United States</li> *@
-                                    </ul>
-                                </div>
-                            </div>
-                            <!--end card-->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0"><i
-                                            class="ri-map-pin-line align-middle me-1 text-muted"></i> Shipping Address
-                                    </h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled vstack gap-2 fs-13 mb-0">
-                                        <li class="fw-medium fs-14">@Model.NameCustomer</li>
-                                        <li>+(84) @Model.PhoneCustomer</li>
-                                        <li style="white-space: pre-line">@Model.ShippingAddress</li>
-                                        @*   <li>New York - 25645</li>
-                                        <li>United States</li> *@
-                                    </ul>
-                                </div>
-                            </div>
-                            <!--end card-->
-
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0"><i
-                                            class="ri-secure-payment-line align-bottom me-1 text-muted"></i> Payment
-                                        Details</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="flex-shrink-0">
-                                            <p class="text-muted mb-0">Transactions:</p>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <h6 class="mb-0">#@Model.OrderTracking</h6>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="flex-shrink-0">
-                                            <p class="text-muted mb-0">Payment Method:</p>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <h6 class="mb-0">@Model.PaymentMethod</h6>
-                                        </div>
-                                    </div>
-                                    @* <div class="d-flex align-items-center mb-2">
-                                        <div class="flex-shrink-0">
-                                            <p class="text-muted mb-0">Card Holder Name:</p>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <h6 class="mb-0">Joseph Parker</h6>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="flex-shrink-0">
-                                            <p class="text-muted mb-0">Card Number:</p>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <h6 class="mb-0">xxxx xxxx xxxx 2456</h6>
-                                        </div>
-                                    </div> *@
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <p class="text-muted mb-0">Total Amount:</p>
-                                        </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <h6 class="mb-0">$@Model.TotalOrder
-                                            </h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end card-->
-                        </div>
-                        <!--end col-->
+                        <!-- end card -->
                     </div>
-                    <!--end row-->
+                    <!-- end col -->
+                </div>
+                <!-- end row -->
 
-                </div><!-- container-fluid -->
-            </div><!-- End Page-content -->
+            </div>
+            <!-- container-fluid -->
+        </div>
+        <!-- End Page-content -->
+       
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-            <footer class="footer">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <script>document.write(new Date().getFullYear())</script> © Velzon.
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="text-sm-end d-none d-sm-block">
-                                Design & Develop by Themesbrand
-                            </div>
+    <script>
+        $(document).ready(function () {
+            // Auto height + ẩn lỗi khi gõ vào textarea
+            $('#resolutionNote').on('input', function () {
+                $('#noteError').addClass('d-none');
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Ẩn lỗi khi chọn lại hành động
+            $('#resolutionAction').on('change', function () {
+                if ($(this).val()) {
+                    $('#actionError').addClass('d-none');
+                }
+            });
+
+            $('#btnResolveSubmit').on('click', function (e) {
+                e.preventDefault();
+
+                // Reset lỗi
+                $('#actionError').addClass('d-none');
+                $('#noteError').addClass('d-none');
+
+                const btn = $(this);
+                const spinner = btn.find('.spinner-border');
+                const btnText = btn.find('.btn-text');
+
+                const complaintId = $('#complaintId').val();
+                const action = $('#resolutionAction').val();
+                const note = $('#resolutionNote').val().trim();
+
+                let hasError = false;
+
+                if (!action) {
+                    $('#actionError').removeClass('d-none');
+                    hasError = true;
+                }
+
+                if (!note) {
+                    $('#noteError').removeClass('d-none');
+                    hasError = true;
+                }
+
+                if (!complaintId || hasError) {
+                    // Hiển thị loading ngắn để tạo cảm giác phản hồi
+                    btn.prop('disabled', true);
+                    spinner.removeClass('d-none');
+                    btnText.text('Đang xử lý...');
+
+                    setTimeout(() => {
+                        btn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        btnText.text('Xác nhận xử lý');
+                    }, 300);
+
+                    return;
+                }
+
+                // Gửi AJAX nếu hợp lệ
+                btn.prop('disabled', true);
+                spinner.removeClass('d-none');
+                btnText.text('Đang xử lý...');
+
+                $.ajax({
+                    url: '/Seller/ResolveComplaint',
+                    type: 'POST',
+                    data: {
+                        id: complaintId,
+                        action: action,
+                        note: note
+                    },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire("Thành công", "Đã xử lý khiếu nại!", "success").then(() => {
+                                $('#resolveModal').modal('hide');
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire("Lỗi", response.message || "Xử lý thất bại!", "error");
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Lỗi", "Đã xảy ra lỗi khi gửi yêu cầu.", "error");
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                        btnText.text('Xác nhận xử lý');
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <script>document.write(new Date().getFullYear())</script> © Velzon.
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end d-none d-sm-block">
+                            Design & Develop by Themesbrand
                         </div>
                     </div>
                 </div>
-            </footer>
-        </div>
-        <!-- end main content-->
+            </div>
+        </footer>
+    </div>
+    <!-- end main content-->
 
     </div>
     <!-- END layout-wrapper -->
@@ -3024,7 +2877,7 @@
                                 <input id="customizer-theme01" name="data-theme" type="radio" value="default"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme01">
-                                    <img src="../../assets/images/demo/default.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/default.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Default</h5>
@@ -3034,7 +2887,7 @@
                                 <input id="customizer-theme02" name="data-theme" type="radio" value="saas"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme02">
-                                    <img src="../../assets/images/demo/saas.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/saas.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Sass</h5>
@@ -3044,7 +2897,7 @@
                                 <input id="customizer-theme03" name="data-theme" type="radio" value="corporate"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme03">
-                                    <img src="../../assets/images/demo/corporate.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/corporate.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Corporate</h5>
@@ -3054,7 +2907,7 @@
                                 <input id="customizer-theme04" name="data-theme" type="radio" value="galaxy"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme04">
-                                    <img src="../../assets/images/demo/galaxy.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/galaxy.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Galaxy</h5>
@@ -3064,7 +2917,7 @@
                                 <input id="customizer-theme05" name="data-theme" type="radio" value="material"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme05">
-                                    <img src="../../assets/images/demo/material.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/material.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Material</h5>
@@ -3074,7 +2927,7 @@
                                 <input id="customizer-theme06" name="data-theme" type="radio" value="creative"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme06">
-                                    <img src="../../assets/images/demo/creative.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/creative.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Creative</h5>
@@ -3084,7 +2937,7 @@
                                 <input id="customizer-theme07" name="data-theme" type="radio" value="minimal"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme07">
-                                    <img src="../../assets/images/demo/minimal.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/minimal.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Minimal</h5>
@@ -3094,7 +2947,7 @@
                                 <input id="customizer-theme08" name="data-theme" type="radio" value="modern"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme08">
-                                    <img src="../../assets/images/demo/modern.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/modern.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Modern</h5>
@@ -3105,7 +2958,7 @@
                                 <input id="customizer-theme09" name="data-theme" type="radio" value="interactive"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme09">
-                                    <img src="../../assets/images/demo/interactive.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/interactive.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Interactive</h5>
@@ -3116,7 +2969,7 @@
                                 <input id="customizer-theme10" name="data-theme" type="radio" value="classic"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme10">
-                                    <img src="../../assets/images/demo/classic.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/classic.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Classic</h5>
@@ -3127,7 +2980,7 @@
                                 <input id="customizer-theme11" name="data-theme" type="radio" value="vintage"
                                     class="form-check-input">
                                 <label class="form-check-label p-0" for="customizer-theme11">
-                                    <img src="../../assets/images/demo/vintage.png" alt="" class="img-fluid">
+                                    <img src="../../~/assetsAdmin/images/demo/vintage.png" alt="" class="img-fluid">
                                 </label>
                             </div>
                             <h5 class="fs-13 text-center fw-medium mt-2">Vintage</h5>
@@ -3708,7 +3561,7 @@
                                 <input class="form-check-input" type="radio" name="data-sidebar-image"
                                     id="sidebarimg-01" value="img-1">
                                 <label class="form-check-label p-0 avatar-sm h-auto" for="sidebarimg-01">
-                                    <img src="assets/images/sidebar/img-1.jpg" alt=""
+                                    <img src="~/assetsAdmin/images/sidebar/img-1.jpg" alt=""
                                         class="avatar-md w-auto object-fit-cover">
                                 </label>
                             </div>
@@ -3717,7 +3570,7 @@
                                 <input class="form-check-input" type="radio" name="data-sidebar-image"
                                     id="sidebarimg-02" value="img-2">
                                 <label class="form-check-label p-0 avatar-sm h-auto" for="sidebarimg-02">
-                                    <img src="assets/images/sidebar/img-2.jpg" alt=""
+                                    <img src="~/assetsAdmin/images/sidebar/img-2.jpg" alt=""
                                         class="avatar-md w-auto object-fit-cover">
                                 </label>
                             </div>
@@ -3725,7 +3578,7 @@
                                 <input class="form-check-input" type="radio" name="data-sidebar-image"
                                     id="sidebarimg-03" value="img-3">
                                 <label class="form-check-label p-0 avatar-sm h-auto" for="sidebarimg-03">
-                                    <img src="assets/images/sidebar/img-3.jpg" alt=""
+                                    <img src="~/assetsAdmin/images/sidebar/img-3.jpg" alt=""
                                         class="avatar-md w-auto object-fit-cover">
                                 </label>
                             </div>
@@ -3733,7 +3586,7 @@
                                 <input class="form-check-input" type="radio" name="data-sidebar-image"
                                     id="sidebarimg-04" value="img-4">
                                 <label class="form-check-label p-0 avatar-sm h-auto" for="sidebarimg-04">
-                                    <img src="assets/images/sidebar/img-4.jpg" alt=""
+                                    <img src="~/assetsAdmin/images/sidebar/img-4.jpg" alt=""
                                         class="avatar-md w-auto object-fit-cover">
                                 </label>
                             </div>
@@ -3927,46 +3780,6 @@
             </div>
         </div>
     </div>
-   
-    <!-- Luôn load jQuery trước -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <script>
-        function handleStatusChange(url, status) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `Do you want to set status to "${status}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: url,
-                        method: 'POST',
-                        success: function (response) {
-                            Swal.fire(
-                                response.success ? 'Success' : 'Failed',
-                                response.message || 'Status updated.',
-                                response.success ? 'success' : 'error'
-                            ).then(() => {
-                                if (response.success) {
-                                    location.reload();
-                                }
-                            });
-                        },
-                        error: function () {
-                            Swal.fire('Error', 'Could not connect to the server.', 'error');
-                        }
-                    });
-                }
-            });
-        }
-
-    </script>
-
-    
 
     <!-- JAVASCRIPT -->
     <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -3976,21 +3789,17 @@
     <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
     <script src="~/assetsAdmin/js/plugins.js"></script>
 
-    <!-- list.js min js -->
-    <script src="~/assetsAdmin/libs/list.js/list.min.js"></script>
+    <!--Swiper slider js-->
+    <script src="~/assetsAdmin/libs/swiper/swiper-bundle.min.js"></script>
 
-    <!--list pagination js-->
-    <script src="~/assetsAdmin/libs/list.pagination.js/list.pagination.min.js"></script>
-
-    <!-- ecommerce-order init js -->
-    <script src="~/assetsAdmin/js/pages/ecommerce-order.init.js"></script>
-
-    <!-- Sweet Alerts js -->
-    <script src="~/assetsAdmin/libs/sweetalert2/sweetalert2.min.js"></script>
+    <!-- ecommerce product details init -->
+    <script src="~/assetsAdmin/js/pages/ecommerce-product-details.init.js"></script>
 
     <!-- App js -->
     <script src="~/assetsAdmin/js/app.js"></script>
-
 </body>
+
+
+<!-- Mirrored from themesbrand.com/velzon/html/master/apps-ecommerce-product-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:20:22 GMT -->
 
 </html>

@@ -20,5 +20,7 @@ namespace Models
         [ForeignKey("OrderDetail")]
         public Guid OrderDetailID { get; set; }
         public virtual OrderDetail OrderDetail { get; set; }
+        public virtual ICollection<ComplaintImage> ComplaintImages { get; set; } = new List<ComplaintImage>();
+
     }
 }

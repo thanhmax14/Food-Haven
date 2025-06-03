@@ -26,6 +26,9 @@ using MailKit.Search;
 using System.Collections.Generic;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.ProductVariantVariants;
+using BusinessLogic.Services.ComplaintImages;
+using BusinessLogic.Services.Complaints;
+using Org.BouncyCastle.Asn1.X509;
 using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.IngredientTagServices;
@@ -37,44 +40,53 @@ namespace Food_Haven.Web.Controllers
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
-        private HttpClient client = null;
-        private string _url;
-        private readonly IBalanceChangeService _balance;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IProductService _product;
-        public readonly ICartService _cart;
-        public readonly IProductVariantService _productWarian;
-        private readonly IProductImageService _img;
-        private readonly IOrdersServices _order;
-        private readonly IOrderDetailService _orderDetailService;
-        private readonly PayOS _payos;
-        private readonly ManageTransaction _managetrans;
-        private readonly IReviewService _review;
-        private readonly IRecipeService _recipeService;
-        private readonly ICategoryService _categoryService;
-        private readonly IIngredientTagService _ingredientTagService;
-        private readonly ITypeOfDishService _typeOfDishService;
+private HttpClient client = null;
+private string _url;
+private readonly IBalanceChangeService _balance;
+private readonly IHttpContextAccessor _httpContextAccessor;
+private readonly IProductService _product;
+public readonly ICartService _cart;
+public readonly IProductVariantService _productWarian;
+private readonly IProductImageService _img;
+private readonly IOrdersServices _order;
+private readonly IOrderDetailService _orderDetailService;
+private readonly PayOS _payos;
+private readonly ManageTransaction _managetrans;
+private readonly IReviewService _review;
+private readonly IRecipeService _recipeService;
+private readonly ICategoryService _categoryService;
+private readonly IIngredientTagService _ingredientTagService;
+private readonly ITypeOfDishService _typeOfDishService;
+private readonly ManageTransaction _managetrans;
+private readonly IReviewService _review;
+private readonly IComplaintImageServices _complaintImageServices;
+private readonly IComplaintServices _complaintService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices orders, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService)
-        {
-            _userManager = userManager;
-            this.client = client;
-            _balance = balance;
-            _httpContextAccessor = httpContextAccessor;
-            _product = product;
-            _cart = cart;
-            _productWarian = productWarian;
-            _img = img;
-            _order = orders;
-            _orderDetailService = orderDetailService;
-            _payos = payos;
-            _managetrans = managetrans;
-            _review = review;
-            _recipeService = recipeService;
-            _categoryService = categoryService;
-            _ingredientTagService = ingredientTagService;
-            _typeOfDishService = typeOfDishService;
-        }
+public UsersController(UserManager<AppUser> userManager, HttpClient client, string url, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, ManageTransaction managetrans, IReviewService review, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
+{
+    _userManager = userManager;
+    this.client = client;
+    _url = url;
+    _balance = balance;
+    _httpContextAccessor = httpContextAccessor;
+    _product = product;
+    _cart = cart;
+    _productWarian = productWarian;
+    _img = img;
+    _order = order;
+    _orderDetailService = orderDetailService;
+    _payos = payos;
+    this._managetrans = managetrans;
+    this._review = review;
+    _recipeService = recipeService;
+    _categoryService = categoryService;
+    _ingredientTagService = ingredientTagService;
+    _typeOfDishService = typeOfDishService;
+    this._managetrans = managetrans;
+    this._review = review;
+    _complaintImageServices = complaintImageServices;
+    _complaintService = complaintService;
+}
         [HttpGet]
         public async Task<IActionResult> Index(string id)
         {
@@ -727,7 +739,6 @@ namespace Food_Haven.Web.Controllers
                         foreach (var item in billingInfo.itemCheck)
                         {
                             buyRequest.Products.Add(item.productID, item.ItemQuantity);
-
                         }
                         var request = _httpContextAccessor.HttpContext.Request;
                         var baseUrl = $"{request.Scheme}://{request.Host}";
@@ -990,12 +1001,13 @@ namespace Food_Haven.Web.Controllers
             {
                 var product = productList.FirstOrDefault(p => p.ID == item.ProductTypesID);
                 var hasFeedback = true;
-                var hasComplaint = false;
-                var variantExists = await _productWarian.FindAsync(v => v.ID == item.ProductTypesID);
-                if (variantExists == null)
-                    return Json(new { success = false, message = "Không tìm thấy phiên bản sản phẩm." });
-                var reviewed = await _review.FindAsync(u => u.ProductID == variantExists.ProductID && u.UserID == user.Id);
-                if (!item.IsFeedback)
+                var hasComplaint = true;
+                var getComplant = await this._complaintService.FindAsync(u => u.OrderDetailID == item.ID);
+                if (getComplant == null && order.Status.ToUpper()== "CONFIRMED".ToUpper())
+                {
+                    hasComplaint = false;
+                }
+                if (!item.IsFeedback && order.Status.ToUpper() == "CONFIRMED".ToUpper())
                 {
                     hasFeedback = false;
                 }
@@ -1009,7 +1021,8 @@ namespace Food_Haven.Web.Controllers
                     status = item.Status,
                     hasFeedback,
                     hasComplaint,
-                    productId = item.ID
+                    productId = item.ID,
+                    ortracking = order.OrderTracking,
                 });
             }
 
@@ -1147,6 +1160,7 @@ namespace Food_Haven.Web.Controllers
                     Rating = model.Rating,
                     UserID = user.Id,
                     ProductID = variantExists.ProductID,
+                 
                 };
                 await _review.AddAsync(newReview);
                 orderDetail.IsFeedback = true;
@@ -1227,7 +1241,107 @@ namespace Food_Haven.Web.Controllers
             await _recipeService.SaveChangesAsync();
             return View(obj);
         }
+           [HttpPost]
+   public async Task<IActionResult> SubmitComplaint([FromForm] ComplaintViewModel model)
+   {
+       try
+       {
+           var user = await _userManager.GetUserAsync(User);
+           if (user == null)
+           {
+               return Json(new { success = false, message = "Vui lòng đăng nhập để gửi khiếu nại." });
+           }
 
+           var allowedExtensions = new[]
+           {
+       ".xbm", ".tif", ".tiff", ".jfif", ".pjp", ".apng", ".jpeg",
+       ".heif", ".ico", ".webp", ".svgz", ".jpg", ".heic", ".gif",
+       ".svg", ".png", ".bmp", ".pjpeg", ".avif"
+   };
+
+           const long maxFileSize = 5 * 1024 * 1024; // 5MB
+
+           if (string.IsNullOrWhiteSpace(model.Description))
+           {
+               return Json(new { success = false, message = "Vui lòng nhập mô tả khiếu nại." });
+           }
+
+           if (model.Images == null || model.Images.Count == 0)
+           {
+               return Json(new { success = false, message = "Vui lòng chọn ít nhất 1 ảnh." });
+           }
+
+           if (model.Images.Count > 3)
+           {
+               return Json(new { success = false, message = "Chỉ được chọn tối đa 3 ảnh." });
+           }
+
+           var orderDetails = await _orderDetailService.FindAsync(d => d.ID == model.OrderDetailID);
+           if (orderDetails == null)
+               return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+           foreach (var file in model.Images)
+           {
+               var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+               if (!allowedExtensions.Contains(fileExt))
+               {
+                   return Json(new { success = false, message = $"Ảnh {file.FileName} không đúng định dạng cho phép." });
+               }
+
+               if (file.Length > maxFileSize)
+               {
+                   return Json(new { success = false, message = $"Ảnh {file.FileName} vượt quá dung lượng 5MB." });
+               }
+           }
+
+           // Tạo khiếu nại
+           var complaint = new Complaint
+           {
+               ID = Guid.NewGuid(),
+               Description = model.Description,
+               Status = "Pending",
+               OrderDetailID = model.OrderDetailID,
+               CreatedDate = DateTime.Now
+           };
+
+           await _complaintService.AddAsync(complaint);
+
+           foreach (var file in model.Images)
+           {
+               var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+               var savePath = Path.Combine("wwwroot", "uploads", "complaints", fileName);
+
+               var folder = Path.GetDirectoryName(savePath);
+               if (!Directory.Exists(folder))
+                   Directory.CreateDirectory(folder);
+
+               using (var stream = new FileStream(savePath, FileMode.Create))
+               {
+                   await file.CopyToAsync(stream);
+               }
+
+               var complaintImage = new ComplaintImage
+               {
+                   ID = Guid.NewGuid(),
+                   ComplaintID = complaint.ID,
+                   ImageUrl = $"/uploads/complaints/{fileName}"
+                 
+               };
+
+               await _complaintImageServices.AddAsync(complaintImage);
+           }
+
+           await _complaintService.SaveChangesAsync();
+
+           return Json(new { success = true, message = "Gửi khiếu nại thành công." });
+       }
+       catch (Exception ex)
+       {
+ 
+           return Json(new { success = false, message = "Đã xảy ra lỗi khi gửi khiếu nại. Vui lòng thử lại sau.", detail = ex.Message });
+       }
+   }
+
+       
     }
 
 
