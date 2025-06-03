@@ -36,8 +36,7 @@ namespace Models
         public Guid TypeOfDishID { get; set; }
         public virtual TypeOfDish TypeOfDish { get; set; }
 
-        // ✅ Many-to-Many with IngredientTag
-        public ICollection<IngredientTag> IngredientTags { get; set; } = new List<IngredientTag>();
+        public ICollection<RecipeIngredientTag> RecipeIngredientTags { get; set; } = new List<RecipeIngredientTag>();
 
         public ICollection<FavoriteRecipe> FavoriteRecipes { get; set; }
         public ICollection<RecipeReview> RecipeReviews { get; set; }
