@@ -11,9 +11,9 @@ namespace Models.DBContext
 {
     public class FoodHavenDbContext : IdentityDbContext<AppUser>
     {
-/*        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
+        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
-        }*/
+        }
 
         public DbSet<BalanceChange> BalanceChanges { get; set; }
         public DbSet<Categories> Categories { get; set; }
@@ -274,7 +274,7 @@ new TypeOfDish
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      => optionsBuilder.UseSqlServer("Server=DESKTOP-1E1A6I4;Database =FoodHaven;uid=sa;pwd=Thanh;encrypt=true;trustServerCertificate=true;");
+      => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
 
     }
