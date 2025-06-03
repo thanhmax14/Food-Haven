@@ -1,4 +1,4 @@
-﻿@model List<Repository.ViewModels.TypeOfDishViewModel>;
+﻿@model List<Repository.ViewModels.IngredientTagViewModel>;
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
       data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
@@ -2511,7 +2511,7 @@
                     <div id="table-gridjs1111"></div>
 
                     <div class="container mt-4">
-                        <h2 class="mb-4 text-center">List of Dish Types</h2>
+                        <h2 class="mb-4 text-center">List of IngredientTag</h2>
 
                         @if (Model == null || !Model.Any())
                         {
@@ -2554,13 +2554,13 @@
                                             <td>
                                                 <div class="btn-group">
 
-                                                    <a asp-action="UpdateTypeOfDish" asp-controller="Admin" asp-route-id="@item.ID" class="btn btn-xs">
+                                                    <a asp-action="UpdateIngredientTag" asp-controller="Admin" asp-route-id="@item.ID" class="btn btn-xs">
 
                                                         <i class="ri-pencil-fill"></i>
                                                     </a>
 
 
-                                                    <a asp-action="DeleteTypeOfDish" asp-controller="Admin" asp-route-id="@item.ID" class="btn btn-xs">
+                                                    <a asp-action="DeleteIngredientTag" asp-controller="Admin" asp-route-id="@item.ID" class="btn btn-xs">
 
                                                         <i class="ri-delete-bin-line"></i>
                                                     </a>

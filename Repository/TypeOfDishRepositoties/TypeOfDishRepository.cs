@@ -10,5 +10,10 @@ namespace Repository.TypeOfDishRepositoties
     public class TypeOfDishRepository : BaseRepository<Models.TypeOfDish>, ITypeOfDishRepository
     {
           public TypeOfDishRepository(FoodHavenDbContext context) : base(context) { }
+
+
+
     }
+
+
 }

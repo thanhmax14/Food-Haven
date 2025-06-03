@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Models;
 using Repository.TypeOfDishRepositoties;
+using Repository.ViewModels;
 
 namespace BusinessLogic.Services.TypeOfDishServices
 {

@@ -119,7 +119,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
     options.TokenLifespan = TimeSpan.FromMinutes(10);
 });
 builder.Services.AddSignalR();
-
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<ITypeOfDishService, TypeOfDishService>();
 
 var app = builder.Build();
