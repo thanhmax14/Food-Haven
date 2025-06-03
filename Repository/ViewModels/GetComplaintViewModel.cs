@@ -18,7 +18,7 @@ namespace Repository.ViewModels
         public DateTime CreatedDate { get; set; }
         public string? ReportStatus { get; set; }
         public DateTime? ReplyDate { get; set; }
-
+        public DateTime? AdminReplyDate { get; set; }
 
 
     }

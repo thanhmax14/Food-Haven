@@ -21,6 +21,9 @@ namespace Repository.ViewModels
         public DateTime? DateAdminCreate { get; set; }
         public string NameShop { get; set; } = "";
         public List<string> image { get; set; } = new();
+        public bool IsreportAdmin { get; set; } = false;
+        public string statusAdmin { get; set; } = "";
+        public string OrderTracking { get; set; } = "";
 
     }
 }
