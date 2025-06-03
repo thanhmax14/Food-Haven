@@ -60,11 +60,10 @@ private readonly ITypeOfDishService _typeOfDishService;
 private readonly IComplaintImageServices _complaintImageServices;
 private readonly IComplaintServices _complaintService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, string url, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
         {
             _userManager = userManager;
             this.client = client;
-            _url = url;
             _balance = balance;
             _httpContextAccessor = httpContextAccessor;
             _product = product;

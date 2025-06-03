@@ -166,6 +166,13 @@ namespace Models.DBContext
            .WithMany(t => t.Recipes)
            .UsingEntity(j => j.ToTable("RecipeIngredientTags"));
 
+            builder.Entity<Voucher>()
+    .HasOne(v => v.StoreDetails)
+    .WithMany(s => s.Vouchers)
+    .HasForeignKey(v => v.StoreID)
+   .OnDelete(DeleteBehavior.NoAction).IsRequired(false);
+
+
             builder.Entity<TypeOfDish>().HasData(
       new TypeOfDish
 {
