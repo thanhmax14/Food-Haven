@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Models.DBContext;
 
@@ -11,9 +12,11 @@ using Models.DBContext;
 namespace Models.Migrations
 {
     [DbContext(typeof(FoodHavenDbContext))]
-    partial class FoodHavenDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250603044256_migrationsv10")]
+    partial class migrationsv10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace Models.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("IngredientTagRecipe", b =>
+                {
+                    b.Property<Guid>("IngredientTagsID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RecipesID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("IngredientTagsID", "RecipesID");
+
+                    b.HasIndex("RecipesID");
+
+                    b.ToTable("RecipeIngredientTags", (string)null);
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -492,43 +510,43 @@ namespace Models.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("772cfe90-4054-4ee5-b6ad-a97998b07b05"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3535),
+                            ID = new Guid("228e7e73-6802-4e5e-a188-e2c00e5776d6"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(8054),
                             IsActive = true,
                             Name = "Fish"
                         },
                         new
                         {
-                            ID = new Guid("1523546b-43ca-470d-bdf3-064b68cf8327"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3537),
+                            ID = new Guid("5ff5a9dd-9664-49b3-b60d-f9fedc9b93a4"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(8057),
                             IsActive = true,
                             Name = "Chicken"
                         },
                         new
                         {
-                            ID = new Guid("78a548ae-09ef-43eb-a4ee-5c87bec4dacc"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3544),
+                            ID = new Guid("1a0c4a7e-372a-48c0-baaf-d2414c03b659"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(8060),
                             IsActive = true,
                             Name = "Beef"
                         },
                         new
                         {
-                            ID = new Guid("02aecfaa-e550-416a-ac68-b79105abb772"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3546),
+                            ID = new Guid("05c95f77-f2a1-4cfc-9250-1996386aede7"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(8063),
                             IsActive = true,
                             Name = "Pork"
                         },
                         new
                         {
-                            ID = new Guid("174c4ccf-82ba-43e4-bd4a-7ee12491542e"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3549),
+                            ID = new Guid("fc0b8060-6945-4ced-92fb-130e446fc24a"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(8065),
                             IsActive = true,
                             Name = "Seafood"
                         },
                         new
                         {
-                            ID = new Guid("f3708c7a-9ec0-4440-a576-acf378f8f703"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3551),
+                            ID = new Guid("a73f2b3f-a271-4b45-b3e4-ebfd1264abfc"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(8068),
                             IsActive = true,
                             Name = "Vegetable"
                         });
@@ -837,21 +855,6 @@ namespace Models.Migrations
                     b.ToTable("Recipes");
                 });
 
-            modelBuilder.Entity("Models.RecipeIngredientTag", b =>
-                {
-                    b.Property<Guid>("RecipeID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("IngredientTagID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RecipeID", "IngredientTagID");
-
-                    b.HasIndex("IngredientTagID");
-
-                    b.ToTable("RecipeIngredientTag");
-                });
-
             modelBuilder.Entity("Models.RecipeReview", b =>
                 {
                     b.Property<Guid>("ID")
@@ -1005,43 +1008,43 @@ namespace Models.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("14f70984-edee-464c-a1f5-514d56615422"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3254),
+                            ID = new Guid("9c9515c9-1f6d-470f-b23f-6f78877e4ba4"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(7597),
                             IsActive = true,
                             Name = "Quick and Easy Dinners for One"
                         },
                         new
                         {
-                            ID = new Guid("441ee5cb-1b9e-4308-a3a0-4436f6172705"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3257),
+                            ID = new Guid("78f3cc41-e5d7-4f42-9270-2e91f38c08a7"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(7600),
                             IsActive = true,
                             Name = "Cooking for Two"
                         },
                         new
                         {
-                            ID = new Guid("ea20ddfc-75c1-4d59-8482-987c75a3c415"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3259),
+                            ID = new Guid("6e4abc7f-4141-4be2-8da4-ecbcf87425e6"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(7603),
                             IsActive = true,
                             Name = "Main Dishes"
                         },
                         new
                         {
-                            ID = new Guid("6af478fe-bb61-43de-bc2a-98ad069ed6f0"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3262),
+                            ID = new Guid("f01f726f-161e-4835-aeef-46c3eefe9335"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(7605),
                             IsActive = true,
                             Name = "Vegetarian Main Dishes"
                         },
                         new
                         {
-                            ID = new Guid("81c8b8b8-b1b5-4fdb-afd3-f22a9e97917b"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3264),
+                            ID = new Guid("c8522c52-7e89-4de1-8fe5-26ba3f2cb6f9"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(7608),
                             IsActive = true,
                             Name = "Side Dishes"
                         },
                         new
                         {
-                            ID = new Guid("308788ef-86c7-449c-a6f0-e6c4f58df002"),
-                            CreatedDate = new DateTime(2025, 6, 3, 16, 59, 4, 850, DateTimeKind.Local).AddTicks(3266),
+                            ID = new Guid("90f12565-b92b-4ab3-80a8-15e08083b1ec"),
+                            CreatedDate = new DateTime(2025, 6, 3, 11, 42, 55, 24, DateTimeKind.Local).AddTicks(7648),
                             IsActive = true,
                             Name = "Healthy Main Dishes"
                         });
@@ -1128,6 +1131,21 @@ namespace Models.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("Wishlists");
+                });
+
+            modelBuilder.Entity("IngredientTagRecipe", b =>
+                {
+                    b.HasOne("Models.IngredientTag", null)
+                        .WithMany()
+                        .HasForeignKey("IngredientTagsID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.Recipe", null)
+                        .WithMany()
+                        .HasForeignKey("RecipesID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1357,25 +1375,6 @@ namespace Models.Migrations
                     b.Navigation("TypeOfDish");
                 });
 
-            modelBuilder.Entity("Models.RecipeIngredientTag", b =>
-                {
-                    b.HasOne("Models.IngredientTag", "IngredientTag")
-                        .WithMany("RecipeIngredientTags")
-                        .HasForeignKey("IngredientTagID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.Recipe", "Recipe")
-                        .WithMany("RecipeIngredientTags")
-                        .HasForeignKey("RecipeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("IngredientTag");
-
-                    b.Navigation("Recipe");
-                });
-
             modelBuilder.Entity("Models.RecipeReview", b =>
                 {
                     b.HasOne("Models.Recipe", "Recipe")
@@ -1483,11 +1482,6 @@ namespace Models.Migrations
                     b.Navigation("ComplaintImages");
                 });
 
-            modelBuilder.Entity("Models.IngredientTag", b =>
-                {
-                    b.Navigation("RecipeIngredientTags");
-                });
-
             modelBuilder.Entity("Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
@@ -1517,8 +1511,6 @@ namespace Models.Migrations
             modelBuilder.Entity("Models.Recipe", b =>
                 {
                     b.Navigation("FavoriteRecipes");
-
-                    b.Navigation("RecipeIngredientTags");
 
                     b.Navigation("RecipeReviews");
                 });

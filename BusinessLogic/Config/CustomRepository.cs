@@ -24,6 +24,8 @@ using Repository.Wishlists;
 using Repository.OrdersRepository;
 using Repository.OrdeDetails;
 using Repository.Vouchers;
+using Repository.Complaints;
+using Repository.ComplaintImages;
 using BusinessLogic.Services.RecipeServices;
 using Repository.RecipeRepository;
 using Repository.IngredientTagRepositorys;
@@ -57,11 +59,13 @@ namespace BusinessLogic.Config
             services.AddScoped<Repository.OrdersRepository.OrdersRepository>();
             services.AddScoped<Repository.BalanceChange.BalanceChangeRepository>();
             services.AddScoped<IVouchersRepository, VouchersRepository>();
+            services.AddScoped<IComplaintRepository, ComplaintRepository>();
+            services.AddScoped<IComplaintImageRepository, ComplaintImageRepository>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IRecipeService, RecipeService>();
             services.AddScoped<IIngredientTagRepository, IngredientTagRepository>();
             services.AddScoped<IIngredientTagService, IngredientTagService>();
-             services.AddScoped<ITypeOfDishRepository, TypeOfDishRepository>();
+            services.AddScoped<ITypeOfDishRepository, TypeOfDishRepository>();
             services.AddScoped<ITypeOfDishService, TypeOfDishService>();
         }
 

@@ -161,10 +161,24 @@ namespace Models.DBContext
          .WithMany(h => h.Recipes)
          .HasForeignKey(h => h.TypeOfDishID).OnDelete(DeleteBehavior.NoAction);
 
-            builder.Entity<Recipe>()
-           .HasMany(r => r.IngredientTags)
-           .WithMany(t => t.Recipes)
-           .UsingEntity(j => j.ToTable("RecipeIngredientTags"));
+            builder.Entity<Voucher>()
+    .HasOne(v => v.StoreDetails)
+    .WithMany(s => s.Vouchers)
+    .HasForeignKey(v => v.StoreID)
+   .OnDelete(DeleteBehavior.NoAction).IsRequired(false);
+            builder.Entity<RecipeIngredientTag>()
+    .HasKey(x => new { x.RecipeID, x.IngredientTagID });
+
+            builder.Entity<RecipeIngredientTag>()
+                .HasOne(x => x.Recipe)
+                .WithMany(r => r.RecipeIngredientTags)
+                .HasForeignKey(x => x.RecipeID);
+
+            builder.Entity<RecipeIngredientTag>()
+                .HasOne(x => x.IngredientTag)
+                .WithMany(t => t.RecipeIngredientTags)
+                .HasForeignKey(x => x.IngredientTagID);
+
 
             builder.Entity<TypeOfDish>().HasData(
       new TypeOfDish
@@ -267,7 +281,7 @@ new TypeOfDish
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+       => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
 
     }

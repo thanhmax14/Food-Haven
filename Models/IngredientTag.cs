@@ -12,8 +12,6 @@ namespace Models
         public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
-
-        // ✅ Many-to-Many with Recipe
-        public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
+        public ICollection<RecipeIngredientTag> RecipeIngredientTags { get; set; } = new List<RecipeIngredientTag>();
     }
 }

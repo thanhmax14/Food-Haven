@@ -22,7 +22,8 @@ namespace Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public bool IsActive { get; set; } = false;
-
+        public string ThumbnailImage { get; set; }
+        public string? FinishedDishImage { get; set; }
         [ForeignKey("Categories")]
         public Guid CateID { get; set; }
         public virtual Categories Categories { get; set; }
@@ -35,8 +36,7 @@ namespace Models
         public Guid TypeOfDishID { get; set; }
         public virtual TypeOfDish TypeOfDish { get; set; }
 
-        // ✅ Many-to-Many with IngredientTag
-        public ICollection<IngredientTag> IngredientTags { get; set; } = new List<IngredientTag>();
+        public ICollection<RecipeIngredientTag> RecipeIngredientTags { get; set; } = new List<RecipeIngredientTag>();
 
         public ICollection<FavoriteRecipe> FavoriteRecipes { get; set; }
         public ICollection<RecipeReview> RecipeReviews { get; set; }

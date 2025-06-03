@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,9 +22,14 @@ namespace Models
         public int CurrentUsage { get; set; }
         public decimal MinOrderValue { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsGlobal { get; set; } = false;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public ICollection<Order> Orders { get; set; }
+        [ForeignKey("StoreDetails")]
+        public Guid? StoreID { get; set; }
+        public StoreDetails StoreDetails { get; set; }
+
 
     }
 }
