@@ -25,5 +25,6 @@ namespace Models
 
         public virtual AppUser AppUser { get; set; }
         public ICollection<Product> Products { get; set; }
+        public ICollection<Voucher> Vouchers { get; set; }
     }
 }

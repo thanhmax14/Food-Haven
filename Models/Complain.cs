@@ -15,6 +15,10 @@ namespace Models
         public string Description { get; set; }
         public string Status { get; set; }
         public string? Reply { get; set; }
+        public bool IsReportAdmin { get; set; } = false;
+        public string? AdminReply { get; set; }
+        public string? AdminReportStatus { get; set; }
+        public DateTime? DateAdminReply { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ReplyDate { get; set; }
         [ForeignKey("OrderDetail")]
