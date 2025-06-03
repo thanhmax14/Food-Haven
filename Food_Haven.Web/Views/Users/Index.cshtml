@@ -178,6 +178,49 @@
                 color: #fff;
             }
     </style>
+    <style>
+        #complaint-preview-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .img-thumb {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+
+            .img-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            .img-thumb .remove-btn {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: red;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 22px;
+                height: 22px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
     @await Html.PartialAsync("_Header")
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
@@ -549,9 +592,231 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="modal fade" id="complaint_modal" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                                            <div class="modal-content p-4">
+                                                <form id="complaint-form" enctype="multipart/form-data">
+                                                    <h3 class="mb-3">Gửi Khiếu Nại</h3>
+                                                    <input type="hidden" id="order-detail-id">
+
+                                                    <div class="mb-2">
+                                                        <label>Mã đơn hàng:</label>
+                                                        <span id="order-code" class="fw-bold text-primary">#...</span>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label>Sản phẩm khiếu nại:</label>
+                                                        <span id="product-name" class="fw-bold text-danger">...</span>
+                                                    </div>
+
+                                                    <!-- Upload ảnh -->
+                                                    <div class="mb-3">
+                                                        <label for="complaint-image" class="form-label">Tải ảnh minh họa (tối đa 3 ảnh, mỗi ảnh ≤ 5MB)</label>
+                                                        <input class="form-control" type="file" id="complaint-image" accept="image/*" multiple
+                                                               onchange="handleComplaintImage(this)" onclick="clearImageError()">
+                                                        <span id="image-error" class="error-message"></span>
+                                                    </div>
+
+                                                    <!-- Preview ảnh -->
+                                                    <div id="complaint-preview-wrapper"></div>
+
+                                                    <!-- Textarea mô tả -->
+                                                    <div class="form-group mb-1">
+                                                        <label for="complaint-text">Mô tả lỗi gặp phải</label>
+                                                        <textarea class="form-control fs-5" id="complaint-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;" placeholder="Mô tả chi tiết vấn đề..."
+                                                                  oninput="clearTextError();"></textarea>
+                                                        <span id="text-error" class="error-message"></span>
+
+                                                        <script>
+                                                            document.addEventListener("DOMContentLoaded", function () {
+                                                                const textarea = document.getElementById("complaint-text");
+
+                                                                textarea.addEventListener("input", function () {
+                                                                    this.style.height = "auto";
+                                                                    this.style.height = this.scrollHeight + "px";
+                                                                });
+                                                            });
+                                                        </script>
+
+                                                    </div>
+
+                                                    <button type="button" id="btnSubmitComplaint" class="btn btn-danger w-100 mt-3" onclick="submitComplaint()">
+                                                        Gửi Khiếu Nại
+                                                    </button>
+
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <script>
+                                        let selectedImages = [];
+
+                                        function openComplaintModal(orderCode, productName, orderDetailId) {
+                                            document.getElementById("order-code").textContent = orderCode;
+                                            document.getElementById("product-name").textContent = productName;
+                                            document.getElementById("order-detail-id").value = orderDetailId;
+                                            document.getElementById("complaint-text").value = '';
+                                            document.getElementById("complaint-image").value = '';
+                                            document.getElementById("text-error").textContent = '';
+                                            document.getElementById("image-error").textContent = '';
+
+                                            selectedImages = [];
+                                            renderImagePreviews();
+
+                                            const modal = new bootstrap.Modal(document.getElementById("complaint_modal"));
+                                            modal.show();
+                                        }
+
+                                        function handleComplaintImage(input) {
+                                            const files = Array.from(input.files);
+                                            const errorSpan = document.getElementById("image-error");
+                                            errorSpan.textContent = '';
+
+                                            if ((selectedImages.length + files.length) > 3) {
+                                                errorSpan.textContent = "Chỉ cho phép tối đa 3 ảnh.";
+                                                input.value = "";
+                                                return;
+                                            }
+
+                                            for (const file of files) {
+                                                if (file.size > 5 * 1024 * 1024) {
+                                                    errorSpan.textContent = `Ảnh "${file.name}" vượt quá 5MB và bị loại.`;
+                                                    continue;
+                                                }
+                                                selectedImages.push(file);
+                                            }
+
+                                            input.value = "";
+                                            renderImagePreviews();
+                                        }
+
+                                        function renderImagePreviews() {
+                                            const wrapper = document.getElementById("complaint-preview-wrapper");
+                                            wrapper.innerHTML = "";
+
+                                            selectedImages.forEach((file, index) => {
+                                                const imgURL = URL.createObjectURL(file);
+                                                const div = document.createElement("div");
+                                                div.className = "img-thumb";
+
+                                                const img = document.createElement("img");
+                                                img.src = imgURL;
+
+                                                const btn = document.createElement("button");
+                                                btn.type = "button";
+                                                btn.className = "remove-btn";
+                                                btn.innerHTML = "&times;";
+                                                btn.onclick = () => {
+                                                    selectedImages.splice(index, 1);
+                                                    renderImagePreviews();
+                                                };
+
+                                                div.appendChild(img);
+                                                div.appendChild(btn);
+                                                wrapper.appendChild(div);
+                                            });
+                                        }
+
+                                        function submitComplaint() {
+                                            const text = document.getElementById("complaint-text").value.trim();
+                                            const orderDetailId = document.getElementById("order-detail-id").value;
+                                            const textError = document.getElementById("text-error");
+                                            const imageError = document.getElementById("image-error");
+                                            const submitBtn = document.getElementById("btnSubmitComplaint");
+
+                                            textError.textContent = '';
+                                            imageError.textContent = '';
+
+                                            let hasError = false;
+
+                                            if (!text) {
+                                                textError.textContent = "Vui lòng nhập mô tả khiếu nại.";
+                                                hasError = true;
+                                            }
+
+                                            if (selectedImages.length === 0) {
+                                                imageError.textContent = "Vui lòng chọn ít nhất 1 ảnh.";
+                                                hasError = true;
+                                            }
+
+                                            if (hasError) return;
+
+                                            // 🔄 Hiển thị loading
+                                            submitBtn.disabled = true;
+                                            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+
+                                            const formData = new FormData();
+                                            formData.append("OrderDetailID", orderDetailId);
+                                            formData.append("Description", text);
+                                            selectedImages.forEach(file => formData.append("Images", file));
+
+                                            fetch("/Users/SubmitComplaint", {
+                                                method: "POST",
+                                                body: formData
+                                            })
+                                                .then(res => res.json())
+                                                .then(data => {
+                                                    // ✅ Khôi phục nút
+                                                    submitBtn.disabled = false;
+                                                    submitBtn.innerHTML = 'Gửi Khiếu Nại';
+
+                                                    if (data.success) {
+                                                        new Notify({
+                                                            status: 'success',
+                                                            title: 'Thành công!',
+                                                            text: data.message || 'Gửi thành công!',
+                                                            effect: 'fade',
+                                                            speed: 300,
+                                                            showIcon: true,
+                                                            showCloseButton: true,
+                                                            autoclose: true,
+                                                            autotimeout: 3000,
+                                                            position: 'right top'
+                                                        });
+
+                                                        const modal = bootstrap.Modal.getInstance(document.getElementById("complaint_modal"));
+                                                        modal.hide();
+
+                                                        setTimeout(() => {
+                                                            document.getElementById("orders-tab")?.click();
+                                                        }, 500);
+                                                    } else {
+                                                        new Notify({
+                                                            status: 'error',
+                                                            title: 'Thất Bại',
+                                                            text: data.message || 'Gửi thất bại!',
+                                                            effect: 'fade',
+                                                            speed: 300,
+                                                            showIcon: true,
+                                                            showCloseButton: true,
+                                                            autoclose: true,
+                                                            autotimeout: 3000,
+                                                            position: 'right top'
+                                                        });
+                                                    }
+                                                })
+                                                .catch(err => {
+                                                    console.error(err);
+                                                    alert("❌ Lỗi kết nối.");
+                                                    submitBtn.disabled = false;
+                                                    submitBtn.innerHTML = 'Gửi Khiếu Nại';
+                                                });
+                                        }
 
 
+                                        function clearTextError() {
+                                            document.getElementById("text-error").textContent = '';
+                                        }
 
+                                        function clearImageError() {
+                                            document.getElementById("image-error").textContent = '';
+                                        }
+                                        function autoResize(textarea) {
+                                            textarea.style.height = 'auto'; // Reset chiều cao trước
+                                            textarea.style.height = textarea.scrollHeight + 'px'; // Gán chiều cao theo nội dung
+                                        }
+
+                                    </script>
                                     <script>
                                         function setReason(el) {
                                             el.classList.toggle('selected');
@@ -846,7 +1111,7 @@
                                                                             const hasComplaint = row.cells[7]?.data;
                                                                             const productName = row.cells[1]?.data || "";
                                                                             const productId = row.cells[8]?.data || "";
-
+                                                                            const ortracking = row.cells[9]?.data || "";
                                                                             console.log("Debug row:", row.cells.map(c => c.data));
 
                                                                             const escapedName = String(productName).replace(/'/g, "\\'");
@@ -862,8 +1127,7 @@
 
                                                                             if (!hasComplaint) {
                                                                                 buttons += `
-                                        <button class="btn btn-outline-danger btn-sm"
-                                          onclick="openComplaintModal('${productId}', '${escapedName}')">
+                                           <button class="btn btn-outline-danger btn-sm" onclick="openComplaintModal('${ortracking}', '${escapedName}', '${productId}')">
                                           Khiếu nại
                                         </button>`;
                                                                             }
@@ -885,7 +1149,8 @@
                                                                     od.status,
                                                                     od.hasFeedback,
                                                                     od.hasComplaint,
-                                                                    od.productId // ✅ đúng thứ tự index 8
+                                                                    od.productId,
+                                                                    od.ortracking
                                                                 ])
                                                             });
 

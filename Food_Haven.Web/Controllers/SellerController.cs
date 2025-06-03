@@ -22,6 +22,10 @@ using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.ProductImages;
 using Food_Haven.Web.Services;
 using MailKit.Search;
+using BusinessLogic.Services.ComplaintImages;
+using BusinessLogic.Services.Complaints;
+using Repository.BalanceChange;
+using BusinessLogic.Hash;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -45,8 +49,12 @@ namespace Food_Haven.Web.Controllers
         private readonly IProductService _product;
         private readonly IVoucherServices _voucher;
         private readonly IProductImageService _productImageService;
+        private readonly IComplaintImageServices _complaintImageServices;
+        private readonly IComplaintServices _complaintService;
+        private readonly ManageTransaction _manageTransaction;
 
-        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, StoreDetailsRepository storeRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService)
+
+        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, StoreDetailsRepository storeRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, ManageTransaction managetrans)
         {
             _reviewService = reviewService;
             _userManager = userManager;
@@ -66,6 +74,9 @@ namespace Food_Haven.Web.Controllers
             _product = product;
             _voucher = voucher;
             _productImageService = productImageService;
+            _complaintImageServices = complaintImageServices;
+            _complaintService = complaintService;
+            _manageTransaction = managetrans;
         }
 
         public IActionResult Index()
@@ -798,7 +809,7 @@ namespace Food_Haven.Web.Controllers
 
             var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
             if (getStore == null)
-                return NotFound("Store not found");
+                return Json("Store not found");
             var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
             if (!products.Any())
                 return Json(new List<GetSellerOrder>());
@@ -873,18 +884,33 @@ namespace Food_Haven.Web.Controllers
             if (getInfoCustomer == null)
                 return NotFound("Customer not found");
 
+
             var codeVoucher = "";
             decimal discountVoucher = 0m;
 
-            if (order.VoucherID != null && order.VoucherID != Guid.Empty)
+            if (order.VoucherID.HasValue && order.VoucherID != Guid.Empty)
             {
                 var voucher = await _voucher.GetAsyncById(order.VoucherID.Value);
                 if (voucher != null)
                 {
                     codeVoucher = $"({voucher.Code})";
-                    discountVoucher = voucher.DiscountAmount;
+
+                    // Tính tổng giá trị đơn hàng từ chi tiết
+                    decimal totalBeforeDiscount = orderDetails.Sum(od => od.Quantity * od.ProductPrice);
+
+                    // Tính giá trị giảm
+                    discountVoucher = voucher.DiscountType switch
+                    {
+                        "Percent" => (voucher.DiscountAmount / 100m) * totalBeforeDiscount,
+                        "Fixed" => voucher.DiscountAmount,
+                        _ => 0m
+                    };
+
+                  
+                    discountVoucher = Math.Min(discountVoucher, totalBeforeDiscount);
                 }
             }
+
 
             // ✅ Dùng tuần tự thay vì song song để tránh DbContext lỗi
             var itemDetailResult = new List<ManageOrderDetailInfo>();
@@ -908,7 +934,8 @@ namespace Food_Haven.Web.Controllers
                     Quantity = od.Quantity,
                     Totals = od.Quantity * od.ProductPrice,
                     ProductID = pid ?? Guid.Empty,
-                    ImageProduct = imageUrl
+                    ImageProduct = imageUrl,
+                    Status = od.Status.ToUpper()    
                 });
             }
 
@@ -920,7 +947,7 @@ namespace Food_Haven.Web.Controllers
                 Subtotal = orderDetails.Sum(od => od.Quantity * od.ProductPrice),
                 TotalOrder = order.TotalPrice,
                 Discount = discountVoucher,
-                NameVocher = !string.IsNullOrEmpty(codeVoucher) ? $"{codeVoucher} ({discountVoucher})" : "",
+                NameVocher = !string.IsNullOrEmpty(codeVoucher) ? $"{codeVoucher}" : "",
                 PaymentMethod = order.PaymentMethod,
                 IDLogistics = order.OrderTracking,
                 NameCustomer = $"{getInfoCustomer.FirstName} {getInfoCustomer.LastName}",
@@ -1052,7 +1079,7 @@ namespace Food_Haven.Web.Controllers
 
                 // Cập nhật trạng thái và thời gian
                 order.Status = status;
-                order.ModifiedDate = DateTime.UtcNow;
+                order.ModifiedDate = DateTime.Now;
 
                 await _order.UpdateAsync(order);
                 await _orderDetail.SaveChangesAsync();
@@ -1063,6 +1090,367 @@ namespace Food_Haven.Web.Controllers
             catch (Exception)
             {
                 return Json(new { success = false, message = "Lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại sau." });
+            }
+        }
+
+        public async Task<IActionResult> Managercomplant()
+        {
+            return View();
+        }
+        public async Task<IActionResult> Detailcomplant(Guid id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)       
+                return RedirectToAction("Login", "Home");
+            var getComplaint = await _complaintService.FindAsync(u => u.ID == id);
+            if (getComplaint == null)
+                return NotFound("Complant not found.");
+            var getOrderDetail = await _orderDetail.FindAsync(u => u.ID == getComplaint.OrderDetailID);
+            if(getOrderDetail == null)
+                return NotFound("Order detail not found.");
+            var getOrder = await _order.FindAsync(u => u.ID == getOrderDetail.OrderID);
+            if(getOrder == null)
+                return NotFound("Order not found.");
+          
+            var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+            if (getStore == null)
+                return NotFound("Store not found.");
+            var getProductType = await this._variantService.FindAsync(u => u.ID == getOrderDetail.ProductTypesID);
+            if(getProductType==null)
+                return NotFound("Productype not found.");
+            var getProduct = await _product.FindAsync(u => u.ID == getProductType.ProductID);
+            if(getProduct == null)
+                return NotFound("Product not found.");
+            var getUser = await _userManager.FindByIdAsync(getOrder.UserID);
+            if(getUser == null)
+                return NotFound("User not found.");
+
+            var model = new ComplantDetailViewmodels();
+            model.Status = getComplaint.Status;
+            model.CreateDate= getComplaint.CreatedDate;
+            model.AdminrReply = "";
+            model.DateAdminCreate = null;
+            model.SellerReply= getComplaint.Reply;
+            model.DateReply = getComplaint.ReplyDate;
+            model.ComplantID= getComplaint.ID;
+            model.NameShop = getStore.Name;
+            model.ProductName = getProduct.Name;
+            model.ProductType= getProductType.Name;
+            model.Description = getComplaint.Description;
+            model.UserName = getUser.UserName;
+
+            var getImage = await this._complaintImageServices.ListAsync(u => u.ComplaintID == getComplaint.ID);
+            if (getImage.Any())
+            {
+                foreach(var item in getImage)
+                {
+                    model.image.Add(item.ImageUrl);
+                }
+            }
+            else
+            {
+                model.image.Add("https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-2-2.jpg");
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetComplaint()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new ErroMess { msg = "Bạn chưa đăng nhập!!" });
+            var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+            if (getStore == null)
+                return Json("Store not found");
+            var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
+            if (!products.Any())
+                return Json(new List<GetComplaintViewModel>());
+
+            var productIds = products.Select(p => p.ID).ToList();
+
+            var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+            if (!productTypes.Any())
+                return Json(new List<GetComplaintViewModel>());
+
+            var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+
+            var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
+            if (!orderDetails.Any())
+                return Json(new List<GetComplaintViewModel>());
+
+            var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+
+            var orders = await _order.ListAsync(o => orderIds.Contains(o.ID), orderBy: q => q.OrderByDescending(x => x.CreatedDate));
+            if (!orders.Any())
+                return Json(new List<GetComplaintViewModel>());
+
+            var userIds = orders.Select(o => o.UserID).Distinct().ToList();
+            var orderDetailIds = orderDetails.Select(od => od.ID).ToList();
+
+            var complaintsRaw = await this._complaintService.ListAsync(c => orderDetailIds.Contains(c.OrderDetailID));
+            if (!complaintsRaw.Any())
+                return Json(new List<GetComplaintViewModel>());
+         
+            var userDict = (await _userManager.Users.ToListAsync())
+                .Where(u => userIds.Contains(u.Id))
+                .ToDictionary(u => u.Id, u => u.UserName);
+
+            var orderDict = orders.ToDictionary(o => o.ID, o => new { o.ID, o.UserID, o.OrderTracking });
+
+            var orderDetailDict = orderDetails.ToDictionary(od => od.ID, od => od.OrderID);
+
+
+            var complaints = complaintsRaw.Select(c =>
+            {
+                var orderId = orderDetailDict.ContainsKey(c.OrderDetailID) ? orderDetailDict[c.OrderDetailID] : Guid.Empty;
+                var orderInfo = orderDict.ContainsKey(orderId) ? orderDict[orderId] : null;
+                var userName = orderInfo != null && userDict.ContainsKey(orderInfo.UserID) ? userDict[orderInfo.UserID] : "Unknown";
+
+                return new GetComplaintViewModel
+                {
+                    Id = c.ID,
+                    OrderCode = orderInfo?.OrderTracking?? "N/A", //
+                    UserName = userName,
+                    Description = c.Description,
+                    Status = c.Status,
+                    SellerReply = c.Reply,
+                    AdminReply = "",
+                    CreatedDate = c.CreatedDate,
+                    ReplyDate = c.ReplyDate,
+                    ReportStatus = ""
+                };
+            }).ToList();
+
+            return Json(complaints);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResolveComplaint(Guid id, string action, string note)
+        {
+            string mess = "";
+            if (id == Guid.Empty || string.IsNullOrWhiteSpace(action) || string.IsNullOrWhiteSpace(note))
+            {
+                return Json(new { success = false, message = "Thông tin gửi lên không hợp lệ." });
+            }
+
+            var complaint = await this._complaintService.FindAsync(c => c.ID == id);
+            if (complaint == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy khiếu nại." });
+            }
+            if(complaint.Status.ToLower()== "Refund".ToLower())
+            {
+                return Json(new { success = false, message = "Khiếu nại này đã được xử lý hoàn tiền." });
+            }
+
+            switch (action.ToLower())
+            {
+                case "refund":
+
+                    complaint.Status = "Refund";
+                    complaint.Reply = $"[Refund] - {note}";
+                    complaint.ReplyDate = DateTime.Now;
+
+                    try
+                    {
+                      
+                        // Lấy danh sách chi tiết đơn hàng
+                        var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
+                        if (orderDetails == null)
+                            return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+                        var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
+                        if (order == null)
+                            return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+
+
+                        orderDetails.Status = "Refunded";
+                        orderDetails.ModifiedDate = DateTime.Now;
+                            await _orderDetail.UpdateAsync(orderDetails);
+                        var currentBalance = await _balance.GetBalance(order.UserID);
+                        var refundTransaction = new BalanceChange
+                        {
+                            UserID = order.UserID,
+                            MoneyChange = orderDetails.TotalPrice,
+                            MoneyBeforeChange = currentBalance,
+                            MoneyAfterChange = currentBalance + orderDetails.TotalPrice,
+                            Method = "Refund",
+                            Status = "Success",
+                            Display = true,
+                            IsComplete = true,
+                            CheckDone = true,
+                            StartTime = DateTime.Now,
+                            DueTime = DateTime.Now
+                        };
+                        await _balance.AddAsync(refundTransaction);
+
+                       /* // Cập nhật trạng thái đơn hàng
+                        order.Status = "Refunded";
+                        order.PaymentStatus = "Refunded";
+                        order.ModifiedDate = DateTime.UtcNow;
+                        order.Description = string.IsNullOrEmpty(order.Description)
+                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                        await _order.UpdateAsync(order);*/
+
+                        // Lưu thay đổi
+                        await _orderDetail.SaveChangesAsync();
+                    
+                     //   await _order.SaveChangesAsync();
+                        await _balance.SaveChangesAsync();
+
+                
+                        mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
+                    }
+                    catch (Exception)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Đã xảy ra lỗi khi xử lý hoàn tiền. Vui lòng thử lại hoặc liên hệ quản trị viên."
+                        });
+                    }
+                    break;
+
+                case "warranty":
+
+                    try
+                    {
+                        var result = await _manageTransaction.ExecuteInTransactionAsync(async () =>
+                        {
+                            var ortrack = RandomCode.GenerateUniqueCode();
+                            complaint.Status = "Warranty";
+                            complaint.Reply = $"[BẢO HÀNH] Order Tracking ={ortrack}\n{note}";
+
+                            var orderDetail = await _orderDetail.FindAsync(x => x.ID == complaint.OrderDetailID);
+                            if (orderDetail == null)
+                                throw new Exception("Không tìm thấy chi tiết đơn hàng cần bảo hành.");
+
+                            var product = await _variantService.FindAsync(p => p.ID == orderDetail.ProductTypesID);
+                            if (product == null || !product.IsActive)
+                                throw new Exception("Sản phẩm không tồn tại hoặc đã ngưng hoạt động.");
+
+                            if (orderDetail.Quantity > product.Stock)
+                                throw new Exception("Số lượng bảo hành vượt quá tồn kho.");
+
+                            var originalOrder = await _order.FindAsync(x => x.ID == orderDetail.OrderID);
+                            if (originalOrder == null)
+                                throw new Exception("Không tìm thấy đơn hàng gốc.");
+
+                            // Tạo voucher giảm 100%
+                            var voucherCode = $"Warranty-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+                            var voucher = new Voucher
+                            {
+                                ID = Guid.NewGuid(),
+                                Code = voucherCode,
+                                DiscountAmount = 100,
+                                DiscountType = "Percent",
+                                StartDate = DateTime.Now,
+                                ExpirationDate = DateTime.Now.AddDays(3),
+                                Scope = "Warranty",
+                                MaxUsage = 1,
+                                CurrentUsage = 0,
+                                MinOrderValue = 0,
+                                IsActive = true,
+                                CreatedDate = DateTime.Now
+                            };
+                            await _voucher.AddAsync(voucher);
+                            await _voucher.SaveChangesAsync();
+
+                            // Tạo đơn hàng miễn phí
+                            var newOrderId = Guid.NewGuid();
+                            var order = new Order
+                            {
+                                ID = newOrderId,
+                                UserID = originalOrder.UserID,
+                                OrderTracking = ortrack,
+                                TotalPrice = 0,
+                                Status = "Pending",
+                                CreatedDate = DateTime.Now,
+                                PaymentMethod = "wallet",
+                                PaymentStatus = "Success",
+                                Quantity = orderDetail.Quantity,
+                                OrderCode = voucherCode,
+                                VoucherID = voucher.ID,
+                                DeliveryAddress = originalOrder.DeliveryAddress ?? "Bảo hành tự động",
+                                Note = "Đơn bảo hành tự động",
+                                Description = $"Pending-{DateTime.Now}"
+                            };
+
+                            var detail = new OrderDetail
+                            {
+                                ID = Guid.NewGuid(),
+                                OrderID = newOrderId,
+                                ProductTypesID = product.ID,
+                                Quantity = orderDetail.Quantity,
+                                ProductPrice = product.SellPrice,
+                                TotalPrice = 0,
+                                Status = "Pending"
+                            };
+
+                            // Ghi lịch sử ví
+                            var balance = new BalanceChange
+                            {
+                                UserID = originalOrder.UserID,
+                                MoneyChange = 0,
+                                MoneyBeforeChange = await _balance.GetBalance(originalOrder.UserID),
+                                MoneyAfterChange = await _balance.GetBalance(originalOrder.UserID),
+                                Method = "Warranty",
+                                Status = "Success",
+                                Display = true,
+                                IsComplete = true,
+                                CheckDone = true,
+                                StartTime = DateTime.Now,
+                                DueTime = DateTime.Now,
+                           //     OrderID = newOrderId
+                            };
+
+                            // Đánh dấu voucher đã dùng
+                            voucher.CurrentUsage++;
+                            await _voucher.UpdateAsync(voucher);
+                            await _voucher.SaveChangesAsync();
+
+                            await _order.AddAsync(order);
+                            await _orderDetail.AddAsync(detail);
+                            await _balance.AddAsync(balance);
+
+                            await _order.SaveChangesAsync();
+                            await _orderDetail.SaveChangesAsync();
+                            await _balance.SaveChangesAsync();
+                        });
+
+                        if (!result)
+                            return Json(new { success = false, msg = "Thao tác không thành công." });
+                      mess = "Đơn bảo hành miễn phí thành công!";
+                    }
+                    catch (Exception ex)
+                    {
+                        return Json(new { success = false, msg = "Lỗi khi xử lý bảo hành: " + ex.Message });
+                    }
+                    break;
+
+
+                case "dispute":
+                    complaint.Status = "Dispute";
+                    complaint.Reply = $"[TRANH CHẤP] {note}";
+                    break;
+
+                default:
+                    return Json(new { success = false, message = "Loại hành động không hợp lệ." });
+            }
+
+            complaint.ReplyDate = DateTime.Now;
+
+            try
+            {
+                await this._complaintService.UpdateAsync(complaint);
+                await this._complaintService.SaveChangesAsync();
+
+                return Json(new { success = true, message= mess });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
             }
         }
 

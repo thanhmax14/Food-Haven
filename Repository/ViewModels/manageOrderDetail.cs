@@ -39,6 +39,7 @@ public class ManageOrderDetailInfo
     public decimal Totals { get; set; } = 0;
     public Guid ProductID { get; set; }
     public string ImageProduct { get; set; }
+    public string Status { get; set; }
 }
 public class OrderStatusHistory
 {

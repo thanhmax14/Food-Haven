@@ -22,7 +22,8 @@ namespace Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public bool IsActive { get; set; } = false;
-
+        public string ThumbnailImage { get; set; }
+        public string? FinishedDishImage { get; set; }
         [ForeignKey("Categories")]
         public Guid CateID { get; set; }
         public virtual Categories Categories { get; set; }

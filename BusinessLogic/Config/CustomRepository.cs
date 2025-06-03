@@ -24,6 +24,8 @@ using Repository.Wishlists;
 using Repository.OrdersRepository;
 using Repository.OrdeDetails;
 using Repository.Vouchers;
+using Repository.Complaints;
+using Repository.ComplaintImages;
 
 namespace BusinessLogic.Config
 {
@@ -51,6 +53,8 @@ namespace BusinessLogic.Config
             services.AddScoped<Repository.OrdersRepository.OrdersRepository>();
             services.AddScoped<Repository.BalanceChange.BalanceChangeRepository>();
             services.AddScoped<IVouchersRepository, VouchersRepository>();
+            services.AddScoped<IComplaintRepository, ComplaintRepository>();
+            services.AddScoped<IComplaintImageRepository, ComplaintImageRepository>();
         }
 
 
