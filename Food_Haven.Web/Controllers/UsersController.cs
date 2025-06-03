@@ -57,36 +57,33 @@ private readonly IRecipeService _recipeService;
 private readonly ICategoryService _categoryService;
 private readonly IIngredientTagService _ingredientTagService;
 private readonly ITypeOfDishService _typeOfDishService;
-private readonly ManageTransaction _managetrans;
-private readonly IReviewService _review;
 private readonly IComplaintImageServices _complaintImageServices;
 private readonly IComplaintServices _complaintService;
 
-public UsersController(UserManager<AppUser> userManager, HttpClient client, string url, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, ManageTransaction managetrans, IReviewService review, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
-{
-    _userManager = userManager;
-    this.client = client;
-    _url = url;
-    _balance = balance;
-    _httpContextAccessor = httpContextAccessor;
-    _product = product;
-    _cart = cart;
-    _productWarian = productWarian;
-    _img = img;
-    _order = order;
-    _orderDetailService = orderDetailService;
-    _payos = payos;
-    this._managetrans = managetrans;
-    this._review = review;
-    _recipeService = recipeService;
-    _categoryService = categoryService;
-    _ingredientTagService = ingredientTagService;
-    _typeOfDishService = typeOfDishService;
-    this._managetrans = managetrans;
-    this._review = review;
-    _complaintImageServices = complaintImageServices;
-    _complaintService = complaintService;
-}
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, string url, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
+        {
+            _userManager = userManager;
+            this.client = client;
+            _url = url;
+            _balance = balance;
+            _httpContextAccessor = httpContextAccessor;
+            _product = product;
+            _cart = cart;
+            _productWarian = productWarian;
+            _img = img;
+            _order = order;
+            _orderDetailService = orderDetailService;
+            _payos = payos;
+            _managetrans = managetrans;
+            _review = review;
+            _recipeService = recipeService;
+            _categoryService = categoryService;
+            _ingredientTagService = ingredientTagService;
+            _typeOfDishService = typeOfDishService;
+            _complaintImageServices = complaintImageServices;
+            _complaintService = complaintService;
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index(string id)
         {
