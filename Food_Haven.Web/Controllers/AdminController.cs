@@ -10,7 +10,7 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.StoreDetail;
-
+using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Microsoft.AspNetCore.Authorization;
 
@@ -39,10 +39,8 @@ namespace Food_Haven.Web.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ICategoryService _categoryService;
         private readonly ManageTransaction _managetrans;
-
-        public AdminController(UserManager<AppUser> userManager,ITypeOfDishService typeOfDishService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans)
-
-        private readonly IComplaintServices _complaintService;
+        private readonly ITypeOfDishService _typeOfDishService;
+         private readonly IComplaintServices _complaintService;
         private readonly IOrderDetailService _orderDetail;
         private readonly IOrdersServices _order;
         private readonly IProductVariantService _variantService;
@@ -50,8 +48,10 @@ namespace Food_Haven.Web.Controllers
         private readonly IComplaintImageServices _compalntimg;
         private readonly IProductService _product;
         private readonly IVoucherServices _voucher;
+        
+       
 
-        public AdminController(UserManager<AppUser> userManager, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
+        public AdminController(UserManager<AppUser> userManager,ITypeOfDishService typeOfDishService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
 
         {
             _typeOfDishService = typeOfDishService;
