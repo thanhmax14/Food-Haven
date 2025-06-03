@@ -1,17 +1,30 @@
 ﻿using System.Net.Http.Headers;
 using AutoMapper;
+using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ComplaintImages;
+using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.OrderDetailService;
+using BusinessLogic.Services.Orders;
+using BusinessLogic.Services.Products;
+using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.VoucherServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models;
+using Org.BouncyCastle.Asn1.X509;
 using Repository.BalanceChange;
+using Repository.OrdeDetails;
 using Repository.StoreDetails;
 using Repository.ViewModels;
 
 namespace Food_Haven.Web.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly IBalanceChangeService _balance; // xử lý withdaw
@@ -24,8 +37,16 @@ namespace Food_Haven.Web.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ICategoryService _categoryService;
         private readonly ManageTransaction _managetrans;
+        private readonly IComplaintServices _complaintService;
+        private readonly IOrderDetailService _orderDetail;
+        private readonly IOrdersServices _order;
+        private readonly IProductVariantService _variantService;
+        private readonly IStoreDetailService _storedetail;
+        private readonly IComplaintImageServices _compalntimg;
+        private readonly IProductService _product;
+        private readonly IVoucherServices _voucher;
 
-        public AdminController(UserManager<AppUser> userManager, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans)
+        public AdminController(UserManager<AppUser> userManager, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
         {
             _userManager = userManager;
             _balance = balance;
@@ -39,6 +60,14 @@ namespace Food_Haven.Web.Controllers
             _storeRepository = storeRepository;
             _categoryService = categoryService;
             _managetrans = managetrans;
+            _complaintService = complaintService;
+            _orderDetail = orderDetail;
+            _order = order;
+            _variantService = variantService;
+            _storedetail = storeDetailService;
+            _compalntimg = complaintImage;
+            _product = product;
+            _voucher= voucher;
         }
         public async Task<IActionResult> Index()
         {
@@ -685,6 +714,241 @@ namespace Food_Haven.Web.Controllers
         {
             bool success = await _categoryService.ToggleCategoryStatusAsync(categoryId, isActive);
             return Json(new { success });
+        }
+        public async Task<IActionResult> Managercomplant()
+        {
+           
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetComplaint()
+        {
+            var complaintsRaw = await _complaintService.ListAsync(c => c.IsReportAdmin);
+            if (!complaintsRaw.Any())
+                return Json(new List<GetComplaintViewModel>());
+
+            var orderDetailIds = complaintsRaw.Select(c => c.OrderDetailID).Distinct().ToList();
+            var orderDetails = await _orderDetail.ListAsync(od => orderDetailIds.Contains(od.ID));
+            if (!orderDetails.Any())
+                return Json(new List<GetComplaintViewModel>());
+            var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+            var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
+            if (!orders.Any())
+                return Json(new List<GetComplaintViewModel>());
+            var userIds = orders.Select(o => o.UserID).Distinct().ToList();
+            var users = await _userManager.Users.Where(u => userIds.Contains(u.Id)).ToListAsync();
+            var userDict = users.ToDictionary(u => u.Id, u => u.UserName);
+
+            var orderDict = orders.ToDictionary(o => o.ID, o => new { o.ID, o.UserID, o.OrderTracking });
+            var orderDetailDict = orderDetails.ToDictionary(od => od.ID, od => od.OrderID);
+
+            var complaints = complaintsRaw.Select(c =>
+            {
+                var orderId = orderDetailDict.ContainsKey(c.OrderDetailID) ? orderDetailDict[c.OrderDetailID] : Guid.Empty;
+                var orderInfo = orderDict.ContainsKey(orderId) ? orderDict[orderId] : null;
+                var userName = orderInfo != null && userDict.ContainsKey(orderInfo.UserID) ? userDict[orderInfo.UserID] : "Unknown";
+
+                return new GetComplaintViewModel
+                {
+                    Id = c.ID,
+                    OrderCode = orderInfo?.OrderTracking ?? "N/A",
+                    UserName = userName,
+                    Description = c.Description,
+                    Status = c.Status,
+                    SellerReply = c.Reply,
+                    AdminReply = c.AdminReply,
+                    CreatedDate = c.CreatedDate,
+                    ReplyDate = c.ReplyDate,
+                    ReportStatus = c.AdminReportStatus,
+                    AdminReplyDate = c.DateAdminReply
+                };
+            }).ToList();
+
+            return Json(complaints);
+        }
+
+
+        public async Task<IActionResult> Detailcomplant(Guid id)
+        {
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Home");
+            var getComplaint = await _complaintService.FindAsync(u => u.ID == id);
+            if (getComplaint == null)
+                return NotFound("Complant not found.");
+            var getOrderDetail = await _orderDetail.FindAsync(u => u.ID == getComplaint.OrderDetailID);
+            if (getOrderDetail == null)
+                return NotFound("Order detail not found.");
+            var getOrder = await _order.FindAsync(u => u.ID == getOrderDetail.OrderID);
+            if (getOrder == null)
+                return NotFound("Order not found.");
+
+            var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+            if (getStore == null)
+                return NotFound("Store not found.");
+            var getProductType = await this._variantService.FindAsync(u => u.ID == getOrderDetail.ProductTypesID);
+            if (getProductType == null)
+                return NotFound("Productype not found.");
+            var getProduct = await _product.FindAsync(u => u.ID == getProductType.ProductID);
+            if (getProduct == null)
+                return NotFound("Product not found.");
+            var getUser = await _userManager.FindByIdAsync(getOrder.UserID);
+            if (getUser == null)
+                return NotFound("User not found.");
+
+            var model = new ComplantDetailViewmodels();
+            model.Status = getComplaint.Status;
+            model.CreateDate = getComplaint.CreatedDate;
+            model.AdminrReply = getComplaint.AdminReply ;
+            model.DateAdminCreate = getComplaint.DateAdminReply ;
+            model.SellerReply = getComplaint.Reply;
+            model.DateReply = getComplaint.ReplyDate;
+            model.ComplantID = getComplaint.ID;
+            model.NameShop = getStore.Name;
+            model.ProductName = getProduct.Name;
+            model.ProductType = getProductType.Name;
+            model.Description = getComplaint.Description;
+            model.UserName = getUser.UserName;
+            model.OrderTracking = getOrder.OrderTracking;
+            if (getComplaint.IsReportAdmin)
+            {
+                model.IsreportAdmin = true;
+            }
+            if(getComplaint.AdminReportStatus=="Pending")
+            {
+                model.statusAdmin= "Pending";
+            }
+
+
+
+            var getImage = await this._compalntimg.ListAsync(u => u.ComplaintID == getComplaint.ID);
+            if (getImage.Any())
+            {
+                foreach (var item in getImage)
+                {
+                    model.image.Add(item.ImageUrl);
+                }
+            }
+            else
+            {
+                model.image.Add("https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-2-2.jpg");
+            }
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResolveComplaint(Guid id, string action, string note)
+        {
+            string mess = "";
+            if (id == Guid.Empty || string.IsNullOrWhiteSpace(action) || string.IsNullOrWhiteSpace(note))
+            {
+                return Json(new { success = false, message = "Thông tin gửi lên không hợp lệ." });
+            }
+
+            var complaint = await this._complaintService.FindAsync(c => c.ID == id);
+            if (complaint == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy khiếu nại." });
+            }
+            if (complaint.Status.ToLower() == "Refund".ToLower())
+            {
+                return Json(new { success = false, message = "Khiếu nại này đã được xử lý hoàn tiền." });
+            }
+
+            switch (action)
+            {
+                case "Accept":
+
+                   
+                    complaint.AdminReportStatus = $"Accept";
+                    complaint.DateAdminReply = DateTime.Now;
+                    complaint.AdminReply = $"[Accept] - {note}";
+
+                    try
+                    {
+
+                        // Lấy danh sách chi tiết đơn hàng
+                        var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
+                        if (orderDetails == null)
+                            return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+                        var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
+                        if (order == null)
+                            return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+
+
+                        orderDetails.Status = "Refunded";
+                        orderDetails.ModifiedDate = DateTime.Now;
+                        await _orderDetail.UpdateAsync(orderDetails);
+                        var currentBalance = await _balance.GetBalance(order.UserID);
+                        var refundTransaction = new BalanceChange
+                        {
+                            UserID = order.UserID,
+                            MoneyChange = orderDetails.TotalPrice,
+                            MoneyBeforeChange = currentBalance,
+                            MoneyAfterChange = currentBalance + orderDetails.TotalPrice,
+                            Method = "Refund",
+                            Status = "Success",
+                            Display = true,
+                            IsComplete = true,
+                            CheckDone = true,
+                            StartTime = DateTime.Now,
+                            DueTime = DateTime.Now
+                        };
+                        await _balance.AddAsync(refundTransaction);
+
+                        /* // Cập nhật trạng thái đơn hàng
+                         order.Status = "Refunded";
+                         order.PaymentStatus = "Refunded";
+                         order.ModifiedDate = DateTime.UtcNow;
+                         order.Description = string.IsNullOrEmpty(order.Description)
+                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                         await _order.UpdateAsync(order);*/
+
+                        // Lưu thay đổi
+                        await _orderDetail.SaveChangesAsync();
+
+                        //   await _order.SaveChangesAsync();
+                        await _balance.SaveChangesAsync();
+
+
+                        mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
+                    }
+                    catch (Exception)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Đã xảy ra lỗi khi xử lý hoàn tiền. Vui lòng thử lại hoặc liên hệ quản trị viên."
+                        });
+                    }
+                    break;
+
+                case "Reject":
+                    complaint.AdminReportStatus = $"Reject";
+                    complaint.DateAdminReply = DateTime.Now;
+                    complaint.AdminReply = $"[Reject] - {note}";
+                    mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
+                    break;
+                default:
+                    return Json(new { success = false, message = "Loại hành động không hợp lệ." });
+            }
+
+           
+
+            try
+            {
+                await this._complaintService.UpdateAsync(complaint);
+                await this._complaintService.SaveChangesAsync();
+
+                return Json(new { success = true, message = mess });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+            }
         }
 
     }

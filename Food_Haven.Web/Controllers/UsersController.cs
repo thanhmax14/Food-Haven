@@ -141,7 +141,7 @@ private readonly IComplaintServices _complaintService;
                             OrderId = item.ID,
                             OrderTracking = item.OrderTracking,
                             DeliveryDate = item.ModifiedDate,
-                            Desctiption = item.Description,
+                          //  Desctiption = item.Description,
                             Note = item.Note,
                             Quantity = item.Quantity,
                             StatusPayment = item.PaymentStatus

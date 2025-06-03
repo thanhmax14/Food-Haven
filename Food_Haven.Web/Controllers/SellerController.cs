@@ -1128,8 +1128,8 @@ namespace Food_Haven.Web.Controllers
             var model = new ComplantDetailViewmodels();
             model.Status = getComplaint.Status;
             model.CreateDate= getComplaint.CreatedDate;
-            model.AdminrReply = "";
-            model.DateAdminCreate = null;
+            model.AdminrReply = getComplaint.AdminReply;
+            model.DateAdminCreate = getComplaint.DateAdminReply;
             model.SellerReply= getComplaint.Reply;
             model.DateReply = getComplaint.ReplyDate;
             model.ComplantID= getComplaint.ID;
@@ -1138,6 +1138,15 @@ namespace Food_Haven.Web.Controllers
             model.ProductType= getProductType.Name;
             model.Description = getComplaint.Description;
             model.UserName = getUser.UserName;
+            model.OrderTracking = getOrder.OrderTracking;
+            if (getComplaint.IsReportAdmin)
+            {
+                model.IsreportAdmin = true;
+            }
+            if (getComplaint.AdminReportStatus == "Pending")
+            {
+                model.statusAdmin = "Pending";
+            }
 
             var getImage = await this._complaintImageServices.ListAsync(u => u.ComplaintID == getComplaint.ID);
             if (getImage.Any())
@@ -1215,10 +1224,13 @@ namespace Food_Haven.Web.Controllers
                     Description = c.Description,
                     Status = c.Status,
                     SellerReply = c.Reply,
-                    AdminReply = "",
+                    AdminReply = c.AdminReply,
                     CreatedDate = c.CreatedDate,
                     ReplyDate = c.ReplyDate,
-                    ReportStatus = ""
+                    ReportStatus=c.AdminReportStatus,
+                    AdminReplyDate =c.DateAdminReply,
+                   
+
                 };
             }).ToList();
 
@@ -1431,8 +1443,12 @@ namespace Food_Haven.Web.Controllers
 
 
                 case "dispute":
-                    complaint.Status = "Dispute";
+                    complaint.Status = "Report to Admin";
                     complaint.Reply = $"[TRANH CHẤP] {note}";
+                    complaint.IsReportAdmin= true;
+                    complaint.AdminReportStatus = "Pending";
+
+
                     break;
 
                 default:
