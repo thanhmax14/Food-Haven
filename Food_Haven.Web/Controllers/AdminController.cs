@@ -1,10 +1,12 @@
 ﻿using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
@@ -48,12 +50,14 @@ namespace Food_Haven.Web.Controllers
         private readonly IComplaintImageServices _compalntimg;
         private readonly IProductService _product;
         private readonly IVoucherServices _voucher;
+        private readonly IIngredientTagService _ingredienttag;
         
        
 
-        public AdminController(UserManager<AppUser> userManager,ITypeOfDishService typeOfDishService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
+        public AdminController(UserManager<AppUser> userManager,ITypeOfDishService typeOfDishService,IIngredientTagService ingredientTagService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
 
         {
+            _ingredienttag = ingredientTagService;
             _typeOfDishService = typeOfDishService;
             _userManager = userManager;
             _balance = balance;
@@ -1005,7 +1009,179 @@ namespace Food_Haven.Web.Controllers
             return RedirectToAction("GetAllTypeOfDish");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> UpdateTypeOfDish(Guid id)
+        {
+            var entity = await _typeOfDishService.GetAsyncById(id);
+            if (entity == null) return NotFound();
 
+            var viewModel = _mapper.Map<TypeOfDishUpdateViewModel>(entity);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTypeOfDish(TypeOfDishUpdateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var entity = _mapper.Map<TypeOfDish>(model);
+                await _typeOfDishService.UpdateAsync(entity);
+                await _typeOfDishService.SaveChangesAsync();
+
+                ViewBag.RedirectWithSuccess = true; // báo hiệu sẽ redirect
+                return View(model); // vẫn render lại view để hiển thị thông báo trước khi chuyển hướng
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteTypeOfDish(Guid id)
+        {
+            var entity = await _typeOfDishService.GetAsyncById(id);
+            if (entity == null) return NotFound();
+
+            var model = _mapper.Map<TypeOfDishUpdateViewModel>(entity);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTypeOfDish(TypeOfDishUpdateViewModel model)
+        {
+            try
+            {
+                await _typeOfDishService.DeleteAsync(model.ID);
+                await _typeOfDishService.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "TypeOfDish deleted successfully!";
+                return RedirectToAction("GetAllTypeOfDish");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting: {ex.Message}";
+                return RedirectToAction("GetAllTypeOfDish");
+            }
+        }
+
+
+        public async Task<IActionResult> GetAllIngredientTag()
+        {
+            var data = await _ingredienttag.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
+
+            var list = data.Select(item => new IngredientTagViewModel
+            {
+                ID = item.ID,
+                Name = item.Name,
+                IsActive = item.IsActive,
+                CreatedDate = item.CreatedDate,
+                ModifiedDate = item.ModifiedDate
+            }).ToList();
+
+            return View(list);
+        }
+
+
+        [HttpGet]
+        public IActionResult CreateIngredientTag()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateIngredientTag(IngredientTagViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var entity = new IngredientTag
+            {
+                ID = Guid.NewGuid(),
+                Name = model.Name,
+                IsActive = model.IsActive,
+                CreatedDate = DateTime.Now
+            };
+
+            await _ingredienttag.AddAsync(entity);
+            await _ingredienttag.SaveChangesAsync(); // ⬅️ BẮT BUỘC để ghi xuống database
+
+            return RedirectToAction("GetAllIngredientTag");
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateIngredientTag(Guid id)
+        {
+            var entity = await _ingredienttag.GetAsyncById(id);
+            if (entity == null) return NotFound();
+
+            var viewModel = _mapper.Map<IngredientTagUpdateViewModel>(entity);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateIngredientTag(IngredientTagUpdateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var entity = _mapper.Map<IngredientTag>(model);
+                await _ingredienttag.UpdateAsync(entity);
+                await _ingredienttag.SaveChangesAsync();
+
+                ViewBag.RedirectWithSuccess = true; // báo hiệu sẽ redirect
+                return View(model); // vẫn render lại view để hiển thị thông báo trước khi chuyển hướng
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(model);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteIngredientTag(Guid id)
+        {
+            var entity = await _ingredienttag.GetAsyncById(id);
+            if (entity == null) return NotFound();
+
+            var model = _mapper.Map<IngredientTagUpdateViewModel>(entity);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteIngredientTag(IngredientTagUpdateViewModel model)
+        {
+            try
+            {
+                await _ingredienttag.DeleteAsync(model.ID);
+                await _ingredienttag.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "IngredientTag deleted successfully!";
+                return RedirectToAction("GetAllIngredientTag");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting: {ex.Message}";
+                return RedirectToAction("GetAllIngredientTag");
+            }
+        }
 
 
     }

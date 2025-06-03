@@ -15,7 +15,11 @@ namespace BusinessLogic.Mapper
         {
             CreateMap<StoreViewModel, StoreDetails>();
 
+            CreateMap<TypeOfDish, TypeOfDishUpdateViewModel>().ReverseMap();
 
-        } 
+            CreateMap<IngredientTag, IngredientTagUpdateViewModel>().ReverseMap();
+
+        }
+
     }
 }
