@@ -16,6 +16,8 @@
         public int Quantity { get; set; }
         public int Stock { get; set; }
 
+        public string Owner { get; set; }
+
 
 
         public Dictionary<string, decimal> SizeWithPrice { get; set; } = new Dictionary<string, decimal>();
