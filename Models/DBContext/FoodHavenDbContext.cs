@@ -11,10 +11,10 @@ namespace Models.DBContext
 {
     public class FoodHavenDbContext : IdentityDbContext<AppUser>
     {
-        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
+   /*     public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
         }
-
+*/
         public DbSet<BalanceChange> BalanceChanges { get; set; }
         public DbSet<Categories> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -161,16 +161,23 @@ namespace Models.DBContext
          .WithMany(h => h.Recipes)
          .HasForeignKey(h => h.TypeOfDishID).OnDelete(DeleteBehavior.NoAction);
 
-            builder.Entity<Recipe>()
-           .HasMany(r => r.IngredientTags)
-           .WithMany(t => t.Recipes)
-           .UsingEntity(j => j.ToTable("RecipeIngredientTags"));
-
             builder.Entity<Voucher>()
     .HasOne(v => v.StoreDetails)
     .WithMany(s => s.Vouchers)
     .HasForeignKey(v => v.StoreID)
    .OnDelete(DeleteBehavior.NoAction).IsRequired(false);
+            builder.Entity<RecipeIngredientTag>()
+    .HasKey(x => new { x.RecipeID, x.IngredientTagID });
+
+            builder.Entity<RecipeIngredientTag>()
+                .HasOne(x => x.Recipe)
+                .WithMany(r => r.RecipeIngredientTags)
+                .HasForeignKey(x => x.RecipeID);
+
+            builder.Entity<RecipeIngredientTag>()
+                .HasOne(x => x.IngredientTag)
+                .WithMany(t => t.RecipeIngredientTags)
+                .HasForeignKey(x => x.IngredientTagID);
 
 
             builder.Entity<TypeOfDish>().HasData(
@@ -274,7 +281,7 @@ new TypeOfDish
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-      => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+      => optionsBuilder.UseSqlServer("Server=DESKTOP-1E1A6I4;Database =FoodHaven;uid=sa;pwd=Thanh;encrypt=true;trustServerCertificate=true;");
 
 
     }
