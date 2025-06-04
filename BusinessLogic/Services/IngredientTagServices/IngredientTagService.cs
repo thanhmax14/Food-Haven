@@ -46,5 +46,13 @@ namespace BusinessLogic.Services.IngredientTagServices
             Func<IQueryable<IngredientTag>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<IngredientTag, object>> includeProperties = null) =>
             await _ingredientTagRepository.ListAsync(filter, orderBy, includeProperties);
         public async Task<int> SaveChangesAsync() => await _ingredientTagRepository.SaveChangesAsync();
+<<<<<<< Updated upstream
+=======
+
+        public async Task<bool> ToggleIngredientTagStatus(Guid categoryId, bool isActive)
+        {
+            return await _ingredientTagRepository1.ToggIngredientTagStatusAsync(categoryId, isActive);
+        }
+>>>>>>> Stashed changes
     }
 }

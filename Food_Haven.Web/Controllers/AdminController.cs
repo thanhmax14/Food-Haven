@@ -1044,20 +1044,35 @@ namespace Food_Haven.Web.Controllers
         }
 
 
+<<<<<<< Updated upstream
         [HttpGet]
         public async Task<IActionResult> DeleteTypeOfDish(Guid id)
         {
             var entity = await _typeOfDishService.GetAsyncById(id);
             if (entity == null) return NotFound();
+=======
+
+        [HttpPost]
+        public async Task<IActionResult> ToggletypeOfDishesIdTagStatus(Guid id, bool isActive)
+        {
+            var success = await _typeOfDishService.ToggletypeOfDishesIdTagStatus(id, isActive);
+            return Json(new { success });
+        }
+>>>>>>> Stashed changes
 
             var model = _mapper.Map<TypeOfDishUpdateViewModel>(entity);
             return View(model);
         }
 
+<<<<<<< Updated upstream
         [HttpPost]
         public async Task<IActionResult> DeleteTypeOfDish(TypeOfDishUpdateViewModel model)
         {
             try
+=======
+
+        public async Task<IActionResult> GetAllIngredientTag()
+>>>>>>> Stashed changes
             {
                 await _typeOfDishService.DeleteAsync(model.ID);
                 await _typeOfDishService.SaveChangesAsync();
@@ -1159,11 +1174,16 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteIngredientTag(Guid id)
         {
+<<<<<<< Updated upstream
             var entity = await _ingredienttag.GetAsyncById(id);
             if (entity == null) return NotFound();
 
             var model = _mapper.Map<IngredientTagUpdateViewModel>(entity);
             return View(model);
+=======
+            var success = await _ingredienttag.ToggleIngredientTagStatus(id, isActive);
+            return Json(new { success });
+>>>>>>> Stashed changes
         }
 
         [HttpPost]
