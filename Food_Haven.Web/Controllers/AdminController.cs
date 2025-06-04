@@ -1050,11 +1050,15 @@ namespace Food_Haven.Web.Controllers
         }
 
 
+
        
       
 
 
+
+
             public async Task<IActionResult> GetAllIngredientTag()
+
             {
                 var data = await _ingredienttag.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
 
@@ -1142,7 +1146,8 @@ namespace Food_Haven.Web.Controllers
         }
 
 
-      
+
+
 
         [HttpPost]
         public async Task<IActionResult> ToggleIngredientTagStatus(Guid id, bool isActive)

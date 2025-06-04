@@ -12,10 +12,12 @@ namespace BusinessLogic.Services.TypeOfDishServices
     public class TypeOfDishService : ITypeOfDishService
     {
         private readonly ITypeOfDishRepository _typeOfDishRepository;
+        private readonly TypeOfDishRepository _typeOfDishRepository1;
 
-        public TypeOfDishService(ITypeOfDishRepository typeOfDishRepository)
+        public TypeOfDishService(ITypeOfDishRepository typeOfDishRepository, TypeOfDishRepository typeOfDishRepository1)
         {
             _typeOfDishRepository = typeOfDishRepository;
+            _typeOfDishRepository1 = typeOfDishRepository1;
         }
 
         public IQueryable<TypeOfDish> GetAll() => _typeOfDishRepository.GetAll();
@@ -49,5 +51,9 @@ namespace BusinessLogic.Services.TypeOfDishServices
             Func<IQueryable<TypeOfDish>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<TypeOfDish, object>> includeProperties = null) =>
             await _typeOfDishRepository.ListAsync(filter, orderBy, includeProperties);
         public async Task<int> SaveChangesAsync() => await _typeOfDishRepository.SaveChangesAsync();
+        public async Task<bool> ToggletypeOfDishesIdTagStatus(Guid categoryId, bool isActive)
+        {
+            return await _typeOfDishRepository1.ToggletypeOfDishesIdTagStatus(categoryId, isActive);
+        }
     }
 }

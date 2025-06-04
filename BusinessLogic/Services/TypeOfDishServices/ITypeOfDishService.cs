@@ -28,5 +28,6 @@ namespace BusinessLogic.Services.TypeOfDishServices
             Expression<Func<TypeOfDish, bool>> filter = null,
             Func<IQueryable<TypeOfDish>, IOrderedQueryable<TypeOfDish>> orderBy = null,
             Func<IQueryable<TypeOfDish>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<TypeOfDish, object>> includeProperties = null);
+        Task<bool> ToggletypeOfDishesIdTagStatus(Guid categoryId, bool isActive);
     }
 }

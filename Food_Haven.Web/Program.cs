@@ -10,7 +10,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
+
 using Repository.IngredientTagRepositorys;
+using Repository.TypeOfDishRepositoties;
+
+using Repository.IngredientTagRepositorys;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
@@ -123,8 +128,13 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 builder.Services.AddSignalR();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<ITypeOfDishService, TypeOfDishService>();
+
+builder.Services.AddScoped<TypeOfDishRepository>();
+
 builder.Services.AddScoped<IIngredientTagRepository, IngredientTagRepository>();
 builder.Services.AddScoped<IngredientTagRepository>(); // 👈 thêm dòng này để inject trực tiếp
+
+
 
 
 
