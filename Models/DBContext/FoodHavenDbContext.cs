@@ -15,11 +15,13 @@ namespace Models.DBContext
         {
         }
 
-<<<<<<< Updated upstream
-=======
+
         public DbSet<IngredientTag> IngredientTag { get; set; }
         public DbSet<TypeOfDish> TypeOfDish { get; set; }
->>>>>>> Stashed changes
+
+        public DbSet<IngredientTag> IngredientTag { get; set; }
+
+
         public DbSet<BalanceChange> BalanceChanges { get; set; }
         public DbSet<Categories> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
