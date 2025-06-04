@@ -12,6 +12,7 @@ namespace Repository.ViewModels
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.Now;

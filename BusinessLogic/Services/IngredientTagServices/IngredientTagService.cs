@@ -1,18 +1,21 @@
+using Models;
+using NuGet.Protocol.Core.Types;
+using Repository.IngredientTagRepositorys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Models;
-using Repository.IngredientTagRepositorys;
 
 namespace BusinessLogic.Services.IngredientTagServices
 {
     public class IngredientTagService : IIngredientTagService
     {
         private readonly IIngredientTagRepository _ingredientTagRepository;
-        public IngredientTagService(IIngredientTagRepository ingredientTagRepository)
+        private readonly IngredientTagRepository _ingredientTagRepository1;
+        public IngredientTagService(IIngredientTagRepository ingredientTagRepository, IngredientTagRepository ingredientTagRepository1)
         {
+            _ingredientTagRepository1 = ingredientTagRepository1;
             _ingredientTagRepository = ingredientTagRepository;
         }
         public IQueryable<IngredientTag> GetAll() => _ingredientTagRepository.GetAll();
@@ -46,5 +49,10 @@ namespace BusinessLogic.Services.IngredientTagServices
             Func<IQueryable<IngredientTag>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<IngredientTag, object>> includeProperties = null) =>
             await _ingredientTagRepository.ListAsync(filter, orderBy, includeProperties);
         public async Task<int> SaveChangesAsync() => await _ingredientTagRepository.SaveChangesAsync();
+
+        public async Task<bool> ToggleToggleIngredientTagStatus(Guid categoryId, bool isActive)
+        {
+            return await _ingredientTagRepository1.ToggIngredientTagStatusAsync(categoryId, isActive);
+        }
     }
 }

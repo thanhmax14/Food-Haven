@@ -27,6 +27,8 @@ namespace BusinessLogic.Services.IngredientTagServices
             Expression<Func<IngredientTag, bool>> filter = null,
             Func<IQueryable<IngredientTag>, IOrderedQueryable<IngredientTag>> orderBy = null,
             Func<IQueryable<IngredientTag>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<IngredientTag, object>> includeProperties = null);
-        
+
+        Task<bool> ToggleToggleIngredientTagStatus(Guid categoryId, bool isActive);
+
     }
 }

@@ -987,7 +987,6 @@ namespace Food_Haven.Web.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTypeOfDish(TypeOfDishViewModel model)
@@ -1000,14 +999,15 @@ namespace Food_Haven.Web.Controllers
                 ID = Guid.NewGuid(),
                 Name = model.Name,
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.Now, // 👈 đảm bảo lấy đúng thời điểm tạo
             };
 
             await _typeOfDishService.AddAsync(entity);
-            await _typeOfDishService.SaveChangesAsync(); // ⬅️ BẮT BUỘC để ghi xuống database
+            await _typeOfDishService.SaveChangesAsync();
 
             return RedirectToAction("GetAllTypeOfDish");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> UpdateTypeOfDish(Guid id)
@@ -1020,21 +1020,27 @@ namespace Food_Haven.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTypeOfDish(TypeOfDishUpdateViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             try
             {
-                var entity = _mapper.Map<TypeOfDish>(model);
+                var entity = await _typeOfDishService.GetAsyncById(model.ID);
+                if (entity == null)
+                    return NotFound();
+
+                entity.Name = model.Name;
+                entity.IsActive = model.IsActive;
+                entity.ModifiedDate = DateTime.Now;
+
                 await _typeOfDishService.UpdateAsync(entity);
                 await _typeOfDishService.SaveChangesAsync();
 
-                ViewBag.RedirectWithSuccess = true; // báo hiệu sẽ redirect
-                return View(model); // vẫn render lại view để hiển thị thông báo trước khi chuyển hướng
+                ViewBag.RedirectWithSuccess = true;
+                return View(model); // Dùng lại view để trigger SweetAlert thành công
             }
             catch (Exception ex)
             {
@@ -1044,50 +1050,25 @@ namespace Food_Haven.Web.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteTypeOfDish(Guid id)
-        {
-            var entity = await _typeOfDishService.GetAsyncById(id);
-            if (entity == null) return NotFound();
+       
+      
 
-            var model = _mapper.Map<TypeOfDishUpdateViewModel>(entity);
-            return View(model);
-        }
 
-        [HttpPost]
-        public async Task<IActionResult> DeleteTypeOfDish(TypeOfDishUpdateViewModel model)
-        {
-            try
+            public async Task<IActionResult> GetAllIngredientTag()
             {
-                await _typeOfDishService.DeleteAsync(model.ID);
-                await _typeOfDishService.SaveChangesAsync();
+                var data = await _ingredienttag.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
 
-                TempData["SuccessMessage"] = "TypeOfDish deleted successfully!";
-                return RedirectToAction("GetAllTypeOfDish");
+                var list = data.Select(item => new IngredientTagViewModel
+                {
+                    ID = item.ID,
+                    Name = item.Name,
+                    IsActive = item.IsActive,
+                    CreatedDate = item.CreatedDate,
+                    ModifiedDate = item.ModifiedDate
+                }).ToList();
+
+                return View(list);
             }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Error deleting: {ex.Message}";
-                return RedirectToAction("GetAllTypeOfDish");
-            }
-        }
-
-
-        public async Task<IActionResult> GetAllIngredientTag()
-        {
-            var data = await _ingredienttag.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
-
-            var list = data.Select(item => new IngredientTagViewModel
-            {
-                ID = item.ID,
-                Name = item.Name,
-                IsActive = item.IsActive,
-                CreatedDate = item.CreatedDate,
-                ModifiedDate = item.ModifiedDate
-            }).ToList();
-
-            return View(list);
-        }
 
 
         [HttpGet]
@@ -1109,14 +1090,15 @@ namespace Food_Haven.Web.Controllers
                 ID = Guid.NewGuid(),
                 Name = model.Name,
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.Now // ✅ Ghi đúng thời điểm tạo
             };
 
             await _ingredienttag.AddAsync(entity);
-            await _ingredienttag.SaveChangesAsync(); // ⬅️ BẮT BUỘC để ghi xuống database
+            await _ingredienttag.SaveChangesAsync();
 
             return RedirectToAction("GetAllIngredientTag");
         }
+
 
 
 
@@ -1134,19 +1116,23 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> UpdateIngredientTag(IngredientTagUpdateViewModel model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             try
             {
-                model.ModifiedDate = DateTime.Now;
-                var entity = _mapper.Map<IngredientTag>(model);
+                var entity = await _ingredienttag.GetAsyncById(model.ID);
+                if (entity == null)
+                    return NotFound();
+
+                entity.Name = model.Name;
+                entity.IsActive = model.IsActive;
+                entity.ModifiedDate = DateTime.Now;
+
                 await _ingredienttag.UpdateAsync(entity);
                 await _ingredienttag.SaveChangesAsync();
 
-                ViewBag.RedirectWithSuccess = true; // báo hiệu sẽ redirect
-                return View(model); // vẫn render lại view để hiển thị thông báo trước khi chuyển hướng
+                ViewBag.RedirectWithSuccess = true;
+                return View(model); // Không redirect, giữ lại để chạy SweetAlert trong view
             }
             catch (Exception ex)
             {
@@ -1156,33 +1142,15 @@ namespace Food_Haven.Web.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteIngredientTag(Guid id)
-        {
-            var entity = await _ingredienttag.GetAsyncById(id);
-            if (entity == null) return NotFound();
-
-            var model = _mapper.Map<IngredientTagUpdateViewModel>(entity);
-            return View(model);
-        }
+      
 
         [HttpPost]
-        public async Task<IActionResult> DeleteIngredientTag(IngredientTagUpdateViewModel model)
+        public async Task<IActionResult> ToggleIngredientTagStatus(Guid id, bool isActive)
         {
-            try
-            {
-                await _ingredienttag.DeleteAsync(model.ID);
-                await _ingredienttag.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "IngredientTag deleted successfully!";
-                return RedirectToAction("GetAllIngredientTag");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"Error deleting: {ex.Message}";
-                return RedirectToAction("GetAllIngredientTag");
-            }
+            var success = await _ingredienttag.ToggleToggleIngredientTagStatus(id, isActive);
+            return Json(new { success });
         }
+
 
 
     }
