@@ -196,7 +196,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="mb-3">
-                            <label for="ForminputState1" class="form-label">TypeOfDishID</label>
+                            <label for="ForminputState1" class="form-label">TypeOfDish</label>
                             <select id="ForminputState1" class="form-select" data-choices data-choices-sorting="true"
                                 name="TypeOfDishID">
                                 <option selected>Choose...</option>
@@ -232,12 +232,12 @@
                     </div>
 
                     <div class="row">
-                        @* <!-- Cột phải: Ingredient Tag -->
+                        <!-- Cột phải: Ingredient Tag -->
                         <div class="col-md-6" style="margin-bottom: 20px;">
                             <div class="mb-3 h-100 d-flex flex-column">
                                 <label for="IngredientTags" class="form-label">Ingredient Tag</label>
-                                <select id="IngredientTags" name="IngredientTags" class="form-select flex-grow-1"
-                                    size="10" multiple required>
+                                <select id="IngredientTags" name="SelectedIngredientTags[]"
+                                    class="form-select flex-grow-1" size="10" multiple required>
                                     @foreach (var item in Model.IngredientTags)
                                     {
                                         <option value="@item.ID">@item.Name</option>
@@ -245,92 +245,123 @@
                                 </select>
                             </div>
 
-                        </div> *@
+                        </div>
                         <!-- Cột trái: 3 time input -->
-                        @* <div class="col-md-6">
+                        <div class="col-md-6">
                             <!-- Preparation Time -->
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label">Preparation Time</label>
                                 <div class="d-flex gap-2 align-items-center">
-                                    <input type="number" class="form-control" min="0" placeholder=""
+                                    <input type="number" class="form-control" min="0" placeholder="Enter time"
                                         name="PreparationValue" style="width: 120px;" />
-
                                     <select class="form-select" name="PreparationUnit" style="width: 120px;">
                                         <option value="minutes">Minutes</option>
                                         <option value="hours">Hours</option>
                                         <option value="days">Days</option>
                                     </select>
+                                    <span class="text-muted">or</span>
+                                    <select class="form-select" name="PreparationQuick" style="width: 150px;">
+                                        <option value="">Quick select</option>
+                                        <option value="5">5 min</option>
+                                        <option value="10">10 min</option>
+                                        <option value="15">15 min</option>
+                                        <option value="20">20 min</option>
+                                        <option value="30">30 min</option>
+                                        <option value="45">45 min</option>
+                                        <option value="60">1 hour</option>
+                                        <option value="120">2 hours</option>
+                                        <option value="180">3 hours</option>
+                                    </select>
                                 </div>
                             </div>
 
-
                             <!-- Cooking Time -->
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label">Cooking Time</label>
                                 <div class="d-flex gap-2 align-items-center">
-                                    <input type="number" class="form-control" min="0" placeholder="" name="CookingValue"
-                                        style="width: 120px;" />
-
+                                    <input type="number" class="form-control" min="0" placeholder="Enter time"
+                                        name="CookingValue" style="width: 120px;" />
                                     <select class="form-select" name="CookingUnit" style="width: 120px;">
                                         <option value="minutes">Minutes</option>
                                         <option value="hours">Hours</option>
                                         <option value="days">Days</option>
                                     </select>
+                                    <span class="text-muted">or</span>
+                                    <select class="form-select" name="CookingQuick" style="width: 150px;">
+                                        <option value="">Quick select</option>
+                                        <option value="5">5 min</option>
+                                        <option value="10">10 min</option>
+                                        <option value="15">15 min</option>
+                                        <option value="20">20 min</option>
+                                        <option value="30">30 min</option>
+                                        <option value="45">45 min</option>
+                                        <option value="60">1 hour</option>
+                                        <option value="120">2 hours</option>
+                                        <option value="180">3 hours</option>
+                                        <option value="240">4 hours</option>
+                                    </select>
+                                </div>
+
+
+
+                                <!-- Total Time -->
+                                <div class="mb-3">
+                                    <label class="form-label">Total Time</label>
+                                    <div class="form-control bg-light" id="displayTotalTime" style="height: auto;">
+                                        0 minute
+                                    </div>
                                 </div>
                             </div>
-
-
-                            <!-- Total Time -->
-                            <div class="mb-2">
-                                <label class="form-label">Total Time</label>
-                                <div class="d-flex gap-2">
-                                    <input type="number" id="totalHour" class="form-control" min="0" max="23"
-                                        placeholder="Hour" style="width: 100px;" name="TotalHour">
-                                    <input type="number" id="totalMinute" class="form-control" min="0" max="59"
-                                        placeholder="Minute" style="width: 100px;" name="TotalMinute">
-                                </div>
-                            </div>
-                        </div> *@
-                    </div>
-                </div><!-- end inner row -->
-            </div><!-- end live-preview -->
-        </div><!-- end card-body -->
-
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Ingredient</h4>
-            </div><!-- end card header -->
-
-            <div class="card-body">
-                <div id="editor-Ingredient" class="snow-editor" style="height: 300px;">
-                    <h3><span class="ql-size-large">Hello World!</span></h3>
-                    <p><br></p>
-                    <h3>This is an simple editable area.</h3>
-                    <p><br></p>
-                    <ul>
-                        <li>
-                            Select a text to reveal the toolbar.
-                        </li>
-                        <li>
-                            Edit rich document on-the-fly, so elastic!
-                        </li>
-                    </ul>
-                    <p><br></p>
-                    <p>
-                        End of simple area
-                    </p>
-                </div> <!-- end Snow-editor-->
+                        </div>
+                    </div><!-- end inner row -->
+                </div><!-- end live-preview -->
             </div><!-- end card-body -->
-        </div><!-- end card -->
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Cooking Step</h4>
-            </div>
-            <div class="card-body">
-                <div id="editor-CookingStep" class="snow-editor" style="height: 300px;">
-                    <!-- Content here... -->
+            <input type="hidden" name="PreparationTime" id="hiddenPrepTime">
+            <input type="hidden" name="CookTime" id="hiddenCookTime">
+            <input type="hidden" name="TotalTime" id="hiddenTotalTime">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Ingredient</h4>
+                </div><!-- end card header -->
+
+                <div class="card-body">
+                    <div id="editor-Ingredient" class="snow-editor" style="height: 300px;">
+                        <h3><span class="ql-size-large">Hello World!</span></h3>
+                        <p><br></p>
+                        <h3>This is an simple editable area.</h3>
+                        <p><br></p>
+                        <ul>
+                            <li>
+                                Select a text to reveal the toolbar.
+                            </li>
+                            <li>
+                                Edit rich document on-the-fly, so elastic!
+                            </li>
+                        </ul>
+                        <p><br></p>
+                        <p>
+                            End of simple area
+                        </p>
+                    </div> <!-- end Snow-editor-->
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Cooking Step</h4>
+                </div>
+                <div class="card-body">
+                    <div id="editor-CookingStep" class="snow-editor" style="height: 300px;">
+                        <!-- Content here... -->
+                    </div>
                 </div>
             </div>
+            <div class="mb-3">
+                <label for="ThumbnailImage" class="form-label">Upload Thumbnail Image</label>
+                <input type="file" class="form-control" id="ThumbnailImage" name="ThumbnailImage" accept="image/*" />
+            </div>
+
+          
+
         </div>
         <input type="hidden" id="IngredientHidden" name="Ingredient" />
         <input type="hidden" id="CookingStepHidden" name="CookingStep" />
@@ -762,7 +793,142 @@
             });
         });
     </script>
+    <script>
+        // Show/hide custom inputs and handle quick select
+        document.querySelector('select[name="PreparationQuick"]').addEventListener('change', function () {
+            if (this.value) {
+                const prepValue = document.querySelector('input[name="PreparationValue"]');
+                const prepUnit = document.querySelector('select[name="PreparationUnit"]');
 
+                if (parseInt(this.value) >= 60) {
+                    prepValue.value = parseInt(this.value) / 60;
+                    prepUnit.value = 'hours';
+                } else {
+                    prepValue.value = this.value;
+                    prepUnit.value = 'minutes';
+                }
+            }
+            calculateTotal();
+        });
+
+        document.querySelector('select[name="CookingQuick"]').addEventListener('change', function () {
+            if (this.value) {
+                const cookValue = document.querySelector('input[name="CookingValue"]');
+                const cookUnit = document.querySelector('select[name="CookingUnit"]');
+
+                if (parseInt(this.value) >= 60) {
+                    cookValue.value = parseInt(this.value) / 60;
+                    cookUnit.value = 'hours';
+                } else {
+                    cookValue.value = this.value;
+                    cookUnit.value = 'minutes';
+                }
+            }
+            calculateTotal();
+        });
+
+        // Listen for changes in inputs
+        document.querySelector('input[name="PreparationValue"]').addEventListener('input', calculateTotal);
+        document.querySelector('select[name="PreparationUnit"]').addEventListener('change', calculateTotal);
+        document.querySelector('input[name="CookingValue"]').addEventListener('input', calculateTotal);
+        document.querySelector('select[name="CookingUnit"]').addEventListener('change', calculateTotal);
+
+        function getCustomTimeInMinutes(value, unit) {
+            if (!value) return 0;
+
+            const val = parseFloat(value);
+            switch (unit) {
+                case 'minutes': return val;
+                case 'hours': return val * 60;
+                case 'days': return val * 24 * 60;
+                default: return val;
+            }
+        }
+
+        // THÊM FUNCTION calculateTotal() - QUAN TRỌNG NHẤT
+        function calculateTotal() {
+            const prepValue = document.querySelector('input[name="PreparationValue"]').value;
+            const prepUnit = document.querySelector('select[name="PreparationUnit"]').value;
+            const prepQuick = document.querySelector('select[name="PreparationQuick"]').value;
+
+            const cookValue = document.querySelector('input[name="CookingValue"]').value;
+            const cookUnit = document.querySelector('select[name="CookingUnit"]').value;
+            const cookQuick = document.querySelector('select[name="CookingQuick"]').value;
+
+            let prepMinutes = 0;
+            if (prepQuick && !prepValue) {
+                prepMinutes = parseInt(prepQuick);
+            } else if (prepValue) {
+                prepMinutes = getCustomTimeInMinutes(prepValue, prepUnit);
+            }
+
+            let cookMinutes = 0;
+            if (cookQuick && !cookValue) {
+                cookMinutes = parseInt(cookQuick);
+            } else if (cookValue) {
+                cookMinutes = getCustomTimeInMinutes(cookValue, cookUnit);
+            }
+
+            const totalMinutes = prepMinutes + cookMinutes;
+
+            const prepTimeString = formatTimeForDatabase(prepMinutes);
+            const cookTimeString = formatTimeForDatabase(cookMinutes);
+            const totalTimeString = formatTimeForDatabase(totalMinutes);
+
+            document.getElementById('hiddenPrepTime').value = prepTimeString;
+            document.getElementById('hiddenCookTime').value = cookTimeString;
+            document.getElementById('hiddenTotalTime').value = totalTimeString;
+
+            // 👉 Cập nhật hiển thị lên giao diện
+            document.getElementById('displayTotalTime').textContent = totalTimeString || '0 minute';
+
+            console.log('Calculated times:', {
+                prepMinutes,
+                cookMinutes,
+                totalMinutes,
+                prepTimeString,
+                cookTimeString,
+                totalTimeString
+            });
+        }
+
+
+        // THÊM FUNCTION formatTimeForDatabase()
+        function formatTimeForDatabase(totalMinutes) {
+            if (totalMinutes <= 0) return "";
+
+            const days = Math.floor(totalMinutes / (24 * 60));
+            const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+            const minutes = Math.floor(totalMinutes % 60);
+
+            let parts = [];
+            if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+            if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+            if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
+
+            return parts.join(' ');
+        }
+
+        // Chạy calculateTotal() khi trang load
+        document.addEventListener('DOMContentLoaded', function () {
+            calculateTotal();
+        });
+    </script>
+    <script>
+        function previewImage(event) {
+            const input = event.target;
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                const img = document.getElementById('product-img');
+                img.src = reader.result;
+            };
+
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 
     <style>
         /* Tạo khoảng cách rõ ràng giữa thanh search và khung chọn */
