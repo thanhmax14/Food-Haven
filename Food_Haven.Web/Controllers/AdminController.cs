@@ -1140,6 +1140,7 @@ namespace Food_Haven.Web.Controllers
 
             try
             {
+                model.ModifiedDate = DateTime.Now;
                 var entity = _mapper.Map<IngredientTag>(model);
                 await _ingredienttag.UpdateAsync(entity);
                 await _ingredienttag.SaveChangesAsync();
