@@ -17,7 +17,7 @@ namespace Repository.IngredientTagRepositorys
         private readonly FoodHavenDbContext _context;
 
 
-        public async Task<bool> ToggIngredientTagStatusAsync(Guid IngredientTagId, bool isActive)
+        public async Task<bool> ToggleIngredientTagStatus(Guid IngredientTagId, bool isActive)
         {
             var IngredientTag = await _context.IngredientTag.FindAsync(IngredientTagId);
             if (IngredientTag == null) return false;

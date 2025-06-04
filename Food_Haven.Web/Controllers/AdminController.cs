@@ -999,7 +999,7 @@ namespace Food_Haven.Web.Controllers
                 ID = Guid.NewGuid(),
                 Name = model.Name,
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now, // 👈 đảm bảo lấy đúng thời điểm tạo
+                CreatedDate = DateTime.Now // ✅ Ghi đúng thời điểm tạo
             };
 
             await _typeOfDishService.AddAsync(entity);
@@ -1050,14 +1050,20 @@ namespace Food_Haven.Web.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> ToggletypeOfDishesIdTagStatus(Guid id, bool isActive)
+        {
+            var success = await _typeOfDishService.ToggletypeOfDishesIdTagStatus(id, isActive);
+            return Json(new { success });
+        }
 
-       
-      
 
 
 
 
-            public async Task<IActionResult> GetAllIngredientTag()
+
+
+        public async Task<IActionResult> GetAllIngredientTag()
 
             {
                 var data = await _ingredienttag.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
@@ -1152,7 +1158,7 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleIngredientTagStatus(Guid id, bool isActive)
         {
-            var success = await _ingredienttag.ToggleToggleIngredientTagStatus(id, isActive);
+            var success = await _ingredienttag.ToggleIngredientTagStatus(id, isActive);
             return Json(new { success });
         }
 

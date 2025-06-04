@@ -51,9 +51,9 @@ namespace BusinessLogic.Services.IngredientTagServices
         public async Task<int> SaveChangesAsync() => await _ingredientTagRepository.SaveChangesAsync();
 
 
-        public async Task<bool> ToggleToggleIngredientTagStatus(Guid categoryId, bool isActive)
+        public async Task<bool> ToggleIngredientTagStatus(Guid categoryId, bool isActive)
         {
-            return await _ingredientTagRepository1.ToggIngredientTagStatusAsync(categoryId, isActive);
+            return await _ingredientTagRepository1.ToggleIngredientTagStatus(categoryId, isActive);
         }
 
     }

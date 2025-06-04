@@ -439,12 +439,12 @@
 
                                         let toggleButtonHtml = isActive
                                             ? `<li>
-                                                    <button class="dropdown-item" onclick="toggleTypeOfDishStatus('${id}', false)">
+                                                    <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', false)">
                                                         <i class="ri-eye-off-line text-danger align-bottom me-2"></i> Disable
                                                     </button>
                                                </li>`
                                             : `<li>
-                                                    <button class="dropdown-item" onclick="toggleTypeOfDishStatus('${id}', true)">
+                                                    <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', true)">
                                                         <i class="ri-eye-line text-success align-bottom me-2"></i> Enable
                                                     </button>
                                                </li>`;
@@ -487,7 +487,7 @@
                         return date.toLocaleDateString("en-GB");
                     }
 
-                    function toggleTypeOfDishStatus(id, isActive) {
+                function ToggletypeOfDishesIdTagStatus(id, isActive) {
                         let actionText = isActive ? "enable" : "disable";
                         let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
 
@@ -501,7 +501,7 @@
                             confirmButtonText: `Yes, ${actionText} it!`
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                fetch(`/Admin/ToggleTypeOfDishStatus?id=${id}&isActive=${isActive}`, {
+                                fetch(`/Admin/ToggletypeOfDishesIdTagStatus?id=${id}&isActive=${isActive}`, {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({ id, isActive })
