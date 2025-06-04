@@ -33,6 +33,9 @@ using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.TypeOfDishServices;
+using Azure;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using X.PagedList; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -40,25 +43,25 @@ namespace Food_Haven.Web.Controllers
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
-private HttpClient client = null;
-private string _url;
-private readonly IBalanceChangeService _balance;
-private readonly IHttpContextAccessor _httpContextAccessor;
-private readonly IProductService _product;
-public readonly ICartService _cart;
-public readonly IProductVariantService _productWarian;
-private readonly IProductImageService _img;
-private readonly IOrdersServices _order;
-private readonly IOrderDetailService _orderDetailService;
-private readonly PayOS _payos;
-private readonly ManageTransaction _managetrans;
-private readonly IReviewService _review;
-private readonly IRecipeService _recipeService;
-private readonly ICategoryService _categoryService;
-private readonly IIngredientTagService _ingredientTagService;
-private readonly ITypeOfDishService _typeOfDishService;
-private readonly IComplaintImageServices _complaintImageServices;
-private readonly IComplaintServices _complaintService;
+        private HttpClient client = null;
+        private string _url;
+        private readonly IBalanceChangeService _balance;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IProductService _product;
+        public readonly ICartService _cart;
+        public readonly IProductVariantService _productWarian;
+        private readonly IProductImageService _img;
+        private readonly IOrdersServices _order;
+        private readonly IOrderDetailService _orderDetailService;
+        private readonly PayOS _payos;
+        private readonly ManageTransaction _managetrans;
+        private readonly IReviewService _review;
+        private readonly IRecipeService _recipeService;
+        private readonly ICategoryService _categoryService;
+        private readonly IIngredientTagService _ingredientTagService;
+        private readonly ITypeOfDishService _typeOfDishService;
+        private readonly IComplaintImageServices _complaintImageServices;
+        private readonly IComplaintServices _complaintService;
 
         public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
         {
@@ -141,7 +144,7 @@ private readonly IComplaintServices _complaintService;
                             OrderId = item.ID,
                             OrderTracking = item.OrderTracking,
                             DeliveryDate = item.ModifiedDate,
-                          //  Desctiption = item.Description,
+                            //  Desctiption = item.Description,
                             Note = item.Note,
                             Quantity = item.Quantity,
                             StatusPayment = item.PaymentStatus
@@ -999,7 +1002,7 @@ private readonly IComplaintServices _complaintService;
                 var hasFeedback = true;
                 var hasComplaint = true;
                 var getComplant = await this._complaintService.FindAsync(u => u.OrderDetailID == item.ID);
-                if (getComplant == null && order.Status.ToUpper()== "CONFIRMED".ToUpper())
+                if (getComplant == null && order.Status.ToUpper() == "CONFIRMED".ToUpper())
                 {
                     hasComplaint = false;
                 }
@@ -1156,7 +1159,7 @@ private readonly IComplaintServices _complaintService;
                     Rating = model.Rating,
                     UserID = user.Id,
                     ProductID = variantExists.ProductID,
-                 
+
                 };
                 await _review.AddAsync(newReview);
                 orderDetail.IsFeedback = true;
@@ -1190,14 +1193,15 @@ private readonly IComplaintServices _complaintService;
                 UserID = user.Id,
                 Categories = category.ToList(), // truyền danh mục vào ViewModel
                 IngredientTags = iIngredientTag.ToList(),
-                typeOfDishes = typeOfDish.ToList()
+                typeOfDishes = typeOfDish.ToList(),
+                SelectedIngredientTags = new List<Guid>() // Khởi tạo danh sách rtyj
             };
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRecipe(RecipeViewModels obj)
+        public async Task<IActionResult> CreateRecipe(RecipeViewModels obj, IFormFile ThumbnailImage)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -1207,12 +1211,21 @@ private readonly IComplaintServices _complaintService;
             var category = await _categoryService.ListAsync();
             var firstCategory = category.FirstOrDefault();
             var typeOfDish = await _typeOfDishService.ListAsync();
+            string? imagePath = null;
 
-            // Xử lý thời gian
-            // Sử dụng trực tiếp các thuộc tính đã có trong obj hoặc thay thế bằng giá trị mặc định nếu không tồn tại
-            string preparationTime = obj.PreparationTime ?? "";
-            string cookTime = obj.CookTime ?? "";
-            string totalTime = obj.TotalTime ?? "";
+            if (ThumbnailImage != null && ThumbnailImage.Length > 0)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ThumbnailImage.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ThumbnailImage.CopyToAsync(stream);
+                }
+
+                imagePath = "/uploads/" + fileName; // Đường dẫn lưu trong DB
+            }
+
 
             var recipe = new Recipe
             {
@@ -1231,113 +1244,161 @@ private readonly IComplaintServices _complaintService;
                 IsActive = true,
                 CateID = firstCategory.ID,
                 TypeOfDishID = obj.TypeOfDishID,
-                
+                ThumbnailImage = imagePath,
             };
             await _recipeService.AddAsync(recipe);
+            // Lưu các IngredientTag được chọn vào bảng liên kết
+            // if (obj.SelectedIngredientTags != null && obj.SelectedIngredientTags.Any())
+            // {
+            //     foreach (var tagId in obj.SelectedIngredientTags)
+            //     {
+            //         // Tạo bản ghi cho bảng liên kết
+            //         var recipeIngredientTag = new RecipeIngredientTags
+            //         {
+            //             RecipeID = recipe.ID,
+            //             IngredientTagID = tagId
+            //         };
+            //         await _context.Set<RecipeIngredientTags>().AddAsync(recipeIngredientTag);
+            //     }
+            // }
             await _recipeService.SaveChangesAsync();
-            return View(obj);
+            return RedirectToAction("ViewRecipe", "Users");
         }
-           [HttpPost]
-   public async Task<IActionResult> SubmitComplaint([FromForm] ComplaintViewModel model)
-   {
-       try
-       {
-           var user = await _userManager.GetUserAsync(User);
-           if (user == null)
-           {
-               return Json(new { success = false, message = "Vui lòng đăng nhập để gửi khiếu nại." });
-           }
+        [HttpPost]
+        public async Task<IActionResult> SubmitComplaint([FromForm] ComplaintViewModel model)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Vui lòng đăng nhập để gửi khiếu nại." });
+                }
 
-           var allowedExtensions = new[]
-           {
+                var allowedExtensions = new[]
+                {
        ".xbm", ".tif", ".tiff", ".jfif", ".pjp", ".apng", ".jpeg",
        ".heif", ".ico", ".webp", ".svgz", ".jpg", ".heic", ".gif",
        ".svg", ".png", ".bmp", ".pjpeg", ".avif"
    };
 
-           const long maxFileSize = 5 * 1024 * 1024; // 5MB
+                const long maxFileSize = 5 * 1024 * 1024; // 5MB
 
-           if (string.IsNullOrWhiteSpace(model.Description))
-           {
-               return Json(new { success = false, message = "Vui lòng nhập mô tả khiếu nại." });
-           }
+                if (string.IsNullOrWhiteSpace(model.Description))
+                {
+                    return Json(new { success = false, message = "Vui lòng nhập mô tả khiếu nại." });
+                }
 
-           if (model.Images == null || model.Images.Count == 0)
-           {
-               return Json(new { success = false, message = "Vui lòng chọn ít nhất 1 ảnh." });
-           }
+                if (model.Images == null || model.Images.Count == 0)
+                {
+                    return Json(new { success = false, message = "Vui lòng chọn ít nhất 1 ảnh." });
+                }
 
-           if (model.Images.Count > 3)
-           {
-               return Json(new { success = false, message = "Chỉ được chọn tối đa 3 ảnh." });
-           }
+                if (model.Images.Count > 3)
+                {
+                    return Json(new { success = false, message = "Chỉ được chọn tối đa 3 ảnh." });
+                }
 
-           var orderDetails = await _orderDetailService.FindAsync(d => d.ID == model.OrderDetailID);
-           if (orderDetails == null)
-               return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
-           foreach (var file in model.Images)
-           {
-               var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
-               if (!allowedExtensions.Contains(fileExt))
-               {
-                   return Json(new { success = false, message = $"Ảnh {file.FileName} không đúng định dạng cho phép." });
-               }
+                var orderDetails = await _orderDetailService.FindAsync(d => d.ID == model.OrderDetailID);
+                if (orderDetails == null)
+                    return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+                foreach (var file in model.Images)
+                {
+                    var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
+                    if (!allowedExtensions.Contains(fileExt))
+                    {
+                        return Json(new { success = false, message = $"Ảnh {file.FileName} không đúng định dạng cho phép." });
+                    }
 
-               if (file.Length > maxFileSize)
-               {
-                   return Json(new { success = false, message = $"Ảnh {file.FileName} vượt quá dung lượng 5MB." });
-               }
-           }
+                    if (file.Length > maxFileSize)
+                    {
+                        return Json(new { success = false, message = $"Ảnh {file.FileName} vượt quá dung lượng 5MB." });
+                    }
+                }
 
-           // Tạo khiếu nại
-           var complaint = new Complaint
-           {
-               ID = Guid.NewGuid(),
-               Description = model.Description,
-               Status = "Pending",
-               OrderDetailID = model.OrderDetailID,
-               CreatedDate = DateTime.Now
-           };
+                // Tạo khiếu nại
+                var complaint = new Complaint
+                {
+                    ID = Guid.NewGuid(),
+                    Description = model.Description,
+                    Status = "Pending",
+                    OrderDetailID = model.OrderDetailID,
+                    CreatedDate = DateTime.Now
+                };
 
-           await _complaintService.AddAsync(complaint);
+                await _complaintService.AddAsync(complaint);
 
-           foreach (var file in model.Images)
-           {
-               var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-               var savePath = Path.Combine("wwwroot", "uploads", "complaints", fileName);
+                foreach (var file in model.Images)
+                {
+                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                    var savePath = Path.Combine("wwwroot", "uploads", "complaints", fileName);
 
-               var folder = Path.GetDirectoryName(savePath);
-               if (!Directory.Exists(folder))
-                   Directory.CreateDirectory(folder);
+                    var folder = Path.GetDirectoryName(savePath);
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
 
-               using (var stream = new FileStream(savePath, FileMode.Create))
-               {
-                   await file.CopyToAsync(stream);
-               }
+                    using (var stream = new FileStream(savePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
 
-               var complaintImage = new ComplaintImage
-               {
-                   ID = Guid.NewGuid(),
-                   ComplaintID = complaint.ID,
-                   ImageUrl = $"/uploads/complaints/{fileName}"
-                 
-               };
+                    var complaintImage = new ComplaintImage
+                    {
+                        ID = Guid.NewGuid(),
+                        ComplaintID = complaint.ID,
+                        ImageUrl = $"/uploads/complaints/{fileName}"
 
-               await _complaintImageServices.AddAsync(complaintImage);
-           }
+                    };
 
-           await _complaintService.SaveChangesAsync();
+                    await _complaintImageServices.AddAsync(complaintImage);
+                }
 
-           return Json(new { success = true, message = "Gửi khiếu nại thành công." });
-       }
-       catch (Exception ex)
-       {
- 
-           return Json(new { success = false, message = "Đã xảy ra lỗi khi gửi khiếu nại. Vui lòng thử lại sau.", detail = ex.Message });
-       }
-   }
+                await _complaintService.SaveChangesAsync();
 
-       
+                return Json(new { success = true, message = "Gửi khiếu nại thành công." });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { success = false, message = "Đã xảy ra lỗi khi gửi khiếu nại. Vui lòng thử lại sau.", detail = ex.Message });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> ViewRecipe(int? page)
+        {
+            int pageNumber = page ?? 1;  // Trang hiện tại, nếu null thì lấy 1
+            int pageSize = 5;            // Số món mỗi trang
+            var list = new List<RecipeViewModels>();
+            var obj = await _recipeService.ListAsync();
+            foreach (var item in obj)
+            {
+                var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
+
+                var recipeViewModel = new RecipeViewModels
+                {
+                    ID = item.ID,
+                    Title = item.Title,
+                    ShortDescriptions = item.ShortDescriptions,
+                    PreparationTime = item.PreparationTime,
+                    CookTime = item.CookTime,
+                    TotalTime = item.TotalTime,
+                    DifficultyLevel = item.DifficultyLevel,
+                    Servings = item.Servings,
+                    CreatedDate = item.CreatedDate,
+                    IsActive = item.IsActive,
+                    CateID = item.CateID,
+                    ThumbnailImage = item.ThumbnailImage,
+                    TypeOfDishName = typeOfDish?.Name,
+                    CookingStep = item.CookingStep, // Lấy tên, tránh null
+                    Ingredient = item.Ingredient,
+
+                };
+                list.Add(recipeViewModel);
+            }
+            var pagedList = list.ToPagedList(pageNumber, pageSize);
+            return View(pagedList);
+        }
+
     }
 
 
