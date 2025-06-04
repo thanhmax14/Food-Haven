@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BusinessLogic.Config;
 using BusinessLogic.Mapper;
+using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.TypeOfDishServices;
 using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Services;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
+using Repository.IngredientTagRepositorys;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
@@ -121,6 +123,10 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 builder.Services.AddSignalR();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<ITypeOfDishService, TypeOfDishService>();
+builder.Services.AddScoped<IIngredientTagRepository, IngredientTagRepository>();
+builder.Services.AddScoped<IngredientTagRepository>(); // 👈 thêm dòng này để inject trực tiếp
+
+
 
 var app = builder.Build();
 

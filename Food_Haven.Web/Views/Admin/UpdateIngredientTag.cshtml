@@ -259,12 +259,12 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Store Details</h4>
+                           
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
-                                    <li class="breadcrumb-item active">Edit Category</li>
+                                    <li class="breadcrumb-item active">Update IngredientTag</li>
                                 </ol>
                             </div>
 
@@ -277,7 +277,7 @@
                     <div class="col-xxl-12">
                         <div class="card">
                             <div class="card-header align-items-center d-flex">
-                                <h4 class="card-title mb-0 flex-grow-1">Update Category</h4>
+                                <h4 class="card-title mb-0 flex-grow-1">Update IngredientTag</h4>
                             </div>
 
                             <div class="card-body">
@@ -289,7 +289,7 @@
                                             <!-- Tên danh mục -->
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label asp-for="Name" class="form-label">TypeOfDish Name</label>
+                                                    <label asp-for="Name" class="form-label">IngredientTag Name</label>
                                                     <input asp-for="Name" class="form-control" required />
                                                     <span asp-validation-for="Name" class="text-danger"></span>
                                                 </div>
@@ -297,28 +297,14 @@
 
 
 
-                                            <!-- Ngày tạo -->
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label asp-for="CreatedDate" class="form-label">Created Date</label>
-                                                    <input asp-for="CreatedDate" class="form-control" readonly type="date" />
-                                                </div>
-                                            </div>
-
-                                            <!-- Ngày sửa đổi -->
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label asp-for="ModifiedDate" class="form-label">Modified Date</label>
-                                                    <input asp-for="ModifiedDate" class="form-control" readonly type="date" />
-                                                </div>
-                                            </div>
+                                         
 
                                             <!-- Hình ảnh danh mục -->
 
 
                                             <div class="col-lg-12 text-end">
                                                 <a href="/Admin/GetAllIngredientTag" class="btn btn-secondary px-4">Back To ListTypeIngredientTag</a>
-                                                <button type="submit" class="btn btn-primary px-4">Update Category</button>
+                                                <button type="submit" class="btn btn-primary px-4">Update IngredientTag</button>
                                             </div>
                                         </div>
                                     </form>
@@ -329,6 +315,10 @@
                 </div>
 
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                @{
+                    ViewData["Title"] = "Update IngredientTag";
+                }
 
                 @if (ViewBag.RedirectWithSuccess != null && ViewBag.RedirectWithSuccess == true)
                 {
@@ -345,6 +335,7 @@
                         });
                     </script>
                 }
+
 
                 <!-- JavaScript để xem trước ảnh -->
                 <script>
