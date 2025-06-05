@@ -327,12 +327,12 @@
 
                                         let toggleButtonHtml = isActive
                                             ? `<li>
-                                                    <button class="dropdown-item" onclick="toggleIngredientTagStatus('${id}', false)">
+                                                    <button class="dropdown-item" onclick="ToggleIngredientTagStatus('${id}', false)">
                                                         <i class="ri-eye-off-line text-danger align-bottom me-2"></i> Disable
                                                     </button>
                                                </li>`
                                             : `<li>
-                                                    <button class="dropdown-item" onclick="toggleIngredientTagStatus('${id}', true)">
+                                                    <button class="dropdown-item" onclick="ToggleIngredientTagStatus('${id}', true)">
                                                         <i class="ri-eye-line text-success align-bottom me-2"></i> Enable
                                                     </button>
                                                </li>`;
@@ -356,7 +356,11 @@
                                 }
                             ],
                             pagination: { enabled: true, limit: 10, summary: true },
-                            sort: true,
+                                                sort: {
+                        multiColumn: false,
+                        compare: (a, b) => new Date(b.cells[2].data) - new Date(a.cells[2].data)
+                    }
+
                             search: true,
                             data: ingredientTags.map(c => [
                                 c.id,

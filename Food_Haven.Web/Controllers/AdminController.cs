@@ -966,8 +966,10 @@ namespace Food_Haven.Web.Controllers
         {
             var data = await _typeOfDishService.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
 
-            var list = data.Select(item => new TypeOfDishViewModel
-            {
+            var list = data
+                .OrderByDescending(item => item.CreatedDate) // 👈 Sắp xếp theo ngày tạo mới nhất
+                .Select(item => new TypeOfDishViewModel
+                {
                 ID = item.ID,
                 Name = item.Name,
                 IsActive = item.IsActive,
@@ -1064,22 +1066,23 @@ namespace Food_Haven.Web.Controllers
 
 
         public async Task<IActionResult> GetAllIngredientTag()
+        {
+            var data = await _ingredienttag.ListAsync();
 
-            {
-                var data = await _ingredienttag.ListAsync(); // ✅ LẤY DỮ LIỆU THẬT
-
-                var list = data.Select(item => new IngredientTagViewModel
+            var list = data
+                .OrderByDescending(item => item.CreatedDate) // 👈 Sắp xếp theo ngày tạo mới nhất
+                .Select(item => new IngredientTagViewModel
                 {
                     ID = item.ID,
                     Name = item.Name,
                     IsActive = item.IsActive,
                     CreatedDate = item.CreatedDate,
                     ModifiedDate = item.ModifiedDate
-                }).ToList();
+                })
+                .ToList();
 
-                return View(list);
-            }
-
+            return View(list);
+        }
 
         [HttpGet]
         public IActionResult CreateIngredientTag()
