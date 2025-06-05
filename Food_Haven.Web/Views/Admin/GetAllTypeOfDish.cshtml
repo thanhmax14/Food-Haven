@@ -263,7 +263,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Category List</h4>
+                            <h4 class="mb-sm-0">Typeofdish List</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
@@ -295,98 +295,130 @@
                             </div><!-- end card -->
                         </div>
                         <!-- end col -->
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                var typeOfDishes = @Html.Raw(Json.Serialize(Model));
 
-                                        let toggleButtonHtml = isActive
-                                            ? `<li>
-                                                    <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', false)">
-                                                        <i class="ri-eye-off-line text-danger align-bottom me-2"></i> Disable
-                                                    </button>
-                                               </li>`
-                                            : `<li>
-                                                    <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', true)">
-                                                        <i class="ri-eye-line text-success align-bottom me-2"></i> Enable
-                                                    </button>
-                                               </li>`;
-
-                                        return gridjs.html(`
-                                            <div class="dropdown">
-                                                <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ri-more-fill align-middle"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a class="dropdown-item edit-item-btn" href="/Admin/UpdateTypeOfDish/${id}">
-                                                            <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                                        </a>
-                                                    </li>
-                                                    ${toggleButtonHtml}
-                                                </ul>
-                                            </div>
-                                        `);
-                                    }
+                                if (!typeOfDishes || typeOfDishes.length === 0) {
+                                    document.getElementById("table-typeofdish").innerHTML = "<div class='alert alert-warning text-center'><p>No types of dish available.</p></div>";
+                                    return;
                                 }
-                            ],
-                            pagination: { enabled: true, limit: 10, summary: true },
-                            sort: true,
-                            search: true,
-                            data: typeOfDishes.map(c => [
-                                c.id,
-                                c.name,
-                                c.createdDate,
-                                c.modifiedDate,
-                                c.isActive,
-                                c.isActive
-                            ])
-                        }).render(document.getElementById("table-typeofdish"));
-                    });
 
-                    function formatDate(dateString) {
-                        if (!dateString) return "";
-                        let date = new Date(dateString);
-                        return date.toLocaleDateString("en-GB");
-                    }
+                                new gridjs.Grid({
+                                    columns: [
+                                        { name: "ID", hidden: true },
+                                        { name: "Name", width: "250px" },
+                                        { name: "Created Date", width: "150px", formatter: (cell) => formatDate(cell) },
+                                        { name: "Modified Date", width: "150px", formatter: (cell) => formatDate(cell) },
+                                        {
+                                            name: "Status",
+                                            width: "120px",
+                                            formatter: (cell) => {
+                                                return cell
+                                                    ? gridjs.html(`<span class="badge bg-success-subtle text-success">Active</span>`)
+                                                    : gridjs.html(`<span class="badge bg-danger-subtle text-danger">Disabled</span>`);
+                                            }
+                                        },
+                                        {
+                                            name: "Actions",
+                                            width: "150px",
+                                            formatter: (_, row) => {
+                                                let id = row.cells[0].data;
+                                                let isActive = row.cells[5].data;
 
-                    function ToggletypeOfDishesIdTagStatus(id, isActive) {
-                        let actionText = isActive ? "enable" : "disable";
-                        let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
+                                                let toggleButtonHtml = isActive
+                                                    ? `<li>
+                                                            <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', false)">
+                                                                <i class="ri-eye-off-line text-danger align-bottom me-2"></i> Disable
+                                                            </button>
+                                                       </li>`
+                                                    : `<li>
+                                                            <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', true)">
+                                                                <i class="ri-eye-line text-success align-bottom me-2"></i> Enable
+                                                            </button>
+                                                       </li>`;
 
-                        Swal.fire({
-                            title: `Are you sure?`,
-                            text: `Do you want to ${actionText} this type of dish?`,
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: confirmButtonColor,
-                            cancelButtonColor: "#6c757d",
-                            confirmButtonText: `Yes, ${actionText} it!`
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                fetch(`/Admin/ToggletypeOfDishesIdTagStatus?id=${id}&isActive=${isActive}`, {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ id, isActive })
-                                })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            Swal.fire({
-                                                title: "Success!",
-                                                text: `Type of dish has been ${actionText}d successfully.`,
-                                                icon: "success",
-                                                timer: 1500,
-                                                showConfirmButton: false
-                                            }).then(() => location.reload());
-                                        } else {
-                                            Swal.fire("Error!", "Failed to update type of dish status.", "error");
+                                                return gridjs.html(`
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="ri-more-fill align-middle"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end">
+                                                            <li>
+                                                                <a class="dropdown-item edit-item-btn" href="/Admin/UpdateTypeOfDish/${id}">
+                                                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                                                </a>
+                                                            </li>
+                                                            ${toggleButtonHtml}
+                                                        </ul>
+                                                    </div>
+                                                `);
+                                            }
                                         }
-                                    })
-                                    .catch(error => {
-                                        console.error("Error updating type of dish status:", error);
-                                        Swal.fire("Error!", "An unexpected error occurred.", "error");
-                                    });
+                                    ],
+                                    pagination: { enabled: true, limit: 10, summary: true },
+                                                                sort: {
+                                multiColumn: false,
+                                compare: (a, b) => new Date(b.cells[2].data) - new Date(a.cells[2].data)
                             }
-                        });
-                    }
-                </script>
+                                    search: true,
+                                    data: typeOfDishes.map(c => [
+                                        c.id,
+                                        c.name,
+                                        c.createdDate,
+                                        c.modifiedDate,
+                                        c.isActive,
+                                        c.isActive
+                                    ])
+                                }).render(document.getElementById("table-typeofdish"));
+                            });
+
+                            function formatDate(dateString) {
+                                if (!dateString) return "";
+                                let date = new Date(dateString);
+                                return date.toLocaleDateString("en-GB");
+                            }
+
+                            function ToggletypeOfDishesIdTagStatus(id, isActive) {
+                                let actionText = isActive ? "enable" : "disable";
+                                let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
+
+                                Swal.fire({
+                                    title: `Are you sure?`,
+                                    text: `Do you want to ${actionText} this type of dish?`,
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: confirmButtonColor,
+                                    cancelButtonColor: "#6c757d",
+                                    confirmButtonText: `Yes, ${actionText} it!`
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        fetch(`/Admin/ToggletypeOfDishesIdTagStatus?id=${id}&isActive=${isActive}`, {
+                                            method: "POST"
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    Swal.fire({
+                                                        title: "Success!",
+                                                        text: `Type of dish has been ${actionText}d successfully.`,
+                                                        icon: "success",
+                                                        timer: 1500,
+                                                        showConfirmButton: false
+                                                    }).then(() => location.reload());
+                                                } else {
+                                                    Swal.fire("Error!", "Failed to update type of dish status.", "error");
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error("Error updating type of dish status:", error);
+                                                Swal.fire("Error!", "An unexpected error occurred.", "error");
+                                            });
+                                    }
+                                });
+                            }
+                        </script>
+
 
                 <!-- end row -->
 
