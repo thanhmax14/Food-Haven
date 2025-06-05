@@ -906,7 +906,7 @@ namespace Food_Haven.Web.Controllers
                         _ => 0m
                     };
 
-                  
+
                     discountVoucher = Math.Min(discountVoucher, totalBeforeDiscount);
                 }
             }
@@ -935,7 +935,7 @@ namespace Food_Haven.Web.Controllers
                     Totals = od.Quantity * od.ProductPrice,
                     ProductID = pid ?? Guid.Empty,
                     ImageProduct = imageUrl,
-                    Status = od.Status.ToUpper()    
+                    Status = od.Status.ToUpper()
                 });
             }
 
@@ -967,7 +967,7 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> CancelOrder(Guid id)
         {
 
-            if (string.IsNullOrWhiteSpace(id+""))
+            if (string.IsNullOrWhiteSpace(id + ""))
                 return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
 
             try
@@ -1068,7 +1068,7 @@ namespace Food_Haven.Web.Controllers
                     item.Status = status;
                     item.ModifiedDate = DateTime.UtcNow;
                     await _orderDetail.UpdateAsync(item);
-                
+
                 }
                 // Ghi chú thời gian thay đổi trạng thái vào Description
                 string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -1100,42 +1100,42 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> Detailcomplant(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)       
+            if (user == null)
                 return RedirectToAction("Login", "Home");
             var getComplaint = await _complaintService.FindAsync(u => u.ID == id);
             if (getComplaint == null)
                 return NotFound("Complant not found.");
             var getOrderDetail = await _orderDetail.FindAsync(u => u.ID == getComplaint.OrderDetailID);
-            if(getOrderDetail == null)
+            if (getOrderDetail == null)
                 return NotFound("Order detail not found.");
             var getOrder = await _order.FindAsync(u => u.ID == getOrderDetail.OrderID);
-            if(getOrder == null)
+            if (getOrder == null)
                 return NotFound("Order not found.");
-          
+
             var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
             if (getStore == null)
                 return NotFound("Store not found.");
             var getProductType = await this._variantService.FindAsync(u => u.ID == getOrderDetail.ProductTypesID);
-            if(getProductType==null)
+            if (getProductType == null)
                 return NotFound("Productype not found.");
             var getProduct = await _product.FindAsync(u => u.ID == getProductType.ProductID);
-            if(getProduct == null)
+            if (getProduct == null)
                 return NotFound("Product not found.");
             var getUser = await _userManager.FindByIdAsync(getOrder.UserID);
-            if(getUser == null)
+            if (getUser == null)
                 return NotFound("User not found.");
 
             var model = new ComplantDetailViewmodels();
             model.Status = getComplaint.Status;
-            model.CreateDate= getComplaint.CreatedDate;
+            model.CreateDate = getComplaint.CreatedDate;
             model.AdminrReply = getComplaint.AdminReply;
             model.DateAdminCreate = getComplaint.DateAdminReply;
-            model.SellerReply= getComplaint.Reply;
+            model.SellerReply = getComplaint.Reply;
             model.DateReply = getComplaint.ReplyDate;
-            model.ComplantID= getComplaint.ID;
+            model.ComplantID = getComplaint.ID;
             model.NameShop = getStore.Name;
             model.ProductName = getProduct.Name;
-            model.ProductType= getProductType.Name;
+            model.ProductType = getProductType.Name;
             model.Description = getComplaint.Description;
             model.UserName = getUser.UserName;
             model.OrderTracking = getOrder.OrderTracking;
@@ -1151,7 +1151,7 @@ namespace Food_Haven.Web.Controllers
             var getImage = await this._complaintImageServices.ListAsync(u => u.ComplaintID == getComplaint.ID);
             if (getImage.Any())
             {
-                foreach(var item in getImage)
+                foreach (var item in getImage)
                 {
                     model.image.Add(item.ImageUrl);
                 }
@@ -1200,7 +1200,7 @@ namespace Food_Haven.Web.Controllers
             var complaintsRaw = await this._complaintService.ListAsync(c => orderDetailIds.Contains(c.OrderDetailID));
             if (!complaintsRaw.Any())
                 return Json(new List<GetComplaintViewModel>());
-         
+
             var userDict = (await _userManager.Users.ToListAsync())
                 .Where(u => userIds.Contains(u.Id))
                 .ToDictionary(u => u.Id, u => u.UserName);
@@ -1219,7 +1219,7 @@ namespace Food_Haven.Web.Controllers
                 return new GetComplaintViewModel
                 {
                     Id = c.ID,
-                    OrderCode = orderInfo?.OrderTracking?? "N/A", //
+                    OrderCode = orderInfo?.OrderTracking ?? "N/A", //
                     UserName = userName,
                     Description = c.Description,
                     Status = c.Status,
@@ -1227,9 +1227,9 @@ namespace Food_Haven.Web.Controllers
                     AdminReply = c.AdminReply,
                     CreatedDate = c.CreatedDate,
                     ReplyDate = c.ReplyDate,
-                    ReportStatus=c.AdminReportStatus,
-                    AdminReplyDate =c.DateAdminReply,
-                   
+                    ReportStatus = c.AdminReportStatus,
+                    AdminReplyDate = c.DateAdminReply,
+
 
                 };
             }).ToList();
@@ -1251,7 +1251,7 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new { success = false, message = "Không tìm thấy khiếu nại." });
             }
-            if(complaint.Status.ToLower()== "Refund".ToLower())
+            if (complaint.Status.ToLower() == "Refund".ToLower())
             {
                 return Json(new { success = false, message = "Khiếu nại này đã được xử lý hoàn tiền." });
             }
@@ -1266,7 +1266,7 @@ namespace Food_Haven.Web.Controllers
 
                     try
                     {
-                      
+
                         // Lấy danh sách chi tiết đơn hàng
                         var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
                         if (orderDetails == null)
@@ -1278,7 +1278,7 @@ namespace Food_Haven.Web.Controllers
 
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
-                            await _orderDetail.UpdateAsync(orderDetails);
+                        await _orderDetail.UpdateAsync(orderDetails);
                         var currentBalance = await _balance.GetBalance(order.UserID);
                         var refundTransaction = new BalanceChange
                         {
@@ -1296,22 +1296,22 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                       /* // Cập nhật trạng thái đơn hàng
-                        order.Status = "Refunded";
-                        order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.UtcNow;
-                        order.Description = string.IsNullOrEmpty(order.Description)
-                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                        await _order.UpdateAsync(order);*/
+                        /* // Cập nhật trạng thái đơn hàng
+                         order.Status = "Refunded";
+                         order.PaymentStatus = "Refunded";
+                         order.ModifiedDate = DateTime.UtcNow;
+                         order.Description = string.IsNullOrEmpty(order.Description)
+                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                         await _order.UpdateAsync(order);*/
 
                         // Lưu thay đổi
                         await _orderDetail.SaveChangesAsync();
-                    
-                     //   await _order.SaveChangesAsync();
+
+                        //   await _order.SaveChangesAsync();
                         await _balance.SaveChangesAsync();
 
-                
+
                         mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
                     }
                     catch (Exception)
@@ -1414,7 +1414,7 @@ namespace Food_Haven.Web.Controllers
                                 CheckDone = true,
                                 StartTime = DateTime.Now,
                                 DueTime = DateTime.Now,
-                           //     OrderID = newOrderId
+                                //     OrderID = newOrderId
                             };
 
                             // Đánh dấu voucher đã dùng
@@ -1435,7 +1435,7 @@ namespace Food_Haven.Web.Controllers
                         complaint.ReplyDate = DateTime.Now;
                         if (!result)
                             return Json(new { success = false, msg = "Thao tác không thành công." });
-                      mess = "Đơn bảo hành miễn phí thành công!";
+                        mess = "Đơn bảo hành miễn phí thành công!";
                     }
                     catch (Exception ex)
                     {
@@ -1447,7 +1447,7 @@ namespace Food_Haven.Web.Controllers
                 case "dispute":
                     complaint.Status = "Report to Admin";
                     complaint.Reply = $"[TRANH CHẤP] {note}";
-                    complaint.IsReportAdmin= true;
+                    complaint.IsReportAdmin = true;
                     complaint.AdminReportStatus = "Pending";
 
 
@@ -1464,15 +1464,239 @@ namespace Food_Haven.Web.Controllers
                 await this._complaintService.UpdateAsync(complaint);
                 await this._complaintService.SaveChangesAsync();
 
-                return Json(new { success = true, message= mess });
+                return Json(new { success = true, message = mess });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
             }
         }
+        public async Task<IActionResult> ManagerVoucher()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult GetAllVoucher()
+        {
+            try
+            {
+                var data = _voucher.GetAll().Select(v => new
+                {
+                    id = v.ID,
+                    code = v.Code,
+                    discountAmount = v.DiscountAmount,
+                    discountType = v.DiscountType,
+                    createdDate = v.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                    startDate = v.StartDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                    expirationDate = v.ExpirationDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                    maxUsage = v.MaxUsage,
+                    currentUsage = v.CurrentUsage,
+                    isActive = v.IsActive,
+                    scope = v.Scope,
+                    minOrderValue = v.MinOrderValue
+                }).ToList();
 
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetVoucher(Guid id)
+        {
+            try
+            {
+                var v = await _voucher.FindAsync(x => x.ID == id);
+                if (v == null) return NotFound();
+
+                return Json(new
+                {
+                    id = v.ID,
+                    code = v.Code,
+                    discountAmount = v.DiscountAmount,
+                    discountType = v.DiscountType,
+                    startDate = v.StartDate.ToString("yyyy-MM-dd"),
+                    expirationDate = v.ExpirationDate.ToString("yyyy-MM-dd"),
+                    maxUsage = v.MaxUsage,
+                    currentUsage = v.CurrentUsage,
+                    isActive = v.IsActive,
+                    scope = v.Scope,
+                    minOrderValue = v.MinOrderValue
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateVoucher([FromBody] VoucherViewModel v)
+        {
+            var errors = new Dictionary<string, string>();
+
+            if (string.IsNullOrWhiteSpace(v.Code))
+                errors["code"] = "Code is required.";
+
+            if (v.DiscountAmount <= 0)
+                errors["discountAmount"] = "Discount amount must be greater than 0.";
+
+            if (string.IsNullOrWhiteSpace(v.DiscountType) ||
+                (v.DiscountType != "Fixed" && v.DiscountType != "Percent"))
+                errors["discountType"] = "Discount type must be Fixed or Percent.";
+
+            if (!DateTime.TryParse(v.StartDate, out var startDate))
+                errors["startDate"] = "Start date is invalid or missing.";
+
+            if (!DateTime.TryParse(v.ExpirationDate, out var expirationDate))
+                errors["expirationDate"] = "Expiration date is invalid or missing.";
+
+            if (!errors.ContainsKey("startDate") && !errors.ContainsKey("expirationDate"))
+            {
+                if (startDate >= expirationDate)
+                    errors["startDate"] = "Start date must be before expiration date.";
+            }
+
+            if (string.IsNullOrWhiteSpace(v.Scope))
+                errors["scope"] = "Scope is required.";
+
+            if (v.MaxUsage < 0)
+                errors["maxUsage"] = "Max usage must be 0 or greater.";
+
+            if (v.CurrentUsage < 0)
+                errors["currentUsage"] = "Current usage must be 0 or greater.";
+            else if (v.CurrentUsage > v.MaxUsage)
+                errors["currentUsage"] = "Current usage cannot exceed max usage.";
+
+            if (v.MinOrderValue < 0)
+                errors["minOrderValue"] = "Minimum order value must be 0 or greater.";
+
+            if (errors.Any())
+                return BadRequest(new { success = false, fieldErrors = errors });
+
+            try
+            {
+                var entity = new Voucher
+                {
+                    ID = Guid.NewGuid(),
+                    Code = v.Code,
+                    DiscountAmount = v.DiscountAmount,
+                    DiscountType = v.DiscountType,
+                    StartDate = startDate,
+                    ExpirationDate = expirationDate,
+                    Scope = v.Scope,
+                    MaxUsage = v.MaxUsage,
+                    CurrentUsage = v.CurrentUsage,
+                    MinOrderValue = v.MinOrderValue,
+                    IsActive = v.IsActive,
+                    CreatedDate = DateTime.Now
+                };
+
+                await _voucher.AddAsync(entity);
+                await _voucher.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Server error: " + ex.Message });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateVoucher([FromBody] VoucherViewModel v)
+        {
+            var errors = new Dictionary<string, string>();
+
+            if (string.IsNullOrWhiteSpace(v.Code))
+                errors["code"] = "Code is required.";
+
+            if (v.DiscountAmount <= 0)
+                errors["discountAmount"] = "Discount amount must be greater than 0.";
+
+            if (string.IsNullOrWhiteSpace(v.DiscountType) ||
+                (v.DiscountType != "Fixed" && v.DiscountType != "Percent"))
+                errors["discountType"] = "Discount type must be Fixed or Percent.";
+
+            if (!DateTime.TryParse(v.StartDate, out var startDate))
+                errors["startDate"] = "Start date is invalid or missing.";
+
+            if (!DateTime.TryParse(v.ExpirationDate, out var expirationDate))
+                errors["expirationDate"] = "Expiration date is invalid or missing.";
+
+            if (!errors.ContainsKey("startDate") && !errors.ContainsKey("expirationDate"))
+            {
+                if (startDate >= expirationDate)
+                    errors["startDate"] = "Start date must be before expiration date.";
+            }
+
+            if (string.IsNullOrWhiteSpace(v.Scope))
+                errors["scope"] = "Scope is required.";
+
+            if (v.MaxUsage < 0)
+                errors["maxUsage"] = "Max usage must be 0 or greater.";
+
+            if (v.CurrentUsage < 0)
+                errors["currentUsage"] = "Current usage must be 0 or greater.";
+            else if (v.CurrentUsage > v.MaxUsage)
+                errors["currentUsage"] = "Current usage cannot exceed max usage.";
+
+            if (v.MinOrderValue < 0)
+                errors["minOrderValue"] = "Minimum order value must be 0 or greater.";
+
+            if (errors.Any())
+                return BadRequest(new { success = false, fieldErrors = errors });
+
+            try
+            {
+                var entity = await _voucher.FindAsync(x => x.ID == v.ID);
+                if (entity == null)
+                    return NotFound();
+
+                entity.Code = v.Code;
+                entity.DiscountAmount = v.DiscountAmount;
+                entity.DiscountType = v.DiscountType;
+                entity.StartDate = startDate;
+                entity.ExpirationDate = expirationDate;
+                entity.Scope = v.Scope;
+                entity.MaxUsage = v.MaxUsage;
+                entity.CurrentUsage = v.CurrentUsage;
+                entity.MinOrderValue = v.MinOrderValue;
+                entity.IsActive = v.IsActive;
+
+                await _voucher.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Server error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteVoucher([FromBody] DeleteVoucherRequest request)
+        {
+            try
+            {
+                var v = await _voucher.FindAsync(x => x.ID == request.Id);
+                if (v == null)
+                    return NotFound(new { success = false, error = "Voucher not found." });
+
+                v.IsActive = false;
+                await _voucher.UpdateAsync(v);
+                await _voucher.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
 
     }
-
 }
