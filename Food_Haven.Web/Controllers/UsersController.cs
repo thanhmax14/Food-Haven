@@ -35,7 +35,8 @@ using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.TypeOfDishServices;
 using Azure;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using X.PagedList; // nhớ import
+using X.PagedList;
+using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -62,8 +63,9 @@ namespace Food_Haven.Web.Controllers
         private readonly ITypeOfDishService _typeOfDishService;
         private readonly IComplaintImageServices _complaintImageServices;
         private readonly IComplaintServices _complaintService;
+        private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce)
         {
             _userManager = userManager;
             this.client = client;
@@ -84,6 +86,7 @@ namespace Food_Haven.Web.Controllers
             _typeOfDishService = typeOfDishService;
             _complaintImageServices = complaintImageServices;
             _complaintService = complaintService;
+            _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
         }
 
         [HttpGet]
@@ -1248,19 +1251,19 @@ namespace Food_Haven.Web.Controllers
             };
             await _recipeService.AddAsync(recipe);
             // Lưu các IngredientTag được chọn vào bảng liên kết
-            // if (obj.SelectedIngredientTags != null && obj.SelectedIngredientTags.Any())
-            // {
-            //     foreach (var tagId in obj.SelectedIngredientTags)
-            //     {
-            //         // Tạo bản ghi cho bảng liên kết
-            //         var recipeIngredientTag = new RecipeIngredientTags
-            //         {
-            //             RecipeID = recipe.ID,
-            //             IngredientTagID = tagId
-            //         };
-            //         await _context.Set<RecipeIngredientTags>().AddAsync(recipeIngredientTag);
-            //     }
-            // }
+            if (obj.SelectedIngredientTags != null && obj.SelectedIngredientTags.Any())
+            {
+                foreach (var tagId in obj.SelectedIngredientTags)
+                {
+                    // Tạo bản ghi cho bảng liên kết
+                    var recipeIngredientTag = new RecipeIngredientTag
+                    {
+                        RecipeID = recipe.ID,
+                        IngredientTagID = tagId
+                    };
+                    await _recipeIngredientTagIngredientTagIngredientTagSerivce.AddAsync(recipeIngredientTag);
+                }
+            }
             await _recipeService.SaveChangesAsync();
             return RedirectToAction("ViewRecipe", "Users");
         }
@@ -1366,6 +1369,9 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewRecipe(int? page)
         {
+            var user = await _userManager.GetUserAsync(User);
+            ViewBag.UserId = user?.Id;
+
             int pageNumber = page ?? 1;  // Trang hiện tại, nếu null thì lấy 1
             int pageSize = 5;            // Số món mỗi trang
             var list = new List<RecipeViewModels>();
@@ -1398,6 +1404,52 @@ namespace Food_Haven.Web.Controllers
             var pagedList = list.ToPagedList(pageNumber, pageSize);
             return View(pagedList);
         }
+        [HttpGet]
+        public async Task<IActionResult> MyViewRecipe(int? page, string id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            int pageNumber = page ?? 1;
+            int pageSize = 5;
+            var list = new List<RecipeViewModels>();
+
+            var obj = await _recipeService.ListAsync();
+            foreach (var item in obj)
+            {
+                if (item.UserID == id) // Giả sử bạn có property `UserId` trong Recipe
+                {
+                    var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
+
+                    var recipeViewModel = new RecipeViewModels
+                    {
+                        ID = item.ID,
+                        Title = item.Title,
+                        ShortDescriptions = item.ShortDescriptions,
+                        PreparationTime = item.PreparationTime,
+                        CookTime = item.CookTime,
+                        TotalTime = item.TotalTime,
+                        DifficultyLevel = item.DifficultyLevel,
+                        Servings = item.Servings,
+                        CreatedDate = item.CreatedDate,
+                        IsActive = item.IsActive,
+                        CateID = item.CateID,
+                        ThumbnailImage = item.ThumbnailImage,
+                        TypeOfDishName = typeOfDish?.Name,
+                        CookingStep = item.CookingStep,
+                        Ingredient = item.Ingredient,
+                    };
+                    list.Add(recipeViewModel);
+                }
+            }
+
+            var pagedList = list.ToPagedList(pageNumber, pageSize);
+            return View(pagedList);
+        }
+
 
     }
 

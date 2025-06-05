@@ -1,8 +1,7 @@
-@using Repository.ViewModels
+@using X.PagedList
 @using X.PagedList.Mvc.Core
 @using X.PagedList.Mvc.Core.Common
-@using X.PagedList
-@model IPagedList<RecipeViewModels>
+@model IPagedList<Repository.ViewModels.RecipeViewModels>
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -370,13 +369,12 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="sidebar-widget-2 widget_search mb-50">
-                                <a asp-action="MyViewRecipe" asp-controller="Users" asp-route-id="@ViewBag.UserId"
+                               <div class="sidebar-widget-2 widget_create mb-50"></div>
+                                <a asp-action="CreateRecipe" asp-controller="Users"
                                     class="btn btn-primary w-100">
-                                    My View Recipe <i class="fi-rs-arrow-right ms-1"></i>
+                                    Create Recipe <i class="fi-rs-arrow-right ms-1"></i>
                                 </a>
                             </div>
-
                             <div class="sidebar-widget widget-category-2 mb-50">
                                 <h5 class="section-title style-1 mb-30">Category</h5>
                                 <ul>

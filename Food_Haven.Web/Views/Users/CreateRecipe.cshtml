@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
     <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
@@ -40,6 +41,8 @@
     <!-- custom Css-->
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
     <link href="assets/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.css">
+
 </head>
 
 <body>
@@ -233,19 +236,50 @@
 
                     <div class="row">
                         <!-- Cột phải: Ingredient Tag -->
-                        <div class="col-md-6" style="margin-bottom: 20px;">
-                            <div class="mb-3 h-100 d-flex flex-column">
-                                <label for="IngredientTags" class="form-label">Ingredient Tag</label>
-                                <select id="IngredientTags" name="SelectedIngredientTags[]"
-                                    class="form-select flex-grow-1" size="10" multiple required>
-                                    @foreach (var item in Model.IngredientTags)
-                                    {
-                                        <option value="@item.ID">@item.Name</option>
-                                    }
-                                </select>
-                            </div>
 
+
+                        <div class="col-md-6 mb-3 h-100 d-flex flex-column">
+                            <input class="search-input" type="text" placeholder="Search..." title="Search..."
+                                id="searchAll">
+                            <label for="IngredientTags" class="form-label">Ingredient Tag</label>
+                            <select id="IngredientTags" name="SelectedIngredientTags[]" class="form-select" multiple
+                                style="display:none;">
+                                @foreach (var item in Model.IngredientTags)
+                                {
+                                    <option value="@item.ID">@item.Name</option>
+                                }
+                                @* <option>Chevrolet</option>
+                                <option>Fiat</option>
+                                <option>Ford</option>
+                                <option>Honda</option>
+                                <option selected>Hyundai</option>
+                                <option>Kia</option>
+                                <option>Mahindra</option>
+                                <option>Maruti</option>
+                                <option>Mitsubishi</option>
+                                <option>MG</option>
+                                <option>Nissan</option>
+                                <option>Renault</option>
+                                <option selected>Skoda</option>
+                                <option selected>Tata</option>
+                                <option selected>Toyato</option>
+                                <option>Volkswagen</option> *@
+                            </select>
+
+                            <div class="multi-select-container">
+                                <div class="multi-select-column">
+                                    <div class="header">Available</div>
+                                    <div class="items-list" id="availableList"></div>
+                                </div>
+
+                                <div class="multi-select-column">
+                                    <div class="header">Selected</div>
+                                    <div class="items-list" id="selectedList"></div>
+                                </div>
+                            </div>
                         </div>
+
+
                         <!-- Cột trái: 3 time input -->
                         <div class="col-md-6">
                             <!-- Preparation Time -->
@@ -360,7 +394,7 @@
                 <input type="file" class="form-control" id="ThumbnailImage" name="ThumbnailImage" accept="image/*" />
             </div>
 
-          
+
 
         </div>
         <input type="hidden" id="IngredientHidden" name="Ingredient" />
@@ -617,7 +651,7 @@
         </div>
     </div>
     <!-- ✅ jQuery (luôn phải đứng trước các plugin dùng jQuery) -->
-    <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
 
     <!-- ✅ Bootstrap 5 -->
@@ -630,7 +664,6 @@
 
     <!-- ✅ multi.js -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.js"></script>
 
     <!-- ✅ autoComplete.js -->
 
@@ -657,6 +690,7 @@
 
     <!-- ✅ Grid.js -->
     <script src="~/assets/js/gridjs/gridjs.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
     <!-- ✅ Admin Template (nếu dùng layout riêng cho admin) -->
     <script src="assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -665,6 +699,7 @@
     <script src="assetsAdmin/libs/feather-icons/feather.min.js"></script>
     <script src="assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
     <script src="assetsAdmin/js/plugins.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.js"></script>
 
 
 
@@ -929,50 +964,114 @@
             }
         }
     </script>
-
     <style>
-        /* Tạo khoảng cách rõ ràng giữa thanh search và khung chọn */
-        .multi-wrapper .search-input {
-            margin-bottom: 16px !important;
-            border-bottom: 1px solid #dee2e6;
-            /* tạo đường phân cách nhẹ nếu muốn */
-            border-radius: 6px;
-            /* làm mượt viền nếu cần */
+        .multi-select-container {
+            border: 1px solid #ccc;
+            display: flex;
+            gap: 10px;
+            font-family: Arial, sans-serif;
         }
 
-        .multi-wrapper {
-            border: none !important;
-            box-shadow: none !important;
-            /* nếu có bóng mờ */
-            padding: 0 !important;
-            /* tùy chỉnh lại nếu cần */
+        .multi-select-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .multi-select-column .header {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
 
         .search-input {
+            width: 100%;
+            box-sizing: border-box;
             border: 1px solid #ced4da !important;
-            /* đường viền giống Bootstrap */
             border-radius: 6px;
-            /* bo góc nhẹ */
             padding: 8px 12px;
-            /* khoảng cách trong ô */
             background-color: #fff;
-            /* nền trắng */
             outline: none;
-            /* bỏ viền xanh khi focus */
             box-shadow: none;
-            /* không bóng đổ */
+            margin-bottom: 10px;
         }
 
-        .ql-toolbar.ql-snow {
-            border-radius: 6px 6px 0 0;
+        .items-list {
+            border: 1px solid #ccc;
+            height: 250px;
+            overflow-y: auto;
         }
 
-        .ql-container.ql-snow {
-            border-radius: 0 0 6px 6px;
-            min-height: 300px;
+        .item {
+            padding: 5px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .item:hover {
+            background-color: #eee;
+        }
+
+        .item.selected {
+            background-color: #2f00ff;
+            color: white;
+            border-color: #007bff;
         }
     </style>
 
+
+    <script>
+        // Tất cả tags từ server truyền xuống dưới dạng JSON
+        const allItems = @Html.Raw(Json.Serialize(Model.IngredientTags.Select(t => new { id = t.ID, name = t.Name })));
+        let selectedItems = @Html.Raw(Json.Serialize(Model.SelectedIngredientTags));
+
+        function renderLists() {
+            const availableList = document.getElementById('availableList');
+            const selectedList = document.getElementById('selectedList');
+            const selectElement = document.getElementById('IngredientTags');
+            const searchVal = document.getElementById('searchAll').value.toLowerCase();
+
+            availableList.innerHTML = '';
+            selectedList.innerHTML = '';
+            selectElement.innerHTML = '';
+
+            allItems.forEach(item => {
+                const isSelected = selectedItems.includes(item.id);
+                const matchSearch = item.name.toLowerCase().includes(searchVal);
+
+                if (matchSearch) {
+                    const div = document.createElement('div');
+                    div.textContent = item.name;
+                    div.className = 'item ' + (isSelected ? 'selected' : '');
+                    div.style.cursor = 'pointer';
+                    div.onclick = () => {
+                        if (isSelected) {
+                            selectedItems = selectedItems.filter(id => id !== item.id);
+                        } else {
+                            selectedItems.push(item.id);
+                        }
+                        renderLists(); // Re-render
+                    };
+
+                    if (isSelected) {
+                        selectedList.appendChild(div);
+                    } else {
+                        availableList.appendChild(div);
+                    }
+                }
+
+                // Đồng bộ select ẩn
+                if (isSelected) {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.selected = true;
+                    selectElement.appendChild(opt);
+                }
+            });
+        }
+
+        document.getElementById('searchAll').addEventListener('input', renderLists);
+        renderLists();
+    </script>
 
 
 </body>
