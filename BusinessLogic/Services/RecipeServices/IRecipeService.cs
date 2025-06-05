@@ -9,7 +9,7 @@ namespace BusinessLogic.Services.RecipeServices
 {
     public interface IRecipeService
     {
-         IQueryable<Recipe> GetAll();
+        IQueryable<Recipe> GetAll();
         Recipe GetById(Guid id);
         Task<Recipe> GetAsyncById(Guid id);
         Recipe Find(Expression<Func<Recipe, bool>> match);
@@ -27,6 +27,6 @@ namespace BusinessLogic.Services.RecipeServices
             Expression<Func<Recipe, bool>> filter = null,
             Func<IQueryable<Recipe>, IOrderedQueryable<Recipe>> orderBy = null,
             Func<IQueryable<Recipe>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Recipe, object>> includeProperties = null);
-        
+
     }
 }
