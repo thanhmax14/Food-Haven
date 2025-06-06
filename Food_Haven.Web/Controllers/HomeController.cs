@@ -704,28 +704,41 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> ProductDetail(Guid id)
         {
+            // 1. Lấy sản phẩm + cửa hàng
             var productDetail = await _product.FindAsync(x => x.ID == id);
             if (productDetail == null)
                 return NotFound();
 
-            var ProductType = await _productvarian.ListAsync(x => x.ProductID == productDetail.ID);
+            // 2. Lấy cửa hàng
+            var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID);
+            if (store == null)
+                return NotFound("Store not found");
+
+            // 3. Lấy AppUser từ UserID (giống GetStoreDetail)
+            var user = await _userManager.FindByIdAsync(store?.UserID);
+
+            // 4. Lấy loại sản phẩm
+            var productType = await _productvarian.ListAsync(x => x.ProductID == productDetail.ID);
+
+            // 5. Khởi tạo ViewModel
             var viewModel = new ProductDetailsViewModel
             {
                 ID = productDetail.ID,
                 Name = productDetail.Name,
-                StoreName = productDetail.StoreDetails?.Name ?? "Không rõ",
-                Owner = productDetail.StoreDetails?.AppUser?.UserName ?? "Không rõ",
+                StoreName = store.Name ?? "Không rõ",
+                Owner = user?.UserName ?? store?.UserID ?? "Không rõ",
+
                 ShortDescription = productDetail.ShortDescription,
                 LongDescription = productDetail.LongDescription,
                 CreatedDate = productDetail.CreatedDate,
-                Stock = ProductType.FirstOrDefault()?.Stock ?? 0,
+                Stock = productType.FirstOrDefault()?.Stock ?? 0
             };
 
-            // 1. Ảnh sản phẩm
+            // 6. Ảnh sản phẩm
             var productImages = await _productimg.ListAsync(i => i.ProductID == id);
             viewModel.Img = productImages.Select(i => i.ImageUrl).ToList();
 
-            // 2. Variants (size, giá, tồn kho)
+            // 7. Biến thể (variants)
             var variants = (await _productvarian.ListAsync(v => v.ProductID == id && v.IsActive)).ToList();
             viewModel.size = variants.Select(v => v.Name).ToList();
             viewModel.Variant = variants.Select(v => new ProductVariantViewModel
@@ -740,13 +753,11 @@ namespace Food_Haven.Web.Controllers
             viewModel.Price = firstVariant?.SellPrice ?? 0;
             viewModel.Stocks = firstVariant?.Stock ?? 0;
 
-            // 3. Cửa hàng và danh mục - gọi tuần tự, không dùng Task.WhenAll
-            var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID);
+            // 8. Danh mục
             var category = await _categoryService.FindAsync(c => c.ID == productDetail.CategoryID);
-            viewModel.StoreName = store?.Name;
             viewModel.CategoryName = category?.Name;
 
-            // 4. Bình luận
+            // 9. Bình luận
             var comments = await _reviewService.ListAsync(c => c.ProductID == id);
             viewModel.Comments = comments.Select(c => new CommentViewModels
             {
@@ -757,6 +768,7 @@ namespace Food_Haven.Web.Controllers
 
             return View(viewModel);
         }
+
 
         public async Task<IActionResult> GetAllProductOfCategory(Guid id)
         {
