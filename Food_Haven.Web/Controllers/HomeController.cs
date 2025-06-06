@@ -727,7 +727,7 @@ namespace Food_Haven.Web.Controllers
                 Name = productDetail.Name,
                 StoreName = store.Name ?? "Không rõ",
                 Owner = user?.UserName ?? store?.UserID ?? "Không rõ",
-
+                StoreID = productDetail.StoreID,
                 ShortDescription = productDetail.ShortDescription,
                 LongDescription = productDetail.LongDescription,
                 CreatedDate = productDetail.CreatedDate,
