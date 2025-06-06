@@ -12,6 +12,7 @@ namespace BusinessLogic.Services.Products
 {
     public interface IProductService
     {
+
         IQueryable<Product> GetAll();
         Product GetById(Guid id);
         Task<Product> GetAsyncById(Guid id);
@@ -43,5 +44,6 @@ namespace BusinessLogic.Services.Products
         Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
         Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId);
         Task<List<Categories>> GetActiveCategoriesAsync();
+        Task<Product> FindWithStoreAndUserAsync(Guid id);
     }
 }

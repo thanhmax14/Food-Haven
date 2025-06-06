@@ -57,6 +57,9 @@ namespace Models.DBContext
             .WithOne(u => u.StoreDetails)
             .HasForeignKey<StoreDetails>(h => h.UserID).OnDelete(DeleteBehavior.NoAction);
 
+         
+
+
             builder.Entity<Product>()
            .HasOne(h => h.StoreDetails)
            .WithMany(h => h.Products)

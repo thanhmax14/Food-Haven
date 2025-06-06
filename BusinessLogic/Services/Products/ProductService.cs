@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using Models.DBContext;
 using Repository.Categorys;
 using Repository.ProductImage;
 using Repository.Products;
@@ -24,9 +25,10 @@ namespace BusinessLogic.Services.Products
         private readonly ProductImageRepository _productImageRepository;
         private readonly ProductsRepository _repositorys;
         private readonly IWebHostEnvironment _env;
-
-        public ProductService(IProductsRepository repository, IMapper mapper, CategoryRepository categoryRepository, ProductImageRepository productImageRepository, ProductsRepository repositorys, IWebHostEnvironment env)
+        private readonly FoodHavenDbContext _context;
+        public ProductService(IProductsRepository repository,FoodHavenDbContext context, IMapper mapper, CategoryRepository categoryRepository, ProductImageRepository productImageRepository, ProductsRepository repositorys, IWebHostEnvironment env)
         {
+            _context = context;
             _repository = repository;
             _mapper = mapper;
             _categoryRepository = categoryRepository;
@@ -229,5 +231,15 @@ namespace BusinessLogic.Services.Products
         {
             return await _repositorys.GetActiveCategoriesAsync();
         }
+
+        public async Task<Product> FindWithStoreAndUserAsync(Guid id)
+        {
+            return await _context.Products
+                .Include(p => p.StoreDetails)
+                .ThenInclude(sd => sd.AppUser)
+                .FirstOrDefaultAsync(p => p.ID == id);
+        }
+
+
     }
 }
