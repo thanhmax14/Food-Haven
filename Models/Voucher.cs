@@ -17,12 +17,14 @@ namespace Models
         public string DiscountType { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ExpirationDate { get; set; }
-        public string Scope { get; set; }
+        public decimal? MaxDiscountAmount { get; set; }
         public int MaxUsage { get; set; }
         public int CurrentUsage { get; set; }
         public decimal MinOrderValue { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsGlobal { get; set; } = false;
+        public int? UsagePerUser { get; set; }
+        public string? Description { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public ICollection<Order> Orders { get; set; }

@@ -20,9 +20,7 @@ namespace Models
         public bool IsProfileUpdated { get; set; } = false;
         public bool IsBannedByAdmin { get; set; } = false;
         public DateTime? ModifyUpdate { get; set; } = DateTime.Now;
-
-
-
+        public string? RejectNote { get; set; }
         public virtual StoreDetails StoreDetails { get; set; }
         public ICollection<BalanceChange> BalanceChanges { get; set; }
         public ICollection<Wishlist> Wishlists { get; set; }

@@ -21,6 +21,7 @@ namespace Models
         public int? OrderCode { get; set; }
         public bool IsComplete { get; set; } = false;
         public bool CheckDone { get; set; } = false;
+        public string? RejectNote { get; set; }
         public virtual AppUser AppUser { get; set; }
     }
 }

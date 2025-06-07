@@ -1359,7 +1359,7 @@ namespace Food_Haven.Web.Controllers
                                 DiscountType = "Percent",
                                 StartDate = DateTime.Now,
                                 ExpirationDate = DateTime.Now.AddDays(3),
-                                Scope = "Warranty",
+                              //  Scope = "Warranty",
                                 MaxUsage = 1,
                                 CurrentUsage = 0,
                                 MinOrderValue = 0,
@@ -1492,7 +1492,7 @@ namespace Food_Haven.Web.Controllers
                     maxUsage = v.MaxUsage,
                     currentUsage = v.CurrentUsage,
                     isActive = v.IsActive,
-                    scope = v.Scope,
+                    scope = v.MaxDiscountAmount,
                     minOrderValue = v.MinOrderValue
                 }).ToList();
 
@@ -1524,7 +1524,7 @@ namespace Food_Haven.Web.Controllers
                     maxUsage = v.MaxUsage,
                     currentUsage = v.CurrentUsage,
                     isActive = v.IsActive,
-                    scope = v.Scope,
+                    scope = v.MaxDiscountAmount,
                     minOrderValue = v.MinOrderValue
                 });
             }
@@ -1588,7 +1588,7 @@ namespace Food_Haven.Web.Controllers
                     DiscountType = v.DiscountType,
                     StartDate = startDate,
                     ExpirationDate = expirationDate,
-                    Scope = v.Scope,
+                    MaxDiscountAmount =decimal.Parse(v.Scope),
                     MaxUsage = v.MaxUsage,
                     CurrentUsage = v.CurrentUsage,
                     MinOrderValue = v.MinOrderValue,
@@ -1661,7 +1661,7 @@ namespace Food_Haven.Web.Controllers
                 entity.DiscountType = v.DiscountType;
                 entity.StartDate = startDate;
                 entity.ExpirationDate = expirationDate;
-                entity.Scope = v.Scope;
+                entity.MaxDiscountAmount = decimal.Parse(v.Scope);
                 entity.MaxUsage = v.MaxUsage;
                 entity.CurrentUsage = v.CurrentUsage;
                 entity.MinOrderValue = v.MinOrderValue;

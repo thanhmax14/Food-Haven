@@ -21,6 +21,7 @@ namespace Models
         public DateTime? DateAdminReply { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ReplyDate { get; set; }
+        public string? RejectNote { get; set; }
         [ForeignKey("OrderDetail")]
         public Guid OrderDetailID { get; set; }
         public virtual OrderDetail OrderDetail { get; set; }
