@@ -1,35 +1,52 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Repository.ViewModels
 {
     public class RecipeViewModels
     {
         public Guid ID { get; set; } = Guid.NewGuid();
+        [Required(ErrorMessage = "Title is required")]
+
         public string Title { get; set; }
         public string CookingStep { get; set; }
         public string ShortDescriptions { get; set; }
+        [Required(ErrorMessage = "Short description is required")]
+        [StringLength(250, ErrorMessage = "Short description cannot exceed 250 characters")]
         public string PreparationTime { get; set; }
+        [Required(ErrorMessage = "Cooking steps are required")]
+
         public string CookTime { get; set; }
         public string TotalTime { get; set; }
+        [Required(ErrorMessage = "Please select difficulty level")]
+
         public string DifficultyLevel { get; set; }
+        [Required(ErrorMessage = "Ingredients are required")]
         public string Ingredient { get; set; }
+        [Required(ErrorMessage = "Servings is required")]
         public string Servings { get; set; }
         public int RecipesMadeItCount { get; set; } = 0;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public bool IsActive { get; set; } = false;
+        [Required(ErrorMessage = "Please select a category")]
+
         public Guid CateID { get; set; }
         public Guid IngredientTagID { get; set; }
+        [Required(ErrorMessage = "Thumbnail image is required")]
         public string ThumbnailImage { get; set; }
         public string TypeOfDishName { get; set; }
 
         public List<Categories> Categories { get; set; } = new List<Categories>();
 
         public string UserID { get; set; }
+        [Required(ErrorMessage = "Please select a type of dish")]
+
         public Guid TypeOfDishID { get; set; }
         public Guid IngredientTagsID { get; set; }
 
@@ -41,4 +58,7 @@ namespace Repository.ViewModels
         public ICollection<RecipeReview> RecipeReviews { get; set; }
 
     }
+   
+    
+
 }

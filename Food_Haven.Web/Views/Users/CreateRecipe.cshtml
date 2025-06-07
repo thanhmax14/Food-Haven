@@ -153,61 +153,68 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="firstNameinput" class="form-label">Title</label>
-                            <input type="text" class="form-control" placeholder="Enter recipe title" id="firstNameinput"
-                                name="Title">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="phonenumberInput" class="form-label">Servings</label>
-                            <input type="tel" class="form-control" placeholder="Enter servings" id="phonenumberInput"
-                                name="Servings">
+                            <label asp-for="Servings" class="form-label"></label>
+                            <input asp-for="Servings" class="form-control" />
+                            <span asp-validation-for="Servings" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <label for="meassageInput" class="form-label">Short
-                                Description</label>
-                            <textarea class="form-control" id="meassageInput" rows="3"
-                                placeholder="Enter short description" name="ShortDescriptions"></textarea>
+                            <label asp-for="ShortDescriptions" class="form-label"></label>
+                            <textarea asp-for="ShortDescriptions" class="form-control" rows="3"
+                                placeholder="Enter short description"></textarea>
+                            <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
                         </div>
+
                     </div>
 
-                    <div class="col-md-6">
+                    @* <div class="col-md-6">
                         <div class="mb-3">
                             <label for="emailidInput" class="form-label">Recipes Made It
                                 Count</label>
                             <input type="email" class="form-control" placeholder="Enter number" id="emailidInput"
                                 name="MadeItCount" value="0" readonly>
                         </div>
-                    </div>
+                    </div> *@
 
                     <div class="col-md-3">
                         <div class="mb-3">
                             <label for="ForminputState" class="form-label">Category</label>
                             <select id="ForminputState" class="form-select" data-choices data-choices-sorting="true"
-                                name="CateID">
-                                <option selected>Choose...</option>
+                                name="CateID" required>
+                                <option value="" selected>Choose...</option>
                                 @foreach (var item in Model.Categories)
                                 {
                                     <option value="@item.ID">@item.Name</option>
                                 }
                             </select>
+                            <span class="text-danger" data-valmsg-for="CateID" data-valmsg-replace="true"></span>
+
+
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="mb-3">
                             <label for="ForminputState1" class="form-label">TypeOfDish</label>
                             <select id="ForminputState1" class="form-select" data-choices data-choices-sorting="true"
-                                name="TypeOfDishID">
-                                <option selected>Choose...</option>
+                                name="TypeOfDishID" required>
+                                <option value="" selected>Choose...</option>
                                 @foreach (var item in Model.typeOfDishes)
                                 {
                                     <option value="@item.ID">@item.Name</option>
                                 }
                             </select>
+                            <span class="text-danger" data-valmsg-for="TypeOfDishID" data-valmsg-replace="true"></span>
+
+
                         </div>
                     </div>
 
@@ -248,22 +255,7 @@
                                 {
                                     <option value="@item.ID">@item.Name</option>
                                 }
-                                @* <option>Chevrolet</option>
-                                <option>Fiat</option>
-                                <option>Ford</option>
-                                <option>Honda</option>
-                                <option selected>Hyundai</option>
-                                <option>Kia</option>
-                                <option>Mahindra</option>
-                                <option>Maruti</option>
-                                <option>Mitsubishi</option>
-                                <option>MG</option>
-                                <option>Nissan</option>
-                                <option>Renault</option>
-                                <option selected>Skoda</option>
-                                <option selected>Tata</option>
-                                <option selected>Toyato</option>
-                                <option>Volkswagen</option> *@
+
                             </select>
 
                             <div class="multi-select-container">
@@ -360,22 +352,7 @@
 
                 <div class="card-body">
                     <div id="editor-Ingredient" class="snow-editor" style="height: 300px;">
-                        <h3><span class="ql-size-large">Hello World!</span></h3>
-                        <p><br></p>
-                        <h3>This is an simple editable area.</h3>
-                        <p><br></p>
-                        <ul>
-                            <li>
-                                Select a text to reveal the toolbar.
-                            </li>
-                            <li>
-                                Edit rich document on-the-fly, so elastic!
-                            </li>
-                        </ul>
-                        <p><br></p>
-                        <p>
-                            End of simple area
-                        </p>
+
                     </div> <!-- end Snow-editor-->
                 </div><!-- end card-body -->
             </div><!-- end card -->
@@ -390,9 +367,16 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="ThumbnailImage" class="form-label">Upload Thumbnail Image</label>
-                <input type="file" class="form-control" id="ThumbnailImage" name="ThumbnailImage" accept="image/*" />
+                <label asp-for="ThumbnailImage" class="form-label">Upload Thumbnail Image</label>
+                <input asp-for="ThumbnailImage" class="form-control" type="file" accept="image/*"
+                    onchange="resizeAndPreviewImage(event)" />
+                <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
             </div>
+
+            <!-- Preview image -->
+            <img id="product-img" src="#" alt="Preview" style="max-width: 100%; margin-top: 10px; display: none;" />
+
+
 
 
 
@@ -722,6 +706,11 @@
     <!-- Admin app -->
     <script src="assetsAdmin/js/app.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Initialize Quill editors
@@ -950,20 +939,46 @@
         });
     </script>
     <script>
-        function previewImage(event) {
+        function resizeAndPreviewImage(event) {
             const input = event.target;
-            const reader = new FileReader();
+            const file = input.files[0];
 
-            reader.onload = function () {
-                const img = document.getElementById('product-img');
-                img.src = reader.result;
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.src = e.target.result;
+
+                img.onload = function () {
+                    // Tạo canvas để resize
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    canvas.width = 1280;
+                    canvas.height = 720;
+
+                    // Vẽ ảnh đã resize lên canvas
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // Lấy ảnh đã resize từ canvas
+                    const resizedDataUrl = canvas.toDataURL('image/jpeg');
+
+                    // Gán ảnh preview
+                    const preview = document.getElementById('product-img');
+                    preview.src = resizedDataUrl;
+                    preview.style.display = 'block';
+
+                    // Nếu bạn muốn gửi ảnh resize này lên server thay vì ảnh gốc
+                    // bạn cần lưu lại resizedDataUrl hoặc chuyển nó thành Blob để đính kèm trong FormData
+                    // Có thể xử lý bằng JavaScript AJAX hoặc gắn vào hidden input nếu dùng form truyền thống
+                };
             };
 
-            if (input.files && input.files[0]) {
-                reader.readAsDataURL(input.files[0]);
-            }
+            reader.readAsDataURL(file);
         }
     </script>
+
     <style>
         .multi-select-container {
             border: 1px solid #ccc;
@@ -1072,7 +1087,6 @@
         document.getElementById('searchAll').addEventListener('input', renderLists);
         renderLists();
     </script>
-
 
 </body>
 
