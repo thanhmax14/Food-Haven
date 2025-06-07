@@ -24,6 +24,9 @@ namespace Models
         public bool IsActive { get; set; } = false;
         public string ThumbnailImage { get; set; }
         public string? FinishedDishImage { get; set; }
+        public string? RejectNote { get; set; }
+        public int view { get; set; } = 0;
+        public string status { get; set; } = "";
         [ForeignKey("Categories")]
         public Guid CateID { get; set; }
         public virtual Categories Categories { get; set; }

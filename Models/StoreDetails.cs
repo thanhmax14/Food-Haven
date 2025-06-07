@@ -22,7 +22,7 @@ namespace Models
         public string? Status { get; set; }
         public bool IsActive { get; set; } = false;
 
-
+        public string? RejectNote { get; set; }
         public virtual AppUser AppUser { get; set; }
         public ICollection<Product> Products { get; set; }
         public ICollection<Voucher> Vouchers { get; set; }
