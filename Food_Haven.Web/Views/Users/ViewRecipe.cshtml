@@ -327,8 +327,8 @@
 
                                                 <span class="post-on">@item.TypeOfDishName</span>
                                                 <span class="post-on has-dot">@item.DifficultyLevel</span>
-                                                <span
-                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
+                                                @* <span
+                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span> *@
                                                 <span class="hit-count has-dot">126k Views</span>
                                                 <span class="hit-count has-dot">status</span>
                                             </div>
@@ -370,12 +370,17 @@
                                     </form>
                                 </div>
                             </div>
-                            <div class="sidebar-widget-2 widget_search mb-50">
-                                <a asp-action="MyViewRecipe" asp-controller="Users" asp-route-id="@ViewBag.UserId"
-                                    class="btn btn-primary w-100">
-                                    My View Recipe <i class="fi-rs-arrow-right ms-1"></i>
-                                </a>
-                            </div>
+
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <div class="sidebar-widget-2 widget_search mb-50">
+                                    <a asp-action="MyViewRecipe" asp-controller="Users" asp-route-id="@ViewBag.UserId"
+                                        class="btn btn-primary w-100">
+                                        My View Recipe <i class="fi-rs-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            }
+
 
                             <div class="sidebar-widget widget-category-2 mb-50">
                                 <h5 class="section-title style-1 mb-30">Category</h5>

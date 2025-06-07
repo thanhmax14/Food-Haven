@@ -36,7 +36,11 @@ using BusinessLogic.Services.TypeOfDishServices;
 using Azure;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using X.PagedList;
-using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices; // nhớ import
+using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
+using System.Drawing;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -1218,15 +1222,28 @@ namespace Food_Haven.Web.Controllers
 
             if (ThumbnailImage != null && ThumbnailImage.Length > 0)
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ThumbnailImage.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", fileName);
+                var fileName = Guid.NewGuid().ToString() + ".jpg";
+                var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                // Tạo thư mục nếu chưa tồn tại
+                if (!Directory.Exists(uploadsDir))
+                    Directory.CreateDirectory(uploadsDir);
+
+                var filePath = Path.Combine(uploadsDir, fileName);
+
+                using (var stream = ThumbnailImage.OpenReadStream())
+                using (var image = SixLabors.ImageSharp.Image.Load<Rgba32>(stream))
                 {
-                    await ThumbnailImage.CopyToAsync(stream);
+                    image.Mutate(x => x.Resize(1280, 720)); // Resize ảnh
+
+                    using (var outStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        var encoder = new JpegEncoder { Quality = 85 }; // Chất lượng JPEG
+                        image.Save(outStream, encoder); // Lưu ảnh xuống file
+                    }
                 }
 
-                imagePath = "/uploads/" + fileName; // Đường dẫn lưu trong DB
+                imagePath = "/uploads/" + fileName;
             }
 
 
@@ -1245,7 +1262,7 @@ namespace Food_Haven.Web.Controllers
                 Servings = obj.Servings,
                 CreatedDate = DateTime.Now,
                 IsActive = true,
-                CateID = firstCategory.ID,
+                CateID = obj.CateID,
                 TypeOfDishID = obj.TypeOfDishID,
                 ThumbnailImage = imagePath,
             };
@@ -1366,6 +1383,7 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = "Đã xảy ra lỗi khi gửi khiếu nại. Vui lòng thử lại sau.", detail = ex.Message });
             }
         }
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> ViewRecipe(int? page)
         {
@@ -1449,8 +1467,41 @@ namespace Food_Haven.Web.Controllers
             var pagedList = list.ToPagedList(pageNumber, pageSize);
             return View(pagedList);
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> RecipeDetail(Guid id)
+        {
+            var user = await _userManager.GetUserAsync(User);
 
+            var list = new List<RecipeViewModels>();
+            var obj = await _recipeService.ListAsync();
+            foreach (var item in obj)
+            {
+                var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
 
+                var recipeViewModel = new RecipeViewModels
+                {
+                    ID = item.ID,
+                    Title = item.Title,
+                    ShortDescriptions = item.ShortDescriptions,
+                    PreparationTime = item.PreparationTime,
+                    CookTime = item.CookTime,
+                    TotalTime = item.TotalTime,
+                    DifficultyLevel = item.DifficultyLevel,
+                    Servings = item.Servings,
+                    CreatedDate = item.CreatedDate,
+                    IsActive = item.IsActive,
+                    CateID = item.CateID,
+                    ThumbnailImage = item.ThumbnailImage,
+                    TypeOfDishName = typeOfDish?.Name,
+                    CookingStep = item.CookingStep, // Lấy tên, tránh null
+                    Ingredient = item.Ingredient,
+
+                };
+                list.Add(recipeViewModel);
+            }
+            return View(list);
+        }
     }
 
 
