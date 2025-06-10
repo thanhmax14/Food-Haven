@@ -16,7 +16,9 @@ namespace Repository.ViewModels
         public string email { get; set; }
 
         public string Note { get; set; } = "";
-     
+        public string voucher { get; set; } = "";
+
+
         /*        public string firstName { get; set; }
                 public string firstName { get; set; }*/
     }
