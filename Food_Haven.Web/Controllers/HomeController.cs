@@ -32,6 +32,7 @@ using BusinessLogic.Services.ProductVariantVariants;
 using BusinessLogic.Services.Reviews;
 using Microsoft.AspNetCore.SignalR;
 using Food_Haven.Web.Hubs;
+using BusinessLogic.Services.VoucherServices;
 
 
 namespace Food_Haven.Web.Controllers
@@ -54,11 +55,10 @@ namespace Food_Haven.Web.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IReviewService _reviewService;
         private readonly PayOS _payos;
-
-
+        private readonly IVoucherServices _voucher;
 
         public HomeController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
-, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos)
+, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos,IVoucherServices voucherServices)
         {
             _reviewService = reviewService;
             _categoryService = categoryService;
@@ -77,6 +77,7 @@ namespace Food_Haven.Web.Controllers
             _balance = balance;
             _order = order;
             _payos = payos;
+            _voucher = voucherServices;
         }
 
         public IActionResult Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
@@ -1406,6 +1407,85 @@ namespace Food_Haven.Web.Controllers
                 Stock = variant.Stock,
             });
         }
+        [HttpGet("voucher/get-all")]
+        public IActionResult GetAllVouchers()
+        {
+            var data = _voucher.GetAll().Select(v => new
+            {
+                id = v.ID,
+                code = v.Code,
+                title = v.DiscountType == "Percent" ? $"Giảm {v.DiscountAmount}%" : $"Giảm ₫{v.DiscountAmount:n0}",
+                minOrder = $"₫{v.MinOrderValue:n0}",
+                expire = v.ExpirationDate.ToString("dd.MM.yyyy"),
+                count = v.MaxUsage - v.CurrentUsage,
+                disabled = !v.IsActive || v.ExpirationDate < DateTime.Now,
+                isStoreVoucher = !v.IsGlobal,
+                maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"₫{v.MaxDiscountAmount.Value:n0}" : null
+            }).ToList();
+
+            return Json(data);
+        }
+        [HttpPost("voucher/calculate-discount")]
+        public IActionResult CalculateDiscount([FromBody] DiscountRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Code) || request.OrderTotal <= 0)
+                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
+
+            var v = _voucher.GetAll().FirstOrDefault(x => x.Code == request.Code && x.IsActive);
+            if (v == null)
+                return NotFound(new { message = "Voucher không hợp lệ" });
+
+            if (request.OrderTotal < v.MinOrderValue)
+                return BadRequest(new { message = "Không đủ điều kiện áp dụng" });
+
+            decimal discount = v.DiscountType == "Percent"
+                ? request.OrderTotal * v.DiscountAmount / 100
+                : v.DiscountAmount;
+
+            if (v.MaxDiscountAmount.HasValue)
+                discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+
+            var finalAmount = request.OrderTotal - discount;
+
+            return Ok(new
+            {
+                discountAmount = discount,
+                orderTotalAfterDiscount = finalAmount,
+                discountType = v.DiscountType, // "Percent" hoặc "Fixed"
+                code = v.Code
+            });
+        }
+        [HttpGet("voucher/search")]
+        public async Task<IActionResult> SearchVoucher(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return BadRequest(new { message = "Thiếu mã voucher." });
+
+            var result = await _voucher.ListAsync(
+                filter: x => x.Code.ToLower() == code.ToLower()
+            );
+
+            var v = result.Select(v => new
+            {
+                id = v.ID,
+                code = v.Code,
+                title = v.DiscountType == "Percent"
+                    ? $"Giảm {v.DiscountAmount}%"
+                    : $"Giảm ₫{v.DiscountAmount:n0}",
+                minOrder = $"₫{v.MinOrderValue:n0}",
+                expire = v.ExpirationDate.ToString("dd.MM.yyyy"),
+                count = v.MaxUsage - v.CurrentUsage,
+                disabled = !v.IsActive || v.ExpirationDate < DateTime.Now,
+                isStoreVoucher = !v.IsGlobal,
+                maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"₫{v.MaxDiscountAmount.Value:n0}" : null
+            }).FirstOrDefault();
+
+            if (v == null)
+                return NotFound(new { message = "Không tìm thấy voucher." });
+
+            return Json(v);
+        }
+
 
     }
 
