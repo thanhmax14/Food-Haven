@@ -424,7 +424,9 @@
 
                             <div class="vendor-des mb-30">
                                 <strong>
-                               Owner: <p class="font-sm text-heading">@Model.UserName</p>
+                                    Owner:  <a asp-action="SellerInformation" asp-controller="Home" asp-route-id="@Model.UserID">
+                                        <span class="text-brand">@Model.UserName</span>
+                                    </a>
                                 </strong>
                             </div>
                             <div class="product-rate-cover mb-15">

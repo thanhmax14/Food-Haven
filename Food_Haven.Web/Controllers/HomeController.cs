@@ -1,25 +1,40 @@
-﻿using BusinessLogic.Services.BalanceChanges;
+﻿using BusinessLogic.Hash;
+using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
+using BusinessLogic.Services.ProductVariantVariants;
+using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.Wishlists;
+using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Models;
+using Food_Haven.Web.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Net.payOS;
 using Repository.ViewModels;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Microsoft.EntityFrameworkCore;
 using Food_Haven.Web.Services;
 using BusinessLogic.Hash;
@@ -33,6 +48,7 @@ using BusinessLogic.Services.Reviews;
 using Microsoft.AspNetCore.SignalR;
 using Food_Haven.Web.Hubs;
 using BusinessLogic.Services.VoucherServices;
+
 
 
 namespace Food_Haven.Web.Controllers
@@ -52,14 +68,27 @@ namespace Food_Haven.Web.Controllers
         private readonly IStoreDetailService _storeDetailService;
         private readonly IBalanceChangeService _balance;
         private readonly IOrdersServices _order;
+        private readonly IOrderDetailService _orderDetail;
         private readonly ICategoryService _categoryService;
         private readonly IReviewService _reviewService;
         private readonly PayOS _payos;
+
+        private readonly IRecipeService _recipeService;
+
+
+
+
+        public HomeController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
+, IProductImageService productimg, IProductVariantService productvarian, IRecipeService recipeService, IOrderDetailService orderDetail, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos)
+
         private readonly IVoucherServices _voucher;
 
         public HomeController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
 , IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos,IVoucherServices voucherServices)
+
         {
+            _recipeService = recipeService;
+            _orderDetail = orderDetail;
             _reviewService = reviewService;
             _categoryService = categoryService;
             _signInManager = signInManager;
@@ -705,6 +734,7 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> ProductDetail(Guid id)
         {
+
             // 1. Lấy sản phẩm + cửa hàng
             var productDetail = await _product.FindAsync(x => x.ID == id);
             if (productDetail == null)
@@ -729,11 +759,13 @@ namespace Food_Haven.Web.Controllers
                 StoreName = store.Name ?? "Không rõ",
                 Owner = user?.UserName ?? store?.UserID ?? "Không rõ",
                 StoreID = productDetail.StoreID,
+                UserID = store.UserID, // ✅ Gán thêm dòng này
                 ShortDescription = productDetail.ShortDescription,
                 LongDescription = productDetail.LongDescription,
                 CreatedDate = productDetail.CreatedDate,
                 Stock = productType.FirstOrDefault()?.Stock ?? 0
             };
+
 
             // 6. Ảnh sản phẩm
             var productImages = await _productimg.ListAsync(i => i.ProductID == id);
@@ -1485,6 +1517,83 @@ namespace Food_Haven.Web.Controllers
 
             return Json(v);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> SellerInformation(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("Thiếu ID người dùng.");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy người dùng.");
+                }
+
+                // Lấy StoreDetails của user
+                var store = await _storeDetailService.GetStoreByUserIdAsync(id);
+
+                // Lấy bài viết (recipe)
+                var recipes = await _recipeService.ListAsync();
+                var totalRecipes = recipes.Count(r => r.UserID == id);
+
+                var products = await _product.ListAsync(
+     filter: p => p.IsActive && p.StoreDetails != null && p.StoreDetails.UserID == id,
+     includeProperties: p => p.Include(x => x.StoreDetails)
+ ) ?? new List<Product>();
+
+                var totalProducts = products.Count();
+
+                // Lấy OrderDetail kèm Product -> StoreDetails + Order
+                var orderDetails = await _orderDetail.ListAsync(
+                    includeProperties: od => od
+                        .Include(d => d.ProductTypes)
+                            .ThenInclude(pt => pt.Product)
+                                .ThenInclude(p => p.StoreDetails)
+                        .Include(d => d.Order)
+                ) ?? new List<OrderDetail>();
+
+                // Lọc ra các đơn hàng có sản phẩm của người bán
+                var sellerOrderDetails = orderDetails
+                    .Where(d =>
+                        d.ProductTypes?.Product?.StoreDetails?.UserID == id
+                    )
+                    .ToList();
+
+                var totalSold = sellerOrderDetails.Sum(d => d.Quantity);
+
+                // Lấy danh sách đơn hàng mà người dùng đã mua
+                var orders = await _order.ListAsync() ?? new List<Order>();
+                var userOrders = orders.Where(o => o.UserID == id).ToList();
+                var totalOrders = userOrders.Count;
+
+                // ViewModel
+                var model = new SellerViewModel
+                {
+                    RegisterDate = user.JoinedDate,
+                    UserName = user.UserName,
+                    ProductPurchased = $"{totalOrders} đơn hàng",
+                    NumberOfProducts = $"{totalProducts} sản phẩm",
+                    ProductsSold = $"{totalSold} sản phẩm",
+                    ProfileImageUrl = user.ImageUrl,
+                    TotalPosts = totalRecipes,
+                    StoreId = store?.ID,          // 👈 Gán StoreId
+                    HasStore = store != null           // 👈 Có store hay không
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi server", error = ex.ToString() });
+            }
+        }
+
 
 
     }

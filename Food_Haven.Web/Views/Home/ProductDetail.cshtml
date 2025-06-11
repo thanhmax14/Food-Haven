@@ -197,9 +197,11 @@
 
                                                         <li>
                                                             <strong>
-                                                            Owner <span class="in-stock text-brand ml-5">
-                                                                @Model.Owner
-                                                            </span>
+                                                                Owner 
+                                                                <a asp-action="SellerInformation" asp-controller="Home" asp-route-id="@Model.UserID">
+                                                                    <span class="text-brand">@Model.Owner</span>
+                                                                </a>
+
                                                             </strong>
                                                         </li>
                                                     </ul>
