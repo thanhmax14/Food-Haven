@@ -359,293 +359,330 @@
                         </table>
                     </div>
                     <div class="divider-2 mb-30"></div>
+                    <!-- Nút chọn voucher -->
                     <div class="cart-action d-flex justify-content-between">
-                        <a class="btn "><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a>
-                        <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-refresh mr-10"></i>Update Cart</a>
+                        <a class="btn"><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a>
+                        <a class="btn mr-10 mb-sm-15" data-bs-toggle="modal" data-bs-target="#voucherShopeeModal">
+                            <i class="fi-rs-refresh mr-10"></i>Update Cart
+                        </a>
                     </div>
-                    <div class="row mt-50">
-                        <div class="col-lg-7">
-                            <div class="calculate-shiping p-40 border-radius-15 border">
-                                <h4 class="mb-10">Calculate Shipping</h4>
-                                <p class="mb-30"><span class="font-lg text-muted">Flat rate:</span><strong class="text-brand">5%</strong></p>
-                                <form class="field_form shipping_calculator">
-                                    <div class="form-row">
-                                        <div class="form-group col-lg-12">
-                                            <div class="custom_select">
-                                                <select class="form-control select-active w-100">
-                                                    <option value="">United Kingdom</option>
-                                                    <option value="AX">Aland Islands</option>
-                                                    <option value="AF">Afghanistan</option>
-                                                    <option value="AL">Albania</option>
-                                                    <option value="DZ">Algeria</option>
-                                                    <option value="AD">Andorra</option>
-                                                    <option value="AO">Angola</option>
-                                                    <option value="AI">Anguilla</option>
-                                                    <option value="AQ">Antarctica</option>
-                                                    <option value="AG">Antigua and Barbuda</option>
-                                                    <option value="AR">Argentina</option>
-                                                    <option value="AM">Armenia</option>
-                                                    <option value="AW">Aruba</option>
-                                                    <option value="AU">Australia</option>
-                                                    <option value="AT">Austria</option>
-                                                    <option value="AZ">Azerbaijan</option>
-                                                    <option value="BS">Bahamas</option>
-                                                    <option value="BH">Bahrain</option>
-                                                    <option value="BD">Bangladesh</option>
-                                                    <option value="BB">Barbados</option>
-                                                    <option value="BY">Belarus</option>
-                                                    <option value="PW">Belau</option>
-                                                    <option value="BE">Belgium</option>
-                                                    <option value="BZ">Belize</option>
-                                                    <option value="BJ">Benin</option>
-                                                    <option value="BM">Bermuda</option>
-                                                    <option value="BT">Bhutan</option>
-                                                    <option value="BO">Bolivia</option>
-                                                    <option value="BQ">Bonaire, Saint Eustatius and Saba</option>
-                                                    <option value="BA">Bosnia and Herzegovina</option>
-                                                    <option value="BW">Botswana</option>
-                                                    <option value="BV">Bouvet Island</option>
-                                                    <option value="BR">Brazil</option>
-                                                    <option value="IO">British Indian Ocean Territory</option>
-                                                    <option value="VG">British Virgin Islands</option>
-                                                    <option value="BN">Brunei</option>
-                                                    <option value="BG">Bulgaria</option>
-                                                    <option value="BF">Burkina Faso</option>
-                                                    <option value="BI">Burundi</option>
-                                                    <option value="KH">Cambodia</option>
-                                                    <option value="CM">Cameroon</option>
-                                                    <option value="CA">Canada</option>
-                                                    <option value="CV">Cape Verde</option>
-                                                    <option value="KY">Cayman Islands</option>
-                                                    <option value="CF">Central African Republic</option>
-                                                    <option value="TD">Chad</option>
-                                                    <option value="CL">Chile</option>
-                                                    <option value="CN">China</option>
-                                                    <option value="CX">Christmas Island</option>
-                                                    <option value="CC">Cocos (Keeling) Islands</option>
-                                                    <option value="CO">Colombia</option>
-                                                    <option value="KM">Comoros</option>
-                                                    <option value="CG">Congo (Brazzaville)</option>
-                                                    <option value="CD">Congo (Kinshasa)</option>
-                                                    <option value="CK">Cook Islands</option>
-                                                    <option value="CR">Costa Rica</option>
-                                                    <option value="HR">Croatia</option>
-                                                    <option value="CU">Cuba</option>
-                                                    <option value="CW">CuraÇao</option>
-                                                    <option value="CY">Cyprus</option>
-                                                    <option value="CZ">Czech Republic</option>
-                                                    <option value="DK">Denmark</option>
-                                                    <option value="DJ">Djibouti</option>
-                                                    <option value="DM">Dominica</option>
-                                                    <option value="DO">Dominican Republic</option>
-                                                    <option value="EC">Ecuador</option>
-                                                    <option value="EG">Egypt</option>
-                                                    <option value="SV">El Salvador</option>
-                                                    <option value="GQ">Equatorial Guinea</option>
-                                                    <option value="ER">Eritrea</option>
-                                                    <option value="EE">Estonia</option>
-                                                    <option value="ET">Ethiopia</option>
-                                                    <option value="FK">Falkland Islands</option>
-                                                    <option value="FO">Faroe Islands</option>
-                                                    <option value="FJ">Fiji</option>
-                                                    <option value="FI">Finland</option>
-                                                    <option value="FR">France</option>
-                                                    <option value="GF">French Guiana</option>
-                                                    <option value="PF">French Polynesia</option>
-                                                    <option value="TF">French Southern Territories</option>
-                                                    <option value="GA">Gabon</option>
-                                                    <option value="GM">Gambia</option>
-                                                    <option value="GE">Georgia</option>
-                                                    <option value="DE">Germany</option>
-                                                    <option value="GH">Ghana</option>
-                                                    <option value="GI">Gibraltar</option>
-                                                    <option value="GR">Greece</option>
-                                                    <option value="GL">Greenland</option>
-                                                    <option value="GD">Grenada</option>
-                                                    <option value="GP">Guadeloupe</option>
-                                                    <option value="GT">Guatemala</option>
-                                                    <option value="GG">Guernsey</option>
-                                                    <option value="GN">Guinea</option>
-                                                    <option value="GW">Guinea-Bissau</option>
-                                                    <option value="GY">Guyana</option>
-                                                    <option value="HT">Haiti</option>
-                                                    <option value="HM">Heard Island and McDonald Islands</option>
-                                                    <option value="HN">Honduras</option>
-                                                    <option value="HK">Hong Kong</option>
-                                                    <option value="HU">Hungary</option>
-                                                    <option value="IS">Iceland</option>
-                                                    <option value="IN">India</option>
-                                                    <option value="ID">Indonesia</option>
-                                                    <option value="IR">Iran</option>
-                                                    <option value="IQ">Iraq</option>
-                                                    <option value="IM">Isle of Man</option>
-                                                    <option value="IL">Israel</option>
-                                                    <option value="IT">Italy</option>
-                                                    <option value="CI">Ivory Coast</option>
-                                                    <option value="JM">Jamaica</option>
-                                                    <option value="JP">Japan</option>
-                                                    <option value="JE">Jersey</option>
-                                                    <option value="JO">Jordan</option>
-                                                    <option value="KZ">Kazakhstan</option>
-                                                    <option value="KE">Kenya</option>
-                                                    <option value="KI">Kiribati</option>
-                                                    <option value="KW">Kuwait</option>
-                                                    <option value="KG">Kyrgyzstan</option>
-                                                    <option value="LA">Laos</option>
-                                                    <option value="LV">Latvia</option>
-                                                    <option value="LB">Lebanon</option>
-                                                    <option value="LS">Lesotho</option>
-                                                    <option value="LR">Liberia</option>
-                                                    <option value="LY">Libya</option>
-                                                    <option value="LI">Liechtenstein</option>
-                                                    <option value="LT">Lithuania</option>
-                                                    <option value="LU">Luxembourg</option>
-                                                    <option value="MO">Macao S.A.R., China</option>
-                                                    <option value="MK">Macedonia</option>
-                                                    <option value="MG">Madagascar</option>
-                                                    <option value="MW">Malawi</option>
-                                                    <option value="MY">Malaysia</option>
-                                                    <option value="MV">Maldives</option>
-                                                    <option value="ML">Mali</option>
-                                                    <option value="MT">Malta</option>
-                                                    <option value="MH">Marshall Islands</option>
-                                                    <option value="MQ">Martinique</option>
-                                                    <option value="MR">Mauritania</option>
-                                                    <option value="MU">Mauritius</option>
-                                                    <option value="YT">Mayotte</option>
-                                                    <option value="MX">Mexico</option>
-                                                    <option value="FM">Micronesia</option>
-                                                    <option value="MD">Moldova</option>
-                                                    <option value="MC">Monaco</option>
-                                                    <option value="MN">Mongolia</option>
-                                                    <option value="ME">Montenegro</option>
-                                                    <option value="MS">Montserrat</option>
-                                                    <option value="MA">Morocco</option>
-                                                    <option value="MZ">Mozambique</option>
-                                                    <option value="MM">Myanmar</option>
-                                                    <option value="NA">Namibia</option>
-                                                    <option value="NR">Nauru</option>
-                                                    <option value="NP">Nepal</option>
-                                                    <option value="NL">Netherlands</option>
-                                                    <option value="AN">Netherlands Antilles</option>
-                                                    <option value="NC">New Caledonia</option>
-                                                    <option value="NZ">New Zealand</option>
-                                                    <option value="NI">Nicaragua</option>
-                                                    <option value="NE">Niger</option>
-                                                    <option value="NG">Nigeria</option>
-                                                    <option value="NU">Niue</option>
-                                                    <option value="NF">Norfolk Island</option>
-                                                    <option value="KP">North Korea</option>
-                                                    <option value="NO">Norway</option>
-                                                    <option value="OM">Oman</option>
-                                                    <option value="PK">Pakistan</option>
-                                                    <option value="PS">Palestinian Territory</option>
-                                                    <option value="PA">Panama</option>
-                                                    <option value="PG">Papua New Guinea</option>
-                                                    <option value="PY">Paraguay</option>
-                                                    <option value="PE">Peru</option>
-                                                    <option value="PH">Philippines</option>
-                                                    <option value="PN">Pitcairn</option>
-                                                    <option value="PL">Poland</option>
-                                                    <option value="PT">Portugal</option>
-                                                    <option value="QA">Qatar</option>
-                                                    <option value="IE">Republic of Ireland</option>
-                                                    <option value="RE">Reunion</option>
-                                                    <option value="RO">Romania</option>
-                                                    <option value="RU">Russia</option>
-                                                    <option value="RW">Rwanda</option>
-                                                    <option value="ST">São Tomé and Príncipe</option>
-                                                    <option value="BL">Saint Barthélemy</option>
-                                                    <option value="SH">Saint Helena</option>
-                                                    <option value="KN">Saint Kitts and Nevis</option>
-                                                    <option value="LC">Saint Lucia</option>
-                                                    <option value="SX">Saint Martin (Dutch part)</option>
-                                                    <option value="MF">Saint Martin (French part)</option>
-                                                    <option value="PM">Saint Pierre and Miquelon</option>
-                                                    <option value="VC">Saint Vincent and the Grenadines</option>
-                                                    <option value="SM">San Marino</option>
-                                                    <option value="SA">Saudi Arabia</option>
-                                                    <option value="SN">Senegal</option>
-                                                    <option value="RS">Serbia</option>
-                                                    <option value="SC">Seychelles</option>
-                                                    <option value="SL">Sierra Leone</option>
-                                                    <option value="SG">Singapore</option>
-                                                    <option value="SK">Slovakia</option>
-                                                    <option value="SI">Slovenia</option>
-                                                    <option value="SB">Solomon Islands</option>
-                                                    <option value="SO">Somalia</option>
-                                                    <option value="ZA">South Africa</option>
-                                                    <option value="GS">South Georgia/Sandwich Islands</option>
-                                                    <option value="KR">South Korea</option>
-                                                    <option value="SS">South Sudan</option>
-                                                    <option value="ES">Spain</option>
-                                                    <option value="LK">Sri Lanka</option>
-                                                    <option value="SD">Sudan</option>
-                                                    <option value="SR">Suriname</option>
-                                                    <option value="SJ">Svalbard and Jan Mayen</option>
-                                                    <option value="SZ">Swaziland</option>
-                                                    <option value="SE">Sweden</option>
-                                                    <option value="CH">Switzerland</option>
-                                                    <option value="SY">Syria</option>
-                                                    <option value="TW">Taiwan</option>
-                                                    <option value="TJ">Tajikistan</option>
-                                                    <option value="TZ">Tanzania</option>
-                                                    <option value="TH">Thailand</option>
-                                                    <option value="TL">Timor-Leste</option>
-                                                    <option value="TG">Togo</option>
-                                                    <option value="TK">Tokelau</option>
-                                                    <option value="TO">Tonga</option>
-                                                    <option value="TT">Trinidad and Tobago</option>
-                                                    <option value="TN">Tunisia</option>
-                                                    <option value="TR">Turkey</option>
-                                                    <option value="TM">Turkmenistan</option>
-                                                    <option value="TC">Turks and Caicos Islands</option>
-                                                    <option value="TV">Tuvalu</option>
-                                                    <option value="UG">Uganda</option>
-                                                    <option value="UA">Ukraine</option>
-                                                    <option value="AE">United Arab Emirates</option>
-                                                    <option value="GB">United Kingdom (UK)</option>
-                                                    <option value="US">USA (US)</option>
-                                                    <option value="UY">Uruguay</option>
-                                                    <option value="UZ">Uzbekistan</option>
-                                                    <option value="VU">Vanuatu</option>
-                                                    <option value="VA">Vatican</option>
-                                                    <option value="VE">Venezuela</option>
-                                                    <option value="VN">Vietnam</option>
-                                                    <option value="WF">Wallis and Futuna</option>
-                                                    <option value="EH">Western Sahara</option>
-                                                    <option value="WS">Western Samoa</option>
-                                                    <option value="YE">Yemen</option>
-                                                    <option value="ZM">Zambia</option>
-                                                    <option value="ZW">Zimbabwe</option>
-                                                </select>
+
+                    <!-- CSS -->
+                    <style>
+                        #voucherListContainer {
+                            max-height: 50vh;
+                            overflow-y: auto;
+                        }
+                    </style>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="voucherShopeeModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content rounded-3">
+
+                                <!-- Header -->
+                                <div class="modal-header">
+                                    <h5 class="modal-title fw-bold">Chọn Shopee Voucher</h5>
+                                    <a href="#" id="helpLink" class="text-muted small" data-bs-toggle="popover"
+                                       data-bs-trigger="focus" data-bs-html="true" title="Hỗ Trợ" data-bs-content='
+                                        <strong>Cách Sử Dụng Voucher</strong><br>
+                                        Để áp dụng mã Shopee voucher, bạn hãy chọn nút "Lưu" để lấy voucher.<br><br>
+                                        <strong>Cách Tìm Voucher</strong><br>
+                                        Bạn có thể tìm thấy Shopee Voucher xuyên suốt trang shopee.vn và ứng dụng.
+                                        '>
+                                        Hỗ Trợ <i class="bi bi-question-circle"></i>
+                                    </a>
+
+
+
+                                </div>
+
+                                <!-- Body -->
+                                <div class="modal-body pt-0">
+
+                                    <!-- Search -->
+                                    <div class="input-group my-3">
+                                        <span class="input-group-text">Mã Voucher</span>
+                                        <input id="voucherSearchInput" type="text" class="form-control"
+                                               placeholder="Nhập mã...">
+                                       
+                                        <button id="applyVoucherCode" class="btn btn-outline-primary">ÁP DỤNG</button>
+                                      
+                                    </div>
+                                    <span id="voucherSearchError" class="text-danger small ms-1"></span>
+
+                                    <!-- Tab chọn loại voucher -->
+                                    <ul class="nav nav-pills mb-3" id="voucherTab" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" data-type="all" type="button">
+                                                Tất cả
+                                                Voucher
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" data-type="store" type="button">
+                                                Voucher của Cửa
+                                                Hàng
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <!-- Scrollable Voucher List only -->
+                                    <div id="voucherListContainer">
+                                        <!-- AJAX sẽ render ở đây -->
+                                    </div>
+
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="modal-footer justify-content-between">
+                                    <div class="small" id="selectedVoucherInfo">
+                                        Chưa chọn voucher nào
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">TRỞ LẠI</button>
+                                        <button class="btn btn-danger" id="confirmVoucherBtn">OK</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const helpLink = document.getElementById('helpLink');
+                            new bootstrap.Popover(helpLink);
+                        });
+                    </script>
+                    <script>
+                        let loadedVouchers = [];
+                        let selectedVoucherCode = null;
+
+                        function renderVoucherList(vouchers) {
+                            const container = document.getElementById("voucherListContainer");
+                            container.innerHTML = "";
+
+                            vouchers.forEach(v => {
+                                const disabledClass = v.disabled ? "bg-light text-muted" : "";
+                                const disabledAttr = v.disabled ? "disabled" : "";
+                                const conditionNote = v.disabled ? `<div class="text-danger small mt-1">Không thể sử dụng voucher này.</div>` : "";
+                                const textClass = v.disabled ? "text-muted" : "text-dark";
+                                const mutedClass = v.disabled ? "text-muted" : "text-dark";
+                                const maxDiscountNote = v.maxDiscountAmount ? `<div class="${mutedClass} small">Giảm tối đa: ${v.maxDiscountAmount}</div>` : "";
+                                const checkedAttr = v.code === selectedVoucherCode ? "checked" : "";
+
+                                const item = document.createElement("div");
+                                item.className = `voucher-item position-relative border rounded-3 d-flex p-3 mb-3 shadow-sm ${disabledClass}`;
+                                item.innerHTML = `
+                                        <div class="voucher-left text-center pe-3">
+                                            <div class="${v.disabled ? 'bg-secondary' : 'bg-danger'} text-white p-3 rounded-start">
+                                                <i class="bi bi-bag-fill fs-4 d-block"></i>
+                                                <div class="small mt-1">SHOPEE</div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="form-row row">
-                                        <div class="form-group col-lg-6">
-                                            <input required="required" placeholder="State / Country" name="name" type="text">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold ${textClass}">${v.title} <span class="text-primary">(${v.code})</span></div>
+                                            ${maxDiscountNote}
+                                            <div class="${mutedClass} small">Đơn Tối Thiểu ${v.minOrder}</div>
+                                            <div class="${mutedClass} small mt-1">HSD: ${v.expire}
+                                                <a href="#" class="ms-2 text-decoration-underline text-primary voucher-condition-link" data-code="${v.code}" data-bs-toggle="modal" data-bs-target="#voucherConditionModal">Điều Kiện</a>
+                                                ${conditionNote}
+                                            </div>
                                         </div>
-                                        <div class="form-group col-lg-6">
-                                            <input required="required" placeholder="PostCode / ZIP" name="name" type="text">
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <span class="badge ${v.disabled ? 'bg-secondary' : 'bg-danger'} rounded-pill">x ${v.count}</span>
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="radio" name="voucherOption" value="${v.code}" ${disabledAttr} ${checkedAttr}>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-lg-5">
-                            <div class="p-40">
-                                <h4 class="mb-10">Apply Coupon</h4>
-                                <p class="mb-30"><span class="font-lg text-muted">Using A Promo Code?</p>
-                                <form action="#">
-                                    <div class="d-flex justify-content-between">
-                                        <input class="font-medium mr-15 coupon" name="Coupon" placeholder="Enter Your Coupon">
-                                        <button class="btn"><i class="fi-rs-label mr-10"></i>Apply</button>
-                                    </div>
-                                </form>
+                                    `;
+                                container.appendChild(item);
+                            });
+                        }
+
+                        function applySelectedVoucher() {
+                            const selected = document.querySelector('input[name="voucherOption"]:checked');
+                            if (selected && !selected.disabled) {
+                                const code = selected.value;
+                                selectedVoucherCode = code;
+                                const infoBox = document.getElementById("selectedVoucherInfo");
+                                if (infoBox) {
+                                    infoBox.innerHTML = `1 Voucher đã được chọn <span class="text-danger">${code}</span>`;
+                                }
+
+                                const rawSubtotal = document.getElementById("subtotal-amount")?.innerText || "₫0";
+                                const currentSubtotal = parseInt(rawSubtotal.replace(/[^\d]/g, '')) || 0;
+
+                                fetch("/voucher/calculate-discount", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ code: code, orderTotal: currentSubtotal })
+                                })
+                                    .then(res => {
+                                        if (!res.ok) throw new Error("Voucher không áp dụng.");
+                                        return res.json();
+                                    })
+                                    .then(data => {
+                                        const discount = Number(data.discountAmount);
+                                        const subtotal = Number(data.orderTotalAfterDiscount) + discount;
+                                        updateCartTotal(subtotal, discount, data.code, data.discountType);
+                                    })
+                                    .catch(err => {
+                                        console.error("Lỗi khi gọi API tính giảm giá:", err);
+                                        alert("Không thể áp dụng voucher: " + err.message);
+                                    });
+
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('voucherShopeeModal'));
+                                if (modal) modal.hide();
+                            } else {
+                                alert("Vui lòng chọn một mã giảm giá hợp lệ.");
+                            }
+                        }
+
+                        function updateCartTotal(originalSubtotal, discount, code, discountType) {
+                            if (typeof originalSubtotal !== "number" || typeof discount !== "number") {
+                                console.error("Dữ liệu không hợp lệ từ API:", { originalSubtotal, discount });
+                                return;
+                            }
+
+                            const discountedTotal = originalSubtotal - discount;
+                            const formattedDiscount = discountType === "Percent"
+                                ? `-${discount}%`
+                                : `-₫${discount.toLocaleString()}`;
+
+                            document.getElementById("subtotal-amount").innerText = `₫${originalSubtotal.toLocaleString()}`;
+                            document.getElementById("discount-amount").innerText = formattedDiscount;
+                            document.getElementById("codevocher").innerText = `${code}`;
+                            document.getElementById("cart-total").innerText = `₫${discountedTotal.toLocaleString()}`;
+                            document.getElementById("discount-row").style.display = discount > 0 ? "" : "none";
+                            document.getElementById("codevocher-row").style.display = discount > 0 ? "" : "none";
+                        }
+
+                        function handleConditionModal(code) {
+                            const v = loadedVouchers.find(x => x.code === code);
+                            const modalBody = document.querySelector("#voucherConditionModal .modal-body");
+                            if (!v) {
+                                modalBody.innerHTML = `<div class="text-danger">Không tìm thấy thông tin voucher.</div>`;
+                                return;
+                            }
+                            modalBody.innerHTML = `
+                                    <p><strong>Mã:</strong> ${v.code}</p>
+                                    <p><strong>Đơn tối thiểu:</strong> ${v.minOrder}</p>
+                                    ${v.maxDiscountAmount ? `<p><strong>Giảm tối đa:</strong> ${v.maxDiscountAmount}</p>` : ""}
+                                    <p><strong>HSD:</strong> ${v.expire}</p>
+                                    <p><strong>Loại:</strong> ${v.isStoreVoucher ? "Voucher cửa hàng" : "Voucher toàn sàn (admin)"}</p>
+                                `;
+                        }
+
+                        function attachVoucherEvents() {
+                            document.querySelectorAll('#voucherTab .nav-link').forEach(btn => {
+                                btn.addEventListener("click", function () {
+                                    document.querySelectorAll('#voucherTab .nav-link').forEach(b => b.classList.remove('active'));
+                                    this.classList.add('active');
+                                    const type = this.getAttribute("data-type");
+                                    const filtered = type === "store"
+                                        ? loadedVouchers.filter(v => v.isStoreVoucher)
+                                        : loadedVouchers;
+                                    renderVoucherList(filtered);
+                                });
+                            });
+
+                            document.addEventListener("click", function (e) {
+                                const item = e.target.closest(".voucher-item");
+                                if (item && !item.classList.contains("text-muted")) {
+                                    const radio = item.querySelector('input[type="radio"]');
+                                    if (radio && !radio.disabled) {
+                                        radio.checked = true;
+                                        selectedVoucherCode = radio.value;
+                                        const infoBox = document.getElementById("selectedVoucherInfo");
+                                        if (infoBox) {
+                                            infoBox.innerHTML = `1 Voucher đã được chọn <span class="text-danger">${selectedVoucherCode}</span>`;
+                                        }
+                                    }
+                                }
+
+                                const link = e.target.closest(".voucher-condition-link");
+                                if (link) {
+                                    const code = link.getAttribute("data-code");
+                                    handleConditionModal(code);
+                                }
+                            });
+
+                            document.getElementById("confirmVoucherBtn").addEventListener("click", applySelectedVoucher);
+
+                            document.getElementById("applyVoucherCode").addEventListener("click", async function () {
+                                const input = document.getElementById("voucherSearchInput").value.trim();
+                                const errorBox = document.getElementById("voucherSearchError");
+                                errorBox.innerText = "";
+
+                                if (!input) {
+                                    errorBox.innerText = "Vui lòng nhập mã voucher.";
+                                    return;
+                                }
+
+                                try {
+                                    const res = await fetch(`/voucher/search?code=${encodeURIComponent(input)}`);
+                                    if (!res.ok) {
+                                        const err = await res.json();
+                                        errorBox.innerText = err.message || "Không tìm thấy voucher.";
+                                        return;
+                                    }
+
+                                    const foundVoucher = await res.json();
+                                    renderVoucherList([foundVoucher]);
+                                } catch (err) {
+                                    console.error("Lỗi tìm kiếm voucher:", err);
+                                    errorBox.innerText = "Đã xảy ra lỗi khi tìm voucher.";
+                                }
+                            });
+                        }
+
+                        async function loadVouchers() {
+                            try {
+                                const res = await fetch("/voucher/get-all");
+                                if (!res.ok) throw new Error("Không thể tải voucher.");
+                                loadedVouchers = await res.json();
+                                renderVoucherList(loadedVouchers);
+                            } catch (err) {
+                                document.getElementById("voucherListContainer").innerHTML = `<div class="text-danger">Lỗi khi tải voucher.</div>`;
+                            }
+                        }
+
+                        document.getElementById("voucherShopeeModal").addEventListener("show.bs.modal", async function () {
+                            await loadVouchers();
+                        });
+
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const helpLink = document.getElementById('helpLink');
+                            if (helpLink) new bootstrap.Popover(helpLink);
+                            attachVoucherEvents();
+                        });
+                    </script>
+
+
+
+
+
+
+
+                    <div class="modal fade" id="voucherConditionModal" tabindex="-1" aria-labelledby="voucherConditionModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-3">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="voucherConditionModalLabel">Điều Kiện Voucher</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Áp dụng cho đơn tối thiểu:</strong> ₫200.000</p>
+                                    <p><strong>Giảm tối đa:</strong> ₫50.000</p>
+                                    <p><strong>Chỉ áp dụng cho sản phẩm thuộc shop XYZ</strong></p>
+                                    <p class="text-muted small">Hạn sử dụng: 01/06/2025 - 15/06/2025</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                 
                 </div>
                 @{
     decimal total = 0; // 🔹 Biến lưu tổng giá trị
@@ -660,15 +697,42 @@
                 }
                                 
                                      <tbody>
-                                    <tr>
-                                        <td class="cart_total_label">
-                                            <h6 class="text-muted">Total</h6>
-                                        </td>
-                                        <td class="cart_total_amount">
-                                            <h4 class="text-brand text-end" id="cart-total">@total</h4>
 
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td class="cart_total_label">
+                                                <h6 class="text-muted">Tạm tính</h6>
+                                            </td>
+                                            <td class="cart_total_amount">
+                                                <h5 class="text-end" id="subtotal-amount">@total.ToString("₫#,##0")</h5>
+                                            </td>
+                                        </tr>
+
+                                        <tr id="codevocher-row" style="display: none;">
+                                            <td class="cart_total_label">
+                                                <h6 class="text-muted">Giảm giá voucher</h6>
+                                            </td>
+                                            <td class="cart_total_amount">
+                                                <h5 class="text-danger text-end" id="codevocher">-₫0</h5>
+                                            </td>
+                                        </tr>  
+                                        <tr id="discount-row" style="display: none;">
+                                            <td class="cart_total_label">
+                                                <h6 class="text-muted">Số Tiền Giam</h6>
+                                            </td>
+                                            <td class="cart_total_amount">
+                                                <h5 class="text-danger text-end" id="discount-amount">-₫0</h5>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td class="cart_total_label">
+                                                <h6 class="text-muted">Tổng cộng</h6>
+                                            </td>
+                                            <td class="cart_total_amount">
+                                                <h4 class="text-brand text-end" id="cart-total">@total.ToString("₫#,##0")</h4>
+                                            </td>
+                                        </tr>
+
                                  @*    <tr>
                                         <td scope="col" colspan="2">
                                             <div class="divider-2 mt-10 mb-10"></div>
@@ -1271,6 +1335,14 @@ $(document).ready(function () {
                         }
                     });
                     console.log("⚡ Tổng tiền của các sản phẩm đã chọn:", total);
+
+                    // Gán vào subtotal
+                    document.getElementById("subtotal-amount").innerText = `₫${total.toLocaleString()}`;
+
+                    // Gán vào cart total (giả sử chưa trừ voucher)
+                    document.getElementById("cart-total").innerText = `₫${total.toLocaleString()}`;
+
+
                 } else {
                     total = parseFloat(getTotalPrice());
                     console.log("⚡ Không có checkbox nào được chọn. Tổng tiền = 0");
@@ -1318,13 +1390,20 @@ $(document).ready(function () {
                 });
                 return;
             }
+            function isValidGuid(str) {
+                return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+            }
 
-            var formData = new FormData();
+            const formData = new FormData();
             formData.append("__RequestVerificationToken", token);
-
             selectedProducts.forEach(id => {
-                formData.append("productIds[]", id); // Sử dụng mảng đúng cách
+                if (isValidGuid(id)) {
+                    formData.append("productIds[]", id);
+                }
             });
+            if (selectedVoucherCode) {
+                formData.append("voucherCode", selectedVoucherCode);
+            }
 
             $.ajax({
                 url: "/Users/Buy",

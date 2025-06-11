@@ -423,7 +423,7 @@ namespace Food_Haven.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Buy([FromForm] List<Guid> productIds)
+        public async Task<IActionResult> Buy([FromForm] List<Guid> productIds, [FromForm] string voucherCode)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -473,7 +473,8 @@ namespace Food_Haven.Web.Controllers
                     ItemImage = img,
                     ItemPrice = getQuatity.SellPrice,
                     ItemQuantity = checkcart.Quantity,
-                    productID = product.ID
+                    productID = product.ID,
+                   
                 });
 
             }
@@ -487,6 +488,10 @@ namespace Food_Haven.Web.Controllers
                 phone = user.PhoneNumber,
                 itemCheck = listItem
             };
+            if (!string.IsNullOrWhiteSpace(voucherCode))
+            {
+                temInfo.voucher = voucherCode;
+            }
 
             HttpContext.Session.Set("BillingTourInfo", JsonSerializer.SerializeToUtf8Bytes(temInfo));
 
