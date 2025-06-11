@@ -1578,7 +1578,7 @@ namespace Food_Haven.Web.Controllers
                     ProfileImageUrl = user.ImageUrl,
                     TotalPosts = totalRecipes,
                     StoreId = store?.ID,
-                    StoreName = store.Name,// 👈 Gán StoreId
+                    StoreName = store?.Name,// 👈 Gán StoreId
                     HasStore = store != null           // 👈 Có store hay không
                 };
 
