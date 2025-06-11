@@ -32,6 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="assets\imgs\theme\icons\" />
 	  <Folder Include="wwwroot\microsoft\" />
 	</ItemGroup>
 

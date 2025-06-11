@@ -18,7 +18,7 @@ namespace Repository.ViewModels
         public string? Recipes { get; set; }
         public bool HasStore { get; set; }
         public Guid? StoreId { get; set; }
-
+        public string? StoreName { get; set; }
         public string? ProfileImageUrl { get; set; }
         public int TotalPosts { get; set; } 
 
