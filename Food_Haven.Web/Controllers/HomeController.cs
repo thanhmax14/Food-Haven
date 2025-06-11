@@ -72,18 +72,13 @@ namespace Food_Haven.Web.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IReviewService _reviewService;
         private readonly PayOS _payos;
-
+        private readonly IVoucherServices _voucher;
         private readonly IRecipeService _recipeService;
 
 
 
 
-        public HomeController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
-, IProductImageService productimg, IProductVariantService productvarian, IRecipeService recipeService, IOrderDetailService orderDetail, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos)
-
-        private readonly IVoucherServices _voucher;
-
-        public HomeController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
+        public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
 , IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos,IVoucherServices voucherServices)
 
         {
