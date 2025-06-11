@@ -18,7 +18,7 @@
 
         public string Owner { get; set; }
 
-
+        public string UserID { get; set; }
 
         public Dictionary<string, decimal> SizeWithPrice { get; set; } = new Dictionary<string, decimal>();
         public List<string> size { get; set; } = new List<string>();
