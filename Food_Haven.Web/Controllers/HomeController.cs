@@ -1515,7 +1515,7 @@ namespace Food_Haven.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> SellerInformation(string id)
+        public async Task<IActionResult> UserInformation(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -1577,7 +1577,8 @@ namespace Food_Haven.Web.Controllers
                     ProductsSold = $"{totalSold} sản phẩm",
                     ProfileImageUrl = user.ImageUrl,
                     TotalPosts = totalRecipes,
-                    StoreId = store?.ID,          // 👈 Gán StoreId
+                    StoreId = store?.ID,
+                    StoreName = store.Name,// 👈 Gán StoreId
                     HasStore = store != null           // 👈 Có store hay không
                 };
 
