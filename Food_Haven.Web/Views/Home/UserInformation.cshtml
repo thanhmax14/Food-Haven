@@ -100,7 +100,7 @@
 
                                         <h4>@Model.UserName</h4>
                                         <p>online/offline</p>
-                                        <div class="d-flex gap-2">
+                                        <div class="d-flex gap-2 @(Model.HasStore && Model.StoreId != null ? "" : "justify-content-center")">
                                             @if (Model.HasStore && Model.StoreId != null)
                                             {
                                                 <form asp-controller="Home"
@@ -119,6 +119,7 @@
                                             </button>
                                         </div>
 
+
                                       
                                     </div>
                                 </div>
@@ -134,13 +135,24 @@
                                         <hr>
                                         <div class="row mb-3">
                                             <div class="col-md-5 font-weight-bold">Store Name</div>
-                                            <div class="col-md-7">@Model.StoreName</div>
+                                            <div class="col-md-7">
+                                                @if (Model.HasStore)
+                                                {
+                                                    @Model.StoreName
+                                                }
+                                                else
+                                                {
+                                                    <span class="fst-italic text-secondary">The user does not have a store yet.</span>
+
+                                                }
+                                            </div>
                                         </div>
+
                                         
                                         <hr>
                                         <div class="row mb-3">
                                             <div class="col-md-5 font-weight-bold">Registration Date</div>
-                                            <div class="col-md-7">@Model.RegisterDate</div>
+                                            <div class="col-md-7">@Model.RegisterDate?.ToString("dd/MM/yyyy")</div>
                                         </div>
                                         <hr>
                                         <div class="row mb-3">
