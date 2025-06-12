@@ -1266,7 +1266,7 @@ namespace Food_Haven.Web.Controllers
                 Ingredient = !string.IsNullOrEmpty(obj.Ingredient) ? obj.Ingredient : "<p>No ingredients provided</p>", // Giá trị mặc định
                 Servings = obj.Servings,
                 CreatedDate = DateTime.Now,
-                IsActive = true,
+                IsActive = obj.IsActive,
                 CateID = obj.CateID,
                 TypeOfDishID = obj.TypeOfDishID,
                 ThumbnailImage = imagePath,
@@ -1428,7 +1428,7 @@ namespace Food_Haven.Web.Controllers
             return View(pagedList);
         }
         [HttpGet]
-        public async Task<IActionResult> MyViewRecipe(int? page, string id)
+        public async Task<IActionResult> MyViewRecipe(int? page)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -1443,7 +1443,7 @@ namespace Food_Haven.Web.Controllers
             var obj = await _recipeService.ListAsync();
             foreach (var item in obj)
             {
-                if (item.UserID == id) // Giả sử bạn có property `UserId` trong Recipe
+                if (item.UserID == user.Id) // Giả sử bạn có property `UserId` trong Recipe
                 {
                     var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
 
@@ -1468,6 +1468,7 @@ namespace Food_Haven.Web.Controllers
                     list.Add(recipeViewModel);
                 }
             }
+            
 
             var pagedList = list.ToPagedList(pageNumber, pageSize);
             return View(pagedList);
@@ -1482,31 +1483,37 @@ namespace Food_Haven.Web.Controllers
             var obj = await _recipeService.ListAsync();
             foreach (var item in obj)
             {
-                var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
-
-                var recipeViewModel = new RecipeViewModels
+                if (item.ID == id)
                 {
-                    ID = item.ID,
-                    Title = item.Title,
-                    ShortDescriptions = item.ShortDescriptions,
-                    PreparationTime = item.PreparationTime,
-                    CookTime = item.CookTime,
-                    TotalTime = item.TotalTime,
-                    DifficultyLevel = item.DifficultyLevel,
-                    Servings = item.Servings,
-                    CreatedDate = item.CreatedDate,
-                    IsActive = item.IsActive,
-                    CateID = item.CateID,
-                    ThumbnailImage = item.ThumbnailImage,
-                    TypeOfDishName = typeOfDish?.Name,
-                    CookingStep = item.CookingStep, // Lấy tên, tránh null
-                    Ingredient = item.Ingredient,
+                    var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
 
-                };
-                list.Add(recipeViewModel);
+                    var recipeViewModel = new RecipeViewModels
+                    {
+                        ID = item.ID,
+                        Title = item.Title,
+                        ShortDescriptions = item.ShortDescriptions,
+                        PreparationTime = item.PreparationTime,
+                        CookTime = item.CookTime,
+                        TotalTime = item.TotalTime,
+                        DifficultyLevel = item.DifficultyLevel,
+                        Servings = item.Servings,
+                        CreatedDate = item.CreatedDate,
+                        IsActive = item.IsActive,
+                        CateID = item.CateID,
+                        ThumbnailImage = item.ThumbnailImage,
+                        TypeOfDishName = typeOfDish?.Name,
+                        CookingStep = item.CookingStep, // Lấy tên, tránh null
+                        Ingredient = item.Ingredient,
+
+                    };
+                    list.Add(recipeViewModel);
+                }
+
             }
             return View(list);
         }
+
+
     }
 
 

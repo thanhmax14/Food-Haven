@@ -314,6 +314,12 @@
                                             <a class="entry-meta meta-2" href="#"><i class="fi-rs-play-alt"></i></a>
                                         </div>
                                     </div>
+                                    <!-- Nút Edit phía trên bên phải -->
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                        data-bs-target="#editRecipeModal-@item.ID"
+                                        style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                                        <i class="fi-rs-edit"></i> Edit
+                                    </button>
 
                                     <div class="entry-content-2 pl-50">
                                         <h3 class="post-title mb-20">
@@ -331,13 +337,97 @@
                                                 <span class="hit-count has-dot">126k Views</span>
                                                 <span class="hit-count has-dot">status</span>
                                             </div>
-                                            <a href="blog-post-right.html"
+                                            <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
                                                 class="text-brand font-heading font-weight-bold">Read more <i
                                                     class="fi-rs-arrow-right"></i></a>
                                         </div>
 
                                     </div>
                                 </article>
+                                <div class="modal fade" id="editRecipeModal-@item.ID" tabindex="-1"
+                                    aria-labelledby="editRecipeModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <form asp-action="EditRecipe" asp-controller="Users" method="post"
+                                                enctype="multipart/form-data">
+                                                <input type="hidden" name="ID" value="@item.ID" />
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editRecipeModalLabel">Edit Recipe</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+
+                                                <div class="modal-body row">
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Title</label>
+                                                        <input type="text" class="form-control" name="Title"
+                                                            value="@item.Title" required />
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Short Description</label>
+                                                        <input type="text" class="form-control" name="ShortDescriptions"
+                                                            value="@item.ShortDescriptions" required />
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Servings</label>
+                                                        <input type="text" class="form-control" name="Servings"
+                                                            value="@item.Servings" required />
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Cooking Time (minutes)</label>
+                                                        <input type="number" class="form-control" name="CookingTime"
+                                                            value="@item.CookTime" required />
+                                                    </div>
+
+                                                    <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Difficulty Level</label>
+                                                        <select class="form-select" name="DifficultyLevel">
+                                                            <option value="Easy"
+                                                                selected="@(item.DifficultyLevel == "Easy")">Easy</option>
+                                                            <option value="Medium"
+                                                                selected="@(item.DifficultyLevel == "Medium")">Medium
+                                                            </option>
+                                                            <option value="Hard"
+                                                                selected="@(item.DifficultyLevel == "Hard")">Hard</option>
+                                                        </select>
+
+                                                    </div>
+
+                                                    @* <div class="mb-3 col-md-6">
+                                                        <label class="form-label">Type of Dish</label>
+                                                        <select class="form-select" name="TypeOfDishID">
+                                                            @foreach (var dish in item.typeOfDishes)
+                                                            {
+                                                                <option value="@dish.ID" @(dish.ID == item.TypeOfDishID ? "selected" : "")>
+                                                            @dish.Name
+                                                        </option>
+                                                                                                                }
+                                                        </select>
+
+
+                                                    </div> *@
+
+                                                    <div class="mb-3 col-md-12">
+                                                        <label class="form-label">Thumbnail Image</label><br />
+                                                        <img src="@item.ThumbnailImage" alt="Thumbnail"
+                                                            style="max-height: 100px; margin-bottom: 10px;" /><br />
+                                                        <input type="file" class="form-control" name="ThumbnailImage" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
                             }
 
 
@@ -369,164 +459,162 @@
                                     </form>
                                 </div>
                             </div>
-                               <div class="sidebar-widget-2 widget_create mb-50"></div>
-                                <a asp-action="CreateRecipe" asp-controller="Users"
-                                    class="btn btn-primary w-100">
-                                    Create Recipe <i class="fi-rs-arrow-right ms-1"></i>
-                                </a>
+                            <div class="sidebar-widget-2 widget_create mb-50"></div>
+                            <a asp-action="CreateRecipe" asp-controller="Users" class="btn btn-primary w-100">
+                                Create Recipe <i class="fi-rs-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="sidebar-widget widget-category-2 mb-50">
+                            <h5 class="section-title style-1 mb-30">Category</h5>
+                            <ul>
+                                <li>
+                                    <a href="shop-grid-right.html"> <img src="assets/imgs/theme/icons/category-1.svg"
+                                            alt="" />Milks &
+                                        Dairies</a><span class="count">30</span>
+                                </li>
+                                <li>
+                                    <a href="shop-grid-right.html"> <img src="assets/imgs/theme/icons/category-2.svg"
+                                            alt="" />Clothing</a><span class="count">35</span>
+                                </li>
+                                <li>
+                                    <a href="shop-grid-right.html"> <img src="assets/imgs/theme/icons/category-3.svg"
+                                            alt="" />Pet Foods
+                                    </a><span class="count">42</span>
+                                </li>
+                                <li>
+                                    <a href="shop-grid-right.html"> <img src="assets/imgs/theme/icons/category-4.svg"
+                                            alt="" />Baking
+                                        material</a><span class="count">68</span>
+                                </li>
+                                <li>
+                                    <a href="shop-grid-right.html"> <img src="assets/imgs/theme/icons/category-5.svg"
+                                            alt="" />Fresh
+                                        Fruit</a><span class="count">87</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Product sidebar Widget -->
+                        <div class="sidebar-widget product-sidebar mb-50 p-30 bg-grey border-radius-10">
+                            <h5 class="section-title style-1 mb-30">Trending Now</h5>
+                            <div class="single-post clearfix">
+                                <div class="image">
+                                    <img src="assets/imgs/shop/thumbnail-3.jpg" alt="#" />
+                                </div>
+                                <div class="content pt-10">
+                                    <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5>
+                                    <p class="price mb-0 mt-5">$99.50</p>
+                                    <div class="product-rate">
+                                        <div class="product-rating" style="width: 90%"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="sidebar-widget widget-category-2 mb-50">
-                                <h5 class="section-title style-1 mb-30">Category</h5>
-                                <ul>
+                            <div class="single-post clearfix">
+                                <div class="image">
+                                    <img src="assets/imgs/shop/thumbnail-4.jpg" alt="#" />
+                                </div>
+                                <div class="content pt-10">
+                                    <h6><a href="shop-product-detail.html">Chen Sweater</a></h6>
+                                    <p class="price mb-0 mt-5">$89.50</p>
+                                    <div class="product-rate">
+                                        <div class="product-rating" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="single-post clearfix">
+                                <div class="image">
+                                    <img src="assets/imgs/shop/thumbnail-5.jpg" alt="#" />
+                                </div>
+                                <div class="content pt-10">
+                                    <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6>
+                                    <p class="price mb-0 mt-5">$25</p>
+                                    <div class="product-rate">
+                                        <div class="product-rating" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="single-post clearfix">
+                                <div class="image">
+                                    <img src="assets/imgs/shop/thumbnail-6.jpg" alt="#" />
+                                </div>
+                                <div class="content pt-10">
+                                    <h6><a href="shop-product-detail.html">Lorem, ipsum</a></h6>
+                                    <p class="price mb-0 mt-5">$25</p>
+                                    <div class="product-rate">
+                                        <div class="product-rating" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sidebar-widget widget_instagram mb-50">
+                            <h5 class="section-title style-1 mb-30">Gallery</h5>
+                            <div class="instagram-gellay">
+                                <ul class="insta-feed">
                                     <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-1.svg" alt="" />Milks &
-                                            Dairies</a><span class="count">30</span>
+                                        <a href="#"><img class="border-radius-5" src="assets/imgs/shop/thumbnail-1.jpg"
+                                                alt="" /></a>
                                     </li>
                                     <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-2.svg" alt="" />Clothing</a><span
-                                            class="count">35</span>
+                                        <a href="#"><img class="border-radius-5" src="assets/imgs/shop/thumbnail-2.jpg"
+                                                alt="" /></a>
                                     </li>
                                     <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-3.svg" alt="" />Pet Foods
-                                        </a><span class="count">42</span>
+                                        <a href="#"><img class="border-radius-5" src="assets/imgs/shop/thumbnail-3.jpg"
+                                                alt="" /></a>
                                     </li>
                                     <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-4.svg" alt="" />Baking
-                                            material</a><span class="count">68</span>
+                                        <a href="#"><img class="border-radius-5" src="assets/imgs/shop/thumbnail-4.jpg"
+                                                alt="" /></a>
                                     </li>
                                     <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-5.svg" alt="" />Fresh
-                                            Fruit</a><span class="count">87</span>
+                                        <a href="#"><img class="border-radius-5" src="assets/imgs/shop/thumbnail-5.jpg"
+                                                alt="" /></a>
+                                    </li>
+                                    <li>
+                                        <a href="#"><img class="border-radius-5" src="assets/imgs/shop/thumbnail-6.jpg"
+                                                alt="" /></a>
                                     </li>
                                 </ul>
                             </div>
-                            <!-- Product sidebar Widget -->
-                            <div class="sidebar-widget product-sidebar mb-50 p-30 bg-grey border-radius-10">
-                                <h5 class="section-title style-1 mb-30">Trending Now</h5>
-                                <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="assets/imgs/shop/thumbnail-3.jpg" alt="#" />
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5>
-                                        <p class="price mb-0 mt-5">$99.50</p>
-                                        <div class="product-rate">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="assets/imgs/shop/thumbnail-4.jpg" alt="#" />
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h6><a href="shop-product-detail.html">Chen Sweater</a></h6>
-                                        <p class="price mb-0 mt-5">$89.50</p>
-                                        <div class="product-rate">
-                                            <div class="product-rating" style="width: 80%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="assets/imgs/shop/thumbnail-5.jpg" alt="#" />
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6>
-                                        <p class="price mb-0 mt-5">$25</p>
-                                        <div class="product-rate">
-                                            <div class="product-rating" style="width: 60%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="assets/imgs/shop/thumbnail-6.jpg" alt="#" />
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h6><a href="shop-product-detail.html">Lorem, ipsum</a></h6>
-                                        <p class="price mb-0 mt-5">$25</p>
-                                        <div class="product-rate">
-                                            <div class="product-rating" style="width: 60%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sidebar-widget widget_instagram mb-50">
-                                <h5 class="section-title style-1 mb-30">Gallery</h5>
-                                <div class="instagram-gellay">
-                                    <ul class="insta-feed">
-                                        <li>
-                                            <a href="#"><img class="border-radius-5"
-                                                    src="assets/imgs/shop/thumbnail-1.jpg" alt="" /></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img class="border-radius-5"
-                                                    src="assets/imgs/shop/thumbnail-2.jpg" alt="" /></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img class="border-radius-5"
-                                                    src="assets/imgs/shop/thumbnail-3.jpg" alt="" /></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img class="border-radius-5"
-                                                    src="assets/imgs/shop/thumbnail-4.jpg" alt="" /></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img class="border-radius-5"
-                                                    src="assets/imgs/shop/thumbnail-5.jpg" alt="" /></a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img class="border-radius-5"
-                                                    src="assets/imgs/shop/thumbnail-6.jpg" alt="" /></a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!--Tags-->
-                            <div class="sidebar-widget widget-tags mb-50 pb-10">
-                                <h5 class="section-title style-1 mb-30">Popular Tags</h5>
-                                <ul class="tags-list">
-                                    <li class="hover-up">
-                                        <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Cabbage</a>
-                                    </li>
-                                    <li class="hover-up">
-                                        <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Broccoli</a>
-                                    </li>
-                                    <li class="hover-up">
-                                        <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Smoothie</a>
-                                    </li>
-                                    <li class="hover-up">
-                                        <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Fruit</a>
-                                    </li>
-                                    <li class="hover-up mr-0">
-                                        <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Salad</a>
-                                    </li>
-                                    <li class="hover-up mr-0">
-                                        <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Appetizer</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="banner-img wow fadeIn mb-50 animated d-lg-block d-none">
-                                <img src="assets/imgs/banner/banner-11.png" alt="" />
-                                <div class="banner-text">
-                                    <span>Oganic</span>
-                                    <h4>
-                                        Save 17% <br />
-                                        on <span class="text-brand">Oganic</span><br />
-                                        Juice
-                                    </h4>
-                                </div>
+                        </div>
+                        <!--Tags-->
+                        <div class="sidebar-widget widget-tags mb-50 pb-10">
+                            <h5 class="section-title style-1 mb-30">Popular Tags</h5>
+                            <ul class="tags-list">
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Cabbage</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Broccoli</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Smoothie</a>
+                                </li>
+                                <li class="hover-up">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Fruit</a>
+                                </li>
+                                <li class="hover-up mr-0">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Salad</a>
+                                </li>
+                                <li class="hover-up mr-0">
+                                    <a href="blog-category-grid.html"><i class="fi-rs-cross mr-10"></i>Appetizer</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="banner-img wow fadeIn mb-50 animated d-lg-block d-none">
+                            <img src="assets/imgs/banner/banner-11.png" alt="" />
+                            <div class="banner-text">
+                                <span>Oganic</span>
+                                <h4>
+                                    Save 17% <br />
+                                    on <span class="text-brand">Oganic</span><br />
+                                    Juice
+                                </h4>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </main>
     <footer class="main">

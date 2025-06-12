@@ -332,7 +332,7 @@
                                                 <span class="hit-count has-dot">126k Views</span>
                                                 <span class="hit-count has-dot">status</span>
                                             </div>
-                                            <a href="blog-post-right.html"
+                                            <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
                                                 class="text-brand font-heading font-weight-bold">Read more <i
                                                     class="fi-rs-arrow-right"></i></a>
                                         </div>
@@ -374,7 +374,7 @@
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <div class="sidebar-widget-2 widget_search mb-50">
-                                    <a asp-action="MyViewRecipe" asp-controller="Users" asp-route-id="@ViewBag.UserId"
+                                    <a asp-action="MyViewRecipe" asp-controller="Users"
                                         class="btn btn-primary w-100">
                                         My View Recipe <i class="fi-rs-arrow-right ms-1"></i>
                                     </a>
