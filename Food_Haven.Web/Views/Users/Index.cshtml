@@ -50,9 +50,6 @@
     <link rel="stylesheet" type="text/css" href="assetsAdmin/libs/multi.js/multi.min.css" />
     <!-- autocomplete css -->
     <link rel="stylesheet" href="assetsAdmin/libs/%40tarekraafat/autocomplete.js/css/autoComplete.css">
-</head>
-
-<body>
     <style>
         .gridjs-input {
             height: 42px !important;
@@ -61,8 +58,15 @@
         .mr-2 {
             margin-right: 10px;
         }
-        .badge.bg-kitchen { background-color: #17a2b8; } /* for Preparing In Kitchen */
-.badge.bg-failed { background-color: #dc3545; } /* for Cancelled or Failed */
+
+        .badge.bg-kitchen {
+            background-color: #17a2b8;
+        }
+        /* for Preparing In Kitchen */
+        .badge.bg-failed {
+            background-color: #dc3545;
+        }
+        /* for Cancelled or Failed */
 
     </style>
     <style>
@@ -221,6 +225,11 @@
             margin-top: 5px;
         }
     </style>
+
+</head>
+
+<body>
+    
     @await Html.PartialAsync("_Header")
     <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
@@ -414,7 +423,7 @@
                 </div>
             </div>
         </div>
-        <div class="page-content pt-150 pb-150">
+        <div class="page-content pt-50 pb-50">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-11 m-auto">
