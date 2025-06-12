@@ -233,13 +233,19 @@
                     </div>
 
                     <div class="col-6">
+                        <!-- Hidden input để gửi false nếu checkbox không được chọn -->
+                        <input type="hidden" name="IsActive" value="false" />
+
+                        <!-- Checkbox sẽ ghi đè giá trị nếu được chọn -->
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="gridCheck" name="IsActive">
+                            <input class="form-check-input" type="checkbox" id="gridCheck" name="IsActive"
+                                value="true" />
                             <label class="form-check-label" for="gridCheck">
                                 Is Active
                             </label>
                         </div>
                     </div>
+
 
                     <div class="row">
                         <!-- Cột phải: Ingredient Tag -->

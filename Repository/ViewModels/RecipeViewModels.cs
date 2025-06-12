@@ -10,7 +10,7 @@ namespace Repository.ViewModels
 {
     public class RecipeViewModels
     {
-        public Guid ID { get; set; } = Guid.NewGuid();
+        public Guid ID { get; set; } 
         [Required(ErrorMessage = "Title is required")]
 
         public string Title { get; set; }
