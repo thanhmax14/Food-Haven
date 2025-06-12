@@ -15,7 +15,7 @@
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
+   <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
 
@@ -23,26 +23,27 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
     <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
-      <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
-    <!-- assetsAdmin JS-->
-    <link rel="shortcut icon" href="assetsAdmin/images/favicon.ico">
+    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
     <!-- Plugins css -->
-    <link href="assetsAdmin/libs/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
     <!-- Layout config Js -->
-    <script src="assetsAdmin/js/layout.js"></script>
+    <script src="assets/js/layout.js"></script>
     <!-- Bootstrap Css -->
-    <link href="assetsAdmin/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
-    <link href="assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <!-- App Css-->
-    <link href="assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
-    <link href="assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
-    <link href="assetsAdmin/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+    <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.css">
 
 
 
@@ -486,13 +487,7 @@
                                                 <i class="fi-rs-user mr-10"></i>Wallet
                                             </a>
                                         </li>
-                                     <li class="nav-item" role="presentation">
-                                        <a class="nav-link" id="Recipe-tab" data-bs-toggle="tab"
-                                        href="#Recipe" role="tab" aria-controls="Recipe"
-                                        aria-selected="true">
-                                            <i class="fi-rs-user me-2"></i>Recipe
-                                        </a>
-                                    </li>
+                                  
                                         @* <li class="nav-item"> 
                                             <a class="nav-link" id="Feedback-tab" data-bs-toggle="tab" href="#Feedback"
                                                role="tab" aria-controls="Feedback" aria-selected="false">
@@ -1733,379 +1728,9 @@ document.addEventListener("click", function (e) {
                                             }
                                         </style>
                                     </div>
-                             <!-- Recipe Modal -->
-                <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="recipeModalLabel">Add Recipe</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+                          
+         
 
-          <form id="recipeForm">
-    <div class="modal-body">
-            <div class="card-body">
-                                    <div class="live-preview">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="firstNameinput" class="form-label">Title</label>
-                                                    <input type="text" class="form-control"
-                                                        placeholder="Enter recipe title" id="firstNameinput">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="phonenumberInput" class="form-label">Servings</label>
-                                                    <input type="tel" class="form-control" placeholder="Enter servings"
-                                                        id="phonenumberInput">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-12">
-                                                <div class="mb-3">
-                                                    <label for="meassageInput" class="form-label">Short
-                                                        Description</label>
-                                                    <textarea class="form-control" id="meassageInput" rows="3"
-                                                        placeholder="Enter short description"></textarea>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="emailidInput" class="form-label">Recipes Made It
-                                                        Count</label>
-                                                    <input type="email" class="form-control" placeholder="Enter number"
-                                                        id="emailidInput" readonly>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="ForminputState" class="form-label">Category</label>
-                                                    <select id="ForminputState" class="form-select" data-choices
-                                                        data-choices-sorting="true">
-                                                        <option selected>Choose...</option>
-                                                        <option>...</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label for="ForminputState" class="form-label">Difficulty
-                                                        Level</label>
-                                                    <select id="ForminputState" class="form-select" data-choices
-                                                        data-choices-sorting="true">
-                                                        <option selected>Choose...</option>
-                                                        <option>...</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" id="gridCheck">
-                                                    <label class="form-check-label" for="gridCheck">
-                                                        Is Active
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <!-- Cột phải: Ingredient Tag -->
-                                                <div class="col-md-6" style="margin-bottom: 20px;">
-                                                    <div class="mb-3 h-100 d-flex flex-column">
-                                                        <label class="form-label">Ingredient Tag</label>
-                                                        <select required multiple="multiple" id="multiselect-header"
-                                                            class="form-select flex-grow-1" size="10">
-                                                            <option>Chevrolet</option>
-                                                            <option>Fiat</option>
-                                                            <option>Ford</option>
-                                                            <option>Honda</option>
-                                                            <option selected>Hyundai</option>
-                                                            <option>Kia</option>
-                                                            <option>Mahindra</option>
-                                                            <option>Maruti</option>
-                                                            <option>Mitsubishi</option>
-                                                            <option>MG</option>
-                                                            <option>Nissan</option>
-                                                            <option>Renault</option>
-                                                            <option selected>Skoda</option>
-                                                            <option selected>Tata</option>
-                                                            <option selected>Toyato</option>
-                                                            <option>Volkswagen</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <!-- Cột trái: 3 time input -->
-                                                <div class="col-md-6">
-                                                    <!-- Preparation Time -->
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Preparation Time</label>
-                                                        <div class="d-flex gap-2">
-                                                            <input type="number" id="prepHour" class="form-control"
-                                                                min="0" max="23" placeholder="Hour"
-                                                                style="width: 100px;">
-                                                            <input type="number" id="prepMinute" class="form-control"
-                                                                min="0" max="59" placeholder="Minute"
-                                                                style="width: 100px;">
-                                                            
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Cooking Time -->
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Cooking Time</label>
-                                                        <div class="d-flex gap-2">
-                                                            <input type="number" id="cookHour" class="form-control"
-                                                                min="0" max="23" placeholder="Hour"
-                                                                style="width: 100px;">
-                                                            <input type="number" id="cookMinute" class="form-control"
-                                                                min="0" max="59" placeholder="Minute"
-                                                                style="width: 100px;">
-                                                            
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Total Time -->
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Total Time</label>
-                                                        <div class="d-flex gap-2">
-                                                            <input type="number" id="totalHour" class="form-control"
-                                                                min="0" max="23" placeholder="Hour"
-                                                                style="width: 100px;">
-                                                            <input type="number" id="totalMinute" class="form-control"
-                                                                min="0" max="59" placeholder="Minute"
-                                                                style="width: 100px;">
-                                                            
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-
-
-                                        </div><!-- end inner row -->
-                                    </div><!-- end live-preview -->
-                                </div><!-- end card-body -->
-
-        <!-- Ingredient Editor -->
-             <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title mb-0">Ingredient</h4>
-                        </div><!-- end card header -->
-
-                        <div class="card-body">
-                            <div id="editor-Ingredient" class="snow-editor" style="height: 300px;">
-                                <h3><span class="ql-size-large">Hello World!</span></h3>
-                                <p><br></p>
-                                <h3>This is an simple editable area.</h3>
-                                <p><br></p>
-                                <ul>
-                                    <li>
-                                        Select a text to reveal the toolbar.
-                                    </li>
-                                    <li>
-                                        Edit rich document on-the-fly, so elastic!
-                                    </li>
-                                </ul>
-                                <p><br></p>
-                                <p>
-                                    End of simple area
-                                </p>
-
-                            </div> <!-- end Snow-editor-->
-                        </div><!-- end card-body -->
-                    </div><!-- end card -->
-
-        <!-- Cooking Step Editor -->
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Cooking Step</h4>
-            </div>
-            <div class="card-body">
-                <div id="editor-CookingStep" class="snow-editor" style="height: 300px;">
-                    <!-- Content here... -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal footer -->
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
-</form>
-
-        </div>
-    </div>
-</div>
-
-                                     <div class="tab-pane fade show" id="Recipe" role="tabpanel" aria-labelledby="Recipe-tab">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h3 class="mb-0">Recipe</h3>
-                                            </div>
-                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#recipeModal">    Add Recipe
-</button>
-                                            
-                                            <div class="card-body">
-                                                <div class="table-responsive" id="table-recipe">
-                                                    <!-- Dynamic content loaded via JS -->
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-<style>
-    .multi-wrapper .search-input {
-        margin-bottom: 16px !important;
-        border-bottom: 1px solid #dee2e6;
-        border-radius: 6px;
-    }
-
-    .multi-wrapper {
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-    }
-
-    .search-input {
-        border: 1px solid #ced4da !important;
-        border-radius: 6px;
-        padding: 8px 12px;
-        background-color: #fff;
-        outline: none;
-        box-shadow: none;
-    }
-
-    .ql-toolbar.ql-snow {
-        border-radius: 6px 6px 0 0;
-    }
-
-    .ql-container.ql-snow {
-        border-radius: 0 0 6px 6px;
-        min-height: 300px;
-    }
-
-    .modal-body {
-        max-height: calc(100vh - 150px);
-        overflow-y: auto;
-        padding: 1.5rem;
-    }
-
-    .snow-editor {
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 10px;
-        background-color: #fff;
-    }
-</style>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // MULTISELECT: Header
-        const multiSelectHeader = document.getElementById("multiselect-header");
-        if (multiSelectHeader) {
-            multi(multiSelectHeader, {
-                enable_search: true,
-                non_selected_header: "Ingredient Tag",
-                selected_header: "Selected"
-            });
-        }
-
-        // MULTISELECT: Option Group (nếu dùng)
-        const multiSelectOptGroup = document.getElementById("multiselect-optiongroup");
-        if (multiSelectOptGroup) {
-            multi(multiSelectOptGroup, {
-                enable_search: true
-            });
-        }
-
-        // AUTOCOMPLETE
-        const autoCompleteCars = new autoComplete({
-            selector: "#autoCompleteCars",
-            placeHolder: "Search for Cars...",
-            data: {
-                src: [
-                    "Chevrolet", "Fiat", "Ford", "Honda", "Hyundai", "Kia", "Mahindra", "Maruti",
-                    "Mitsubishi", "MG", "Nissan", "Renault", "Skoda", "Tata", "Toyato", "Volkswagen"
-                ],
-                cache: true
-            },
-            resultsList: {
-                element: function (list, data) {
-                    if (!data.results.length) {
-                        const resultDiv = document.createElement("div");
-                        resultDiv.setAttribute("class", "no_result");
-                        resultDiv.innerHTML = '<span>Found No Results for "' + data.query + '"</span>';
-                        list.prepend(resultDiv);
-                    }
-                },
-                noResults: true
-            },
-            resultItem: {
-                highlight: true
-            },
-            events: {
-                input: {
-                    selection: function (event) {
-                        const value = event.detail.selection.value;
-                        autoCompleteCars.input.value = value;
-                    }
-                }
-            }
-        });
-
-     
-     
-    });
-</script>
-    
-                                    <script>
-                                        var editorCookingStep = new Quill('#editor-CookingStep', {
-                                            theme: 'snow',
-                                            modules: {
-                                                toolbar: [
-                                                    [{ 'font': [] }, { 'size': [] }],
-                                                    ['bold', 'italic', 'underline', 'strike'],
-                                                    [{ 'color': [] }, { 'background': [] }],
-                                                    [{ 'script': 'super' }, { 'script': 'sub' }],
-                                                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                                                    ['blockquote', 'code-block'],
-                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                                    [{ 'align': [] }],
-                                                    [{ 'indent': '-1' }, { 'indent': '+1' }],
-                                                    [{ 'direction': 'rtl' }],
-                                                    ['link', 'image', 'video'],
-                                                    ['clean']
-                                                ]
-                                            }
-                                        });
-
-                                        var editorIngredient = new Quill('#editor-Ingredient', {
-                                            theme: 'snow',
-                                            modules: {
-                                                toolbar: [
-                                                    [{ 'font': [] }, { 'size': [] }],
-                                                    ['bold', 'italic', 'underline', 'strike'],
-                                                    [{ 'color': [] }, { 'background': [] }],
-                                                    [{ 'script': 'super' }, { 'script': 'sub' }],
-                                                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                                                    ['blockquote', 'code-block'],
-                                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                                    [{ 'align': [] }],
-                                                    [{ 'indent': '-1' }, { 'indent': '+1' }],
-                                                    [{ 'direction': 'rtl' }],
-                                                    ['link', 'image', 'video'],
-                                                    ['clean']
-                                                ]
-                                            }
-                                        });
-
-
-                                    </script>
 
 
                                     @* ///FEEDBACK *@
@@ -2120,49 +1745,7 @@ document.addEventListener("click", function (e) {
                                             </div>
                                         </div>
                                     </div> *@
-                                    <script>
-                                        document.addEventListener("DOMContentLoaded", function () {
-                                            const container = document.getElementById("table-recipe");
-                                             var list = @Html.Raw(JsonSerializer.Serialize(Model.Reivew)); 
-
-
                                    
-                                            function initializeGrid(data) {
-                                                if (!container.dataset.gridInitialized) {
-                                                    container.innerHTML = "";
-                                                    gridInstance = new gridjs.Grid({
-                                                        columns: [
-                                                            { name: "ID", hidden: true },
-                                                            { name: "Product Name" },
-                                                            { name: "Comment" },
-                                                            { name: "Comment Date" },
-                                                            { name: "Rating" },
-                                                            { name: "Reply" }
-                                                        ],
-                                                        pagination: {
-                                                            enabled: true,
-                                                            limit: 5,
-                                                            summary: true
-                                                        },
-                                                        sort: true,
-                                                        search: true,
-                                                        data: data.map(u => [
-                                                            u.ID,
-                                                            u.ProductName,
-                                                            u.Cmt,
-                                                            new Date(u.Datecmt).toLocaleDateString(), // Sửa 'review.Datecmt' thành 'u.Datecmt'
-                                                            u.Rating,
-                                                            u.Relay // Thêm Reply vào dữ liệu
-                                                        ])
-                                                    }).render(container);
-
-                                                    container.dataset.gridInitialized = "true"; // Đánh dấu đã khởi tạo grid
-                                                }
-                                            }
-
-                                            initializeGrid(list); // Gọi hàm khởi tạo bảng với dữ liệu
-                                        });
-                                    </script>
 
                                 </div>
                             </div>
@@ -2546,20 +2129,24 @@ document.addEventListener("click", function (e) {
                             </script>
 
 <!-- Bootstrap 5 CSS & JS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Quill -->
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.css">
-<script src="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.js"></script>
-    <!-- Vendor JS-->
-    <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
-    <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <!-- ✅ jQuery (luôn phải đứng trước các plugin dùng jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-    <script src="~/assets/js/vendor/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ Bootstrap 5 -->
+    @* <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> *@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ Quill (dùng cho trình soạn thảo) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- ✅ multi.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.css">
+
+    <!-- ✅ autoComplete.js -->
+
+    <!-- ✅ Các plugin khác -->
     <script src="~/assets/js/plugins/slick.js"></script>
     <script src="~/assets/js/plugins/jquery.syotimer.min.js"></script>
     <script src="~/assets/js/plugins/wow.js"></script>
@@ -2575,45 +2162,49 @@ document.addEventListener("click", function (e) {
     <script src="~/assets/js/plugins/jquery.vticker-min.js"></script>
     <script src="~/assets/js/plugins/jquery.theia.sticky.js"></script>
     <script src="~/assets/js/plugins/jquery.elevatezoom.js"></script>
-    <!-- Template  JS -->
+
+    <!-- ✅ Template JS -->
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
+
+    <!-- ✅ Grid.js -->
     <script src="~/assets/js/gridjs/gridjs.umd.js"></script>
-    <!-- assetsAdmin JS-->
-    <!-- JAVASCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- ✅ Admin Template (nếu dùng layout riêng cho admin) -->
     <script src="assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assetsAdmin/libs/simplebar/simplebar.min.js"></script>
     <script src="assetsAdmin/libs/node-waves/waves.min.js"></script>
     <script src="assetsAdmin/libs/feather-icons/feather.min.js"></script>
     <script src="assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
     <script src="assetsAdmin/js/plugins.js"></script>
-    <!-- ckeditor -->
-    <script src="assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.js"></script>
 
-    <!-- dropzone js -->
+
+
+    <!-- Dropzone (nếu dùng) -->
     <script src="assetsAdmin/libs/dropzone/dropzone-min.js"></script>
 
-    <script src="assetsAdmin/js/pages/ecommerce-product-create.init.js"></script>
-
-    <!-- prismjs plugin -->
+    <!-- Prism (code highlight) -->
     <script src="assetsAdmin/libs/prismjs/prism.js"></script>
 
+    <!-- Quản lý nội dung nâng cao -->
+    <script src="assetsAdmin/js/pages/form-input-spin.init.js"></script>
+    <script src="assetsAdmin/js/pages/flag-input.init.js"></script>
+
+    <!-- Khởi tạo Quill hoặc form nâng cao -->
+    <script src="assetsAdmin/js/pages/form-editor.init.js"></script>
+
+    <!-- ✅ Quill nếu dùng bản local -->
+    <!-- <script src="assetsAdmin/libs/quill/quill.min.js"></script> -->
+
+    <!-- Admin app -->
     <script src="assetsAdmin/js/app.js"></script>
 
-
-    <!-- multi.js -->
-    <script src="assetsAdmin/libs/multi.js/multi.min.js"></script>
-    <!-- autocomplete js -->
-    <script src="assetsAdmin/libs/%40tarekraafat/autocomplete.js/autoComplete.min.js"></script>
-
-    <!-- init js -->
-    @* <script src="assetsAdmin/js/pages/form-advanced.init.js"></script> *@
-    <!-- input spin init -->
-    <script src="assetsAdmin/js/pages/form-input-spin.init.js"></script>
-    <!-- input flag init -->
-    <script src="assetsAdmin/js/pages/flag-input.init.js"></script>
-    <script src="assetsAdmin/js/pages/form-editor.init.js"></script>
-    <script src="assetsAdmin/libs/quill/quill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </body>
 
 </html>
