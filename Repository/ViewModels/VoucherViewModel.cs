@@ -39,6 +39,7 @@ namespace Repository.ViewModels
         public decimal MinOrderValue { get; set; }
 
         public bool IsActive { get; set; }
+        public bool isPrivate { get; set; }
     }
 
 }
