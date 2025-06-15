@@ -15,6 +15,7 @@ namespace Models
         public decimal ProductPrice { get; set; } = 0;
         public decimal TotalPrice { get; set; } = 0;
         public int Quantity { get; set; } = 0;
+        [StringLength(10)]
         public string? Status { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsFeedback { get; set; } = false;

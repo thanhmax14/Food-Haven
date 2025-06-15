@@ -8,6 +8,7 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
+        [StringLength(50)]
         public string Name { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.Now;

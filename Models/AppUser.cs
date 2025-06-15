@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +16,13 @@ namespace Models
         public string? LastName  { get; set; } = default;
         public DateTime? Birthday { get; set; }
         public string? Address { get; set; } = default;
+        [StringLength(20)]
         public string? RequestSeller { get; set; } = "0";
         public string? ImageUrl { get; set; } = "~/assets/imgs/theme/icons/icon-user.svg";
         public bool IsProfileUpdated { get; set; } = false;
         public bool IsBannedByAdmin { get; set; } = false;
         public DateTime? ModifyUpdate { get; set; } = DateTime.Now;
+        [StringLength(500)]
         public string? RejectNote { get; set; }
         public virtual StoreDetails StoreDetails { get; set; }
         public ICollection<BalanceChange> BalanceChanges { get; set; }

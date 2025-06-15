@@ -9,16 +9,21 @@ namespace Models
         public Guid ID { get; set; } = Guid.NewGuid();
 
         [ForeignKey("AppUser")]
+        [StringLength(450)]
         public string? UserID { get; set; }
-
+        [StringLength(250)]
         public string Name { get; set; } = default!;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         public string? LongDescriptions { get; set; }
+        [StringLength(500)]
         public string? ShortDescriptions { get; set; }
+        [StringLength(500)]
         public string? Address { get; set; }
+        [StringLength(12)]
         public string? Phone { get; set; }
         public string? ImageUrl { get; set; }
+        [StringLength(10)]
         public string? Status { get; set; }
         public bool IsActive { get; set; } = false;
 

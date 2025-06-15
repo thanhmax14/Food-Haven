@@ -13,6 +13,7 @@ namespace Models
         [Key]
         public Guid ID { get; set; }=Guid.NewGuid();
         public string Description { get; set; }
+        [StringLength(20)]
         public string Status { get; set; }
         public string? Reply { get; set; }
         public bool IsReportAdmin { get; set; } = false;

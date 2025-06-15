@@ -12,6 +12,7 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
+        [StringLength(100)]
         public string Name { get; set; } // Kích thước (VD: "50g", "100g")
         public decimal SellPrice { get; set; } = 0; // Giá bán
         public decimal? OriginalPrice { get; set; }
