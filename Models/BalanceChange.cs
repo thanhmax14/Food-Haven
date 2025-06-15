@@ -14,8 +14,11 @@ namespace Models
         public DateTime? DueTime { get; set; }
         public string? Description { get; set; }
         [ForeignKey("AppUser")]
+        [StringLength(450)]
         public string UserID { get; set; }
+        [StringLength(20)]
         public string Status { get; set; }
+        [StringLength(20)]
         public string Method { get; set; }
         public bool Display { get; set; } = true;
         public int? OrderCode { get; set; }

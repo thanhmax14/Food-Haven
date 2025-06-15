@@ -12,6 +12,7 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; }
+        [StringLength(20)]
         public string Code { get; set; }
         public decimal DiscountAmount { get; set; }
         public string DiscountType { get; set; }
@@ -24,6 +25,7 @@ namespace Models
         public bool IsActive { get; set; } = true;
         public bool IsGlobal { get; set; } = false;
         public int? UsagePerUser { get; set; }
+        [StringLength(300)]
         public string? Description { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }

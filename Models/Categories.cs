@@ -12,7 +12,9 @@ namespace Models
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
         public string? ImageUrl { get; set; }
+        [StringLength(10)]
         public string DisplayOrder { get; set; }
+        [StringLength(100)]
         public string Name { get; set; }
         public float Commission { get; set; }
         public bool IsActive { get; set; } = false;

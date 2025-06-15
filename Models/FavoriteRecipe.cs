@@ -19,6 +19,7 @@ namespace Models
         public Guid RecipeID { get; set; }
 
         [ForeignKey("AppUser")]
+        [StringLength(450)]
         public string UserID { get; set; }
        
         public virtual Recipe Recipe { get; set; }

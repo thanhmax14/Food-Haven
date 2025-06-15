@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class TypeOfDish
+    public class StoreFollower
     {
-        [Key]
-        public Guid ID { get; set; } = Guid.NewGuid();
-        [StringLength(100)]
-        public string Name { get; set; }
-        public bool IsActive { get; set; } = true;
+        public Guid ID { get; set; }
+        public Guid StoreID { get; set; }
+        [StringLength(450)]
+        public string UserID { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
-        public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
+        public virtual StoreDetails Store { get; set; }
+        public virtual AppUser User { get; set; }
     }
+
 }

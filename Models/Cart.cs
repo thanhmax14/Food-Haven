@@ -15,6 +15,7 @@ namespace Models
         public int Quantity { get; set; }
         public DateTime? CreatedDate { get; set; }
         [ForeignKey("AppUser")]
+        [StringLength(450)]
         public string UserID { get; set; }
         public virtual AppUser AppUser { get; set; }
         [ForeignKey("ProductTypes")]

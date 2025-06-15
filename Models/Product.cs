@@ -12,7 +12,9 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
+        [StringLength(100)]
         public string Name { get; set; }
+        [StringLength(500)]
         public string? ShortDescription { get; set; }
         public string? LongDescription { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;

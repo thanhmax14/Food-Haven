@@ -14,6 +14,7 @@ namespace Models
         public Guid ID { get; set; }= Guid.NewGuid();
         public DateTime? CreateDate { get; set; }
         [ForeignKey("AppUser")]
+        [StringLength(450)]
         public string UserID { get; set; }
         public virtual AppUser AppUser { get; set; }
         [ForeignKey("Product")]
