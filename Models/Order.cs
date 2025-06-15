@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Models
 {
@@ -13,10 +8,10 @@ namespace Models
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
         [StringLength(10)]
-        public string OrderTracking { get; set; } ="";
+        public string OrderTracking { get; set; } = "";
         [StringLength(10)]
         public string OrderCode { get; set; }
-        [StringLength(10)]
+        [StringLength(30)]
         public string Status { get; set; }
         public bool IsActive { get; set; } = true;
         public int Quantity { get; set; } = 0;
