@@ -1,0 +1,1055 @@
+﻿@{
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Nest - Multipurpose eCommerce HTML Template</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
+
+
+   @*  admin css *@
+
+    <!-- glightbox css -->
+    <link rel="stylesheet" href="~/assetsAdmin/libs/glightbox/css/glightbox.min.css">
+
+    <!-- Layout config Js -->
+    <script src="~/assetsAdmin/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="~/assetsAdmin/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
+
+</head>
+
+
+<body data-theme="default">
+    @await Html.PartialAsync("_Header")
+    <div class="mobile-header-active mobile-header-wrapper-style">
+        <div class="mobile-header-wrapper-inner">
+            <div class="mobile-header-top">
+                <div class="mobile-header-logo">
+                    <a href="index.html"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
+                </div>
+                <div class="mobile-menu-close close-style-wrap close-style-position-inherit">
+                    <button class="close-style search-close">
+                        <i class="icon-top"></i>
+                        <i class="icon-bottom"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mobile-header-content-area">
+                <div class="mobile-search search-style-3 mobile-header-border">
+                    <form action="#">
+                        <input type="text" placeholder="Search for items…" />
+                        <button type="submit"><i class="fi-rs-search"></i></button>
+                    </form>
+                </div>
+                <div class="mobile-menu-wrap mobile-header-border">
+                    <!-- mobile menu start -->
+                    <nav>
+                        <ul class="mobile-menu font-heading">
+                            <li class="menu-item-has-children">
+                                <a href="index.html">Home</a>
+                                <ul class="dropdown">
+                                    <li><a href="index.html">Home 1</a></li>
+                                    <li><a href="index-2.html">Home 2</a></li>
+                                    <li><a href="index-3.html">Home 3</a></li>
+                                    <li><a href="index-4.html">Home 4</a></li>
+                                    <li><a href="index-5.html">Home 5</a></li>
+                                    <li><a href="index-6.html">Home 6</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="shop-grid-right.html">shop</a>
+                                <ul class="dropdown">
+                                    <li><a href="shop-grid-right.html">Shop Grid – Right Sidebar</a></li>
+                                    <li><a href="shop-grid-left.html">Shop Grid – Left Sidebar</a></li>
+                                    <li><a href="shop-list-right.html">Shop List – Right Sidebar</a></li>
+                                    <li><a href="shop-list-left.html">Shop List – Left Sidebar</a></li>
+                                    <li><a href="shop-fullwidth.html">Shop - Wide</a></li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Single Product</a>
+                                        <ul class="dropdown">
+                                            <li><a href="shop-product-right.html">Product – Right Sidebar</a></li>
+                                            <li><a href="shop-product-left.html">Product – Left Sidebar</a></li>
+                                            <li><a href="shop-product-full.html">Product – No sidebar</a></li>
+                                            <li><a href="shop-product-vendor.html">Product – Vendor Infor</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="shop-filter.html">Shop – Filter</a></li>
+                                    <li><a href="shop-wishlist.html">Shop – Wishlist</a></li>
+                                    <li><a href="shop-cart.html">Shop – Cart</a></li>
+                                    <li><a href="shop-checkout.html">Shop – Checkout</a></li>
+                                    <li><a href="shop-compare.html">Shop – Compare</a></li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Shop Invoice</a>
+                                        <ul class="dropdown">
+                                            <li><a href="shop-invoice-1.html">Shop Invoice 1</a></li>
+                                            <li><a href="shop-invoice-2.html">Shop Invoice 2</a></li>
+                                            <li><a href="shop-invoice-3.html">Shop Invoice 3</a></li>
+                                            <li><a href="shop-invoice-4.html">Shop Invoice 4</a></li>
+                                            <li><a href="shop-invoice-5.html">Shop Invoice 5</a></li>
+                                            <li><a href="shop-invoice-6.html">Shop Invoice 6</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Vendors</a>
+                                <ul class="dropdown">
+                                    <li><a href="vendors-grid.html">Vendors Grid</a></li>
+                                    <li><a href="vendors-list.html">Vendors List</a></li>
+                                    <li><a href="vendor-details-1.html">Vendor Details 01</a></li>
+                                    <li><a href="vendor-details-2.html">Vendor Details 02</a></li>
+                                    <li><a href="vendor-dashboard.html">Vendor Dashboard</a></li>
+                                    <li><a href="vendor-guide.html">Vendor Guide</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Mega menu</a>
+                                <ul class="dropdown">
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Women's Fashion</a>
+                                        <ul class="dropdown">
+                                            <li><a href="shop-product-right.html">Dresses</a></li>
+                                            <li><a href="shop-product-right.html">Blouses & Shirts</a></li>
+                                            <li><a href="shop-product-right.html">Hoodies & Sweatshirts</a></li>
+                                            <li><a href="shop-product-right.html">Women's Sets</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Men's Fashion</a>
+                                        <ul class="dropdown">
+                                            <li><a href="shop-product-right.html">Jackets</a></li>
+                                            <li><a href="shop-product-right.html">Casual Faux Leather</a></li>
+                                            <li><a href="shop-product-right.html">Genuine Leather</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Technology</a>
+                                        <ul class="dropdown">
+                                            <li><a href="shop-product-right.html">Gaming Laptops</a></li>
+                                            <li><a href="shop-product-right.html">Ultraslim Laptops</a></li>
+                                            <li><a href="shop-product-right.html">Tablets</a></li>
+                                            <li><a href="shop-product-right.html">Laptop Accessories</a></li>
+                                            <li><a href="shop-product-right.html">Tablet Accessories</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="blog-category-fullwidth.html">Blog</a>
+                                <ul class="dropdown">
+                                    <li><a href="blog-category-grid.html">Blog Category Grid</a></li>
+                                    <li><a href="blog-category-list.html">Blog Category List</a></li>
+                                    <li><a href="blog-category-big.html">Blog Category Big</a></li>
+                                    <li><a href="blog-category-fullwidth.html">Blog Category Wide</a></li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Single Product Layout</a>
+                                        <ul class="dropdown">
+                                            <li><a href="blog-post-left.html">Left Sidebar</a></li>
+                                            <li><a href="blog-post-right.html">Right Sidebar</a></li>
+                                            <li><a href="blog-post-fullwidth.html">No Sidebar</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Pages</a>
+                                <ul class="dropdown">
+                                    <li><a href="page-about.html">About Us</a></li>
+                                    <li><a href="page-contact.html">Contact</a></li>
+                                    <li><a href="page-account.html">My Account</a></li>
+                                    <li><a href="page-login.html">Login</a></li>
+                                    <li><a href="page-register.html">Register</a></li>
+                                    <li><a href="page-forgot-password.html">Forgot password</a></li>
+                                    <li><a href="page-reset-password.html">Reset password</a></li>
+                                    <li><a href="page-purchase-guide.html">Purchase Guide</a></li>
+                                    <li><a href="page-privacy-policy.html">Privacy Policy</a></li>
+                                    <li><a href="page-terms.html">Terms of Service</a></li>
+                                    <li><a href="page-404.html">404 Page</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Language</a>
+                                <ul class="dropdown">
+                                    <li><a href="#">English</a></li>
+                                    <li><a href="#">French</a></li>
+                                    <li><a href="#">German</a></li>
+                                    <li><a href="#">Spanish</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- mobile menu end -->
+                </div>
+                <div class="mobile-header-info-wrap">
+                    <div class="single-mobile-header-info">
+                        <a href="page-contact.html"><i class="fi-rs-marker"></i> Our location </a>
+                    </div>
+                    <div class="single-mobile-header-info">
+                        <a href="page-login.html"><i class="fi-rs-user"></i>Log In / Sign Up </a>
+                    </div>
+                    <div class="single-mobile-header-info">
+                        <a href="#"><i class="fi-rs-headphones"></i>(+01) - 2345 - 6789 </a>
+                    </div>
+                </div>
+                <div class="mobile-social-icon mb-50">
+                    <h6 class="mb-15">Follow Us</h6>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-facebook-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-twitter-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-instagram-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-pinterest-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-youtube-white.svg" alt="" /></a>
+                </div>
+                <div class="site-copyright">Copyright 2024 © Nest. All rights reserved. Powered by AliThemes.</div>
+            </div>
+        </div>
+    </div>
+    <!--End header-->
+    <main class="main pages">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                    <span></span> Pages <span></span> Purchase Guide
+                </div>
+            </div>
+        </div>
+        <div class="page-content pt-50">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 m-auto">
+
+                        <div class="page-content">
+                            <div class="container-fluid">
+                                <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
+                                    <div class="chat-leftsidebar minimal-border">
+                                        <div class="px-4 pt-4 mb-3">
+                                            <div class="d-flex align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h5 class="mb-4">Chats</h5>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Add Contact">
+
+                                                        <!-- Button trigger modal -->
+                                                        <button type="button" class="btn btn-soft-success btn-sm material-shadow-none">
+                                                            <i class="ri-add-line align-bottom"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="search-box">
+                                                <input type="text" class="form-control bg-light border-light" placeholder="Search here...">
+                                                <i class="ri-search-2-line search-icon"></i>
+                                            </div>
+                                        </div> <!-- .p-4 -->
+
+                                        <ul class="nav nav-tabs nav-tabs-custom nav-success nav-justified" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" data-bs-toggle="tab" href="#chats" role="tab">
+                                                    Chats
+                                                </a>
+                                            </li>
+                                           @*  <li class="nav-item">
+                                                <a class="nav-link" data-bs-toggle="tab" href="#contacts" role="tab">
+                                                    Contacts
+                                                </a>
+                                            </li> *@
+                                        </ul>
+
+                                        <div class="tab-content text-muted">
+                                            <div class="tab-pane active" id="chats" role="tabpanel">
+                                                <div class="chat-room-list pt-3" data-simplebar>
+                                                    <div class="d-flex align-items-center px-4 mb-2">
+                                                        <div class="flex-grow-1">
+                                                            <h4 class="mb-0 fs-11 text-muted text-uppercase">Direct Messages</h4>
+                                                        </div>
+                                                        <div class="flex-shrink-0">
+                                                            <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="New Message">
+
+                                                                <!-- Button trigger modal -->
+                                                                <button type="button" class="btn btn-soft-success btn-sm shadow-none material-shadow">
+                                                                    <i class="ri-add-line align-bottom"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="chat-message-list">
+
+                                                        <ul class="list-unstyled chat-list chat-user-list" id="userList">
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="d-flex align-items-center px-4 mt-4 pt-2 mb-2">
+                                                        <div class="flex-grow-1">
+                                                            <h4 class="mb-0 fs-11 text-muted text-uppercase">Channels</h4>
+                                                        </div>
+                                                        <div class="flex-shrink-0">
+                                                            <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Create group">
+                                                                <!-- Button trigger modal -->
+                                                                <button type="button" class="btn btn-soft-success btn-sm">
+                                                                    <i class="ri-add-line align-bottom"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="chat-message-list">
+
+                                                        <ul class="list-unstyled chat-list chat-user-list mb-0" id="channelList">
+                                                        </ul>
+                                                    </div>
+                                                    <!-- End chat-message-list -->
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" id="contacts" role="tabpanel">
+                                                <div class="chat-room-list pt-3" data-simplebar>
+                                                    <div class="sort-contact">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- end tab contact -->
+                                    </div>
+                                    <!-- end chat leftsidebar -->
+                                    <!-- Start User chat -->
+                                    <div class="user-chat w-100 overflow-hidden minimal-border">
+
+                                        <div class="chat-content d-lg-flex">
+                                            <!-- start chat conversation section -->
+                                            <div class="w-100 overflow-hidden position-relative">
+                                                <!-- conversation user -->
+                                                <div class="position-relative">
+
+
+                                                    <div class="position-relative" id="users-chat">
+                                                        <div class="p-3 user-chat-topbar">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-sm-4 col-8">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="flex-shrink-0 d-block d-lg-none me-3">
+                                                                            <a href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i class="ri-arrow-left-s-line align-bottom"></i></a>
+                                                                        </div>
+                                                                        <div class="flex-grow-1 overflow-hidden">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
+                                                                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
+                                                                                    <span class="user-status"></span>
+                                                                                </div>
+                                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                                    <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
+                                                                                    <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>Online</small></p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8 col-4">
+                                                                    <ul class="list-inline user-chat-nav text-end mb-0">
+                                                                        <li class="list-inline-item m-0">
+                                                                            <div class="dropdown">
+                                                                                <button class="btn btn-ghost-secondary btn-icon material-shadow-none" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search icon-sm"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                                                                </button>
+                                                                                <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg" style="">
+                                                                                    <div class="p-2">
+                                                                                        <div class="search-box">
+                                                                                            <input type="text" class="form-control bg-light border-light" placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage">
+                                                                                            <i class="ri-search-2-line search-icon"></i>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+
+                                                                        <li class="list-inline-item d-none d-lg-inline-block m-0">
+                                                                            <button type="button" class="btn btn-ghost-secondary btn-icon material-shadow-none" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info icon-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                                            </button>
+                                                                        </li>
+
+                                                                        <li class="list-inline-item m-0">
+                                                                            <div class="dropdown">
+                                                                                <button class="btn btn-ghost-secondary btn-icon material-shadow-none" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical icon-sm"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                                                                </button>
+                                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                                    <a class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i class="ri-user-2-fill align-bottom text-muted me-2"></i> View Profile</a>
+                                                                                    <a class="dropdown-item" href="#"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i> Archive</a>
+                                                                                    <a class="dropdown-item" href="#"><i class="ri-mic-off-line align-bottom text-muted me-2"></i> Muted</a>
+                                                                                    <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <!-- end chat user head -->
+                                                        <div class="chat-conversation p-3 p-lg-4 " id="chat-conversation" data-simplebar>
+                                                            <div id="elmLoader">
+                                                                <div class="spinner-border text-primary avatar-sm" role="status">
+                                                                    <span class="visually-hidden">Loading...</span>
+                                                                </div>
+                                                            </div>
+                                                            <ul class="list-unstyled chat-conversation-list" id="users-conversation">
+                                                            </ul>
+                                                            <!-- end chat-conversation-list -->
+                                                        </div>
+                                                        <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show " id="copyClipBoard" role="alert">
+                                                            Message copied
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="position-relative" id="channel-chat">
+                                                        <div class="p-3 user-chat-topbar">
+                                                            <div class="row align-items-center">
+                                                                <div class="col-sm-4 col-8">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="flex-shrink-0 d-block d-lg-none me-3">
+                                                                            <a href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i class="ri-arrow-left-s-line align-bottom"></i></a>
+                                                                        </div>
+                                                                        <div class="flex-grow-1 overflow-hidden">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
+                                                                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
+                                                                                </div>
+                                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                                    <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
+                                                                                    <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>24 Members</small></p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-8 col-4">
+                                                                    <ul class="list-inline user-chat-nav text-end mb-0">
+                                                                        <li class="list-inline-item m-0">
+                                                                            <div class="dropdown">
+                                                                                <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                    <i data-feather="search" class="icon-sm"></i>
+                                                                                </button>
+                                                                                <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">
+                                                                                    <div class="p-2">
+                                                                                        <div class="search-box">
+                                                                                            <input type="text" class="form-control bg-light border-light" placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage">
+                                                                                            <i class="ri-search-2-line search-icon"></i>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+
+                                                                        <li class="list-inline-item d-none d-lg-inline-block m-0">
+                                                                            <button type="button" class="btn btn-ghost-secondary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
+                                                                                <i data-feather="info" class="icon-sm"></i>
+                                                                            </button>
+                                                                        </li>
+
+                                                                        <li class="list-inline-item m-0">
+                                                                            <div class="dropdown">
+                                                                                <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                                    <i data-feather="more-vertical" class="icon-sm"></i>
+                                                                                </button>
+                                                                                <div class="dropdown-menu dropdown-menu-end">
+                                                                                    <a class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i class="ri-user-2-fill align-bottom text-muted me-2"></i> View Profile</a>
+                                                                                    <a class="dropdown-item" href="#"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i> Archive</a>
+                                                                                    <a class="dropdown-item" href="#"><i class="ri-mic-off-line align-bottom text-muted me-2"></i> Muted</a>
+                                                                                    <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        <!-- end chat user head -->
+                                                        <div class="chat-conversation p-3 p-lg-4" id="chat-conversation" data-simplebar>
+                                                            <ul class="list-unstyled chat-conversation-list" id="channel-conversation">
+                                                            </ul>
+                                                            <!-- end chat-conversation-list -->
+
+                                                        </div>
+                                                        <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show " id="copyClipBoardChannel" role="alert">
+                                                            Message copied
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- end chat-conversation -->
+
+                                                    <div class="chat-input-section p-3 p-lg-4">
+
+                                                        <form id="chatinput-form" enctype="multipart/form-data">
+                                                            <div class="row g-0 align-items-center">
+                                                                <div class="col-auto">
+                                                                    <div class="chat-input-links me-2">
+                                                                        <div class="links-list-item">
+                                                                            <button type="button" class="btn btn-link text-decoration-none emoji-btn" id="emoji-btn">
+                                                                                <i class="bx bx-smile align-middle"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col">
+                                                                    <div class="chat-input-feedback">
+                                                                        Please Enter a Message
+                                                                    </div>
+                                                                    <input type="text" class="form-control chat-input bg-light border-light" id="chat-input" placeholder="Type your message..." autocomplete="off">
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <div class="chat-input-links ms-2">
+                                                                        <div class="links-list-item">
+                                                                            <button type="submit" class="btn btn-success chat-send waves-effect waves-light">
+                                                                                <i class="ri-send-plane-2-fill align-bottom"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </form>
+                                                    </div>
+
+                                                    <div class="replyCard">
+                                                        <div class="card mb-0">
+                                                            <div class="card-body py-3">
+                                                                <div class="replymessage-block mb-0 d-flex align-items-start">
+                                                                    <div class="flex-grow-1">
+                                                                        <h5 class="conversation-name"></h5>
+                                                                        <p class="mb-0"></p>
+                                                                    </div>
+                                                                    <div class="flex-shrink-0">
+                                                                        <button type="button" id="close_toggle" class="btn btn-sm btn-link mt-n2 me-n3 fs-18">
+                                                                            <i class="bx bx-x align-middle"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end chat-wrapper -->
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="offcanvas offcanvas-end border-0" tabindex="-1" id="userProfileCanvasExample">
+        <!--end offcanvas-header-->
+        <div class="offcanvas-body profile-offcanvas p-0">
+            <div class="team-cover">
+                <img src="assets/images/small/img-9.jpg" alt="" class="img-fluid">
+            </div>
+            <div class="p-1 pb-4 pt-0">
+                <div class="team-settings">
+                    <div class="row g-0">
+                        <div class="col">
+                            <div class="btn nav-btn">
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="user-chat-nav d-flex">
+                                <button type="button" class="btn nav-btn favourite-btn active">
+                                    <i class="ri-star-fill"></i>
+                                </button>
+
+                                <div class="dropdown">
+                                    <a class="btn nav-btn" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-more-2-fill"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i>Archive</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-mic-off-line align-bottom text-muted me-2"></i>Muted</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!--end col-->
+            </div>
+            <div class="p-3 text-center">
+                <img src="assets/images/users/avatar-2.jpg" alt="" class="avatar-lg img-thumbnail rounded-circle mx-auto profile-img">
+                <div class="mt-3">
+                    <h5 class="fs-16 mb-1"><a href="javascript:void(0);" class="link-primary username">Lisa Parker</a></h5>
+                    <p class="text-muted"><i class="ri-checkbox-blank-circle-fill me-1 align-bottom text-success"></i>Online</p>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn avatar-xs p-0" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Message" data-bs-original-title="Message">
+                        <span class="avatar-title rounded bg-light text-body">
+                            <i class="ri-question-answer-line"></i>
+                        </span>
+                    </button>
+
+                    <button type="button" class="btn avatar-xs p-0" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Favourite" data-bs-original-title="Favourite">
+                        <span class="avatar-title rounded bg-light text-body">
+                            <i class="ri-star-line"></i>
+                        </span>
+                    </button>
+
+                    <button type="button" class="btn avatar-xs p-0" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Phone" data-bs-original-title="Phone">
+                        <span class="avatar-title rounded bg-light text-body">
+                            <i class="ri-phone-line"></i>
+                        </span>
+                    </button>
+
+                    <div class="dropdown">
+                        <button class="btn avatar-xs p-0" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="avatar-title bg-light text-body rounded">
+                                <i class="ri-more-fill"></i>
+                            </span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i>Archive</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-mic-off-line align-bottom text-muted me-2"></i>Muted</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i>Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top border-top-dashed p-3">
+                <h5 class="fs-15 mb-3">Personal Details</h5>
+                <div class="mb-3">
+                    <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Number</p>
+                    <h6>+(256) 2451 8974</h6>
+                </div>
+                <div class="mb-3">
+                    <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Email</p>
+                    <h6>lisaparker@gmail.com</h6>
+                </div>
+                <div>
+                    <p class="text-muted text-uppercase fw-medium fs-12 mb-1">Location</p>
+                    <h6 class="mb-0">California, USA</h6>
+                </div>
+            </div>
+
+            <div class="border-top border-top-dashed p-3">
+                <h5 class="fs-15 mb-3">Attached Files</h5>
+
+                <div class="vstack gap-2">
+                    <div class="border rounded border-dashed p-2">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-xs">
+                                    <div class="avatar-title bg-light text-secondary rounded fs-20">
+                                        <i class="ri-folder-zip-line"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <h5 class="fs-13 mb-1"><a href="#" class="text-body text-truncate d-block">App pages.zip</a></h5>
+                                <div class="text-muted">2.2MB</div>
+                            </div>
+                            <div class="flex-shrink-0 ms-2">
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-icon text-muted btn-sm fs-18 material-shadow-none"><i class="ri-download-2-line"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-icon text-muted btn-sm fs-18 dropdown material-shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-more-fill"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="ri-share-line align-bottom me-2 text-muted"></i> Share</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-bookmark-line align-bottom me-2 text-muted"></i> Bookmark</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-delete-bin-line align-bottom me-2 text-muted"></i> Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border rounded border-dashed p-2">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-xs">
+                                    <div class="avatar-title bg-light text-secondary rounded fs-20">
+                                        <i class="ri-file-ppt-2-line"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <h5 class="fs-13 mb-1"><a href="#" class="text-body text-truncate d-block">Velzon admin.ppt</a></h5>
+                                <div class="text-muted">2.4MB</div>
+                            </div>
+                            <div class="flex-shrink-0 ms-2">
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-icon text-muted btn-sm fs-18 material-shadow-none"><i class="ri-download-2-line"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-icon text-muted btn-sm fs-18 dropdown material-shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-more-fill"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="ri-share-line align-bottom me-2 text-muted"></i> Share</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-bookmark-line align-bottom me-2 text-muted"></i> Bookmark</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-delete-bin-line align-bottom me-2 text-muted"></i> Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border rounded border-dashed p-2">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-xs">
+                                    <div class="avatar-title bg-light text-secondary rounded fs-20">
+                                        <i class="ri-folder-zip-line"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <h5 class="fs-13 mb-1"><a href="#" class="text-body text-truncate d-block">Images.zip</a></h5>
+                                <div class="text-muted">1.2MB</div>
+                            </div>
+                            <div class="flex-shrink-0 ms-2">
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-icon text-muted btn-sm fs-18 material-shadow-none"><i class="ri-download-2-line"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-icon text-muted btn-sm fs-18 dropdown material-shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-more-fill"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="ri-share-line align-bottom me-2 text-muted"></i> Share</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-bookmark-line align-bottom me-2 text-muted"></i> Bookmark</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-delete-bin-line align-bottom me-2 text-muted"></i> Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border rounded border-dashed p-2">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="avatar-xs">
+                                    <div class="avatar-title bg-light text-secondary rounded fs-20">
+                                        <i class="ri-image-2-line"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <h5 class="fs-13 mb-1"><a href="#" class="text-body text-truncate d-block">bg-pattern.png</a></h5>
+                                <div class="text-muted">1.1MB</div>
+                            </div>
+                            <div class="flex-shrink-0 ms-2">
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-icon text-muted btn-sm fs-18 material-shadow-none"><i class="ri-download-2-line"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-icon text-muted btn-sm fs-18 dropdown material-shadow-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ri-more-fill"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="ri-share-line align-bottom me-2 text-muted"></i> Share</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-bookmark-line align-bottom me-2 text-muted"></i> Bookmark</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="ri-delete-bin-line align-bottom me-2 text-muted"></i> Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-2">
+                        <button type="button" class="btn btn-danger">Load more <i class="ri-arrow-right-fill align-bottom ms-1"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end offcanvas-body-->
+    </div>
+    <footer class="main">
+        <section class="newsletter mb-15">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="position-relative newsletter-inner">
+                            <div class="newsletter-content">
+                                <h2 class="mb-20">
+                                    Stay home & get your daily <br />
+                                    needs from our shop
+                                </h2>
+                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest Mart</span></p>
+                                <form class="form-subcriber d-flex">
+                                    <input type="email" placeholder="Your emaill address" />
+                                    <button class="btn" type="submit">Subscribe</button>
+                                </form>
+                            </div>
+                            <img src="~/assets/imgs/banner/banner-13.png" alt="newsletter" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="featured section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 mb-md-4 mb-xl-0">
+                        <div class="banner-left-icon d-flex align-items-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-1.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Best prices & offers</h3>
+                                <p>Orders $50 or more</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-items-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-2.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Free delivery</h3>
+                                <p>24/7 amazing services</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-items-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-3.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Great daily deal</h3>
+                                <p>When you sign up</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-items-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-4.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Wide assortment</h3>
+                                <p>Mega Discounts</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-items-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-5.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Easy returns</h3>
+                                <p>Within 30 days</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 d-xl-none">
+                        <div class="banner-left-icon d-flex align-items-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-6.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Safe delivery</h3>
+                                <p>Within 30 days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section-padding footer-mid">
+            <div class="container pt-15 pb-20">
+                <div class="row">
+                    <div class="col">
+                        <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
+                            <div class="logo mb-30">
+                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
+                                <p class="font-lg text-heading">Awesome grocery store website template</p>
+                            </div>
+                            <ul class="contact-infor">
+                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call Us:</strong><span>(+91) - 540-025-124553</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg" alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg" alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Company</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Delivery Information</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms &amp; Conditions</a></li>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">Support Center</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Account</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">Sign In</a></li>
+                            <li><a href="#">View Cart</a></li>
+                            <li><a href="#">My Wishlist</a></li>
+                            <li><a href="#">Track My Order</a></li>
+                            <li><a href="#">Help Ticket</a></li>
+                            <li><a href="#">Shipping Details</a></li>
+                            <li><a href="#">Compare products</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Corporate</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">Become a Vendor</a></li>
+                            <li><a href="#">Affiliate Program</a></li>
+                            <li><a href="#">Farm Business</a></li>
+                            <li><a href="#">Farm Careers</a></li>
+                            <li><a href="#">Our Suppliers</a></li>
+                            <li><a href="#">Accessibility</a></li>
+                            <li><a href="#">Promotions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Popular</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">Milk & Flavoured Milk</a></li>
+                            <li><a href="#">Butter and Margarine</a></li>
+                            <li><a href="#">Eggs Substitutes</a></li>
+                            <li><a href="#">Marmalades</a></li>
+                            <li><a href="#">Sour Cream and Dips</a></li>
+                            <li><a href="#">Tea & Kombucha</a></li>
+                            <li><a href="#">Cheese</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget widget-install-app col">
+                        <h4 class="widget-title">Install App</h4>
+                        <p class="wow fadeIn animated">From App Store or Google Play</p>
+                        <div class="download-app">
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg" alt="" /></a>
+                        </div>
+                        <p class="mb-20">Secured Payment Gateways</p>
+                        <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="container pb-30">
+            <div class="row align-items-center">
+                <div class="col-12 mb-30">
+                    <div class="footer-bottom"></div>
+                </div>
+                <div class="col-xl-4 col-lg-6 col-md-6">
+                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce Template <br />All rights reserved</p>
+                </div>
+                <div class="col-xl-4 col-lg-6 col-md-6 text-end d-none d-md-block">
+                    <div class="mobile-social-icon">
+                        <h6>Follow Us</h6>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-facebook-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-twitter-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-instagram-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-pinterest-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-youtube-white.svg" alt="" /></a>
+                    </div>
+                    <p class="font-sm">Up to 15% discount on your first subscribe</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Preloader Start -->
+    <div id="preloader-active">
+        <div class="preloader d-flex align-items-center justify-content-center">
+            <div class="preloader-inner position-relative">
+                <div class="text-center">
+                    <img src="~/assets/imgs/theme/loading.gif" alt="" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Vendor JS-->
+    <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="~/assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+  @*   <script src="~/assets/js/vendor/bootstrap.bundle.min.js"></script> *@
+    <script src="~/assets/js/plugins/slick.js"></script>
+    <script src="~/assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="~/assets/js/plugins/wow.js"></script>
+    <script src="~/assets/js/plugins/perfect-scrollbar.js"></script>
+    <script src="~/assets/js/plugins/magnific-popup.js"></script>
+    <script src="~/assets/js/plugins/select2.min.js"></script>
+    <script src="~/assets/js/plugins/waypoints.js"></script>
+    <script src="~/assets/js/plugins/counterup.js"></script>
+    <script src="~/assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="~/assets/js/plugins/images-loaded.js"></script>
+    <script src="~/assets/js/plugins/isotope.js"></script>
+    <script src="~/assets/js/plugins/scrollup.js"></script>
+    <script src="~/assets/js/plugins/jquery.vticker-min.js"></script>
+    <script src="~/assets/js/plugins/jquery.theia.sticky.js"></script>
+    <script src="~/assets/js/plugins/jquery.elevatezoom.js"></script>
+    <!-- Template  JS -->
+    <script src="~/assets/js/main.js?v=6.0"></script>
+    <script src="~/assets/js/shop.js?v=6.0"></script>
+
+
+
+
+    <!-- JAVASCRIPT admin -->
+    <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+    <script src="~/assetsAdmin/libs/node-waves/waves.min.js"></script>
+    <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
+    <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="~/assetsAdmin/js/plugins.js"></script>
+
+    <!-- glightbox js -->
+    <script src="~/assetsAdmin/libs/glightbox/js/glightbox.min.js"></script>
+
+    <!-- fgEmojiPicker js -->
+    <script src="~/assetsAdmin/libs/fg-emoji-picker/fgEmojiPicker.js"></script>
+
+    <!-- chat init js -->
+    <script src="~/assetsAdmin/js/pages/chat.init.js"></script>
+
+    <!-- App js -->
+    <script src="~/assetsAdmin/js/app.js"></script>
+</body>
+
+</html>

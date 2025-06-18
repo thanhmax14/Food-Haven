@@ -1513,7 +1513,10 @@ namespace Food_Haven.Web.Controllers
             return View(list);
         }
 
-
+        public async Task<IActionResult> ChatList()
+        {
+            return View();
+        }
     }
 
 
