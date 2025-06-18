@@ -7,6 +7,13 @@
     <UserSecretsId>aspnet-Food_Haven.Web-c1618ecd-5402-4d82-a589-ae3cbdd7971d</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="wwwroot\microsoft\**" />
+    <Content Remove="wwwroot\microsoft\**" />
+    <EmbeddedResource Remove="wwwroot\microsoft\**" />
+    <None Remove="wwwroot\microsoft\**" />
+  </ItemGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.11" />
@@ -33,7 +40,6 @@
 
 	<ItemGroup>
 	  <Folder Include="assets\imgs\theme\icons\" />
-	  <Folder Include="wwwroot\microsoft\" />
 	</ItemGroup>
 
 </Project>
