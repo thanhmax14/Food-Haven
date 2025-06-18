@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Models;
 using Models.DBContext;
 using Repository.BaseRepository;
 using System;
@@ -10,9 +11,10 @@ namespace Repository.IngredientTagRepositorys
 {
     public class IngredientTagRepository : BaseRepository<Models.IngredientTag>, IIngredientTagRepository
     {
-        public IngredientTagRepository(FoodHavenDbContext context) : base(context) {
-        _context = context;
-                }
+        public IngredientTagRepository(FoodHavenDbContext context) : base(context)
+        {
+            _context = context;
+        }
 
         private readonly FoodHavenDbContext _context;
 
@@ -28,5 +30,8 @@ namespace Repository.IngredientTagRepositorys
             await _context.SaveChangesAsync();
             return true;
         }
+      
+
+
     }
 }
