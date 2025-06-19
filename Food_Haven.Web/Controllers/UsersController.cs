@@ -1403,7 +1403,7 @@ namespace Food_Haven.Web.Controllers
             var obj = await _recipeService.ListAsync();
             foreach (var item in obj)
             {
-                if (item.IsActive == true)
+                if (item.IsActive == true && item.status.ToUpper() == "Accept".ToUpper())
                 {
                     var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
 
@@ -1599,7 +1599,8 @@ namespace Food_Haven.Web.Controllers
             existingRecipe.CookingStep = obj.CookingStep;
             existingRecipe.Ingredient = obj.Ingredient;
             existingRecipe.ModifiedDate = DateTime.Now;
-
+            existingRecipe.IsActive = obj.IsActive;
+            existingRecipe.status = "Pending"; // Giữ nguyên trạng thái Pending
             // XỬ LÝ ẢNH
             var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
             if (Request.Form.Files.Count > 0)

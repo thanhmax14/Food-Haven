@@ -234,15 +234,14 @@
 
                     <div class="col-6">
                         <!-- Hidden input để gửi false nếu checkbox không được chọn -->
-                        <input type="hidden" name="IsActive" value="false" />
+                        <input type="hidden" name="IsActive" value="true" />
 
                         <!-- Checkbox sẽ ghi đè giá trị nếu được chọn -->
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="gridCheck" name="IsActive"
-                                value="true" />
-                            <label class="form-check-label" for="gridCheck">
-                                Is Active
-                            </label>
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" value="true" />
+
+                            <label class="form-check-label" asp-for="IsActive">Is Active</label>
+
                         </div>
                     </div>
 

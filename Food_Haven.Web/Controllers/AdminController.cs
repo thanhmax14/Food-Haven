@@ -11,6 +11,7 @@ using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
+using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
@@ -42,7 +43,7 @@ namespace Food_Haven.Web.Controllers
         private readonly ICategoryService _categoryService;
         private readonly ManageTransaction _managetrans;
         private readonly ITypeOfDishService _typeOfDishService;
-         private readonly IComplaintServices _complaintService;
+        private readonly IComplaintServices _complaintService;
         private readonly IOrderDetailService _orderDetail;
         private readonly IOrdersServices _order;
         private readonly IProductVariantService _variantService;
@@ -51,10 +52,11 @@ namespace Food_Haven.Web.Controllers
         private readonly IProductService _product;
         private readonly IVoucherServices _voucher;
         private readonly IIngredientTagService _ingredienttag;
-        
-       
+        private readonly IRecipeService _recipeService;
 
-        public AdminController(UserManager<AppUser> userManager,ITypeOfDishService typeOfDishService,IIngredientTagService ingredientTagService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product,IVoucherServices voucher)
+
+
+        public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product, IVoucherServices voucher, IRecipeService recipeService)
 
         {
             _ingredienttag = ingredientTagService;
@@ -78,7 +80,8 @@ namespace Food_Haven.Web.Controllers
             _storedetail = storeDetailService;
             _compalntimg = complaintImage;
             _product = product;
-            _voucher= voucher;
+            _voucher = voucher;
+            _recipeService = recipeService;
         }
         public async Task<IActionResult> Index()
         {
@@ -728,7 +731,7 @@ namespace Food_Haven.Web.Controllers
         }
         public async Task<IActionResult> Managercomplant()
         {
-           
+
             return View();
         }
         [HttpPost]
@@ -811,8 +814,8 @@ namespace Food_Haven.Web.Controllers
             var model = new ComplantDetailViewmodels();
             model.Status = getComplaint.Status;
             model.CreateDate = getComplaint.CreatedDate;
-            model.AdminrReply = getComplaint.AdminReply ;
-            model.DateAdminCreate = getComplaint.DateAdminReply ;
+            model.AdminrReply = getComplaint.AdminReply;
+            model.DateAdminCreate = getComplaint.DateAdminReply;
             model.SellerReply = getComplaint.Reply;
             model.DateReply = getComplaint.ReplyDate;
             model.ComplantID = getComplaint.ID;
@@ -826,9 +829,9 @@ namespace Food_Haven.Web.Controllers
             {
                 model.IsreportAdmin = true;
             }
-            if(getComplaint.AdminReportStatus=="Pending")
+            if (getComplaint.AdminReportStatus == "Pending")
             {
-                model.statusAdmin= "Pending";
+                model.statusAdmin = "Pending";
             }
 
 
@@ -872,7 +875,7 @@ namespace Food_Haven.Web.Controllers
             {
                 case "Accept":
 
-                   
+
                     complaint.AdminReportStatus = $"Accept";
                     complaint.DateAdminReply = DateTime.Now;
                     complaint.AdminReply = $"[Accept] - {note}";
@@ -947,7 +950,7 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { success = false, message = "Loại hành động không hợp lệ." });
             }
 
-           
+
 
             try
             {
@@ -970,12 +973,12 @@ namespace Food_Haven.Web.Controllers
                 .OrderByDescending(item => item.CreatedDate) // 👈 Sắp xếp theo ngày tạo mới nhất
                 .Select(item => new TypeOfDishViewModel
                 {
-                ID = item.ID,
-                Name = item.Name,
-                IsActive = item.IsActive,
-                CreatedDate = item.CreatedDate,
-                ModifiedDate = item.ModifiedDate
-            }).ToList();
+                    ID = item.ID,
+                    Name = item.Name,
+                    IsActive = item.IsActive,
+                    CreatedDate = item.CreatedDate,
+                    ModifiedDate = item.ModifiedDate
+                }).ToList();
 
             return View(list);
         }
@@ -1176,7 +1179,7 @@ namespace Food_Haven.Web.Controllers
                 var now = DateTime.Now;
 
                 var data = _voucher.GetAll()
-                    .Where(v =>  v.IsGlobal)
+                    .Where(v => v.IsGlobal)
                     .Select(v => new
                     {
                         id = v.ID,
@@ -1293,7 +1296,7 @@ namespace Food_Haven.Web.Controllers
                     MinOrderValue = v.MinOrderValue,
                     IsActive = v.IsActive,
                     CreatedDate = DateTime.Now,
-                    IsGlobal=true
+                    IsGlobal = true
                 };
 
                 await _voucher.AddAsync(entity);
@@ -1395,6 +1398,126 @@ namespace Food_Haven.Web.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> ManagementRecipe()
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null) return RedirectToAction("Login", "Home");
+            else if (!await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            var recipe = await _recipeService.ListAsync();
+            var list = new List<RecipeViewModels>();
+            if (recipe.Any())
+            {
+                foreach (var item in recipe)
+                {
+                    // Lấy thông tin người dùng từ UserID
+                    var user = await _userManager.FindByIdAsync(item.UserID);
+                    var username = user != null ? user.UserName : "Unknown"; // Xử lý trường hợp user không tồn tại
+
+                    var recipeViewModel = new RecipeViewModels
+                    {
+                        ID = item.ID,
+                        Title = item.Title,
+                        TotalTime = item.TotalTime,
+                        ThumbnailImage = item.ThumbnailImage,
+                        IsActive = item.IsActive,
+                        status = item.status,
+                        Username = username, // Gán Username từ Identity
+                    };
+                    list.Add(recipeViewModel);
+                }
+            }
+            return View(list);
+        }
+
+        [HttpPost]
+        [Route("Admin/ToggleRecipeVisibility/{id}/{visibility}")]
+        public async Task<IActionResult> ToggleRecipeVisibility(Guid id, string visibility)
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
+                return Unauthorized();
+
+            try
+            {
+                var recipe = await _recipeService.FindAsync(x => x.ID == id);
+                if (recipe == null)
+                    return NotFound();
+
+                if (visibility.Equals("Hide", StringComparison.OrdinalIgnoreCase))
+                {
+                    recipe.IsActive = false;
+                }
+                else if (visibility.Equals("Show", StringComparison.OrdinalIgnoreCase))
+                {
+                    recipe.IsActive = true;
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Invalid visibility action." });
+                }
+
+                await _recipeService.UpdateAsync(recipe);
+                await _recipeService.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Recipe has been {(recipe.IsActive ? "shown" : "hidden")} successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while updating recipe visibility.",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("Admin/UpdateRecipeStatus/{id}/{status}")]
+        public async Task<IActionResult> UpdateRecipeStatus(Guid id, string status)
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
+                return Unauthorized();
+
+            try
+            {
+                var recipe = await _recipeService.FindAsync(x => x.ID == id);
+                if (recipe == null)
+                    return NotFound();
+
+                // Cập nhật trạng thái
+                if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
+                {
+                    recipe.status = "Accept";
+                }
+                else if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+                {
+                    recipe.status = "Reject";
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Invalid status." });
+                }
+
+                await _recipeService.UpdateAsync(recipe);
+                await _recipeService.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Recipe {status.ToLower()} successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while updating the recipe status.",
+                    error = ex.Message
+                });
             }
         }
 
