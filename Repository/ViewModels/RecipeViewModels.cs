@@ -10,9 +10,9 @@ namespace Repository.ViewModels
 {
     public class RecipeViewModels
     {
-        public Guid ID { get; set; } 
+        public Guid ID { get; set; }
         [Required(ErrorMessage = "Title is required")]
-
+        public string Username { get; set; }
         public string Title { get; set; }
         public string CookingStep { get; set; }
         public string ShortDescriptions { get; set; }
@@ -49,6 +49,7 @@ namespace Repository.ViewModels
 
         public Guid TypeOfDishID { get; set; }
         public Guid IngredientTagsID { get; set; }
+        public string status { get; set; } = "";
 
         public List<TypeOfDish> typeOfDishes { get; set; } = new List<TypeOfDish>();
 
@@ -58,7 +59,7 @@ namespace Repository.ViewModels
         public ICollection<RecipeReview> RecipeReviews { get; set; }
 
     }
-   
-    
+
+
 
 }
