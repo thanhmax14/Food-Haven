@@ -5,6 +5,27 @@
     @Html.Raw("<link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
     <link href="~/assets/simple-notify/simple-notify.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <style>
+        .chat-toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2f3542;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+
+            .chat-toast-notification:hover {
+                transform: scale(1.05);
+                background-color: #1e272e;
+            }
+    </style>
 </head>
 
 <body>
@@ -147,10 +168,71 @@
     </script>
     <script>
         function goToChat(userId) {
-            localStorage.setItem('startChatUserId', userId);  // ✅ Lưu dữ liệu
-            console.log('Đã lưu userId vào localStorage:', userId);
-            // 🕒 Đợi 100ms rồi mới chuyển trang để đảm bảo localStorage đã lưu
+            localStorage.setItem('startChatUserId', userId);  
+            console.log('Đã lưu userId vào localStorage:', userId);          
             setTimeout(function () {
+                window.location.href = '/users/chatlist';
+            }, 100);
+        }
+    </script>
+    <script>
+        const currentUserId = '@User.FindFirst("sub")?.Value';
+        let soundAllowed = false;
+
+        // Đánh dấu là người dùng đã từng tương tác
+        document.addEventListener('click', () => soundAllowed = true);
+
+        // Kết nối SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .build();
+
+        connection.start().then(() => {
+            console.log("✅ SignalR connected.");
+        }).catch(err => console.error(err.toString()));
+
+        connection.on("ReceiveMessage", function (message) {
+            console.log("📩 New message received:", message);
+
+            if (!window.location.pathname.includes("/Chat")) {
+                showToastNotification(message.senderName + " vừa gửi: " + message.msg, message.from_id);
+
+                // Nếu tab đang được focus và người dùng đã từng click => phát âm thanh
+                if (!document.hidden && soundAllowed) {
+                    const audio = new Audio('/audio/deja-vu.mp3');
+                    audio.play().catch(e => console.warn("🔇 Notification sound blocked:", e));
+                }
+
+                // Nếu tab bị ẩn, dùng Notification API
+                if (document.hidden && Notification.permission === "granted") {
+                    new Notification("💬 Tin nhắn mới từ " + message.senderName, {
+                        body: message.msg,
+                        icon: "/assetsAdmin/images/logo.png"
+                    });
+                }
+            }
+        });
+
+        // Yêu cầu quyền gửi Notification nếu chưa có
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+
+        function showToastNotification(text, userId) {
+            const toast = document.createElement("div");
+            toast.className = "chat-toast-notification";
+            toast.textContent = text;
+            toast.addEventListener("click", () => {
+                goToChat(userId);
+            });
+
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 7000);
+        }
+
+        function goToChat(userId) {
+            localStorage.setItem('startChatUserId', userId);
+            setTimeout(() => {
                 window.location.href = '/users/chatlist';
             }, 100);
         }

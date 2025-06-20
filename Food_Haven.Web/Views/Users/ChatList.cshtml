@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = null;
+    Layout = "_loadNotify";
 }
 
 @using System.Security.Claims
@@ -38,7 +38,7 @@
     <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
-
+    <link href="~/assetsadmin/css/sian.css" rel="stylesheet" />
 </head>
 
 
@@ -1041,15 +1041,25 @@
     <script src="~/assetsAdmin/libs/fg-emoji-picker/fgEmojiPicker.js"></script>
 
     <!-- chat init js -->
-
+    <script src="~/js/site.js"></script>
 
     <!-- App js -->
     <script src="~/assetsAdmin/js/app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify@latest/dist/simple-notify.min.js"></script>
 </body>
 
 </html>
 <script>
-    // Chat Application - Fixed Version
+    let connection = null;
+    let typingTimer = null;
+    let isTyping = false;
+    const TYPING_TIMEOUT = 3000; // 3 seconds
+    let users = [];
+
+    
+   
+    
     (function () {
         'use strict';
 
@@ -1062,17 +1072,12 @@
         };
 
         console.log(CONFIG.currentUserId + "ssss");
-        let users = [];
         let isReply = false;
         let replyToMessageId = null;
         let messageCounter = 0;
         let currentChatType = 'users';
         let currentChatId = 'users-chat';
-
-        // ✅ Biến để kiểm soát việc auto-click user đầu tiên
         let shouldAutoClickFirstUser = true;
-
-        // Utility functions
         const utils = {
             getCurrentTime: function () {
                 const now = new Date();
@@ -1301,16 +1306,17 @@
             return content;
         }
 
-        function addMessage(chatType, messageText, isReplyMessage = false) {
-            messageCounter++;
+        function addMessage(chatType, messageText, isReplyMessage = false, messageId = null)
+          {
             const conversationList = document.querySelector(`#${chatType} .chat-conversation-list`);
 
             if (!conversationList) {
                 console.error('Conversation list not found');
                 return;
             }
+        const realId = messageId || 'temp-' + Date.now();
 
-            let messageHtml = `<li class="chat-list right" id="chat-list-${messageCounter}">
+        let messageHtml = `<li class="chat-list right" id="chat-list-${realId}">
                 <div class="conversation-list">
                     <div class="user-chat-content">`;
 
@@ -1625,11 +1631,11 @@
                     shouldAutoClickFirstUser = false;
                     localStorage.removeItem('startChatUserId');
                 }
-
+               
                 // Load users
                 const userList = await api.call('/Users/GetUserList');
                 users = userList || [];
-
+                
                 // Render user list
                 const userListContainer = document.getElementById('userList');
                 if (userListContainer) {
@@ -1657,6 +1663,8 @@
                         userListContainer.innerHTML += userHtml;
                     });
                 }
+                await initializeSignalR();
+                requestNotificationPermission();
 
                 // Setup interactions
                 setupUserInteractions();
@@ -1779,10 +1787,10 @@
 
                     try {
                         // Send message to backend
-                        await api.call('/Users/SendMessage', 'POST', messageData);
+                    const response = await api.call('/Users/SendMessage', 'POST', messageData);
 
-                        // Add message to UI
-                        addMessage('users-chat', messageText, isReply);
+                    // Add message to UI, dùng id thực tế từ backend
+                    addMessage('users-chat', messageText, isReply, response.id);
 
                         // Reset form
                         chatInput.value = '';
@@ -1879,7 +1887,397 @@
                 }
             })();
         }
+        // Initialize SignalR connection
+        async function initializeSignalR() {
+            try {
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/chathub")
+                    .withAutomaticReconnect()
+                    .configureLogging(signalR.LogLevel.Debug) // Thêm dòng này
+                    .build();
+                // Kiểm tra trạng thái kết nối
+                connection.onreconnecting(() => {
+                    console.log("🔄 SignalR reconnecting...");
+                });
+
+                connection.onreconnected(() => {
+                    console.log("✅ SignalR reconnected");
+                });
+
+                connection.onclose(() => {
+                    console.log("❌ SignalR connection closed");
+                });
+
+                connection.on("ReceiveMessage", function (messageData) {
+                    console.log("📩 Received message:", messageData);
+
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    const activeUserId = activeUser?.id?.replace('contact-id-', '');
+                    console.log("💬 Đang chat với:", activeUserId, "Gửi từ:", messageData.from_id);
+
+                    if (activeUserId === messageData.from_id) {
+                        // Hiển thị tin nhắn ngay lập tức
+                        addReceivedMessage(messageData);
+
+                        // Đánh dấu đã đọc
+                        connection.invoke("MarkAsRead", messageData.id, messageData.from_id);
+                    } else {
+                        // Cập nhật badge unread count
+                        updateUnreadBadge(messageData.from_id);
+
+                        // Hiển thị notification
+                        showMessageNotification(messageData);
+                    }
+                });
+
+                // Confirm tin nhắn đã gửi
+                connection.on("MessageSent", function (messageData) {
+                    console.log("✅ Message sent confirmed:", messageData);
+
+                    // Cập nhật icon read status
+                    const messageElement = document.querySelector(`#chat-list-${messageData.id}`);
+                    if (messageElement) {
+                        const checkIcon = messageElement.querySelector('.check-message-icon i');
+                        if (checkIcon) {
+                            checkIcon.className = 'bx bx-check';
+                        }
+                    }
+                });
+
+                connection.on("MessagesRead", function (messageIds, readBy) {
+                    console.log("👁️ Messages read:", messageIds, "by:", readBy);
+
+                    if (!Array.isArray(messageIds)) {
+                        // Nếu là string, biến thành mảng
+                        messageIds = [messageIds];
+                    }
+
+                    messageIds.forEach(messageId => {
+                        // Nếu id dạng msg-..., thì lấy số thôi
+                        const cleanId = messageId.replace(/^msg-/, '');
+
+                        const messageElement = document.querySelector(`#chat-list-${cleanId}`);
+                        if (messageElement) {
+                            const checkIcon = messageElement.querySelector('.check-message-icon i');
+                            if (checkIcon) {
+                                checkIcon.className = 'bx bx-check-double';
+                            }
+                        }
+                    });
+                });
+
+
+
+                // User bắt đầu typing
+                connection.on("UserStartedTyping", function (userId, userName) {
+                    console.log("⌨️ User started typing:", userName);
+
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    const activeUserId = activeUser?.getAttribute('id')?.replace('contact-id-', '');
+
+                    if (activeUserId === userId) {
+                        showTypingIndicator(userName);
+                    }
+                });
+
+                // User dừng typing
+                connection.on("UserStoppedTyping", function (userId) {
+                    console.log("🛑 User stopped typing:", userId);
+                    hideTypingIndicator();
+                });
+
+                // User online/offline
+                connection.on("UserOnline", function (userId) {
+                    updateUserStatus(userId, 'online');
+                });
+
+                connection.on("UserOffline", function (userId) {
+                    updateUserStatus(userId, 'offline');
+                });
+
+                // Bắt đầu kết nối
+                await connection.start();
+                console.log("🚀 SignalR connected successfully");
+
+            } catch (error) {
+                console.error("❌ SignalR connection failed:", error);
+
+                // Retry after 5 seconds
+                setTimeout(initializeSignalR, 5000);
+            }
+        }
+
+        // Thêm tin nhắn nhận được
+        function addReceivedMessage(messageData) {
+            const conversationList = document.querySelector('#users-chat .chat-conversation-list');
+            if (!conversationList) return;
+
+            // Tìm user info
+            const user = users.find(u => u.id === messageData.from_id) || {
+                name: messageData.senderName || 'Unknown User',
+                profile: messageData.senderAvatar || CONFIG.defaultUserImage
+            };
+
+            const repliedMessage = messageData.isReplied && messageData.isReplied !== "00000000-0000-0000-0000-000000000000"
+                ? { senderName: user.name, msg: "Original message" } // Có thể lấy từ cache hoặc API
+                : null;
+
+                console.log("📥 Adding received message:", messageData);
+            const messageHtml = `
+                <li class="chat-list left" id="chat-list-${messageData.id}">
+                    <div class="conversation-list">
+                        <div class="chat-avatar">
+                            <img src="${user.profile}" alt="">
+                        </div>
+                        <div class="user-chat-content">
+                            ${createMessageContent(messageData.id, messageData.msg, messageData.has_images || [], [], true, repliedMessage)}
+                            <div class="conversation-name">
+                                <small class="text-muted time">${messageData.datetime}</small>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `;
+
+            conversationList.insertAdjacentHTML('beforeend', messageHtml);
+            setupMessageEvents();
+            scrollToBottom('users-chat');
+
+            // Play notification sound
+            playNotificationSound();
+        }
+
+        // Hiển thị typing indicator
+        function showTypingIndicator(userName) {
+            // Xóa typing indicator cũ nếu có
+            hideTypingIndicator();
+
+            const conversationList = document.querySelector('#users-chat .chat-conversation-list');
+            if (!conversationList) return;
+
+            const typingHtml = `
+                <li class="chat-list left typing-indicator" id="typing-indicator">
+                    <div class="conversation-list">
+                        <div class="chat-avatar">
+                            <div class="avatar-xxs">
+                                <div class="avatar-title rounded-circle bg-secondary text-white fs-10">
+                                    ${userName.charAt(0)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-chat-content">
+                            <div class="ctext-wrap">
+                                <div class="ctext-wrap-content">
+                                    <div class="typing-dots">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <small class="text-muted">${userName} đang soạn tin...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `;
+
+            conversationList.insertAdjacentHTML('beforeend', typingHtml);
+            scrollToBottom('users-chat');
+        }
+
+        // Ẩn typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Cập nhật trạng thái online/offline
+        function updateUserStatus(userId, status) {
+            const userElement = document.querySelector(`#contact-id-${userId}`);
+            if (userElement) {
+                const statusElement = userElement.querySelector('.chat-user-img');
+                if (statusElement) {
+                    statusElement.className = statusElement.className.replace(/\b(online|offline)\b/g, '');
+                    statusElement.classList.add(status);
+                }
+            }
+        }
+
+        // Cập nhật badge unread
+        function updateUnreadBadge(userId) {
+            const userElement = document.querySelector(`#contact-id-${userId}`);
+            if (userElement) {
+                let badge = userElement.querySelector('.badge');
+                if (!badge) {
+                    const badgeHtml = '<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">1</span></div>';
+                    userElement.querySelector('.d-flex').insertAdjacentHTML('beforeend', badgeHtml);
+                } else {
+                    const currentCount = parseInt(badge.textContent) || 0;
+                    badge.textContent = currentCount + 1;
+                }
+            }
+        }
+
+        // Hiển thị notification
+        function showMessageNotification(messageData) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const user = users.find(u => u.id === messageData.from_id);
+                const notification = new Notification(user?.name || 'Tin nhắn mới', {
+                    body: messageData.msg,
+                    icon: user?.profile || CONFIG.defaultUserImage,
+                    tag: messageData.from_id
+                });
+
+                notification.onclick = function () {
+                    window.focus();
+                    startChatWithUser(messageData.from_id);
+                    notification.close();
+                };
+            }
+        }
+
+        // Play notification sound
+        function playNotificationSound() {
+            try {
+                const audio = new Audio('/audio/deja-vu.mp3'); // Thêm file âm thanh
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log('Cannot play notification sound:', e));
+            } catch (error) {
+                console.log('Notification sound not available');
+            }
+        }
+
+        // Modify existing setupChatForm function
+        function setupChatForm() {
+            const chatForm = document.querySelector('#chatinput-form');
+            const chatInput = document.querySelector('#chat-input');
+            const chatFeedback = document.querySelector('.chat-input-feedback');
+
+            if (chatForm && chatInput) {
+                // Typing detection
+                chatInput.addEventListener('input', function () {
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    const activeUserId = activeUser?.getAttribute('id')?.replace('contact-id-', '');
+
+                    if (activeUserId && connection) {
+                        if (!isTyping) {
+                            isTyping = true;
+                            connection.invoke("StartTyping", activeUserId);
+                        }
+
+                        // Reset typing timer
+                        clearTimeout(typingTimer);
+                        typingTimer = setTimeout(() => {
+                            if (isTyping) {
+                                isTyping = false;
+                                connection.invoke("StopTyping", activeUserId);
+                            }
+                        }, TYPING_TIMEOUT);
+                    }
+                });
+
+                // Stop typing when focus lost
+                chatInput.addEventListener('blur', function () {
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    const activeUserId = activeUser?.getAttribute('id')?.replace('contact-id-', '');
+
+                    if (activeUserId && connection && isTyping) {
+                        isTyping = false;
+                        clearTimeout(typingTimer);
+                        connection.invoke("StopTyping", activeUserId);
+                    }
+                });
+
+                chatForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    const messageText = chatInput.value.trim();
+                    if (!messageText) {
+                        if (chatFeedback) {
+                            chatFeedback.classList.add('show');
+                            setTimeout(function () {
+                                chatFeedback.classList.remove('show');
+                            }, 2000);
+                        }
+                        return;
+                    }
+
+                    // Stop typing
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    const otherUserId = activeUser?.getAttribute('id')?.replace('contact-id-', '');
+
+                    if (otherUserId && connection && isTyping) {
+                        isTyping = false;
+                        clearTimeout(typingTimer);
+                        connection.invoke("StopTyping", otherUserId);
+                    }
+
+                    if (!activeUser) {
+                        utils.showNotification('Please select a user to chat with', 'warning');
+                        return;
+                    }
+
+                    const messageId = generateGuid();
+
+                    // Prepare message data
+                    const messageData = {
+                        id: messageId,
+                        from_id: CONFIG.currentUserId,
+                        to_id: otherUserId,
+                        msg: messageText,
+                        has_images: [],
+                        has_files: [],
+                        isReplied: isReply && replyToMessageId ? replyToMessageId : null
+                    };
+
+                    try {
+                        // Add message to UI immediately (optimistic UI)
+                    addMessage('users-chat', messageText, isReply, messageId);
+
+                        // Send via SignalR if connected, otherwise fallback to HTTP
+                        if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                            await connection.invoke("SendMessage", otherUserId, messageText, messageId, messageData.isReplied);
+                        } else {
+                            // Fallback to HTTP API
+                            await api.call('/Users/SendMessage', 'POST', messageData);
+                        }
+
+                        // Reset form
+                        chatInput.value = '';
+
+                        // Close reply card if open
+                        if (isReply) {
+                            isReply = false;
+                            replyToMessageId = null;
+                            const closeToggle = document.getElementById('close_toggle');
+                            if (closeToggle) closeToggle.click();
+                        }
+
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                        utils.showNotification('Failed to send message', 'error');
+                    }
+                });
+            }
+        }
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
 
 
     })();
+    function generateGuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
 </script>

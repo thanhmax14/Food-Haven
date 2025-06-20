@@ -131,6 +131,8 @@ builder.Services.AddScoped<ITypeOfDishService, TypeOfDishService>();
 
 builder.Services.AddScoped<TypeOfDishRepository>();
 
+builder.Services.AddHostedService<TypingCleanupService>();
+builder.Services.AddSingleton<TypingCleanupService>();
 builder.Services.AddScoped<IIngredientTagRepository, IngredientTagRepository>();
 builder.Services.AddScoped<IngredientTagRepository>(); // 👈 thêm dòng này để inject trực tiếp
 
@@ -183,7 +185,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 app.MapHub<CartHub>("/CartHub");
-
+app.MapHub<ChatHub>("/chathub");
 
 
 
