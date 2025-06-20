@@ -1,6 +1,5 @@
 @using Repository.ViewModels
 @using X.PagedList.Mvc.Core
-@using X.PagedList.Mvc.Core.Common
 @using X.PagedList
 @model IPagedList<RecipeViewModels>
 
@@ -347,14 +346,14 @@
                             @Html.PagedListPager(
                             Model,
                             page => Url.Action("ViewRecipe", new { page }),
-                                                        new PagedListRenderOptions
+                                                        new X.PagedList.Web.Common.PagedListRenderOptions
                                                         {
                                                             LiElementClasses = new[] { "page-item" },
                                                             PageClasses = new[] { "page-link" },
                                                             UlElementClasses = new[] { "pagination", "justify-content-start" },
                                                             ActiveLiElementClass = "active",
                                                             LinkToPreviousPageFormat = "<i class='fi-rs-arrow-small-left'></i>",
-                                                            LinkToNextPageFormat = "<i class='fi-rs-arrow-small-right'></i>",
+                                                            LinkToNextPageFormat = "<i class='fi-rs-arrow-small-right'></i>"
                                                         })
                         </div>
 
@@ -374,8 +373,7 @@
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <div class="sidebar-widget-2 widget_search mb-50">
-                                    <a asp-action="MyViewRecipe" asp-controller="Users"
-                                        class="btn btn-primary w-100">
+                                    <a asp-action="MyViewRecipe" asp-controller="Users" class="btn btn-primary w-100">
                                         My View Recipe <i class="fi-rs-arrow-right ms-1"></i>
                                     </a>
                                 </div>

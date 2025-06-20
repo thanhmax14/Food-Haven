@@ -43,6 +43,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message; // nhớ import
+using Microsoft.EntityFrameworkCore.Metadata.Internal; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -1276,6 +1277,7 @@ namespace Food_Haven.Web.Controllers
                 CateID = obj.CateID,
                 TypeOfDishID = obj.TypeOfDishID,
                 ThumbnailImage = imagePath,
+                status = "Pending", // Trạng thái mặc định
             };
             await _recipeService.AddAsync(recipe);
             // Lưu các IngredientTag được chọn vào bảng liên kết
@@ -1407,49 +1409,7 @@ namespace Food_Haven.Web.Controllers
             var obj = await _recipeService.ListAsync();
             foreach (var item in obj)
             {
-                var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
-
-                var recipeViewModel = new RecipeViewModels
-                {
-                    ID = item.ID,
-                    Title = item.Title,
-                    ShortDescriptions = item.ShortDescriptions,
-                    PreparationTime = item.PreparationTime,
-                    CookTime = item.CookTime,
-                    TotalTime = item.TotalTime,
-                    DifficultyLevel = item.DifficultyLevel,
-                    Servings = item.Servings,
-                    CreatedDate = item.CreatedDate,
-                    IsActive = item.IsActive,
-                    CateID = item.CateID,
-                    ThumbnailImage = item.ThumbnailImage,
-                    TypeOfDishName = typeOfDish?.Name,
-                    CookingStep = item.CookingStep, // Lấy tên, tránh null
-                    Ingredient = item.Ingredient,
-
-                };
-                list.Add(recipeViewModel);
-            }
-            var pagedList = list.ToPagedList(pageNumber, pageSize);
-            return View(pagedList);
-        }
-        [HttpGet]
-        public async Task<IActionResult> MyViewRecipe(int? page)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "Home");
-            }
-
-            int pageNumber = page ?? 1;
-            int pageSize = 5;
-            var list = new List<RecipeViewModels>();
-
-            var obj = await _recipeService.ListAsync();
-            foreach (var item in obj)
-            {
-                if (item.UserID == user.Id) // Giả sử bạn có property `UserId` trong Recipe
+                if (item.IsActive == true && item.status.ToUpper() == "Accept".ToUpper())
                 {
                     var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
 
@@ -1468,17 +1428,76 @@ namespace Food_Haven.Web.Controllers
                         CateID = item.CateID,
                         ThumbnailImage = item.ThumbnailImage,
                         TypeOfDishName = typeOfDish?.Name,
-                        CookingStep = item.CookingStep,
+                        CookingStep = item.CookingStep, // Lấy tên, tránh null
                         Ingredient = item.Ingredient,
+
                     };
                     list.Add(recipeViewModel);
                 }
             }
-
-
             var pagedList = list.ToPagedList(pageNumber, pageSize);
             return View(pagedList);
         }
+        [HttpGet]
+        public async Task<IActionResult> MyViewRecipe(int? page)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Home");
+
+            int pageNumber = page ?? 1;
+            int pageSize = 5;
+            var recipes = new List<RecipeViewModels>();
+
+            var allRecipes = await _recipeService.ListAsync();
+            var ingredientTags = await _ingredientTagService.ListAsync();
+
+            foreach (var item in allRecipes.Where(r => r.UserID == user.Id))
+            {
+                var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
+
+
+                var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
+                      .ListAsync(rt => rt.RecipeID == item.ID, null, include => include.Include(x => x.IngredientTag)))
+                      .ToList();
+                recipes.Add(new RecipeViewModels
+                {
+                    ID = item.ID,
+                    Title = item.Title,
+                    ShortDescriptions = item.ShortDescriptions,
+                    PreparationTime = item.PreparationTime,
+                    CookTime = item.CookTime,
+                    TotalTime = item.TotalTime,
+                    DifficultyLevel = item.DifficultyLevel,
+                    Servings = item.Servings,
+                    CreatedDate = item.CreatedDate,
+                    IsActive = item.IsActive,
+                    CateID = item.CateID,
+                    ThumbnailImage = item.ThumbnailImage,
+                    TypeOfDishName = typeOfDish?.Name,
+                    CookingStep = item.CookingStep,
+                    Ingredient = item.Ingredient,
+                    TypeOfDishID = item.TypeOfDishID,
+                    UserID = item.UserID,
+                    IngredientTags = selectedTags.Select(x => x.IngredientTag).ToList(),
+                    SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList()
+
+                });
+            }
+
+            var viewModel = new MyViewRecipePageViewModel
+            {
+                Recipes = recipes.ToPagedList(pageNumber, pageSize),
+                Categories = (await _categoryService.ListAsync()).ToList(),
+                TypeOfDishes = (await _typeOfDishService.ListAsync()).ToList(),
+                IngredientTags = ingredientTags.ToList(),
+            };
+
+            return View(viewModel);
+        }
+
+
+
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> RecipeDetail(Guid id)
@@ -1518,6 +1537,132 @@ namespace Food_Haven.Web.Controllers
             }
             return View(list);
         }
+        [HttpPost]
+        public async Task<IActionResult> HideRecipe(Guid ID, bool isActive)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "Please log in." });
+                }
+
+                var recipee = await _recipeService.FindAsync(x => x.ID == ID && x.UserID == user.Id);
+                if (recipee == null)
+                {
+                    return Json(new { success = false, message = "Recipe not found." });
+                }
+
+                recipee.IsActive = isActive;
+                await _recipeService.UpdateAsync(recipee);
+                await _recipeService.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = isActive ? "Recipe is now visible." : "Recipe has been hidden."
+                });
+            }
+            catch (Exception ex)
+            {
+                // Ghi log nếu cần, ví dụ: _logger.LogError(ex, "Error in HideRecipe");
+                return Json(new
+                {
+                    success = false,
+                    message = "An unexpected error occurred. Please try again later."
+                });
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditRecipe(RecipeViewModels obj)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Home");
+
+            // if (!ModelState.IsValid)
+            // {
+            //     obj.Categories = (await _categoryService.ListAsync()).ToList();
+            //     obj.typeOfDishes = (await _typeOfDishService.ListAsync()).ToList();
+            //     obj.IngredientTags = (await _ingredientTagService.ListAsync()).ToList();
+            //     return RedirectToAction("MyViewRecipe");
+            // }
+
+            var existingRecipe = await _recipeService.GetAsyncById(obj.ID);
+            if (existingRecipe == null || existingRecipe.UserID != user.Id) return NotFound();
+
+            // Cập nhật các trường cơ bản
+            existingRecipe.Title = obj.Title;
+            existingRecipe.ShortDescriptions = obj.ShortDescriptions;
+            existingRecipe.PreparationTime = obj.PreparationTime;
+            existingRecipe.CookTime = obj.CookTime;
+            existingRecipe.TotalTime = obj.TotalTime;
+            existingRecipe.DifficultyLevel = obj.DifficultyLevel;
+            existingRecipe.Servings = obj.Servings;
+            existingRecipe.CateID = obj.CateID;
+            existingRecipe.TypeOfDishID = obj.TypeOfDishID;
+            existingRecipe.CookingStep = obj.CookingStep;
+            existingRecipe.Ingredient = obj.Ingredient;
+            existingRecipe.ModifiedDate = DateTime.Now;
+            existingRecipe.IsActive = obj.IsActive;
+            existingRecipe.status = "Pending"; // Giữ nguyên trạng thái Pending
+            // XỬ LÝ ẢNH
+            var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (Request.Form.Files.Count > 0)
+            {
+                var file = Request.Form.Files[0];
+                if (file.Length > 0)
+                {
+                    // Xóa ảnh cũ nếu tồn tại
+                    if (!string.IsNullOrEmpty(existingRecipe.ThumbnailImage))
+                    {
+                        var oldImagePath = Path.Combine(uploadsDir, Path.GetFileName(existingRecipe.ThumbnailImage));
+                        if (System.IO.File.Exists(oldImagePath))
+                            System.IO.File.Delete(oldImagePath);
+                    }
+
+                    var newFileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var newFilePath = Path.Combine(uploadsDir, newFileName);
+
+                    using (var stream = new FileStream(newFilePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    existingRecipe.ThumbnailImage = "/uploads/" + newFileName;
+                }
+            }
+
+            await _recipeService.UpdateAsync(existingRecipe);
+
+            // XỬ LÝ TAGS
+            var oldTags = await _recipeIngredientTagIngredientTagIngredientTagSerivce
+                            .ListAsync(t => t.RecipeID == obj.ID);
+            foreach (var oldTag in oldTags)
+            {
+                await _recipeIngredientTagIngredientTagIngredientTagSerivce.DeleteAsync(oldTag);
+            }
+
+            if (obj.SelectedIngredientTags != null && obj.SelectedIngredientTags.Any())
+            {
+                foreach (var tagId in obj.SelectedIngredientTags)
+                {
+                    var newTag = new RecipeIngredientTag
+                    {
+                        RecipeID = obj.ID,
+                        IngredientTagID = tagId
+                    };
+                    await _recipeIngredientTagIngredientTagIngredientTagSerivce.AddAsync(newTag);
+                    await _recipeIngredientTagIngredientTagIngredientTagSerivce.SaveChangesAsync();
+                }
+            }
+
+            // ✅ Chuyển về trang danh sách sau khi update thành công
+            return RedirectToAction("MyViewRecipe");
+        }
+
+
 
         public async Task<IActionResult> ChatList()
         {

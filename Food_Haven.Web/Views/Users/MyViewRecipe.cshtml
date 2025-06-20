@@ -1,7 +1,8 @@
 @using X.PagedList
 @using X.PagedList.Mvc.Core
-@using X.PagedList.Mvc.Core.Common
-@model IPagedList<Repository.ViewModels.RecipeViewModels>
+@using X.PagedList.Web.Common
+@model Repository.ViewModels.MyViewRecipePageViewModel
+
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -31,6 +32,53 @@
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    .multi-select-container {
+        border: 1px solid #ccc;
+        display: flex;
+        gap: 10px;
+        font-family: Arial, sans-serif;
+    }
+    .multi-select-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .multi-select-column .header {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .search-input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px;
+        padding: 8px 12px;
+        background-color: #fff;
+        outline: none;
+        box-shadow: none;
+        margin-bottom: 10px;
+    }
+    .items-list {
+        border: 1px solid #ccc;
+        height: 250px;
+        overflow-y: auto;
+    }
+    .item {
+        padding: 5px;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+    .item:hover {
+        background-color: #eee;
+    }
+    .item.selected {
+        background-color: #2f00ff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
 </head>
 
 <body>
@@ -306,7 +354,7 @@
                             </div>
                         </div>
                         <div class="loop-grid loop-list pr-30 mb-50">
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.Recipes)
                             {
                                 <article class="wow fadeIn animated hover-up mb-30 animated">
                                     <div class="post-thumb" style="background-image: url('@item.ThumbnailImage');">
@@ -319,6 +367,13 @@
                                         data-bs-target="#editRecipeModal-@item.ID"
                                         style="position: absolute; top: 10px; right: 10px; z-index: 10;">
                                         <i class="fi-rs-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-sm @(item.IsActive ? "btn-success" : "btn-secondary")"
+                                        data-bs-toggle="modal" data-bs-target="#toggleActiveModal-@item.ID"
+                                        style="position: absolute; top: 10px; right: 90px; z-index: 10;"
+                                        id="toggle-btn-@item.ID">
+                                        <i class="bi @(item.IsActive ? "bi-eye-fill" : "bi-eye-slash-fill")"></i>
+                                        <span class="button-label">@(item.IsActive ? "Hide" : "Show")</span>
                                     </button>
 
                                     <div class="entry-content-2 pl-50">
@@ -344,108 +399,323 @@
 
                                     </div>
                                 </article>
-                                <div class="modal fade" id="editRecipeModal-@item.ID" tabindex="-1"
-                                    aria-labelledby="editRecipeModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                             <div class="modal fade" id="editRecipeModal-@item.ID" tabindex="-1" aria-labelledby="editRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+        <div class="modal-content">
+<form asp-action="EditRecipe" asp-controller="Users" method="post" enctype="multipart/form-data"
+      class="edit-recipe-form" data-recipe-id="@item.ID"
+      data-selected-tags='@Html.Raw(Json.Serialize(item.SelectedIngredientTags ?? new List<Guid>()))'>
+>
+
+
+<input type="hidden" name="ID" value="@item.ID" />
+                <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
+                    <div class="row">
+                        <!-- Title -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title</label>
+                            <input class="form-control" name="Title" value="@item.Title" required />
+                        </div>
+
+                        <!-- Servings -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Servings</label>
+                            <input class="form-control" name="Servings" value="@item.Servings" required />
+                        </div>
+
+                        <!-- Short Description -->
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Short Description</label>
+                            <textarea class="form-control" name="ShortDescriptions" rows="3">@item.ShortDescriptions</textarea>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="CateID" required>
+                                <option value="">Choose...</option>
+                                @foreach (var cate in Model.Categories)
+                                {
+                                    <option value="@cate.ID" selected="@(cate.ID == item.CateID ? "selected" : null)">
+                                        @cate.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Type of Dish -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Type of Dish</label>
+                            <select class="form-select" name="TypeOfDishID" required>
+                                <option value="">Choose...</option>
+                                @foreach (var dish in Model.TypeOfDishes)
+                                {
+                                    <option value="@dish.ID" selected="@(dish.ID == item.TypeOfDishID ? "selected" : null)">
+                                        @dish.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Difficulty Level</label>
+                            <select class="form-select" name="DifficultyLevel">
+                                <option value="Easy" selected="@(item.DifficultyLevel == "Easy")">Easy</option>
+                                <option value="Medium" selected="@(item.DifficultyLevel == "Medium")">Medium</option>
+                                <option value="Hard" selected="@(item.DifficultyLevel == "Hard")">Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- IsActive -->
+                        <div class="col-md-6 mb-3">
+                                <input type="hidden" name="IsActive" value="true" />
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(item.IsActive ? "checked" : "") />
+        <label class="form-check-label">Is Active</label>
+    </div>
+                        </div>
+
+
+                        <div class="row">
+                        <!-- Cột phải: Ingredient Tag -->
+
+
+                    <div class="col-md-6 mb-3 h-100 d-flex flex-column">
+    <input class="search-input" type="text" placeholder="Search..." title="Search..." id="searchAll-@item.ID">
+    <label for="IngredientTags-@item.ID" class="form-label">Ingredient Tag</label>
+    <select id="IngredientTags-@item.ID" name="SelectedIngredientTags[]" class="form-select" multiple size="5" style="display: none;">
+        @foreach (var item in Model.IngredientTags)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select>
+    <div class="multi-select-container">
+        <div class="multi-select-column">
+            <div class="header">Available</div>
+            <div class="items-list" id="availableList-@item.ID"></div>
+        </div>
+        <div class="multi-select-column">
+            <div class="header">Selected</div>
+            <div class="items-list" id="selectedList-@item.ID"></div>
+        </div>
+    </div>
+</div>
+@{
+    int prepValue = 0;
+    string prepUnit = "minutes";
+    string prepQuick = "";
+
+    var prepMatch = System.Text.RegularExpressions.Regex.Match(item.PreparationTime ?? "", @"(\d+)\s*(minutes|minute|hours|hour|days|day)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    if (prepMatch.Success)
+    {
+        prepValue = int.Parse(prepMatch.Groups[1].Value);
+        var u = prepMatch.Groups[2].Success ? prepMatch.Groups[2].Value.ToLower() : "";
+        if (u.Contains("hour")) { prepUnit = "hours"; prepQuick = (prepValue * 60).ToString(); }
+        else if (u.Contains("day")) { prepUnit = "days"; prepQuick = (prepValue * 1440).ToString(); }
+        else { prepQuick = prepValue.ToString(); }
+    }
+
+    var quickOptions = new Dictionary<string, string>
+    {
+        { "5", "5 min" }, { "10", "10 min" }, { "15", "15 min" }, { "20", "20 min" }, { "30", "30 min" },
+        { "45", "45 min" }, { "60", "1 hour" }, { "120", "2 hours" }, { "180", "3 hours" }
+    };
+}
+
+
+                        <!-- Cột trái: 3 time input -->
+                        <div class="col-md-6">
+                            <!-- Preparation Time -->
+                            <div class="mb-3">
+                                <label class="form-label">Preparation Time</label>
+                              <div class="d-flex gap-2 align-items-center">
+    <!-- Input number -->
+    <input type="number" class="form-control" min="0" placeholder="Enter time"
+           name="PreparationValue" style="width: 120px;" value="@prepValue" />
+
+    <!-- Select Unit -->
+    <select class="form-select" name="PreparationUnit" style="width: 120px;">
+        @foreach (var unit in new[] { "minutes", "hours", "days" })
+        {
+            var selected = prepUnit == unit ? "selected=\"selected\"" : "";
+            @:<option value="@unit" @Html.Raw(selected)>@char.ToUpper(unit[0])@unit.Substring(1)</option>
+        }
+    </select>
+
+    <!-- Quick Select -->
+    <span class="text-muted">or</span>
+    <select class="form-select" name="PreparationQuick" style="width: 150px;">
+        <option value="">Quick select</option>
+        @foreach (var opt in quickOptions)
+        {
+            var selected = prepQuick == opt.Key ? "selected=\"selected\"" : "";
+            @:<option value="@opt.Key" @Html.Raw(selected)>@opt.Value</option>
+        }
+    </select>
+</div>
+                            </div>
+@{
+    int cookValue = 0;
+    string cookUnit = "minutes";
+    string cookQuick = "";
+
+    var cookMatch = System.Text.RegularExpressions.Regex.Match(item.CookTime ?? "", @"(\d+)\s*(minutes|minute|hours|hour|days|day)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    if (cookMatch.Success)
+    {
+        cookValue = int.Parse(cookMatch.Groups[1].Value);
+        var u = cookMatch.Groups[2].Success ? cookMatch.Groups[2].Value.ToLower() : "";
+
+        if (u.Contains("hour")) { cookUnit = "hours"; cookQuick = (cookValue * 60).ToString(); }
+        else if (u.Contains("day")) { cookUnit = "days"; cookQuick = (cookValue * 1440).ToString(); }
+        else { cookQuick = cookValue.ToString(); }
+    }
+
+    var quickOptions1 = new Dictionary<string, string>
+    {
+        { "5", "5 min" }, { "10", "10 min" }, { "15", "15 min" }, { "20", "20 min" }, { "30", "30 min" },
+        { "45", "45 min" }, { "60", "1 hour" }, { "120", "2 hours" }, { "180", "3 hours" }, { "240", "4 hours" }
+    };
+}
+
+                            <!-- Cooking Time -->
+                            <div class="mb-3">
+                                <label class="form-label">Cooking Time</label>
+                              <div class="d-flex gap-2 align-items-center">
+    <input type="number" class="form-control" min="0" placeholder="Enter time"
+           name="CookingValue" style="width: 120px;" value="@cookValue" />
+
+    <select class="form-select" name="CookingUnit" style="width: 120px;">
+        @foreach (var unit in new[] { "minutes", "hours", "days" })
+        {
+            var selected = cookUnit == unit ? "selected=\"selected\"" : "";
+            @:<option value="@unit" @Html.Raw(selected)>@char.ToUpper(unit[0])@unit.Substring(1)</option>
+        }
+    </select>
+
+    <span class="text-muted">or</span>
+
+    <select class="form-select" name="CookingQuick" style="width: 150px;">
+        <option value="">Quick select</option>
+        @foreach (var opt in quickOptions)
+        {
+            var selected = cookQuick == opt.Key ? "selected=\"selected\"" : "";
+            @:<option value="@opt.Key" @Html.Raw(selected)>@opt.Value</option>
+        }
+    </select>
+</div>
+
+
+
+
+                                <!-- Total Time -->
+                                <div class="mb-3">
+                                    <label class="form-label">Total Time</label>
+                                    <div class="form-control bg-light" id="displayTotalTime" style="height: auto;">
+                                        0 minute
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- end inner row -->
+                    <input type="hidden" id="hiddenPrepTime" name="PreparationTime" />
+<input type="hidden" id="hiddenCookTime" name="CookTime" />
+<input type="hidden" id="hiddenTotalTime" name="TotalTime" />
+
+                        <!-- Ingredient Editor -->
+                        <div class="card mt-3">
+                            <div class="card-header"><h5>Ingredient</h5></div>
+                            <div class="card-body">
+<div id="editor-Ingredient-@item.ID" class="snow-editor">@Html.Raw(item.Ingredient)</div>
+                            </div>
+                        </div>
+
+                        <!-- Cooking Step Editor -->
+                        <div class="card mt-3">
+                            <div class="card-header"><h5>Cooking Step</h5></div>
+                            <div class="card-body">
+<div id="editor-CookingStep-@item.ID" class="snow-editor">@Html.Raw(item.CookingStep)</div>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnail -->
+                     
+                    </div>
+   <div class="col-md-12 mt-3">
+                            <label class="form-label">Thumbnail Image</label><br />
+                            @if (!string.IsNullOrEmpty(item.ThumbnailImage))
+                            {
+                                <img src="@item.ThumbnailImage" alt="Thumbnail" style="max-height: 100px; margin-bottom: 10px;" /><br />
+                            }
+                            <input type="file" class="form-control" name="ThumbnailImage" />
+                        </div>
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="IngredientHidden-@item.ID" name="Ingredient" />
+                        <input type="hidden" id="CookingStepHidden-@item.ID" name="CookingStep" />
+
+                    <!-- Submit Buttons -->
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Update Recipe</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+                                <!-- Modal Toggle Show/Hide -->
+                                <div class="modal fade" id="toggleActiveModal-@item.ID" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-sm modal-dialog-centered">
                                         <div class="modal-content">
-                                            <form asp-action="EditRecipe" asp-controller="Users" method="post"
-                                                enctype="multipart/form-data">
-                                                <input type="hidden" name="ID" value="@item.ID" />
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="editRecipeModalLabel">Edit Recipe</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
+                                            <div class="modal-header">
+                                                <h5 class="modal-title text-danger" id="modal-title-@item.ID">
+                                                    Confirm @(item.IsActive ? "Hide" : "Show")
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
 
-                                                <div class="modal-body row">
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Title</label>
-                                                        <input type="text" class="form-control" name="Title"
-                                                            value="@item.Title" required />
-                                                    </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to <strong id="modal-status-text-@item.ID">
+                                                    @(item.IsActive ? "hide" : "show")
+                                                </strong> the recipe:
+                                                <div class="text-dark">"<strong>@item.Title</strong>"?</div>
+                                            </div>
 
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Short Description</label>
-                                                        <input type="text" class="form-control" name="ShortDescriptions"
-                                                            value="@item.ShortDescriptions" required />
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Servings</label>
-                                                        <input type="text" class="form-control" name="Servings"
-                                                            value="@item.Servings" required />
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Cooking Time (minutes)</label>
-                                                        <input type="number" class="form-control" name="CookingTime"
-                                                            value="@item.CookTime" required />
-                                                    </div>
-
-                                                    <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Difficulty Level</label>
-                                                        <select class="form-select" name="DifficultyLevel">
-                                                            <option value="Easy"
-                                                                selected="@(item.DifficultyLevel == "Easy")">Easy</option>
-                                                            <option value="Medium"
-                                                                selected="@(item.DifficultyLevel == "Medium")">Medium
-                                                            </option>
-                                                            <option value="Hard"
-                                                                selected="@(item.DifficultyLevel == "Hard")">Hard</option>
-                                                        </select>
-
-                                                    </div>
-
-                                                    @* <div class="mb-3 col-md-6">
-                                                        <label class="form-label">Type of Dish</label>
-                                                        <select class="form-select" name="TypeOfDishID">
-                                                            @foreach (var dish in item.typeOfDishes)
-                                                            {
-                                                                <option value="@dish.ID" @(dish.ID == item.TypeOfDishID ? "selected" : "")>
-                                                            @dish.Name
-                                                        </option>
-                                                                                                                }
-                                                        </select>
-
-
-                                                    </div> *@
-
-                                                    <div class="mb-3 col-md-12">
-                                                        <label class="form-label">Thumbnail Image</label><br />
-                                                        <img src="@item.ThumbnailImage" alt="Thumbnail"
-                                                            style="max-height: 100px; margin-bottom: 10px;" /><br />
-                                                        <input type="file" class="form-control" name="ThumbnailImage" />
-                                                    </div>
-                                                </div>
-
-                                                <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary">Save changes</button>
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
-                                                </div>
-                                            </form>
+                                            <div class="modal-footer">
+                                                <button class="btn @(item.IsActive ? "btn-danger" : "btn-success")"
+                                                    onclick="toggleRecipeActive('@item.ID', @(item.IsActive.ToString().ToLower()))"
+                                                    id="confirm-btn-@item.ID">
+                                                    Confirm
+                                                </button>
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
 
                             }
 
 
                         </div>
-                        <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
-                            @Html.PagedListPager(
-                            Model,
-                            page => Url.Action("ViewRecipe", new { page }),
-                                                        new PagedListRenderOptions
-                                                        {
-                                                            LiElementClasses = new[] { "page-item" },
-                                                            PageClasses = new[] { "page-link" },
-                                                            UlElementClasses = new[] { "pagination", "justify-content-start" },
-                                                            ActiveLiElementClass = "active",
-                                                            LinkToPreviousPageFormat = "<i class='fi-rs-arrow-small-left'></i>",
-                                                            LinkToNextPageFormat = "<i class='fi-rs-arrow-small-right'></i>",
-                                                        })
-                        </div>
+         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+    @Html.PagedListPager(
+        Model.Recipes,
+        page => Url.Action("ViewRecipe", new { page }),
+        new PagedListRenderOptions
+        {
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" },
+            UlElementClasses = new[] { "pagination", "justify-content-start" },
+            ActiveLiElementClass = "active",
+            LinkToPreviousPageFormat = "<i class='fi-rs-arrow-small-left'></i>",
+            LinkToNextPageFormat = "<i class='fi-rs-arrow-small-right'></i>"
+        })
+</div>
+
+
 
 
                     </div>
@@ -842,11 +1112,25 @@
             </div>
         </div>
     </div>
+
+    <!-- ✅ jQuery (luôn phải đứng trước các plugin dùng jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+
+    <!-- ✅ Bootstrap 5 -->
+    @* <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> *@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ Quill (dùng cho trình soạn thảo) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- ✅ multi.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.css">
     <!-- Vendor JS-->
     <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-    <script src="~/assets/js/vendor/bootstrap.bundle.min.js"></script>
     <script src="~/assets/js/plugins/slick.js"></script>
     <script src="~/assets/js/plugins/jquery.syotimer.min.js"></script>
     <script src="~/assets/js/plugins/wow.js"></script>
@@ -869,6 +1153,332 @@
     <!-- Template  JS -->
     <script src="./assets/js/main.js?v=6.0"></script>
     <script src="./assets/js/shop.js?v=6.0"></script>
+
+
+      <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- ✅ Admin Template (nếu dùng layout riêng cho admin) -->
+    <script src="assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+    <script src="assetsAdmin/libs/node-waves/waves.min.js"></script>
+    <script src="assetsAdmin/libs/feather-icons/feather.min.js"></script>
+    <script src="assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="assetsAdmin/js/plugins.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.js"></script>
+
+
+
+    <!-- Dropzone (nếu dùng) -->
+    <script src="assetsAdmin/libs/dropzone/dropzone-min.js"></script>
+
+    <!-- Prism (code highlight) -->
+    <script src="assetsAdmin/libs/prismjs/prism.js"></script>
+
+    <!-- Quản lý nội dung nâng cao -->
+    <script src="assetsAdmin/js/pages/form-input-spin.init.js"></script>
+    <script src="assetsAdmin/js/pages/flag-input.init.js"></script>
+
+    <!-- Khởi tạo Quill hoặc form nâng cao -->
+    <script src="assetsAdmin/js/pages/form-editor.init.js"></script>
+
+    <!-- ✅ Quill nếu dùng bản local -->
+    <!-- <script src="assetsAdmin/libs/quill/quill.min.js"></script> -->
+
+    <!-- Admin app -->
+    <script src="assetsAdmin/js/app.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+ <script>
+    function toggleRecipeActive(id, isActive) {
+        const newStatus = !isActive;
+        const modalElement = document.getElementById(`toggleActiveModal-${id}`);
+
+        // Đảm bảo modal luôn tồn tại
+        let modal = bootstrap.Modal.getInstance(modalElement);
+        if (!modal) {
+            modal = new bootstrap.Modal(modalElement);
+        }
+
+        $.ajax({
+            url: '@Url.Action("HideRecipe", "Users")',
+            type: 'POST',
+            data: {
+                ID: id,
+                isActive: newStatus
+            },
+            success: function (res) {
+                if (res.success) {
+                    // Notify thành công
+                    new Notify({
+                        status: 'success',
+                        title: 'Thành Công',
+                        text: res.message,
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top'
+                    });
+
+                    // Đóng modal sau khi cập nhật
+                    modal.hide();
+
+                    // Cập nhật nội dung trong modal
+                    $(`#modal-status-text-${id}`).text(newStatus ? 'hide' : 'show');
+                    $(`#modal-title-${id}`).text(`Confirm ${newStatus ? 'Hide' : 'Show'}`);
+
+                    // Cập nhật nút bên ngoài
+                    const btn = $(`#toggle-btn-${id}`);
+                    btn.removeClass('btn-success btn-secondary')
+                        .addClass(newStatus ? 'btn-success' : 'btn-secondary');
+                    btn.find('i')
+                        .removeClass('bi-eye-fill bi-eye-slash-fill')
+                        .addClass(newStatus ? 'bi-eye-fill' : 'bi-eye-slash-fill');
+                    btn.find('.button-label').text(newStatus ? 'Hide' : 'Show');
+
+                    // Cập nhật nút confirm trong modal
+                    const confirmBtn = $(`#confirm-btn-${id}`);
+                    confirmBtn.removeClass('btn-success btn-danger')
+                        .addClass(newStatus ? 'btn-danger' : 'btn-success');
+
+                    // Cập nhật lại onclick
+                    confirmBtn.attr('onclick', `toggleRecipeActive('${id}', ${newStatus})`);
+                } else {
+                    new Notify({
+                        status: 'error',
+                        title: 'Lỗi',
+                        text: res.message || 'Cập nhật thất bại!',
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top'
+                    });
+                    modal.hide();
+                }
+            },
+            error: function () {
+                new Notify({
+                    status: 'error',
+                    title: 'Lỗi',
+                    text: 'Lỗi khi gửi yêu cầu!',
+                    effect: 'fade',
+                    speed: 300,
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    position: 'right top'
+                });
+                modal.hide();
+            }
+        });
+    }
+</script>
+
+
+
+ <script>
+      const allItems = @Html.Raw(Json.Serialize(Model.IngredientTags.Select(t => new { id = t.ID, name = t.Name })));
+
+    function renderLists(form) {
+        const recipeId = form.dataset.recipeId;
+        const availableList = form.querySelector(`#availableList-${recipeId}`);
+        const selectedList = form.querySelector(`#selectedList-${recipeId}`);
+        const selectElement = form.querySelector(`#IngredientTags-${recipeId}`);
+        const searchInput = form.querySelector(`#searchAll-${recipeId}`);
+        const searchVal = searchInput ? searchInput.value.toLowerCase() : "";
+
+        let selectedItems = JSON.parse(form.dataset.selectedTags || "[]");
+
+        availableList.innerHTML = '';
+        selectedList.innerHTML = '';
+        Array.from(selectElement.options).forEach(option => option.selected = false);
+
+        allItems.forEach(item => {
+            const isSelected = selectedItems.includes(item.id);
+            const matchSearch = item.name.toLowerCase().includes(searchVal);
+
+            if (matchSearch) {
+                const div = document.createElement('div');
+                div.textContent = item.name;
+                div.className = 'item';
+                div.style.cursor = 'pointer';
+                if (isSelected) div.classList.add('selected');
+
+                div.onclick = () => {
+                    if (selectedItems.includes(item.id)) {
+                        selectedItems = selectedItems.filter(id => id !== item.id);
+                    } else {
+                        selectedItems.push(item.id);
+                    }
+                    form.dataset.selectedTags = JSON.stringify(selectedItems);
+                    renderLists(form);
+                };
+
+                if (isSelected) selectedList.appendChild(div);
+                else availableList.appendChild(div);
+            }
+
+            if (isSelected) {
+                const option = selectElement.querySelector(`option[value="${item.id}"]`);
+                if (option) option.selected = true;
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.edit-recipe-form').forEach(function (form) {
+            const searchInput = form.querySelector(`#searchAll-${form.dataset.recipeId}`);
+            if (searchInput) {
+                searchInput.addEventListener('input', () => renderLists(form));
+            }
+            renderLists(form);
+        });
+    });
+    </script>
+ <script>
+       document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".edit-recipe-form").forEach(function (form) {
+        const id = form.dataset.recipeId;
+
+        const ingredientEditor = new Quill(`#editor-Ingredient-${id}`, { theme: 'snow' });
+        const cookingEditor = new Quill(`#editor-CookingStep-${id}`, { theme: 'snow' });
+
+        form.addEventListener("submit", function (e) {
+            const ingredientHidden = document.getElementById(`IngredientHidden-${id}`);
+            const cookingHidden = document.getElementById(`CookingStepHidden-${id}`);
+
+            ingredientHidden.value = ingredientEditor.root.innerHTML;
+            cookingHidden.value = cookingEditor.root.innerHTML;
+        });
+    });
+});
+
+    </script>
+   <script>
+    function getCustomTimeInMinutes(value, unit) {
+        if (!value) return 0;
+        const val = parseFloat(value);
+        switch (unit) {
+            case 'minutes': return val;
+            case 'hours': return val * 60;
+            case 'days': return val * 24 * 60;
+            default: return val;
+        }
+    }
+
+    function formatTimeForDatabase(totalMinutes) {
+        if (totalMinutes <= 0) return "";
+
+        const days = Math.floor(totalMinutes / (24 * 60));
+        const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+
+        let parts = [];
+        if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+        if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+        if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
+        return parts.join(' ');
+    }
+
+    function calculateTotal(form) {
+        const prepValue = form.querySelector('input[name="PreparationValue"]').value;
+        const prepUnit = form.querySelector('select[name="PreparationUnit"]').value;
+        const prepQuick = form.querySelector('select[name="PreparationQuick"]').value;
+
+        const cookValue = form.querySelector('input[name="CookingValue"]').value;
+        const cookUnit = form.querySelector('select[name="CookingUnit"]').value;
+        const cookQuick = form.querySelector('select[name="CookingQuick"]').value;
+
+        let prepMinutes = prepQuick && !prepValue ? parseInt(prepQuick) : getCustomTimeInMinutes(prepValue, prepUnit);
+        let cookMinutes = cookQuick && !cookValue ? parseInt(cookQuick) : getCustomTimeInMinutes(cookValue, cookUnit);
+
+        const totalMinutes = prepMinutes + cookMinutes;
+        const prepTimeString = formatTimeForDatabase(prepMinutes);
+        const cookTimeString = formatTimeForDatabase(cookMinutes);
+        const totalTimeString = formatTimeForDatabase(totalMinutes);
+
+        const hiddenPrep = form.querySelector('#hiddenPrepTime');
+        const hiddenCook = form.querySelector('#hiddenCookTime');
+        const hiddenTotal = form.querySelector('#hiddenTotalTime');
+
+        if (hiddenPrep) hiddenPrep.value = prepTimeString;
+        if (hiddenCook) hiddenCook.value = cookTimeString;
+        if (hiddenTotal) hiddenTotal.value = totalTimeString;
+
+        const display = form.querySelector('#displayTotalTime');
+        if (display) display.textContent = totalTimeString || '0 minute';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.edit-recipe-form').forEach(function (form) {
+            // Bind for Preparation Quick
+            const prepQuick = form.querySelector('select[name="PreparationQuick"]');
+            if (prepQuick) {
+                prepQuick.addEventListener('change', function () {
+                    const prepValue = form.querySelector('input[name="PreparationValue"]');
+                    const prepUnit = form.querySelector('select[name="PreparationUnit"]');
+                    const val = parseInt(this.value);
+
+                    if (val >= 1440) {
+                        prepValue.value = val / 1440;
+                        prepUnit.value = 'days';
+                    } else if (val >= 60) {
+                        prepValue.value = val / 60;
+                        prepUnit.value = 'hours';
+                    } else {
+                        prepValue.value = val;
+                        prepUnit.value = 'minutes';
+                    }
+
+                    calculateTotal(form);
+                });
+            }
+
+            // Bind for Cooking Quick
+            const cookQuick = form.querySelector('select[name="CookingQuick"]');
+            if (cookQuick) {
+                cookQuick.addEventListener('change', function () {
+                    const cookValue = form.querySelector('input[name="CookingValue"]');
+                    const cookUnit = form.querySelector('select[name="CookingUnit"]');
+                    const val = parseInt(this.value);
+
+                    if (val >= 1440) {
+                        cookValue.value = val / 1440;
+                        cookUnit.value = 'days';
+                    } else if (val >= 60) {
+                        cookValue.value = val / 60;
+                        cookUnit.value = 'hours';
+                    } else {
+                        cookValue.value = val;
+                        cookUnit.value = 'minutes';
+                    }
+
+                    calculateTotal(form);
+                });
+            }
+
+            // Bind for direct input changes
+            ['PreparationValue', 'PreparationUnit', 'CookingValue', 'CookingUnit'].forEach(name => {
+                form.querySelectorAll(`[name="${name}"]`).forEach(el => {
+                    el.addEventListener('input', () => calculateTotal(form));
+                    el.addEventListener('change', () => calculateTotal(form));
+                });
+            });
+
+            // Initial calculation on load
+            calculateTotal(form);
+        });
+    });
+</script>
+
 </body>
 
 </html>
