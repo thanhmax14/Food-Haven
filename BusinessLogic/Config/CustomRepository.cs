@@ -35,6 +35,8 @@ using BusinessLogic.Services.TypeOfDishServices;
 using Repository.RecipeIngredientTags;
 using BusinessLogic.Services.RecipeIngredientTagIngredientTagIngredientTagServices;
 using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
+using Repository.MessageImages;
+using Repository.Messages;
 
 namespace BusinessLogic.Config
 {
@@ -72,6 +74,8 @@ namespace BusinessLogic.Config
             services.AddScoped<ITypeOfDishService, TypeOfDishService>();
             services.AddScoped<IRecipeIngredientTagIngredientTagSerivce, RecipeIngredientTagIngredientTagIngredientTagSerivce>();
             services.AddScoped<IRecipeIngredientTagRepository, RecipeIngredientTagRepository>();
+            services.AddScoped<IMessageImageRepository, MessageImageRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
         }
 

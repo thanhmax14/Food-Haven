@@ -12,11 +12,14 @@ namespace Models
     {
         public DateTime? JoinedDate { get; set; } = DateTime.Now;
         public DateTime LastAccess { get; set; } = DateTime.Now;
+        [StringLength(20)]
         public string? FirstName { get; set; } = default;
+        [StringLength(20)]
         public string? LastName  { get; set; } = default;
         public DateTime? Birthday { get; set; }
+        [StringLength(200)]
         public string? Address { get; set; } = default;
-        [StringLength(20)]
+        [StringLength(10)]
         public string? RequestSeller { get; set; } = "0";
         public string? ImageUrl { get; set; } = "~/assets/imgs/theme/icons/icon-user.svg";
         public bool IsProfileUpdated { get; set; } = false;
@@ -31,6 +34,9 @@ namespace Models
         public ICollection<Order> Orders { get; set; }
         public ICollection<FavoriteRecipe> FavoriteRecipes { get; set; }
         public ICollection<Recipe> Recipes { get; set; }
+        public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
+        public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
+
 
     }
 }

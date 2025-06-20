@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Models.DBContext;
 
@@ -11,9 +12,11 @@ using Models.DBContext;
 namespace Models.Migrations
 {
     [DbContext(typeof(FoodHavenDbContext))]
-    partial class FoodHavenDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618102218_migrationsv16")]
+    partial class migrationsv16
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -522,43 +525,43 @@ namespace Models.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("893dded5-05ac-4c94-932d-7f1e2acde4e6"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(979),
+                            ID = new Guid("97b15834-2126-4d3d-b4b3-cb3ea4203b2c"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(2338),
                             IsActive = true,
                             Name = "Fish"
                         },
                         new
                         {
-                            ID = new Guid("2d33a66b-1a05-451a-acc8-ef821a56a4b7"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(982),
+                            ID = new Guid("cb1c72d0-dc75-4088-aa80-6096835b9244"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(2345),
                             IsActive = true,
                             Name = "Chicken"
                         },
                         new
                         {
-                            ID = new Guid("acdee6d2-2a4f-4b35-a0cc-30b0733034fd"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(984),
+                            ID = new Guid("07551154-2960-42b6-84b9-4d2ad4f6e009"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(2373),
                             IsActive = true,
                             Name = "Beef"
                         },
                         new
                         {
-                            ID = new Guid("21e1b697-887b-498b-b0d0-98f4a8f9d942"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(987),
+                            ID = new Guid("19141ee9-68ac-4ff1-82fa-cc3b47b9d03b"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(2378),
                             IsActive = true,
                             Name = "Pork"
                         },
                         new
                         {
-                            ID = new Guid("5be61e5b-6837-46a2-b4ca-8422d81e5653"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(989),
+                            ID = new Guid("a35eb1d4-c720-4669-b1b4-9c75828085aa"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(2383),
                             IsActive = true,
                             Name = "Seafood"
                         },
                         new
                         {
-                            ID = new Guid("b9fb2da7-c0a2-4a5d-a0fd-7dc7064aa2a8"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(996),
+                            ID = new Guid("bff00ebe-9453-4936-b334-f4712a03e580"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(2387),
                             IsActive = true,
                             Name = "Vegetable"
                         });
@@ -1154,43 +1157,43 @@ namespace Models.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("d4bf96bf-f907-43cf-9c0d-2974f222706e"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(565),
+                            ID = new Guid("a4ca95bc-9b32-47f0-9f2c-2666c0f7a575"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(1614),
                             IsActive = true,
                             Name = "Quick and Easy Dinners for One"
                         },
                         new
                         {
-                            ID = new Guid("c335e392-4751-4fb1-a764-8915574e8972"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(567),
+                            ID = new Guid("adfbab0d-af4d-4903-91ce-90a5ca01ae7a"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(1619),
                             IsActive = true,
                             Name = "Cooking for Two"
                         },
                         new
                         {
-                            ID = new Guid("72ff1704-8d63-4d58-929b-2769e10f3be6"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(570),
+                            ID = new Guid("aeb56d6d-d7fe-495c-be3c-c29531182523"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(1623),
                             IsActive = true,
                             Name = "Main Dishes"
                         },
                         new
                         {
-                            ID = new Guid("b0f19f66-55a6-4288-945b-6f2d3e203e04"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(588),
+                            ID = new Guid("9a78507d-0699-4993-a586-b5aa98708190"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(1627),
                             IsActive = true,
                             Name = "Vegetarian Main Dishes"
                         },
                         new
                         {
-                            ID = new Guid("8522856a-fc06-4d88-be80-e7664de23a73"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(590),
+                            ID = new Guid("662db111-66d0-4469-82a4-4591da0d1286"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(1631),
                             IsActive = true,
                             Name = "Side Dishes"
                         },
                         new
                         {
-                            ID = new Guid("3cbc1377-b7ec-4369-af83-cc3e55f29fb2"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(593),
+                            ID = new Guid("a8c1adf7-213b-4ed0-91a0-45680c8033c2"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 22, 16, 806, DateTimeKind.Local).AddTicks(1635),
                             IsActive = true,
                             Name = "Healthy Main Dishes"
                         });

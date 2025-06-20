@@ -2,6 +2,7 @@
     Layout = null;
 }
 
+@using System.Security.Claims
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -226,329 +227,324 @@
         </div>
     </div>
     <!--End header-->
-    <main class="main pages">
-        <div class="page-header breadcrumb-wrap">
-            <div class="container">
-                <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                    <span></span> Pages <span></span> Purchase Guide
-                </div>
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Pages <span></span> Purchase Guide
             </div>
         </div>
-        <div class="page-content pt-50">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-12 col-lg-12 m-auto">
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12 col-lg-12 m-auto">
+                    <div class="container-fluid">
+                        <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
+                            <div class="chat-leftsidebar minimal-border">
+                                <div class="px-4 pt-4 mb-3">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-4">Chats</h5>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Add Contact">
 
-                        <div class="page-content">
-                            <div class="container-fluid">
-                                <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
-                                    <div class="chat-leftsidebar minimal-border">
-                                        <div class="px-4 pt-4 mb-3">
-                                            <div class="d-flex align-items-start">
+                                                <!-- Button trigger modal -->
+                                                <button type="button" class="btn btn-soft-success btn-sm material-shadow-none">
+                                                    <i class="ri-add-line align-bottom"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="search-box">
+                                        <input type="text" class="form-control bg-light border-light" placeholder="Search here...">
+                                        <i class="ri-search-2-line search-icon"></i>
+                                    </div>
+                                </div> <!-- .p-4 -->
+
+                                <ul class="nav nav-tabs nav-tabs-custom nav-success nav-justified" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" data-bs-toggle="tab" href="#chats" role="tab">
+                                            Chats
+                                        </a>
+                                    </li>
+                                    @*  <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" href="#contacts" role="tab">
+                                    Contacts
+                                    </a>
+                                    </li> *@
+                                </ul>
+
+                                <div class="tab-content text-muted">
+                                    <div class="tab-pane active" id="chats" role="tabpanel">
+                                        <div class="chat-room-list pt-3" data-simplebar>
+                                            <div class="d-flex align-items-center px-4 mb-2">
                                                 <div class="flex-grow-1">
-                                                    <h5 class="mb-4">Chats</h5>
+                                                    <h4 class="mb-0 fs-11 text-muted text-uppercase">Direct Messages</h4>
                                                 </div>
                                                 <div class="flex-shrink-0">
-                                                    <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Add Contact">
+                                                    <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="New Message">
 
                                                         <!-- Button trigger modal -->
-                                                        <button type="button" class="btn btn-soft-success btn-sm material-shadow-none">
+                                                        <button type="button" class="btn btn-soft-success btn-sm shadow-none material-shadow">
                                                             <i class="ri-add-line align-bottom"></i>
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="search-box">
-                                                <input type="text" class="form-control bg-light border-light" placeholder="Search here...">
-                                                <i class="ri-search-2-line search-icon"></i>
+
+                                            <div class="chat-message-list">
+
+                                                <ul class="list-unstyled chat-list chat-user-list" id="userList">
+                                                </ul>
                                             </div>
-                                        </div> <!-- .p-4 -->
 
-                                        <ul class="nav nav-tabs nav-tabs-custom nav-success nav-justified" role="tablist">
-                                            <li class="nav-item">
-                                                <a class="nav-link active" data-bs-toggle="tab" href="#chats" role="tab">
-                                                    Chats
-                                                </a>
-                                            </li>
-                                           @*  <li class="nav-item">
-                                                <a class="nav-link" data-bs-toggle="tab" href="#contacts" role="tab">
-                                                    Contacts
-                                                </a>
-                                            </li> *@
-                                        </ul>
-
-                                        <div class="tab-content text-muted">
-                                            <div class="tab-pane active" id="chats" role="tabpanel">
-                                                <div class="chat-room-list pt-3" data-simplebar>
-                                                    <div class="d-flex align-items-center px-4 mb-2">
-                                                        <div class="flex-grow-1">
-                                                            <h4 class="mb-0 fs-11 text-muted text-uppercase">Direct Messages</h4>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="New Message">
-
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-soft-success btn-sm shadow-none material-shadow">
-                                                                    <i class="ri-add-line align-bottom"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
+                                            <div class="d-flex align-items-center px-4 mt-4 pt-2 mb-2">
+                                                <div class="flex-grow-1">
+                                                    <h4 class="mb-0 fs-11 text-muted text-uppercase">Channels</h4>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Create group">
+                                                        <!-- Button trigger modal -->
+                                                        <button type="button" class="btn btn-soft-success btn-sm">
+                                                            <i class="ri-add-line align-bottom"></i>
+                                                        </button>
                                                     </div>
-
-                                                    <div class="chat-message-list">
-
-                                                        <ul class="list-unstyled chat-list chat-user-list" id="userList">
-                                                        </ul>
-                                                    </div>
-
-                                                    <div class="d-flex align-items-center px-4 mt-4 pt-2 mb-2">
-                                                        <div class="flex-grow-1">
-                                                            <h4 class="mb-0 fs-11 text-muted text-uppercase">Channels</h4>
-                                                        </div>
-                                                        <div class="flex-shrink-0">
-                                                            <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Create group">
-                                                                <!-- Button trigger modal -->
-                                                                <button type="button" class="btn btn-soft-success btn-sm">
-                                                                    <i class="ri-add-line align-bottom"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="chat-message-list">
-
-                                                        <ul class="list-unstyled chat-list chat-user-list mb-0" id="channelList">
-                                                        </ul>
-                                                    </div>
-                                                    <!-- End chat-message-list -->
                                                 </div>
                                             </div>
-                                            <div class="tab-pane" id="contacts" role="tabpanel">
-                                                <div class="chat-room-list pt-3" data-simplebar>
-                                                    <div class="sort-contact">
-                                                    </div>
-                                                </div>
+
+                                            <div class="chat-message-list">
+
+                                                <ul class="list-unstyled chat-list chat-user-list mb-0" id="channelList">
+                                                </ul>
+                                            </div>
+                                            <!-- End chat-message-list -->
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="contacts" role="tabpanel">
+                                        <div class="chat-room-list pt-3" data-simplebar>
+                                            <div class="sort-contact">
                                             </div>
                                         </div>
-                                        <!-- end tab contact -->
                                     </div>
-                                    <!-- end chat leftsidebar -->
-                                    <!-- Start User chat -->
-                                    <div class="user-chat w-100 overflow-hidden minimal-border">
+                                </div>
+                                <!-- end tab contact -->
+                            </div>
+                            <!-- end chat leftsidebar -->
+                            <!-- Start User chat -->
+                            <div class="user-chat w-100 overflow-hidden minimal-border">
 
-                                        <div class="chat-content d-lg-flex">
-                                            <!-- start chat conversation section -->
-                                            <div class="w-100 overflow-hidden position-relative">
-                                                <!-- conversation user -->
-                                                <div class="position-relative">
+                                <div class="chat-content d-lg-flex">
+                                    <!-- start chat conversation section -->
+                                    <div class="w-100 overflow-hidden position-relative">
+                                        <!-- conversation user -->
+                                        <div class="position-relative">
 
 
-                                                    <div class="position-relative" id="users-chat">
-                                                        <div class="p-3 user-chat-topbar">
-                                                            <div class="row align-items-center">
-                                                                <div class="col-sm-4 col-8">
+                                            <div class="position-relative" id="users-chat">
+                                                <div class="p-3 user-chat-topbar">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-sm-4 col-8">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0 d-block d-lg-none me-3">
+                                                                    <a href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i class="ri-arrow-left-s-line align-bottom"></i></a>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
                                                                     <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 d-block d-lg-none me-3">
-                                                                            <a href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i class="ri-arrow-left-s-line align-bottom"></i></a>
+                                                                        <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
+                                                                            <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
+                                                                            <span class="user-status"></span>
                                                                         </div>
                                                                         <div class="flex-grow-1 overflow-hidden">
-                                                                            <div class="d-flex align-items-center">
-                                                                                <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
-                                                                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
-                                                                                    <span class="user-status"></span>
-                                                                                </div>
-                                                                                <div class="flex-grow-1 overflow-hidden">
-                                                                                    <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
-                                                                                    <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>Online</small></p>
-                                                                                </div>
-                                                                            </div>
+                                                                            <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
+                                                                            <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>Online</small></p>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="col-sm-8 col-4">
-                                                                    <ul class="list-inline user-chat-nav text-end mb-0">
-                                                                        <li class="list-inline-item m-0">
-                                                                            <div class="dropdown">
-                                                                                <button class="btn btn-ghost-secondary btn-icon material-shadow-none" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search icon-sm"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                                                                </button>
-                                                                                <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg" style="">
-                                                                                    <div class="p-2">
-                                                                                        <div class="search-box">
-                                                                                            <input type="text" class="form-control bg-light border-light" placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage">
-                                                                                            <i class="ri-search-2-line search-icon"></i>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-
-                                                                        <li class="list-inline-item d-none d-lg-inline-block m-0">
-                                                                            <button type="button" class="btn btn-ghost-secondary btn-icon material-shadow-none" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info icon-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                                                            </button>
-                                                                        </li>
-
-                                                                        <li class="list-inline-item m-0">
-                                                                            <div class="dropdown">
-                                                                                <button class="btn btn-ghost-secondary btn-icon material-shadow-none" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical icon-sm"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-                                                                                </button>
-                                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                                    <a class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i class="ri-user-2-fill align-bottom text-muted me-2"></i> View Profile</a>
-                                                                                    <a class="dropdown-item" href="#"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i> Archive</a>
-                                                                                    <a class="dropdown-item" href="#"><i class="ri-mic-off-line align-bottom text-muted me-2"></i> Muted</a>
-                                                                                    <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-                                                                    </ul>
                                                                 </div>
                                                             </div>
-
                                                         </div>
-                                                        <!-- end chat user head -->
-                                                        <div class="chat-conversation p-3 p-lg-4 " id="chat-conversation" data-simplebar>
-                                                            <div id="elmLoader">
-                                                                <div class="spinner-border text-primary avatar-sm" role="status">
-                                                                    <span class="visually-hidden">Loading...</span>
-                                                                </div>
-                                                            </div>
-                                                            <ul class="list-unstyled chat-conversation-list" id="users-conversation">
-                                                            </ul>
-                                                            <!-- end chat-conversation-list -->
-                                                        </div>
-                                                        <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show " id="copyClipBoard" role="alert">
-                                                            Message copied
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="position-relative" id="channel-chat">
-                                                        <div class="p-3 user-chat-topbar">
-                                                            <div class="row align-items-center">
-                                                                <div class="col-sm-4 col-8">
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 d-block d-lg-none me-3">
-                                                                            <a href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i class="ri-arrow-left-s-line align-bottom"></i></a>
-                                                                        </div>
-                                                                        <div class="flex-grow-1 overflow-hidden">
-                                                                            <div class="d-flex align-items-center">
-                                                                                <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
-                                                                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
-                                                                                </div>
-                                                                                <div class="flex-grow-1 overflow-hidden">
-                                                                                    <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
-                                                                                    <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>24 Members</small></p>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-sm-8 col-4">
-                                                                    <ul class="list-inline user-chat-nav text-end mb-0">
-                                                                        <li class="list-inline-item m-0">
-                                                                            <div class="dropdown">
-                                                                                <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                                    <i data-feather="search" class="icon-sm"></i>
-                                                                                </button>
-                                                                                <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">
-                                                                                    <div class="p-2">
-                                                                                        <div class="search-box">
-                                                                                            <input type="text" class="form-control bg-light border-light" placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage">
-                                                                                            <i class="ri-search-2-line search-icon"></i>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-
-                                                                        <li class="list-inline-item d-none d-lg-inline-block m-0">
-                                                                            <button type="button" class="btn btn-ghost-secondary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
-                                                                                <i data-feather="info" class="icon-sm"></i>
-                                                                            </button>
-                                                                        </li>
-
-                                                                        <li class="list-inline-item m-0">
-                                                                            <div class="dropdown">
-                                                                                <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                                    <i data-feather="more-vertical" class="icon-sm"></i>
-                                                                                </button>
-                                                                                <div class="dropdown-menu dropdown-menu-end">
-                                                                                    <a class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i class="ri-user-2-fill align-bottom text-muted me-2"></i> View Profile</a>
-                                                                                    <a class="dropdown-item" href="#"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i> Archive</a>
-                                                                                    <a class="dropdown-item" href="#"><i class="ri-mic-off-line align-bottom text-muted me-2"></i> Muted</a>
-                                                                                    <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                        <!-- end chat user head -->
-                                                        <div class="chat-conversation p-3 p-lg-4" id="chat-conversation" data-simplebar>
-                                                            <ul class="list-unstyled chat-conversation-list" id="channel-conversation">
-                                                            </ul>
-                                                            <!-- end chat-conversation-list -->
-
-                                                        </div>
-                                                        <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show " id="copyClipBoardChannel" role="alert">
-                                                            Message copied
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- end chat-conversation -->
-
-                                                    <div class="chat-input-section p-3 p-lg-4">
-
-                                                        <form id="chatinput-form" enctype="multipart/form-data">
-                                                            <div class="row g-0 align-items-center">
-                                                                <div class="col-auto">
-                                                                    <div class="chat-input-links me-2">
-                                                                        <div class="links-list-item">
-                                                                            <button type="button" class="btn btn-link text-decoration-none emoji-btn" id="emoji-btn">
-                                                                                <i class="bx bx-smile align-middle"></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col">
-                                                                    <div class="chat-input-feedback">
-                                                                        Please Enter a Message
-                                                                    </div>
-                                                                    <input type="text" class="form-control chat-input bg-light border-light" id="chat-input" placeholder="Type your message..." autocomplete="off">
-                                                                </div>
-                                                                <div class="col-auto">
-                                                                    <div class="chat-input-links ms-2">
-                                                                        <div class="links-list-item">
-                                                                            <button type="submit" class="btn btn-success chat-send waves-effect waves-light">
-                                                                                <i class="ri-send-plane-2-fill align-bottom"></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </form>
-                                                    </div>
-
-                                                    <div class="replyCard">
-                                                        <div class="card mb-0">
-                                                            <div class="card-body py-3">
-                                                                <div class="replymessage-block mb-0 d-flex align-items-start">
-                                                                    <div class="flex-grow-1">
-                                                                        <h5 class="conversation-name"></h5>
-                                                                        <p class="mb-0"></p>
-                                                                    </div>
-                                                                    <div class="flex-shrink-0">
-                                                                        <button type="button" id="close_toggle" class="btn btn-sm btn-link mt-n2 me-n3 fs-18">
-                                                                            <i class="bx bx-x align-middle"></i>
+                                                        <div class="col-sm-8 col-4">
+                                                            <ul class="list-inline user-chat-nav text-end mb-0">
+                                                                <li class="list-inline-item m-0">
+                                                                    <div class="dropdown">
+                                                                        <button class="btn btn-ghost-secondary btn-icon material-shadow-none" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search icon-sm"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                                                                         </button>
+                                                                        <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg" style="">
+                                                                            <div class="p-2">
+                                                                                <div class="search-box">
+                                                                                    <input type="text" class="form-control bg-light border-light" placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage">
+                                                                                    <i class="ri-search-2-line search-icon"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+
+                                                                <li class="list-inline-item d-none d-lg-inline-block m-0">
+                                                                    <button type="button" class="btn btn-ghost-secondary btn-icon material-shadow-none" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info icon-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                                                    </button>
+                                                                </li>
+
+                                                                <li class="list-inline-item m-0">
+                                                                    <div class="dropdown">
+                                                                        <button class="btn btn-ghost-secondary btn-icon material-shadow-none" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical icon-sm"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                                                        </button>
+                                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                                            <a class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i class="ri-user-2-fill align-bottom text-muted me-2"></i> View Profile</a>
+                                                                            <a class="dropdown-item" href="#"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i> Archive</a>
+                                                                            <a class="dropdown-item" href="#"><i class="ri-mic-off-line align-bottom text-muted me-2"></i> Muted</a>
+                                                                            <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <!-- end chat user head -->
+                                                <div class="chat-conversation p-3 p-lg-4 " id="chat-conversation" data-simplebar>
+                                                    <div id="elmLoader">
+                                                        <div class="spinner-border text-primary avatar-sm" role="status">
+                                                            <span class="visually-hidden">Loading...</span>
+                                                        </div>
+                                                    </div>
+                                                    <ul class="list-unstyled chat-conversation-list" id="users-conversation">
+                                                    </ul>
+                                                    <!-- end chat-conversation-list -->
+                                                </div>
+                                                <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show " id="copyClipBoard" role="alert">
+                                                    Message copied
+                                                </div>
+                                            </div>
+
+                                            <div class="position-relative" id="channel-chat">
+                                                <div class="p-3 user-chat-topbar">
+                                                    <div class="row align-items-center">
+                                                        <div class="col-sm-4 col-8">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0 d-block d-lg-none me-3">
+                                                                    <a href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i class="ri-arrow-left-s-line align-bottom"></i></a>
+                                                                </div>
+                                                                <div class="flex-grow-1 overflow-hidden">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
+                                                                            <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
+                                                                        </div>
+                                                                        <div class="flex-grow-1 overflow-hidden">
+                                                                            <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
+                                                                            <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>24 Members</small></p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-8 col-4">
+                                                            <ul class="list-inline user-chat-nav text-end mb-0">
+                                                                <li class="list-inline-item m-0">
+                                                                    <div class="dropdown">
+                                                                        <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                            <i data-feather="search" class="icon-sm"></i>
+                                                                        </button>
+                                                                        <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">
+                                                                            <div class="p-2">
+                                                                                <div class="search-box">
+                                                                                    <input type="text" class="form-control bg-light border-light" placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage">
+                                                                                    <i class="ri-search-2-line search-icon"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+
+                                                                <li class="list-inline-item d-none d-lg-inline-block m-0">
+                                                                    <button type="button" class="btn btn-ghost-secondary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
+                                                                        <i data-feather="info" class="icon-sm"></i>
+                                                                    </button>
+                                                                </li>
+
+                                                                <li class="list-inline-item m-0">
+                                                                    <div class="dropdown">
+                                                                        <button class="btn btn-ghost-secondary btn-icon" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                            <i data-feather="more-vertical" class="icon-sm"></i>
+                                                                        </button>
+                                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                                            <a class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i class="ri-user-2-fill align-bottom text-muted me-2"></i> View Profile</a>
+                                                                            <a class="dropdown-item" href="#"><i class="ri-inbox-archive-line align-bottom text-muted me-2"></i> Archive</a>
+                                                                            <a class="dropdown-item" href="#"><i class="ri-mic-off-line align-bottom text-muted me-2"></i> Muted</a>
+                                                                            <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <!-- end chat user head -->
+                                                <div class="chat-conversation p-3 p-lg-4" id="chat-conversation" data-simplebar>
+                                                    <ul class="list-unstyled chat-conversation-list" id="channel-conversation">
+                                                    </ul>
+                                                    <!-- end chat-conversation-list -->
+
+                                                </div>
+                                                <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show " id="copyClipBoardChannel" role="alert">
+                                                    Message copied
+                                                </div>
+                                            </div>
+
+                                            <!-- end chat-conversation -->
+
+                                            <div class="chat-input-section p-3 p-lg-4">
+
+                                                <form id="chatinput-form" enctype="multipart/form-data">
+                                                    <div class="row g-0 align-items-center">
+                                                        <div class="col-auto">
+                                                            <div class="chat-input-links me-2">
+                                                                <div class="links-list-item">
+                                                                    <button type="button" class="btn btn-link text-decoration-none emoji-btn" id="emoji-btn">
+                                                                        <i class="bx bx-smile align-middle"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col">
+                                                            <div class="chat-input-feedback">
+                                                                Please Enter a Message
+                                                            </div>
+                                                            <input type="text" class="form-control chat-input bg-light border-light" id="chat-input" placeholder="Type your message..." autocomplete="off">
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <div class="chat-input-links ms-2">
+                                                                <div class="links-list-item">
+                                                                    <button type="submit" class="btn btn-success chat-send waves-effect waves-light">
+                                                                        <i class="ri-send-plane-2-fill align-bottom"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <div class="replyCard">
+                                                <div class="card mb-0">
+                                                    <div class="card-body py-3">
+                                                        <div class="replymessage-block mb-0 d-flex align-items-start">
+                                                            <div class="flex-grow-1">
+                                                                <h5 class="conversation-name"></h5>
+                                                                <p class="mb-0"></p>
+                                                            </div>
+                                                            <div class="flex-shrink-0">
+                                                                <button type="button" id="close_toggle" class="btn btn-sm btn-link mt-n2 me-n3 fs-18">
+                                                                    <i class="bx bx-x align-middle"></i>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -557,16 +553,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- end chat-wrapper -->
-
                             </div>
-
                         </div>
+                        <!-- end chat-wrapper -->
+
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <div class="offcanvas offcanvas-end border-0" tabindex="-1" id="userProfileCanvasExample">
         <!--end offcanvas-header-->
@@ -1046,10 +1041,845 @@
     <script src="~/assetsAdmin/libs/fg-emoji-picker/fgEmojiPicker.js"></script>
 
     <!-- chat init js -->
-    <script src="~/assetsAdmin/js/pages/chat.init.js"></script>
+
 
     <!-- App js -->
     <script src="~/assetsAdmin/js/app.js"></script>
 </body>
 
 </html>
+<script>
+    // Chat Application - Fixed Version
+    (function () {
+        'use strict';
+
+        // Configuration
+        const CONFIG = {
+            baseUrl: window.location.origin,
+            defaultUserImage: '/assetsAdmin/images/users/user-dummy-img.jpg',
+            timeout: 10000,
+            currentUserId: "@User.FindFirst(ClaimTypes.NameIdentifier)?.Value"
+        };
+
+        console.log(CONFIG.currentUserId + "ssss");
+        let users = [];
+        let isReply = false;
+        let replyToMessageId = null;
+        let messageCounter = 0;
+        let currentChatType = 'users';
+        let currentChatId = 'users-chat';
+
+        // ✅ Biến để kiểm soát việc auto-click user đầu tiên
+        let shouldAutoClickFirstUser = true;
+
+        // Utility functions
+        const utils = {
+            getCurrentTime: function () {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+                return `${displayHours < 10 ? '0' + displayHours : displayHours}:${displayMinutes} ${ampm}`;
+            },
+
+            escapeHtml: function (text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+
+            showNotification: function (message, type = 'info') {
+                console.log(`[${type.toUpperCase()}] ${message}`);
+            },
+
+            validateMessage: function (message) {
+                return message && typeof message === 'object' && message.from_id && message.to_id;
+            }
+        };
+
+        // API functions
+        const api = {
+            call: async function (endpoint, method = 'GET', data = null) {
+                const fullUrl = endpoint.startsWith('http') ? endpoint : CONFIG.baseUrl + endpoint;
+
+                const options = {
+                    method: method,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors',
+                    credentials: 'include'
+                };
+
+                if (data && method === 'POST') {
+                    options.body = JSON.stringify(data);
+                }
+
+                try {
+                    const response = await fetch(fullUrl, options);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    document.getElementById("elmLoader").innerHTML = "";
+                    return await response.json();
+                } catch (error) {
+                    console.error('API call failed:', error);
+
+                    // 👉 Hiển thị thông báo lỗi với SweetAlert2
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi API',
+                            text: error.message || 'Có lỗi xảy ra khi gọi API.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+
+                    throw error;
+                }
+            }
+        };
+
+        async function startChatWithUser(userId) {
+            console.log('🎯 startChatWithUser được gọi với userId:', userId);
+
+            // ✅ Ngăn không cho auto-click user đầu tiên
+            shouldAutoClickFirstUser = false;
+
+            const existingUser = document.querySelector(`#contact-id-${userId}`);
+            if (!existingUser) {
+                console.log('👤 User không tồn tại trong danh sách, đang thêm...');
+                try {
+                    const user = await api.call(`/Users/GetUserById?id=${userId}`);
+                    if (!user) return;
+
+                    const userHtml = `
+                    <li id="contact-id-${user.id}" data-name="direct-message">
+                        <a href="javascript:void(0);">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 chat-user-img online me-2">
+                                    <div class="avatar-xxs">
+                                        ${user.profile
+                            ? `<img src="${user.profile}" class="rounded-circle img-fluid userprofile" alt="">`
+                            : `<div class="avatar-title rounded-circle bg-primary text-white fs-10">${user.nickname || user.name.charAt(0)}</div>`}
+                                        <span class="user-status"></span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="text-truncate mb-0">${user.name}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>`;
+                    document.getElementById('userList').insertAdjacentHTML('afterbegin', userHtml);
+                    setupUserClickEvents(); // Gắn lại event click
+                } catch (error) {
+                    console.error('Lỗi khi thêm user:', error);
+                    return;
+                }
+            }
+
+            // ✅ Click vào user cụ thể
+            setTimeout(() => {
+                const userElement = document.querySelector(`#contact-id-${userId}`);
+                if (userElement) {
+                    console.log('✅ Đang click vào user:', userId);
+
+                    // Remove active class from all users
+                    document.querySelectorAll('#userList li.active').forEach(el => el.classList.remove('active'));
+
+                    // Add active class to target user
+                    userElement.classList.add('active');
+
+                    // Trigger click event
+                    userElement.querySelector('a')?.click();
+                } else {
+                    console.error('❌ Không tìm thấy user element sau khi thêm');
+                }
+            }, 100);
+        }
+
+        // Search functionality
+        function searchMessages() {
+            const searchTerm = document.getElementById('searchMessage')?.value?.toUpperCase() || '';
+            const messageElements = document.querySelectorAll('#users-conversation li');
+
+            messageElements.forEach(function (element) {
+                const messageText = element.querySelector('p')?.textContent || '';
+                element.style.display = messageText.toUpperCase().includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function createMessageContent(messageId, text, images = [], files = [], hasDropdown = false, repliedMessage = null) {
+            let content = '<div class="ctext-wrap">';
+
+            content += `<div class="ctext-wrap-content" id="${messageId}">`;
+
+            // ✅ Nếu có repliedMessage, hiển thị block trả lời
+            if (repliedMessage) {
+                const replySenderName = repliedMessage.senderName || 'Unknown';
+                const replyText = repliedMessage.msg || '[Image/File]';
+
+                content += `
+                    <div class="replymessage-block mb-0 d-flex align-items-start">
+                        <div class="flex-grow-1">
+                            <h5 class="conversation-name">${utils.escapeHtml(replySenderName)}</h5>
+                            <p class="mb-0">${utils.escapeHtml(replyText)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ✅ Nội dung chính
+            if (text) {
+                content += `<p class="mb-0 ctext-content mt-1">${utils.escapeHtml(text)}</p>`;
+            }
+
+            if (images.length > 0) {
+                content += '<div class="message-img mb-0">';
+                images.forEach(function (image) {
+                    content += `
+                        <div class="message-img-list">
+                            <div>
+                                <a class="popup-img d-inline-block" href="${image}">
+                                    <img src="${image}" alt="image" class="rounded border">
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+                content += '</div>';
+            }
+
+            if (files.length > 0) {
+                files.forEach(file => {
+                    content += `
+                        <div class="p-3 border-primary border rounded-3 mt-1">
+                            <div class="d-flex align-items-center attached-file">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-primary-subtle text-primary rounded-circle font-size-20">
+                                        <i class="ri-attachment-2"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <h5 class="font-size-14 mb-1">${file.name}</h5>
+                                    <p class="text-muted font-size-13 mb-0">${file.size}</p>
+                                </div>
+                                <div class="ms-4">
+                                    <a href="${file.url}" download class="text-muted"><i class="bx bxs-download"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            content += `</div>`; // end of ctext-wrap-content
+
+            // Dropdown actions
+            if (hasDropdown) {
+                content += `
+                    <div class="dropdown align-self-start message-box-drop">
+                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="ri-more-2-fill"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item reply-message" href="#"><i class="ri-reply-line me-2"></i>Reply</a>
+                            <a class="dropdown-item copy-message" href="#"><i class="ri-file-copy-line me-2"></i>Copy</a>
+                            <a class="dropdown-item delete-item" href="#"><i class="ri-delete-bin-5-line me-2"></i>Delete</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            content += '</div>'; // end of ctext-wrap
+            return content;
+        }
+
+        function addMessage(chatType, messageText, isReplyMessage = false) {
+            messageCounter++;
+            const conversationList = document.querySelector(`#${chatType} .chat-conversation-list`);
+
+            if (!conversationList) {
+                console.error('Conversation list not found');
+                return;
+            }
+
+            let messageHtml = `<li class="chat-list right" id="chat-list-${messageCounter}">
+                <div class="conversation-list">
+                    <div class="user-chat-content">`;
+
+            if (isReplyMessage) {
+                const replyUserName = document.querySelector('.replyCard .replymessage-block .flex-grow-1 .conversation-name')?.textContent || 'Unknown';
+                const replyMessage = document.querySelector('.replyCard .replymessage-block .flex-grow-1 .mb-0')?.textContent || '';
+
+                messageHtml += `<div class="ctext-wrap">
+                    <div class="ctext-wrap-content">
+                        <div class="replymessage-block mb-0 d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 class="conversation-name">${utils.escapeHtml(replyUserName)}</h5>
+                                <p class="mb-0">${utils.escapeHtml(replyMessage)}</p>
+                            </div>
+                        </div>
+                        <p class="mb-0 ctext-content mt-1">${utils.escapeHtml(messageText)}</p>
+                    </div>
+                    <div class="dropdown align-self-start message-box-drop">
+                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="ri-more-2-fill"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item reply-message" href="#"><i class="ri-reply-line me-2"></i>Reply</a>
+                            <a class="dropdown-item copy-message" href="#"><i class="ri-file-copy-line me-2"></i>Copy</a>
+                            <a class="dropdown-item delete-item" href="#"><i class="ri-delete-bin-5-line me-2"></i>Delete</a>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                messageHtml += createMessageContent(`msg-${messageCounter}`, messageText, [], [], true);
+            }
+
+            messageHtml += `</div>
+                    <div class="conversation-name">
+                        <small class="text-muted time">${utils.getCurrentTime()}</small>
+                        <span class="text-success check-message-icon"><i class="bx bx-check"></i></span>
+                    </div>
+                </div>
+            </li>`;
+
+            conversationList.insertAdjacentHTML('beforeend', messageHtml);
+            setupMessageEvents();
+            scrollToBottom(chatType);
+        }
+
+        // Event setup functions
+        function setupMessageEvents() {
+            // Delete message events
+            document.querySelectorAll('.delete-item').forEach(function (element) {
+                element.removeEventListener('click', handleDeleteMessage);
+                element.addEventListener('click', handleDeleteMessage);
+            });
+
+            // Reply message events
+            document.querySelectorAll('.reply-message').forEach(function (element) {
+                element.removeEventListener('click', handleReplyMessage);
+                element.addEventListener('click', handleReplyMessage);
+            });
+
+            // Copy message events
+            document.querySelectorAll('.copy-message').forEach(function (element) {
+                element.removeEventListener('click', handleCopyMessage);
+                element.addEventListener('click', handleCopyMessage);
+            });
+
+            // Delete image events
+            document.querySelectorAll('.delete-image').forEach(function (element) {
+                element.removeEventListener('click', handleDeleteImage);
+                element.addEventListener('click', handleDeleteImage);
+            });
+        }
+
+        // Event handlers
+        function handleDeleteMessage(event) {
+            event.preventDefault();
+            const messageElement = event.target.closest('.chat-list') || event.target.closest('.ctext-wrap');
+            if (messageElement) {
+                messageElement.remove();
+            }
+        }
+
+        function handleReplyMessage(event) {
+            event.preventDefault();
+
+            const chatItem = event.target.closest('.chat-list');
+            const messageText = chatItem?.querySelector('.ctext-content')?.textContent || '';
+            const messageId = chatItem?.id?.replace('chat-list-', '');
+
+            const replyCard = document.querySelector('.replyCard');
+            const closeToggle = document.querySelector('#close_toggle');
+
+            if (replyCard && messageText && messageId) {
+                isReply = true;
+                replyToMessageId = messageId;
+
+                replyCard.classList.add('show');
+
+                const replyMessageBlock = replyCard.querySelector('.replymessage-block .flex-grow-1 .mb-0');
+                const replyUserBlock = replyCard.querySelector('.replymessage-block .flex-grow-1 .conversation-name');
+
+                if (replyMessageBlock) replyMessageBlock.textContent = messageText;
+                if (replyUserBlock) {
+                    const userName = document.querySelector('.user-chat-topbar .username')?.textContent || 'Unknown';
+                    const isLeftMessage = chatItem?.classList.contains('left');
+                    replyUserBlock.textContent = isLeftMessage ? userName : 'You';
+                }
+
+                if (closeToggle) {
+                    closeToggle.addEventListener('click', function () {
+                        replyCard.classList.remove('show');
+                        isReply = false;
+                        replyToMessageId = null;
+                    });
+                }
+            }
+        }
+
+        function handleCopyMessage(event) {
+            event.preventDefault();
+            const messageText = event.target.closest('.ctext-wrap')?.querySelector('.ctext-content')?.textContent || '';
+
+            if (messageText && navigator.clipboard) {
+                navigator.clipboard.writeText(messageText).then(function () {
+                    const clipboardNotification = document.getElementById('copyClipBoard');
+                    if (clipboardNotification) {
+                        clipboardNotification.style.display = 'block';
+                        setTimeout(function () {
+                            clipboardNotification.style.display = 'none';
+                        }, 1000);
+                    }
+                });
+            }
+        }
+
+        function handleDeleteImage(event) {
+            event.preventDefault();
+            const imageElement = event.target.closest('.message-img-list') || event.target.closest('.message-img');
+            if (imageElement) {
+                imageElement.remove();
+            }
+        }
+
+        function setupUserInteractions() {
+            const userChatElements = document.querySelectorAll('.user-chat');
+            const userListElements = document.querySelectorAll('.chat-user-list li a');
+            const userChatRemoveElements = document.querySelectorAll('.user-chat-remove');
+
+            // User chat show/hide
+            userListElements.forEach(function (element) {
+                element.addEventListener('click', function (event) {
+                    userChatElements.forEach(function (chat) {
+                        chat.classList.add('user-chat-show');
+                    });
+
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    if (activeUser) {
+                        activeUser.classList.remove('active');
+                    }
+
+                    element.parentNode.classList.add('active');
+                });
+            });
+
+            userChatRemoveElements.forEach(function (element) {
+                element.addEventListener('click', function (event) {
+                    userChatElements.forEach(function (chat) {
+                        chat.classList.remove('user-chat-show');
+                    });
+                });
+            });
+
+            // Favorite button
+            document.querySelectorAll('.favourite-btn').forEach(function (element) {
+                element.addEventListener('click', function (event) {
+                    element.classList.toggle('active');
+                });
+            });
+        }
+
+        // Chat history functions
+        async function loadChatHistory(userId, otherId) {
+            if (!userId || !otherId) {
+                console.error('Invalid parameters for loading chat history');
+                return;
+            }
+
+            try {
+                const response = await api.call(`/Users/GetChatHistory?userId=${userId}&otherId=${otherId}`);
+                const chatData = response?.chats || response?.data || response || [];
+
+                if (!Array.isArray(chatData)) {
+                    console.error('Invalid chat data format');
+                    return;
+                }
+
+                const conversationElement = document.getElementById('users-conversation');
+                if (!conversationElement) {
+                    console.error('Conversation element not found');
+                    return;
+                }
+
+                conversationElement.innerHTML = '';
+                renderChatMessages(chatData);
+                const userBadge = document.querySelector(`#contact-id-${otherId} .badge`);
+                if (userBadge) {
+                    userBadge.remove();
+                }
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+                const conversationElement = document.getElementById('users-conversation');
+                if (conversationElement) {
+                    conversationElement.innerHTML = `
+                        <li class="text-center p-3">
+                            <div class="alert alert-warning">
+                                Unable to load chat history. Please check your connection and try again.
+                            </div>
+                        </li>
+                    `;
+                }
+            }
+        }
+
+        function renderChatMessages(chatData) {
+            const conversationElement = document.getElementById('users-conversation');
+            conversationElement.innerHTML = '';
+
+            chatData.forEach(function (message) {
+                const isFromCurrentUser = message.from_id === CONFIG.currentUserId;
+                const messageClass = isFromCurrentUser ? ' right' : ' left';
+
+                const user = users.find(u => u.id === (isFromCurrentUser ? message.to_id : message.from_id)) || {
+                    name: 'Unknown User',
+                    profile: CONFIG.defaultUserImage
+                };
+
+                const repliedMessage = message.isReplied && typeof message.isReplied === 'string'
+                    ? chatData.find(m => m.id === message.isReplied)
+                    : null;
+
+                const replyInfo = repliedMessage
+                    ? {
+                        senderName: users.find(u => u.id === repliedMessage.from_id)?.name || 'Unknown',
+                        msg: repliedMessage.msg
+                    }
+                    : null;
+
+                const messageHtml = `
+                <li class="chat-list${messageClass}" id="chat-list-${message.id}">
+                    <div class="conversation-list">
+                        ${!isFromCurrentUser ? `<div class="chat-avatar"><img src="${user.profile}" alt=""></div>` : ''}
+                        <div class="user-chat-content">
+                            ${createMessageContent(message.id, message.msg, message.has_images || [], message.has_files || [], message.has_dropDown, replyInfo)}
+                            <div class="conversation-name">
+                                <small class="text-muted time">${message.datetime}</small>
+                                  <span class="text-success check-message-icon">
+        <i class="${message.is_read ? 'bx bx-check-double' : 'bx bx-check'}"></i>
+    </span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `;
+
+                conversationElement.innerHTML += messageHtml;
+            });
+            setupMessageEvents();
+
+            scrollToBottom('users-chat');
+            if (typeof GLightbox !== 'undefined') {
+                GLightbox({ selector: '.popup-img' });
+            }
+        }
+
+        // Scroll function
+        function scrollToBottom(chatType) {
+            setTimeout(function () {
+                const chatElement = document.getElementById(chatType);
+                const scrollWrapper = chatElement?.querySelector('#chat-conversation .simplebar-content-wrapper');
+                const conversationList = chatElement?.querySelector('.chat-conversation-list');
+
+                if (scrollWrapper && conversationList) {
+                    const scrollHeight = conversationList.scrollHeight;
+                    scrollWrapper.scrollTo({
+                        top: scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        }
+
+        // Chat type switching
+        function switchChatType() {
+            const usersChat = document.getElementById('users-chat');
+            const channelChat = document.getElementById('channel-chat');
+
+            if (currentChatType === 'users') {
+                if (channelChat) channelChat.style.display = 'none';
+                if (usersChat) usersChat.style.display = 'block';
+            } else {
+                if (usersChat) usersChat.style.display = 'none';
+                if (channelChat) channelChat.style.display = 'block';
+            }
+        }
+
+        // Initialize application
+        async function initializeApp() {
+            try {
+                // ✅ Kiểm tra xem có cần mở chat với user cụ thể không
+                const userIdToStart = localStorage.getItem('startChatUserId');
+                if (userIdToStart) {
+                    console.log('🎯 Phát hiện startChatUserId:', userIdToStart);
+                    shouldAutoClickFirstUser = false;
+                    localStorage.removeItem('startChatUserId');
+                }
+
+                // Load users
+                const userList = await api.call('/Users/GetUserList');
+                users = userList || [];
+
+                // Render user list
+                const userListContainer = document.getElementById('userList');
+                if (userListContainer) {
+                    userListContainer.innerHTML = '';
+                    users.forEach(function (user) {
+                        const userHtml = `<li id="contact-id-${user.id}" data-name="direct-message" class="${user.id === 1 && shouldAutoClickFirstUser ? 'active' : ''}">
+                            <a href="javascript:void(0);" class="${user.messagecount ? 'unread-msg-user' : ''}">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 chat-user-img ${user.status || 'offline'} align-self-center me-2 ms-0">
+                                        <div class="avatar-xxs">
+                                            ${user.profile ?
+                                `<img src="${user.profile}" class="rounded-circle img-fluid userprofile" alt="">` :
+                                `<div class="avatar-title rounded-circle bg-primary text-white fs-10">${user.nickname || user.name?.charAt(0) || 'U'}</div>`
+                            }
+                                            <span class="user-status"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <p class="text-truncate mb-0">${user.name || 'Unknown User'}</p>
+                                    </div>
+                                    ${user.messagecount ? `<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">${user.messagecount}</span></div>` : ''}
+                                </div>
+                            </a>
+                        </li>`;
+                        userListContainer.innerHTML += userHtml;
+                    });
+                }
+
+                // Setup interactions
+                setupUserInteractions();
+                setupUserClickEvents();
+                setupChatForm();
+                setupEmojiPicker();
+
+                // ✅ Xử lý startChatUserId sau khi đã render user list
+                if (userIdToStart) {
+                    console.log('🚀 Bắt đầu chat với user:', userIdToStart);
+                    await startChatWithUser(userIdToStart);
+                } else if (shouldAutoClickFirstUser) {
+                    // ✅ Chỉ auto-click user đầu tiên khi không có startChatUserId
+                    const firstUser = document.querySelector('#userList li');
+                    if (firstUser) {
+                        firstUser.querySelector('a')?.click();
+                    }
+                }
+
+                window.searchMessages = searchMessages;
+                utils.showNotification('Chat application initialized successfully');
+
+            } catch (error) {
+                console.error('Error initializing application:', error);
+                utils.showNotification('Error initializing chat application', 'error');
+            }
+        }
+
+        function setupUserClickEvents() {
+            document.querySelectorAll('#userList li').forEach(function (userElement) {
+                userElement.addEventListener('click', function () {
+                    currentChatType = 'users';
+                    switchChatType();
+
+                    const contactId = userElement.getAttribute('id')?.replace('contact-id-', '');
+                    const otherUserId = contactId;
+                    const userName = userElement.querySelector('.text-truncate')?.textContent || 'Unknown User';
+
+                    console.log('👤 User clicked:', userName, 'ID:', otherUserId);
+
+                    // Update UI
+                    const userNameElement = document.querySelector('.user-chat-topbar .username');
+                    if (userNameElement) userNameElement.textContent = userName;
+
+                    const profileUserNameElement = document.querySelector('.profile-offcanvas .username');
+                    if (profileUserNameElement) profileUserNameElement.textContent = userName;
+
+                    // Handle reply card
+                    if (isReply) {
+                        isReply = false;
+                        const replyCard = document.querySelector('.replyCard');
+                        if (replyCard) replyCard.classList.remove('show');
+                    }
+
+                    // Update user images
+                    const userImg = userElement.querySelector('.userprofile')?.getAttribute('src');
+                    const topbarAvatar = document.querySelector('.user-chat-topbar .avatar-xs');
+                    const profileAvatar = document.querySelector('.profile-offcanvas .avatar-lg');
+
+                    if (topbarAvatar) {
+                        topbarAvatar.setAttribute('src', userImg || CONFIG.defaultUserImage);
+                    }
+                    if (profileAvatar) {
+                        profileAvatar.setAttribute('src', userImg || CONFIG.defaultUserImage);
+                    }
+
+                    // Update chat avatars
+                    document.querySelectorAll('#users-conversation .left .chat-avatar img').forEach(function (avatar) {
+                        avatar.setAttribute('src', userImg || CONFIG.defaultUserImage);
+                    });
+
+                    // Load chat history
+                    loadChatHistory(CONFIG.currentUserId, otherUserId);
+                });
+            });
+        }
+
+        function setupChatForm() {
+            const chatForm = document.querySelector('#chatinput-form');
+            const chatInput = document.querySelector('#chat-input');
+            const chatFeedback = document.querySelector('.chat-input-feedback');
+
+            if (chatForm && chatInput) {
+                chatForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    const messageText = chatInput.value.trim();
+                    if (!messageText) {
+                        if (chatFeedback) {
+                            chatFeedback.classList.add('show');
+                            setTimeout(function () {
+                                chatFeedback.classList.remove('show');
+                            }, 2000);
+                        }
+                        return;
+                    }
+
+                    // Get active user
+                    const activeUser = document.querySelector('.chat-user-list li.active');
+                    if (!activeUser) {
+                        utils.showNotification('Please select a user to chat with', 'warning');
+                        return;
+                    }
+
+                    const otherUserId = activeUser.getAttribute('id')?.replace('contact-id-', '');
+
+                    // Prepare message data
+                    const messageData = {
+                        from_id: CONFIG.currentUserId,
+                        to_id: otherUserId,
+                        msg: messageText,
+                        has_images: [],
+                        has_files: []
+                    };
+
+                    // Nếu đang reply thì thêm ID của tin được reply
+                    if (isReply && replyToMessageId) {
+                        messageData.isReplied = replyToMessageId;
+                    }
+
+                    try {
+                        // Send message to backend
+                        await api.call('/Users/SendMessage', 'POST', messageData);
+
+                        // Add message to UI
+                        addMessage('users-chat', messageText, isReply);
+
+                        // Reset form
+                        chatInput.value = '';
+
+                        // Close reply card if open
+                        if (isReply) {
+                            isReply = false;
+                            replyToMessageId = null;
+                            const closeToggle = document.getElementById('close_toggle');
+                            if (closeToggle) closeToggle.click();
+                        }
+
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                        utils.showNotification('Failed to send message', 'error');
+                    }
+                });
+            }
+        }
+
+
+        function setupEmojiPicker() {
+            // Initialize emoji picker if FgEmojiPicker is available
+            if (typeof FgEmojiPicker !== 'undefined') {
+                try {
+                    new FgEmojiPicker({
+                        trigger: ['.emoji-btn'],
+                        removeOnSelection: false,
+                        closeButton: true,
+                        position: ['top', 'right'],
+                        preFetch: true,
+                        dir: '/assetsAdmin/js/pages/plugins/json',
+                        insertInto: document.querySelector('.chat-input')
+                    });
+
+                    const emojiBtn = document.getElementById('emoji-btn');
+                    if (emojiBtn) {
+                        emojiBtn.addEventListener('click', function () {
+                            setTimeout(function () {
+                                const emojiPicker = document.querySelector('.fg-emoji-picker');
+                                if (emojiPicker) {
+                                    const leftPos = parseInt(window.getComputedStyle(emojiPicker).left);
+                                    if (!isNaN(leftPos)) {
+                                        emojiPicker.style.left = (leftPos - 40) + 'px';
+                                    }
+                                }
+                            }, 0);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error initializing emoji picker:', error);
+                }
+            }
+        }
+
+        // Auto-scroll setup
+        function setupAutoScroll() {
+            try {
+                if (typeof SimpleBar !== 'undefined') {
+                    const scrollEl = new SimpleBar(document.getElementById('chat-conversation'));
+                    const conversationElement = document.getElementById('users-conversation');
+
+                    if (scrollEl && conversationElement) {
+                        scrollEl.getScrollElement().scrollTop = conversationElement.scrollHeight;
+                    }
+                }
+            } catch (error) {
+                console.error('Error setting up auto-scroll:', error);
+            }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', async function () {
+                await initializeApp(); // ✅ load xong user list
+                await setupAutoScroll();
+
+                const userIdToStart = localStorage.getItem('startChatUserId');
+                if (userIdToStart) {
+                    isOpeningSpecificUser=true; // ✅ Đánh dấu đang mở người dùng cụ thể
+                    localStorage.removeItem('startChatUserId');
+                    await startChatWithUser(userIdToStart); // ✅ gọi đúng lúc
+                }
+            });
+        } else {
+            (async function () {
+                await initializeApp();
+                await setupAutoScroll();
+
+                const userIdToStart = localStorage.getItem('startChatUserId');
+                if (userIdToStart) {
+                    localStorage.removeItem('startChatUserId');
+                    await startChatWithUser(userIdToStart);
+                }
+            })();
+        }
+
+
+    })();
+</script>
