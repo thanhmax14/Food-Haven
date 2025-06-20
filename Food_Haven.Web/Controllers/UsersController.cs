@@ -73,8 +73,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
         private readonly IMessageImageService _messageImageService;
         private readonly IMessageService _messageService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext)
         {
             _userManager = userManager;
             this.client = client;
@@ -98,6 +99,7 @@ namespace Food_Haven.Web.Controllers
             _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
             _messageImageService = messageImageService;
             _messageService = messageService;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -1728,7 +1730,12 @@ namespace Food_Haven.Web.Controllers
             if (unreadMessages.Any())
             {
                 await _messageService.SaveChangesAsync();
+
+                // Thông báo cho người gửi rằng tin nhắn đã được đọc
+                var readMessageIds = unreadMessages.Select(m => m.ID.ToString()).ToList();
+                await _hubContext.Clients.User(otherId).SendAsync("MessagesRead", readMessageIds, userId);
             }
+
             var messages = query
                 .Select(m => new
                 {
@@ -1746,41 +1753,55 @@ namespace Food_Haven.Web.Controllers
 
             return Json(new { chats = messages });
         }
-
         [HttpPost]
-         public async Task<IActionResult> SendMessage([FromBody] ChatMessageModel model)
-         {
-             var message = new Message
-             {
-                 ID = Guid.NewGuid(),
-                 FromUserId = model.from_id,
-                 ToUserId = model.to_id,
-                 MessageText = model.msg,
-                 SentAt = DateTime.Now,
-                 HasDropDown = true,
-                 IsRead = false,
-                 RepliedToMessageId = model.isReplied,
-                 Images = model.has_images?.Select(url => new MessageImage { ID = Guid.NewGuid(), ImageUrl = url }).ToList()
-             };
+        public async Task<IActionResult> SendMessage([FromBody] ChatMessageModel model)
+        {
+            var getGui = Guid.TryParse(model.id + "", out var guid) ? guid : Guid.NewGuid();
 
-          await _messageService.AddAsync(message);
-           await  _messageService.SaveChangesAsync();
 
-             // Sau khi lưu, trả về lại dữ liệu cho client như cũ
-             var result = new ChatMessageModel
-             {
-                 id = message.ID,
-                 from_id = message.FromUserId,
-                 to_id = message.ToUserId,
-                 msg = message.MessageText,
-                 has_dropDown = message.HasDropDown,
-                 datetime = message.SentAt.ToString("hh:mm tt"),
-                 isReplied = message.RepliedToMessageId,
-                 has_images = message.Images.Select(i => i.ImageUrl).ToList()
-             };
+            var message = new Message
+            {
+                ID = getGui,
+                FromUserId = model.from_id,
+                ToUserId = model.to_id,
+                MessageText = model.msg,
+                SentAt = DateTime.Now,
+                HasDropDown = true,
+                IsRead = false,
+                RepliedToMessageId = model.isReplied,
+                Images = model.has_images?.Select(url => new MessageImage { ID = Guid.NewGuid(), ImageUrl = url }).ToList()
+            };
 
-             return Json(result);
-         }
+            await _messageService.AddAsync(message);
+            await _messageService.SaveChangesAsync();
+
+            // Lấy thông tin người gửi
+            var fromUser = await _userManager.FindByIdAsync(model.from_id);
+
+            // Tạo dữ liệu tin nhắn để gửi qua SignalR
+            var messageData = new
+            {
+                id = message.ID,
+                from_id = message.FromUserId,
+                to_id = message.ToUserId,
+                msg = message.MessageText,
+                has_dropDown = message.HasDropDown,
+                datetime = message.SentAt.ToString("hh:mm tt"),
+                isReplied = message.RepliedToMessageId,
+                is_read = message.IsRead,
+                has_images = message.Images?.Select(i => i.ImageUrl).ToList(),
+                senderName = fromUser?.UserName ?? "Unknown",
+                senderAvatar = fromUser?.ImageUrl
+            };
+
+            // Gửi tin nhắn qua SignalR
+            await _hubContext.Clients.User(model.to_id).SendAsync("ReceiveMessage", messageData);
+
+            // Gửi confirm cho người gửi
+            await _hubContext.Clients.User(model.from_id).SendAsync("MessageSent", messageData);
+
+            return Json(messageData);
+        }
         [HttpGet]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -1799,17 +1820,6 @@ namespace Food_Haven.Web.Controllers
                 messagecount = unread
             });
         }
-
-
-        public class UserModel
-         {
-             public int id { get; set; }
-             public string name { get; set; }
-             public string status { get; set; }
-             public string profile { get; set; }
-             public int messagecount { get; set; }
-             public string nickname { get; set; }
-         }
 
          public class ChatMessageModel
          {
