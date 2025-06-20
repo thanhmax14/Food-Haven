@@ -145,6 +145,17 @@
             });
         } 
     </script>
+    <script>
+        function goToChat(userId) {
+            localStorage.setItem('startChatUserId', userId);  // ✅ Lưu dữ liệu
+            console.log('Đã lưu userId vào localStorage:', userId);
+            // 🕒 Đợi 100ms rồi mới chuyển trang để đảm bảo localStorage đã lưu
+            setTimeout(function () {
+                window.location.href = '/users/chatlist';
+            }, 100);
+        }
+    </script>
+
 </body>
 
 </html>

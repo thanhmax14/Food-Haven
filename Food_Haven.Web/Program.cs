@@ -135,6 +135,13 @@ builder.Services.AddScoped<IIngredientTagRepository, IngredientTagRepository>();
 builder.Services.AddScoped<IngredientTagRepository>(); // 👈 thêm dòng này để inject trực tiếp
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder => builder.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
 
 
 

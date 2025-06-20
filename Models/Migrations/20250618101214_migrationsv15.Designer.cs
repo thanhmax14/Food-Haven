@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Models.DBContext;
 
@@ -11,9 +12,11 @@ using Models.DBContext;
 namespace Models.Migrations
 {
     [DbContext(typeof(FoodHavenDbContext))]
-    partial class FoodHavenDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618101214_migrationsv15")]
+    partial class migrationsv15
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -522,43 +525,43 @@ namespace Models.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("893dded5-05ac-4c94-932d-7f1e2acde4e6"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(979),
+                            ID = new Guid("1324cfe9-4269-4fa9-9b4c-c7081f3ab7cb"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8640),
                             IsActive = true,
                             Name = "Fish"
                         },
                         new
                         {
-                            ID = new Guid("2d33a66b-1a05-451a-acc8-ef821a56a4b7"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(982),
+                            ID = new Guid("61443c1b-40b2-46db-bb8e-c7bcc6fa2155"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8643),
                             IsActive = true,
                             Name = "Chicken"
                         },
                         new
                         {
-                            ID = new Guid("acdee6d2-2a4f-4b35-a0cc-30b0733034fd"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(984),
+                            ID = new Guid("1ed3b569-3088-4bea-a3e2-58dd0e1f425a"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8646),
                             IsActive = true,
                             Name = "Beef"
                         },
                         new
                         {
-                            ID = new Guid("21e1b697-887b-498b-b0d0-98f4a8f9d942"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(987),
+                            ID = new Guid("63f07b81-b1a8-4efc-b94f-1e85c946e8ce"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8649),
                             IsActive = true,
                             Name = "Pork"
                         },
                         new
                         {
-                            ID = new Guid("5be61e5b-6837-46a2-b4ca-8422d81e5653"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(989),
+                            ID = new Guid("385f9fbe-6ed0-4f2d-b7da-9cb517f8adf3"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8651),
                             IsActive = true,
                             Name = "Seafood"
                         },
                         new
                         {
-                            ID = new Guid("b9fb2da7-c0a2-4a5d-a0fd-7dc7064aa2a8"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(996),
+                            ID = new Guid("2ab1bc75-6605-4259-b67e-67fa6b07a4da"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8654),
                             IsActive = true,
                             Name = "Vegetable"
                         });
@@ -572,7 +575,6 @@ namespace Models.Migrations
 
                     b.Property<string>("FromUserId")
                         .IsRequired()
-                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("HasDropDown")
@@ -581,29 +583,27 @@ namespace Models.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("IsRepliedToMessageID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("MessageText")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("RepliedToMessageId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ToUserId")
                         .IsRequired()
-                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ID");
 
                     b.HasIndex("FromUserId");
 
-                    b.HasIndex("RepliedToMessageId");
+                    b.HasIndex("IsRepliedToMessageID");
 
                     b.HasIndex("ToUserId");
 
@@ -1154,43 +1154,43 @@ namespace Models.Migrations
                     b.HasData(
                         new
                         {
-                            ID = new Guid("d4bf96bf-f907-43cf-9c0d-2974f222706e"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(565),
+                            ID = new Guid("2ad6b270-5759-4bb5-88ea-3ef6f676b8c3"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8183),
                             IsActive = true,
                             Name = "Quick and Easy Dinners for One"
                         },
                         new
                         {
-                            ID = new Guid("c335e392-4751-4fb1-a764-8915574e8972"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(567),
+                            ID = new Guid("671e1658-658d-4d24-83d0-886a8d9dea7b"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8187),
                             IsActive = true,
                             Name = "Cooking for Two"
                         },
                         new
                         {
-                            ID = new Guid("72ff1704-8d63-4d58-929b-2769e10f3be6"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(570),
+                            ID = new Guid("30fb24c1-d0b9-48ab-920a-f51ea89cee33"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8189),
                             IsActive = true,
                             Name = "Main Dishes"
                         },
                         new
                         {
-                            ID = new Guid("b0f19f66-55a6-4288-945b-6f2d3e203e04"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(588),
+                            ID = new Guid("d800dc7c-39ec-4c78-bbb0-2d6e18da432c"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8192),
                             IsActive = true,
                             Name = "Vegetarian Main Dishes"
                         },
                         new
                         {
-                            ID = new Guid("8522856a-fc06-4d88-be80-e7664de23a73"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(590),
+                            ID = new Guid("6025eb07-e3e8-455c-acd7-5322198756fb"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8194),
                             IsActive = true,
                             Name = "Side Dishes"
                         },
                         new
                         {
-                            ID = new Guid("3cbc1377-b7ec-4369-af83-cc3e55f29fb2"),
-                            CreatedDate = new DateTime(2025, 6, 18, 17, 24, 11, 24, DateTimeKind.Local).AddTicks(593),
+                            ID = new Guid("a8feabff-9810-4498-ab3e-1ac9a9502fc4"),
+                            CreatedDate = new DateTime(2025, 6, 18, 17, 12, 12, 877, DateTimeKind.Local).AddTicks(8220),
                             IsActive = true,
                             Name = "Healthy Main Dishes"
                         });
@@ -1418,9 +1418,9 @@ namespace Models.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Models.Message", "RepliedTo")
-                        .WithMany("Replies")
-                        .HasForeignKey("RepliedToMessageId")
+                    b.HasOne("Models.Message", "RepliedMessage")
+                        .WithMany()
+                        .HasForeignKey("IsRepliedToMessageID")
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Models.AppUser", "ToUser")
@@ -1431,7 +1431,7 @@ namespace Models.Migrations
 
                     b.Navigation("FromUser");
 
-                    b.Navigation("RepliedTo");
+                    b.Navigation("RepliedMessage");
 
                     b.Navigation("ToUser");
                 });
@@ -1690,8 +1690,6 @@ namespace Models.Migrations
             modelBuilder.Entity("Models.Message", b =>
                 {
                     b.Navigation("Images");
-
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Models.Order", b =>

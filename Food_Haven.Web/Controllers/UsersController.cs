@@ -41,11 +41,13 @@ using System.Drawing;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using BusinessLogic.Services.MessageImages;
+using BusinessLogic.Services.Message; // nhớ import
 using Microsoft.EntityFrameworkCore.Metadata.Internal; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
-    [Authorize]
+
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -69,8 +71,10 @@ namespace Food_Haven.Web.Controllers
         private readonly IComplaintImageServices _complaintImageServices;
         private readonly IComplaintServices _complaintService;
         private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
+        private readonly IMessageImageService _messageImageService;
+        private readonly IMessageService _messageService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService)
         {
             _userManager = userManager;
             this.client = client;
@@ -92,6 +96,8 @@ namespace Food_Haven.Web.Controllers
             _complaintImageServices = complaintImageServices;
             _complaintService = complaintService;
             _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
+            _messageImageService = messageImageService;
+            _messageService = messageService;
         }
 
         [HttpGet]
@@ -1662,8 +1668,165 @@ namespace Food_Haven.Web.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public async Task<IActionResult> GetUserList()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var currentUserId = user.Id;        
+            var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
+            var chatUserIds = _messageService.GetAll()
+                .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
+                .Select(m => m.FromUserId == currentUserId ? m.ToUserId : m.FromUserId)
+                .Distinct()
+                .ToList();
+            if (adminId != currentUserId && !chatUserIds.Contains(adminId))
+            {
+                chatUserIds.Insert(0, adminId);
+            }
+
+            var users = _userManager.Users
+                .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
+                .Select(u => new {
+                    id = u.Id,
+                    name = $"{u.UserName}",
+                    status = "online",
+                    profile = u.ImageUrl,
+                    messagecount = _messageService.GetAll().Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead),
+                    nickname = u.UserName
+                })
+                .ToList();
+
+            return Json(users);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetChatHistory(string userId, string otherId)
+        {
+            var query = _messageService.GetAll()
+                .Where(m => (m.FromUserId == userId && m.ToUserId == otherId) ||
+                           (m.FromUserId == otherId && m.ToUserId == userId))
+                .Include(m => m.Images)
+                .OrderBy(m => m.SentAt);
+
+            var unreadMessages = query
+                .Where(m => m.ToUserId == userId && !m.IsRead)
+                .ToList();
+
+            foreach (var msg in unreadMessages)
+            {
+                msg.IsRead = true;
+                msg.ReadAt = DateTime.Now;
+                await _messageService.UpdateAsync(msg);
+            }
+
+            if (unreadMessages.Any())
+            {
+                await _messageService.SaveChangesAsync();
+            }
+            var messages = query
+                .Select(m => new
+                {
+                    id = m.ID,
+                    from_id = m.FromUserId,
+                    to_id = m.ToUserId,
+                    msg = m.MessageText,
+                    has_dropDown = true,
+                    datetime = m.SentAt.ToString("hh:mm tt"),
+                    isReplied = m.RepliedToMessageId ?? Guid.Empty,
+                    is_read = m.IsRead,
+                    has_images = m.Images != null && m.Images.Any() ? m.Images.Select(i => i.ImageUrl).ToList() : null,
+                })
+                .ToList();
+
+            return Json(new { chats = messages });
+        }
+
+        [HttpPost]
+         public async Task<IActionResult> SendMessage([FromBody] ChatMessageModel model)
+         {
+             var message = new Message
+             {
+                 ID = Guid.NewGuid(),
+                 FromUserId = model.from_id,
+                 ToUserId = model.to_id,
+                 MessageText = model.msg,
+                 SentAt = DateTime.Now,
+                 HasDropDown = true,
+                 IsRead = false,
+                 RepliedToMessageId = model.isReplied,
+                 Images = model.has_images?.Select(url => new MessageImage { ID = Guid.NewGuid(), ImageUrl = url }).ToList()
+             };
+
+          await _messageService.AddAsync(message);
+           await  _messageService.SaveChangesAsync();
+
+             // Sau khi lưu, trả về lại dữ liệu cho client như cũ
+             var result = new ChatMessageModel
+             {
+                 id = message.ID,
+                 from_id = message.FromUserId,
+                 to_id = message.ToUserId,
+                 msg = message.MessageText,
+                 has_dropDown = message.HasDropDown,
+                 datetime = message.SentAt.ToString("hh:mm tt"),
+                 isReplied = message.RepliedToMessageId,
+                 has_images = message.Images.Select(i => i.ImageUrl).ToList()
+             };
+
+             return Json(result);
+         }
+        [HttpGet]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var currentUserId = _userManager.GetUserId(User);
+            var unread = _messageService.GetAll().Count(m => m.FromUserId == user.Id && m.ToUserId == currentUserId && !m.IsRead);
+
+            return Json(new
+            {
+                id = user.Id,
+                name = user.UserName,
+                profile = user.ImageUrl,
+                nickname = user.UserName,
+                messagecount = unread
+            });
+        }
+
+
+        public class UserModel
+         {
+             public int id { get; set; }
+             public string name { get; set; }
+             public string status { get; set; }
+             public string profile { get; set; }
+             public int messagecount { get; set; }
+             public string nickname { get; set; }
+         }
+
+         public class ChatMessageModel
+         {
+             public object id { get; set; }          // Guid hoặc int đều được, miễn khớp js
+             public string from_id { get; set; }     // string (Guid) hoặc int
+             public string to_id { get; set; }
+             public string msg { get; set; }
+             public bool has_dropDown { get; set; }
+             public string datetime { get; set; }
+             public Guid? isReplied { get; set; }   // Guid hoặc int, tùy hệ thống
+             public List<string> has_images { get; set; } = new List<string>();
+         }
+
+       
+
+}
+
     }
 
 
-
-}

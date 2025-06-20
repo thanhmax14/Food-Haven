@@ -16,13 +16,17 @@ namespace Models
         public bool IsActive { get; set; } = true;
         public int Quantity { get; set; } = 0;
         public decimal TotalPrice { get; set; }
+        [StringLength(10)]
         public string PaymentMethod { get; set; }
+        [StringLength(10)]
         public string PaymentStatus { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
+        [StringLength(200)]
         public string Description { get; set; } = "";
         [StringLength(500)]
         public string Note { get; set; } = "";
+        [StringLength(200)]
         public string DeliveryAddress { get; set; } = "";
         [ForeignKey("AppUser")]
         [StringLength(450)]

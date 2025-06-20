@@ -12,16 +12,21 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; }=Guid.NewGuid();
+        [StringLength(200)]
         public string Description { get; set; }
         [StringLength(20)]
         public string Status { get; set; }
+        [StringLength(200)]
         public string? Reply { get; set; }
         public bool IsReportAdmin { get; set; } = false;
+        [StringLength(200)]
         public string? AdminReply { get; set; }
+        [StringLength(20)]
         public string? AdminReportStatus { get; set; }
         public DateTime? DateAdminReply { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ReplyDate { get; set; }
+        [StringLength(20)]
         public string? RejectNote { get; set; }
         [ForeignKey("OrderDetail")]
         public Guid OrderDetailID { get; set; }

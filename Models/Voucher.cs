@@ -15,6 +15,7 @@ namespace Models
         [StringLength(20)]
         public string Code { get; set; }
         public decimal DiscountAmount { get; set; }
+        [StringLength(10)]
         public string DiscountType { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime ExpirationDate { get; set; }

@@ -11,7 +11,7 @@ namespace Models.DBContext
 {
     public class FoodHavenDbContext : IdentityDbContext<AppUser>
     {
-        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
+       public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
         }
 
@@ -35,6 +35,8 @@ namespace Models.DBContext
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
 
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<MessageImage> MessageImages { get; set; }
 
 
 
@@ -269,12 +271,23 @@ new TypeOfDish
                         CreatedDate = DateTime.Now
                     }
                 );
+            builder.Entity<Message>()
+       .HasOne(m => m.FromUser)
+       .WithMany(u => u.SentMessages)
+       .HasForeignKey(m => m.FromUserId)
+       .OnDelete(DeleteBehavior.NoAction);
 
+            builder.Entity<Message>()
+                .HasOne(m => m.ToUser)
+                .WithMany(u => u.ReceivedMessages)
+                .HasForeignKey(m => m.ToUserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
-
-
-
-
+            builder.Entity<Message>()
+                .HasOne(m => m.RepliedTo)
+                .WithMany(m => m.Replies)
+                .HasForeignKey(m => m.RepliedToMessageId)
+                .OnDelete(DeleteBehavior.NoAction);
 
         }
 

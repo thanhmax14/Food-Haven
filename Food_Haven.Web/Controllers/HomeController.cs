@@ -1570,6 +1570,7 @@ namespace Food_Haven.Web.Controllers
                 // ViewModel
                 var model = new SellerViewModel
                 {
+                    UserId= user.Id,
                     RegisterDate = user.JoinedDate,
                     UserName = user.UserName,
                     ProductPurchased = $"{totalOrders} đơn hàng",
