@@ -2105,7 +2105,7 @@
             }
         }
 
-        // Cập nhật badge unread
+      
         function updateUnreadBadge(userId) {
             const userElement = document.querySelector(`#contact-id-${userId}`);
             if (userElement) {
@@ -2120,7 +2120,7 @@
             }
         }
 
-        // Hiển thị notification
+        
         function showMessageNotification(messageData) {
             if ('Notification' in window && Notification.permission === 'granted') {
                 const user = users.find(u => u.id === messageData.from_id);
@@ -2138,7 +2138,7 @@
             }
         }
 
-        // Play notification sound
+       
         function playNotificationSound() {
             try {
                 const audio = new Audio('/audio/deja-vu.mp3'); // Thêm file âm thanh

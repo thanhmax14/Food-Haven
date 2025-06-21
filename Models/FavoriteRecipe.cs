@@ -12,7 +12,6 @@ namespace Models
     {
         [Key]
         public Guid ID { get; set; } = Guid.NewGuid();
-        public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
         [ForeignKey("Recipe")]
