@@ -43,7 +43,8 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message; // nhớ import
-using Microsoft.EntityFrameworkCore.Metadata.Internal; // nhớ import
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using BusinessLogic.Services.RecipeReviewReviews; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -74,8 +75,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IMessageImageService _messageImageService;
         private readonly IMessageService _messageService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IRecipeReviewService _recipeReviewService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService)
         {
             _userManager = userManager;
             this.client = client;
@@ -100,6 +102,7 @@ namespace Food_Haven.Web.Controllers
             _messageImageService = messageImageService;
             _messageService = messageService;
             _hubContext = hubContext;
+            _recipeReviewService = recipeReviewService;
         }
 
         [HttpGet]
@@ -1505,40 +1508,57 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> RecipeDetail(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
+            var recipe = await _recipeService.GetAsyncById(id); // Tối ưu thay vì duyệt List
+            if (recipe == null) return NotFound();
 
-            var list = new List<RecipeViewModels>();
-            var obj = await _recipeService.ListAsync();
-            foreach (var item in obj)
+            var typeOfDish = await _typeOfDishService.GetAsyncById(recipe.TypeOfDishID);
+
+            // Lấy tất cả review theo RecipeID
+            var reviews = await _recipeReviewService.ListAsync(x => x.RecipeID == id);
+            var reviewViewModel = new List<RecipeReviewViewModel>();
+
+            foreach (var r in reviews)
             {
-                if (item.ID == id)
+                var reviewer = await _userManager.FindByIdAsync(r.UserID);
+                reviewViewModel.Add(new RecipeReviewViewModel
                 {
-                    var typeOfDish = await _typeOfDishService.GetAsyncById(item.TypeOfDishID);
-
-                    var recipeViewModel = new RecipeViewModels
-                    {
-                        ID = item.ID,
-                        Title = item.Title,
-                        ShortDescriptions = item.ShortDescriptions,
-                        PreparationTime = item.PreparationTime,
-                        CookTime = item.CookTime,
-                        TotalTime = item.TotalTime,
-                        DifficultyLevel = item.DifficultyLevel,
-                        Servings = item.Servings,
-                        CreatedDate = item.CreatedDate,
-                        IsActive = item.IsActive,
-                        CateID = item.CateID,
-                        ThumbnailImage = item.ThumbnailImage,
-                        TypeOfDishName = typeOfDish?.Name,
-                        CookingStep = item.CookingStep, // Lấy tên, tránh null
-                        Ingredient = item.Ingredient,
-
-                    };
-                    list.Add(recipeViewModel);
-                }
-
+                    ID = r.ID,
+                    Comment = r.Comment,
+                    Reply = r.Reply,
+                    CreatedDate = r.CreatedDate,
+                    ReplyDate = r.ReplyDate,
+                    Rating = r.Rating,
+                    IsActive = r.IsActive,
+                    RecipeID = r.RecipeID,
+                    UserID = reviewer?.UserName ?? "Ẩn danh"
+                });
             }
-            return View(list);
+
+            var recipeViewModel = new RecipeViewModels
+            {
+                ID = recipe.ID,
+                Title = recipe.Title,
+                ShortDescriptions = recipe.ShortDescriptions,
+                PreparationTime = recipe.PreparationTime,
+                CookTime = recipe.CookTime,
+                TotalTime = recipe.TotalTime,
+                DifficultyLevel = recipe.DifficultyLevel,
+                Servings = recipe.Servings,
+                CreatedDate = recipe.CreatedDate,
+                IsActive = recipe.IsActive,
+                CateID = recipe.CateID,
+                ThumbnailImage = recipe.ThumbnailImage,
+                TypeOfDishName = typeOfDish?.Name,
+                CookingStep = recipe.CookingStep,
+                Ingredient = recipe.Ingredient,
+                Username = user?.UserName,
+                Email = user?.Email,
+                RecipeReviewViewModels = reviewViewModel
+            };
+
+            return View(recipeViewModel);
         }
+
         [HttpPost]
         public async Task<IActionResult> HideRecipe(Guid ID, bool isActive)
         {
@@ -1679,7 +1699,7 @@ namespace Food_Haven.Web.Controllers
                 return Unauthorized();
             }
 
-            var currentUserId = user.Id;        
+            var currentUserId = user.Id;
             var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
             var chatUserIds = _messageService.GetAll()
                 .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
@@ -1693,7 +1713,8 @@ namespace Food_Haven.Web.Controllers
 
             var users = _userManager.Users
                 .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
-                .Select(u => new {
+                .Select(u => new
+                {
                     id = u.Id,
                     name = $"{u.UserName}",
                     status = "online",
@@ -1821,22 +1842,56 @@ namespace Food_Haven.Web.Controllers
             });
         }
 
-         public class ChatMessageModel
-         {
-             public object id { get; set; }          // Guid hoặc int đều được, miễn khớp js
-             public string from_id { get; set; }     // string (Guid) hoặc int
-             public string to_id { get; set; }
-             public string msg { get; set; }
-             public bool has_dropDown { get; set; }
-             public string datetime { get; set; }
-             public Guid? isReplied { get; set; }   // Guid hoặc int, tùy hệ thống
-             public List<string> has_images { get; set; } = new List<string>();
-         }
+        public class ChatMessageModel
+        {
+            public object id { get; set; }          // Guid hoặc int đều được, miễn khớp js
+            public string from_id { get; set; }     // string (Guid) hoặc int
+            public string to_id { get; set; }
+            public string msg { get; set; }
+            public bool has_dropDown { get; set; }
+            public string datetime { get; set; }
+            public Guid? isReplied { get; set; }   // Guid hoặc int, tùy hệ thống
+            public List<string> has_images { get; set; } = new List<string>();
+        }
+        [HttpPost]
+        public async Task<IActionResult> addCommentAndStart(RecipeReviewViewModel obj)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login", "Home");
 
-       
+                var viewModel = new RecipeReview
+                {
+                    ID = Guid.NewGuid(),
+                    Comment = obj.Comment,
+                    Reply = obj.Reply,
+                    CreatedDate = DateTime.Now,
+                    ReplyDate = obj.ReplyDate,
+                    Rating = obj.Rating,
+                    IsActive = obj.IsActive,
+                    RecipeID = obj.RecipeID,
+                    UserID = user.Id
+                };
 
-}
+                await _recipeReviewService.AddAsync(viewModel);
+                await _recipeReviewService.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Your comment has been posted successfully.";
+                return RedirectToAction("ViewRecipe", "Users");
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi ra hệ thống hoặc gán thông báo cho view
+                TempData["ErrorMessage"] = "An error occurred while posting your comment.";
+                Console.WriteLine(ex.Message); // hoặc logger
+                return RedirectToAction("ViewRecipe", "Users", new { id = obj.RecipeID });
+            }
+        }
 
     }
+
+}
 
 

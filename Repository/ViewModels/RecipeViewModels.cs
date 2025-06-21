@@ -13,6 +13,7 @@ namespace Repository.ViewModels
         public Guid ID { get; set; }
         [Required(ErrorMessage = "Title is required")]
         public string Username { get; set; }
+        public string Email { get; set; }
         public string Title { get; set; }
         public string CookingStep { get; set; }
         public string ShortDescriptions { get; set; }
@@ -57,6 +58,7 @@ namespace Repository.ViewModels
         public List<Guid> SelectedIngredientTags { get; set; } = new List<Guid>();
         public ICollection<FavoriteRecipe> FavoriteRecipes { get; set; }
         public ICollection<RecipeReview> RecipeReviews { get; set; }
+        public IEnumerable<RecipeReviewViewModel> RecipeReviewViewModels { get; set; } = new List<RecipeReviewViewModel>();
 
     }
 
