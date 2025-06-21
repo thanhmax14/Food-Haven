@@ -11,7 +11,7 @@ namespace Models.DBContext
 {
     public class FoodHavenDbContext : IdentityDbContext<AppUser>
     {
-       public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
+        public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
         }
 
@@ -37,6 +37,8 @@ namespace Models.DBContext
 
         public DbSet<Message> Messages { get; set; }
         public DbSet<MessageImage> MessageImages { get; set; }
+        public DbSet<StoreReport> StoreReports { get; set; }
+        public DbSet<StoreFollower> StoreFollowers { get; set; }
 
 
 
