@@ -37,6 +37,8 @@ using BusinessLogic.Services.RecipeIngredientTagIngredientTagIngredientTagServic
 using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
 using Repository.MessageImages;
 using Repository.Messages;
+using BusinessLogic.Services.RecipeReviewReviews;
+using Repository.RecipeReviews;
 
 namespace BusinessLogic.Config
 {
@@ -76,7 +78,7 @@ namespace BusinessLogic.Config
             services.AddScoped<IRecipeIngredientTagRepository, RecipeIngredientTagRepository>();
             services.AddScoped<IMessageImageRepository, MessageImageRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
-
+            services.AddScoped<IRecipeReviewsRepository, RecipeReviewsRepository>();
         }
 
 

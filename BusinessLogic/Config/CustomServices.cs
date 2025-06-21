@@ -32,6 +32,7 @@ using Repository.MessageImages;
 using Repository.Messages;
 using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message;
+using BusinessLogic.Services.RecipeReviewReviews;
 
 namespace BusinessLogic.Config
 {
@@ -54,11 +55,13 @@ namespace BusinessLogic.Config
             services.AddScoped<BusinessLogic.Services.Categorys.CategoryService>();
             services.AddScoped<BusinessLogic.Services.Products.ProductService>();
             services.AddScoped<IOrderDetailService, OrderDetailServices>();
-            services.AddScoped<IVoucherServices , VoucherService>();
-            services.AddScoped<IComplaintImageServices , ComplaintImageServices>();
-            services.AddScoped<IComplaintServices , ComplaintServices>();
+            services.AddScoped<IVoucherServices, VoucherService>();
+            services.AddScoped<IComplaintImageServices, ComplaintImageServices>();
+            services.AddScoped<IComplaintServices, ComplaintServices>();
             services.AddScoped<IMessageImageService, MessageImageService>();
             services.AddScoped<IMessageService, MessageServices>();
+            services.AddScoped<IRecipeReviewService, RecipeReviewService>();
+
 
             var mailSettings = new MailSettings
             {
@@ -67,7 +70,7 @@ namespace BusinessLogic.Config
                 Password = EncryptData.ByteArrayToObject<string>(EncryptData.Decryption("urfqXaNYsrfCDm5ip3Gqr4MNdUzxIBve", "Supersic")),
                 Host = "smtp.gmail.com",
                 Port = 587
-            }; 
+            };
             services.Configure<MailSettings>(options =>
             {
                 options.Mail = mailSettings.Mail;

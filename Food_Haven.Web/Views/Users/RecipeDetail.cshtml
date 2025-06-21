@@ -1,4 +1,4 @@
-@model IEnumerable<Repository.ViewModels.RecipeViewModels>
+@model Repository.ViewModels.RecipeViewModels
  
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -13,6 +13,8 @@
     <meta property="og:type" content="" />
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
@@ -23,7 +25,21 @@
             font-size: 19px;
             
         }
+        .single-comment .desc {
+    word-wrap: break-word;
+    white-space: normal;
+    width: 100%;
+}
+
+.single-comment .user {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start; /* Đảm bảo các thành phần canh đúng chiều dọc */
+    flex-wrap: wrap;         /* Cho phép xuống dòng khi chật */
+}
+
     </style>
+
 </head>
 
 <body>
@@ -708,7 +724,7 @@
         </div> *@
         <div class="page-content mb-50 test">
             <div class="container">
-                @foreach(var item in Model) {
+               
                 <div class="row">
                     <div class="col-xl-11 col-lg-12 m-auto">
                         <div class="row">
@@ -723,7 +739,7 @@
                 <h6><a href="#" class="category-link">Recipes</a></h6>
                 
                 <!-- Main Title -->
-                <h2 class="recipe-title">@item.Title</h2>
+                <h2 class="recipe-title">@Model.Title</h2>
                 
                 <!-- Rating Section -->
                 <div class="rating-section">
@@ -750,7 +766,7 @@
 
                 <!-- Description -->
                 <p class="recipe-description">
-                  @item.ShortDescriptions
+                  @Model.ShortDescriptions
                 </p>
 
                 <!-- Meta Information -->
@@ -760,7 +776,7 @@
                             <img src="https://via.placeholder.com/36x36/ff6b35/ffffff?text=LL" alt="Author Avatar" />
                         </a>
                         <span class="post-by">By <a href="#">LaDonna Langwell</a></span>
-                        <span class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
+                        <span class="post-on has-dot">@Model.CreatedDate.ToString("dd/MM/yyyy")</span>
                         <span class="time-reading has-dot">8 mins read</span>
                     </div>
                     
@@ -789,7 +805,7 @@
                                         </div>
                                     </div>
                                     <figure class="single-thumbnail">
-                                        <img src="@item.ThumbnailImage" alt="" />
+                                        <img src="@Model.ThumbnailImage" alt="" />
                                     </figure>
                                      <div class="recipe-card">
         <div class="recipe-header"></div>
@@ -797,19 +813,19 @@
             <div class="recipe-grid">
                 <div class="recipe-item">
                     <span class="recipe-label">Prep Time:</span>
-                    <span class="recipe-value">@item.PreparationTime</span>
+                    <span class="recipe-value">@Model.PreparationTime</span>
                 </div>
                 <div class="recipe-item">
                     <span class="recipe-label">Cook Time:</span>
-                    <span class="recipe-value">@item.CookTime</span>
+                    <span class="recipe-value">@Model.CookTime</span>
                 </div>
                 <div class="recipe-item">
                     <span class="recipe-label">Total Time:</span>
-                    <span class="recipe-value">@item.TotalTime</span>
+                    <span class="recipe-value">@Model.TotalTime</span>
                 </div>
                 <div class="recipe-item">
                     <span class="recipe-label">Servings:</span>
-                    <span class="recipe-value">@item.Servings</span>
+                    <span class="recipe-value">@Model.Servings</span>
                 </div>
             </div>
             
@@ -821,10 +837,10 @@
                                         <div class="row">
                                             <div class="col-xl-10 col-lg-12 m-auto">
                                        <p><strong>Ingredient:</strong></p>
-<p class="single-excerpt">@Html.Raw(item.Ingredient)</p>
+<p class="single-excerpt">@Html.Raw(Model.Ingredient)</p>
 
 <p><strong>CookingStep:</strong></p>
-<p>@Html.Raw(item.CookingStep)</p>
+<p>@Html.Raw(Model.CookingStep)</p>
 
                                                       <!-- BẮT ĐẦU PHẦN THÔNG TIN CHI TIẾT -->
                
@@ -906,58 +922,75 @@
                                                         <a href="author.html"><img src="~/assets/imgs/blog/author-1.png"
                                                                 alt="" class="avatar" /></a>
                                                         <div class="author-infor">
-                                                            <h5 class="mb-5">Barbara Cartland</h5>
+                                                            <h5 class="mb-5">@Model.Username</h5>
                                                             <p class="mb-0 text-muted font-xs">
                                                                 <span class="mr-10">306 posts</span>
                                                                 <span class="has-dot">Since 2012</span>
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <div class="author-des">
-                                                        <p>Hi there, I am a veteran food blogger sharing my daily all
-                                                            kinds of healthy and fresh recipes. I find inspiration in
-                                                            nature, on the streets and almost everywhere. Lorem ipsum
-                                                            dolor sit amet, consectetur adipiscing elit. Amet id enim,
-                                                            libero sit. Est donec lobortis cursus amet, cras elementum
-                                                            libero</p>
-                                                    </div>
+                                                  <div class="author-des">
+    @{
+        var comment = Model.RecipeReviewViewModels.FirstOrDefault();
+    }
+
+    @if (comment != null)
+    {
+        <p><strong>@comment.UserID:</strong> @comment.Comment</p>
+    }
+    else
+    {
+        <p></p>
+    }
+</div>
+
                                                 </div>
                                                 <!--Comment form-->
                                                 <div class="comment-form">
                                                     <h3 class="mb-15">Leave a Comment</h3>
-                                                    <div class="product-rate d-inline-block mb-30"></div>
-                                                    <div class="row">
+<div id="rating-stars" class="mb-3">
+    <i class="fa-regular fa-star" data-value="1"></i>
+    <i class="fa-regular fa-star" data-value="2"></i>
+    <i class="fa-regular fa-star" data-value="3"></i>
+    <i class="fa-regular fa-star" data-value="4"></i>
+    <i class="fa-regular fa-star" data-value="5"></i>
+</div>                
+                                    <div class="row">
                                                         <div class="col-lg-9 col-md-12">
-                                                            <form class="form-contact comment_form mb-50" action="#"
+                                                            <form asp-action="addCommentAndStart" asp-controller="Users"
                                                                 id="commentForm">
+                                                                   <input type="hidden" name="Rating" id="Rating" value="0" />
+
+                                                                    <input type="hidden" name="recipeId"
+                                                                        id="recipeId" value="@Model.ID" />
                                                                 <div class="row">
-                                                                    <div class="col-12">
-                                                                        <div class="form-group">
-                                                                            <textarea class="form-control w-100"
-                                                                                name="comment" id="comment" cols="30"
-                                                                                rows="9"
-                                                                                placeholder="Write Comment"></textarea>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-sm-6">
+                                                                      <div class="col-sm-6">
                                                                         <div class="form-group">
                                                                             <input class="form-control" name="name"
                                                                                 id="name" type="text"
-                                                                                placeholder="Name" />
+                                                                                placeholder="Name" value="@Model.Username" />
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-sm-6">
                                                                         <div class="form-group">
                                                                             <input class="form-control" name="email"
                                                                                 id="email" type="email"
-                                                                                placeholder="Email" />
+                                                                                placeholder="Email" value="@Model.Email"  />
+                                                                        </div>
+                                                                    </div>
+                                                                     <div class="col-12">
+                                                                        <div class="form-group">
+                                                                            <input class="form-control" name="Title"
+                                                                                id="Title" type="text"
+                                                                                placeholder="Title" value="@Model.Title" />
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-12">
                                                                         <div class="form-group">
-                                                                            <input class="form-control" name="Title"
-                                                                                id="Title" type="text"
-                                                                                placeholder="Title" />
+                                                                            <textarea class="form-control w-100"
+                                                                                name="Comment" id="Comment" cols="30"
+                                                                                rows="9"
+                                                                                placeholder="Write Comment"></textarea>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -966,123 +999,59 @@
                                                                         class="button button-contactForm">Post
                                                                         Comment</button>
                                                                 </div>
+                                                             
                                                             </form>
-                                                            <div class="comments-area">
-                                                                <h3 class="mb-30">Comments</h3>
-                                                                <div class="comment-list">
-                                                                    <div
-                                                                        class="single-comment justify-content-between d-flex mb-30">
-                                                                        <div
-                                                                            class="user justify-content-between d-flex">
-                                                                            <div class="thumb text-center">
-                                                                                <img src="~/assets/imgs/blog/author-2.png"
-                                                                                    alt="" />
-                                                                                <a href="#"
-                                                                                    class="font-heading text-brand">Sienna</a>
-                                                                            </div>
-                                                                            <div class="desc">
-                                                                                <div
-                                                                                    class="d-flex justify-content-between mb-10">
-                                                                                    <div
-                                                                                        class="d-flex align-items-center">
-                                                                                        <span
-                                                                                            class="font-xs text-muted">December
-                                                                                            4, 2024 at 3:12 pm </span>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        class="product-rate d-inline-block">
-                                                                                        <div class="product-rating"
-                                                                                            style="width: 80%"></div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <p class="mb-10">Lorem ipsum dolor sit
-                                                                                    amet, consectetur adipisicing elit.
-                                                                                    Delectus, suscipit exercitationem
-                                                                                    accusantium obcaecati quos voluptate
-                                                                                    nesciunt facilis itaque modi commodi
-                                                                                    dignissimos sequi repudiandae minus
-                                                                                    ab deleniti totam officia id
-                                                                                    incidunt? <a href="#"
-                                                                                        class="reply">Reply</a></p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div
-                                                                        class="single-comment justify-content-between d-flex mb-30 ml-30">
-                                                                        <div
-                                                                            class="user justify-content-between d-flex">
-                                                                            <div class="thumb text-center">
-                                                                                <img src="~/assets/imgs/blog/author-3.png"
-                                                                                    alt="" />
-                                                                                <a href="#"
-                                                                                    class="font-heading text-brand">Brenna</a>
-                                                                            </div>
-                                                                            <div class="desc">
-                                                                                <div
-                                                                                    class="d-flex justify-content-between mb-10">
-                                                                                    <div
-                                                                                        class="d-flex align-items-center">
-                                                                                        <span
-                                                                                            class="font-xs text-muted">December
-                                                                                            4, 2024 at 3:12 pm </span>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        class="product-rate d-inline-block">
-                                                                                        <div class="product-rating"
-                                                                                            style="width: 80%"></div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <p class="mb-10">Lorem ipsum dolor sit
-                                                                                    amet, consectetur adipisicing elit.
-                                                                                    Delectus, suscipit exercitationem
-                                                                                    accusantium obcaecati quos voluptate
-                                                                                    nesciunt facilis itaque modi commodi
-                                                                                    dignissimos sequi repudiandae minus
-                                                                                    ab deleniti totam officia id
-                                                                                    incidunt? <a href="#"
-                                                                                        class="reply">Reply</a></p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div
-                                                                        class="single-comment justify-content-between d-flex">
-                                                                        <div
-                                                                            class="user justify-content-between d-flex">
-                                                                            <div class="thumb text-center">
-                                                                                <img src="~/assets/imgs/blog/author-4.png"
-                                                                                    alt="" />
-                                                                                <a href="#"
-                                                                                    class="font-heading text-brand">Gemma</a>
-                                                                            </div>
-                                                                            <div class="desc">
-                                                                                <div
-                                                                                    class="d-flex justify-content-between mb-10">
-                                                                                    <div
-                                                                                        class="d-flex align-items-center">
-                                                                                        <span
-                                                                                            class="font-xs text-muted">December
-                                                                                            4, 2024 at 3:12 pm </span>
-                                                                                    </div>
-                                                                                    <div
-                                                                                        class="product-rate d-inline-block">
-                                                                                        <div class="product-rating"
-                                                                                            style="width: 80%"></div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <p class="mb-10">Lorem ipsum dolor sit
-                                                                                    amet, consectetur adipisicing elit.
-                                                                                    Delectus, suscipit exercitationem
-                                                                                    accusantium obcaecati quos voluptate
-                                                                                    nesciunt facilis itaque modi commodi
-                                                                                    dignissimos sequi repudiandae minus
-                                                                                    ab deleniti totam officia id
-                                                                                    incidunt? <a href="#"
-                                                                                        class="reply">Reply</a></p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+<div class="comments-area">
+    <h3 class="mb-30">Comments</h3>
+    <div class="comment-list">
+      @foreach (var item in Model.RecipeReviewViewModels)
+{
+    <div class="single-comment d-flex mb-30">
+        <div class="thumb text-center">
+            <img src="~/assets/imgs/blog/author-2.png" alt="" />
+            <a href="#" class="font-heading text-brand">@item.UserID</a>
+        </div>
+        <div class="desc">
+            <div class="d-flex justify-content-between mb-10">
+                <span class="font-xs text-muted">@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+            <p class="mb-10">@item.Comment</p>
+
+            @if (!string.IsNullOrEmpty(item.Reply))
+            {
+                <div class="ml-60 mt-2 p-2 bg-light rounded border">
+                    <strong>@item.UserID</strong>
+                    <p>@item.Reply</p>
+                </div>
+            }
+
+            <a href="#" class="reply" data-comment-id="@item.ID">Reply</a>
+        </div>
+    </div>
+}
+
+       
+        
+       
+    </div>
+    <!-- Form nhập liệu phản hồi, ẩn mặc định -->
+    <div class="reply-form" style="display: none; margin-left: 60px;" id="reply-form">
+        <h4>Leave a Reply</h4>
+        <form id="comment-form">
+            <div class="mb-10">
+                <label for="reply-name">Name:</label>
+                <input type="text" id="reply-name" required />
+            </div>
+            <div class="mb-10">
+                <label for="reply-text">Reply Comment:</label>
+                <textarea id="reply-text" rows="4" required></textarea>
+            </div>
+            <button type="submit">Submit</button>
+            <button type="button" id="cancel-reply">Cancel</button>
+            <input type="hidden" id="parent-comment-id" value="" />
+        </form>
+    </div>
+</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1095,7 +1064,7 @@
                         </div>
                     </div>
                
-                }
+           
             </div>
         </div>
     </main>
@@ -1438,11 +1407,6 @@
         }
     </style>
       <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1690,6 +1654,100 @@
             }
         }
     </style>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const stars = document.querySelectorAll("#rating-stars i");
+        const ratingInput = document.getElementById("Rating");
+
+        stars.forEach(star => {
+            star.addEventListener("click", () => {
+                const value = parseInt(star.getAttribute("data-value"));
+
+                // Cập nhật input hidden
+                ratingInput.value = value;
+
+                // Đổi màu sao
+                stars.forEach(s => {
+                    const starValue = parseInt(s.getAttribute("data-value"));
+                    if (starValue <= value) {
+                        s.classList.remove("fa-regular");
+                        s.classList.add("fa-solid", "text-warning");
+                    } else {
+                        s.classList.remove("fa-solid", "text-warning");
+                        s.classList.add("fa-regular");
+                    }
+                });
+            });
+        });
+    });
+</script>
+<script>
+    document.querySelectorAll('.reply').forEach(replyLink => {
+        replyLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const commentId = this.getAttribute('data-comment-id');
+            const replyForm = document.getElementById('reply-form');
+            const parentComment = this.closest('.single-comment');
+            
+            // Di chuyển form đến ngay sau bình luận
+            parentComment.after(replyForm);
+            replyForm.style.display = 'block';
+            
+            // Lưu ID bình luận cha
+            document.getElementById('parent-comment-id').value = commentId;
+        });
+    });
+
+    // Xử lý nút Cancel
+    document.getElementById('cancel-reply').addEventListener('click', function() {
+        const replyForm = document.getElementById('reply-form');
+        replyForm.style.display = 'none';
+        // Di chuyển form về vị trí gốc
+        document.querySelector('.comments-area').appendChild(replyForm);
+    });
+
+    // Xử lý submit form
+    document.getElementById('comment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('reply-name').value;
+        const text = document.getElementById('reply-text').value;
+        const parentCommentId = document.getElementById('parent-comment-id').value;
+        
+        // Tạo HTML cho phản hồi mới
+        const newComment = document.createElement('div');
+        newComment.className = 'single-comment justify-content-between d-flex mb-30 ml-60';
+        newComment.innerHTML = `
+            <div class="user justify-content-between d-flex">
+                <div class="thumb text-center">
+                    <img src="~/assets/imgs/blog/author-5.png" alt="" />
+                    <a href="#" class="font-heading text-brand">${name}</a>
+                </div>
+                <div class="desc">
+                    <div class="d-flex justify-content-between mb-10">
+                        <div class="d-flex align-items-center">
+                            <span class="font-xs text-muted">June 21, 2025 at 6:05 pm</span>
+                        </div>
+                        <div class="product-rate d-inline-block">
+                            <div class="product-rating" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    <p class="mb-10">${text} <a href="#" class="reply" data-comment-id="${name.toLowerCase()}-${Date.now()}">Reply</a></p>
+                </div>
+            </div>
+        `;
+        
+        // Chèn phản hồi mới ngay sau bình luận cha
+        const parentComment = document.querySelector(`.reply[data-comment-id="${parentCommentId}"]`).closest('.single-comment');
+        parentComment.after(newComment);
+        
+        // Ẩn và reset form
+        const replyForm = document.getElementById('reply-form');
+        replyForm.style.display = 'none';
+        document.getElementById('comment-form').reset();
+        document.querySelector('.comments-area').appendChild(replyForm);
+    });
+</script>
 </body>
 
 </html>
