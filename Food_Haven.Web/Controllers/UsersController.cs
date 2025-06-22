@@ -47,7 +47,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
-
+    [Authorize]
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -1679,32 +1679,45 @@ namespace Food_Haven.Web.Controllers
                 return Unauthorized();
             }
 
-            var currentUserId = user.Id;        
+            var currentUserId = user.Id;
             var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
-            var chatUserIds = _messageService.GetAll()
+
+            // Lấy tất cả tin nhắn 1 lần
+            var allMessages = _messageService.GetAll();
+
+            // Lấy danh sách các user đã nhắn tin với mình
+            var chatUserIds = allMessages
                 .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
                 .Select(m => m.FromUserId == currentUserId ? m.ToUserId : m.FromUserId)
                 .Distinct()
                 .ToList();
+
+            // Luôn hiển thị admin (nếu khác current user)
             if (adminId != currentUserId && !chatUserIds.Contains(adminId))
             {
                 chatUserIds.Insert(0, adminId);
             }
 
+            // Thời điểm hiện tại
+            var now = DateTime.Now;
+
             var users = _userManager.Users
-                .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
-                .Select(u => new {
-                    id = u.Id,
-                    name = $"{u.UserName}",
-                    status = "online",
-                    profile = u.ImageUrl,
-                    messagecount = _messageService.GetAll().Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead),
-                    nickname = u.UserName
-                })
-                .ToList();
+      .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
+      .Select(u => new
+      {
+          id = u.Id,
+          name = u.UserName,
+          profile = u.ImageUrl,
+          nickname = u.UserName,
+          status = ChatHub.IsUserOnline(u.Id) ? "online" : "offline",
+          lastSeen = u.LastAccess.ToString("yyyy-MM-dd HH:mm:ss"),
+          messagecount = allMessages.Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead)
+      })
+      .ToList();
 
             return Json(users);
         }
+
 
 
         [HttpGet]
@@ -1833,10 +1846,25 @@ namespace Food_Haven.Web.Controllers
              public List<string> has_images { get; set; } = new List<string>();
          }
 
-       
 
-}
+        private string GetTimeAgo(DateTime lastAccess)
+        {
+            var ts = DateTime.Now - lastAccess;
+
+            if (ts.TotalSeconds < 60)
+                return "vừa xong";
+            else if (ts.TotalMinutes < 60)
+                return $"cách đây {(int)ts.TotalMinutes} phút";
+            else if (ts.TotalHours < 24)
+                return $"cách đây {(int)ts.TotalHours} giờ";
+            else if (ts.TotalDays < 7)
+                return $"cách đây {(int)ts.TotalDays} ngày";
+            else
+                return lastAccess.ToString("HH:mm dd/MM/yyyy");
+        }
 
     }
+
+}
 
 
