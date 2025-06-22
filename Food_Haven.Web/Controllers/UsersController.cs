@@ -1516,6 +1516,7 @@ namespace Food_Haven.Web.Controllers
             // Lấy tất cả review theo RecipeID
             var reviews = await _recipeReviewService.ListAsync(x => x.RecipeID == id);
             var reviewViewModel = new List<RecipeReviewViewModel>();
+            var recipeOwner = await _userManager.FindByIdAsync(recipe.UserID);
 
             foreach (var r in reviews)
             {
@@ -1553,7 +1554,9 @@ namespace Food_Haven.Web.Controllers
                 Ingredient = recipe.Ingredient,
                 Username = user?.UserName,
                 Email = user?.Email,
-                RecipeReviewViewModels = reviewViewModel
+                RecipeReviewViewModels = reviewViewModel,
+                RecipeOwnerUserName = recipeOwner?.UserName ?? "Ẩn danh"
+
             };
 
             return View(recipeViewModel);
@@ -1864,24 +1867,29 @@ namespace Food_Haven.Web.Controllers
             public Guid? isReplied { get; set; }   // Guid hoặc int, tùy hệ thống
             public List<string> has_images { get; set; } = new List<string>();
         }
-       [HttpPost]
-        public async Task<IActionResult> addCommentAndStart(RecipeReviewViewModel obj)
+
+        [HttpPost]
+        public async Task<IActionResult> addCommentAndStart([FromBody] RecipeReviewViewModel obj)
+
         {
             try
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return RedirectToAction("Login", "Home");
-
+                    return Json(new { success = false, message = "You are not logged in." });
+                if (string.IsNullOrEmpty(obj.Comment))
+                {
+                    return Json(new { success = false, message = "Comment cannot be empty." });
+                }
                 var viewModel = new RecipeReview
                 {
                     ID = Guid.NewGuid(),
                     Comment = obj.Comment,
-                    Reply = obj.Reply,
+                    Reply = null,
                     CreatedDate = DateTime.Now,
-                    ReplyDate = obj.ReplyDate,
+                    ReplyDate = null,
                     Rating = obj.Rating,
-                    IsActive = obj.IsActive,
+                    IsActive = true,
                     RecipeID = obj.RecipeID,
                     UserID = user.Id
                 };
@@ -1889,18 +1897,64 @@ namespace Food_Haven.Web.Controllers
                 await _recipeReviewService.AddAsync(viewModel);
                 await _recipeReviewService.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Your comment has been posted successfully.";
-                return RedirectToAction("ViewRecipe", "Users");
+                return Json(new
+                {
+                    success = true,
+                    message = "Your comment has been posted successfully.",
+                    username = user.UserName,
+                    comment = obj.Comment,
+                    createdDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                });
             }
             catch (Exception ex)
             {
-                // Log lỗi ra hệ thống hoặc gán thông báo cho view
-                TempData["ErrorMessage"] = "An error occurred while posting your comment.";
-                Console.WriteLine(ex.Message); // hoặc logger
-                return RedirectToAction("ViewRecipe", "Users", new { id = obj.RecipeID });
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RelyComment([FromBody] RecipeReviewViewModel obj)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { success = false, message = "You must be logged in." });
+
+                var rely = await _recipeReviewService.FindAsync(x => x.ID == obj.ID);
+                if (rely == null)
+                    return Json(new { success = false, message = "Comment not found." });
+
+                // 👉 Nếu không phải sửa mà đã có reply → chặn
+                if (!string.IsNullOrEmpty(rely.Reply) && !obj.IsEdit)
+                {
+                    return Json(new { success = false, message = "This comment has already been replied to." });
+                }
+
+                // Cập nhật nội dung trả lời và ngày
+                rely.Reply = obj.Reply;
+                rely.ReplyDate = DateTime.Now;
+
+                await _recipeReviewService.UpdateAsync(rely);
+                await _recipeReviewService.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = obj.IsEdit ? "Reply edited successfully." : "Reply sent successfully.",
+                    username = user.UserName
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "An error occurred while processing the reply." });
             }
         }
         }
+
+
+
 
     }
 

@@ -59,6 +59,7 @@ namespace Repository.ViewModels
         public ICollection<FavoriteRecipe> FavoriteRecipes { get; set; }
         public ICollection<RecipeReview> RecipeReviews { get; set; }
         public IEnumerable<RecipeReviewViewModel> RecipeReviewViewModels { get; set; } = new List<RecipeReviewViewModel>();
+        public string? RecipeOwnerUserName { get; set; }
 
     }
 

@@ -19,6 +19,7 @@ namespace Repository.ViewModels
         public bool IsActive { get; set; } = true;
         public string UserID { get; set; }
         public Guid RecipeID { get; set; }
+        public bool IsEdit { get; set; } = false;
 
     }
 }
