@@ -28,6 +28,8 @@ namespace Repository.ViewModels
         public DateTime? ModifiedDate { get; set; }
         public string? UserID { get; set; } // ID của chủ cửa hàng (nếu cần)
         public string? UserName { get; set; }
+        public string? UserNameRepo { get; set; }
+        public string? Email { get; set; }
         public int MyProperty { get; set; }
     
     }

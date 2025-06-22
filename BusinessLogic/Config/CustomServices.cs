@@ -33,6 +33,7 @@ using Repository.Messages;
 using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message;
 using BusinessLogic.Services.RecipeReviewReviews;
+using BusinessLogic.Services.StoreReports;
 
 namespace BusinessLogic.Config
 {
@@ -61,6 +62,8 @@ namespace BusinessLogic.Config
             services.AddScoped<IMessageImageService, MessageImageService>();
             services.AddScoped<IMessageService, MessageServices>();
             services.AddScoped<IRecipeReviewService, RecipeReviewService>();
+            services.AddScoped<IStoreReportServices, StoreReportServices>();
+
 
 
             var mailSettings = new MailSettings

@@ -1030,10 +1030,15 @@
 }
             </p>
 
-          @if (!string.IsNullOrEmpty(item.Reply))
+@if (!string.IsNullOrEmpty(item.Reply))
 {
     <div class="ml-60 mt-2 p-2 bg-light rounded border" id="reply-box-@item.ID">
-        <p>@item.UserID</p>
+        <p>
+            <strong>@Model.RecipeOwnerUserName</strong>
+            <span class="badge-owner ms-1">
+                <i class="bi bi-patch-check-fill text-primary me-1"></i> Owner
+            </span>
+        </p>
         <strong id="reply-content-@item.ID">@item.Reply</strong>
         <span class="font-xs text-muted">@item.ReplyDate?.ToString("dd/MM/yyyy HH:mm")</span>
 
@@ -1043,6 +1048,7 @@
         }
     </div>
 }
+
 
         
     </div>
@@ -1860,14 +1866,20 @@ document.getElementById('Relycomment-form').addEventListener('submit', function 
             const parentCommentElement = document.querySelector(`[data-comment-id="${id}"]`).closest('.single-comment');
             const timestamp = new Date().toLocaleString();
 
-            const replyHTML = `
-                <div class="reply-box ml-60 mt-2 p-2 bg-light rounded border">
-                    <p><strong>${data.username}</strong></p>
-                    <p class="reply-content">${reply}</p>
-                    <span class="font-xs text-muted">${timestamp}</span>
-                    <a href="#" class="edit-reply" data-comment-id="${id}" data-reply="${reply}">Edit</a>
-                </div>
-            `;
+          const replyHTML = `
+    <div class="reply-box ml-60 mt-2 p-2 bg-light rounded border">
+        <p>
+            <strong>${data.username}</strong>
+            <span class="badge-owner ms-1">
+                <i class="bi bi-patch-check-fill text-primary me-1"></i> Owner
+            </span>
+        </p>
+        <p class="reply-content">${reply}</p>
+        <span class="font-xs text-muted">${timestamp}</span>
+        <a href="#" class="edit-reply" data-comment-id="${id}" data-reply="${reply}">Edit</a>
+    </div>
+`;
+
 
             if (isEdit) {
                 // Nếu đang edit → thay thế toàn bộ khối reply-box
