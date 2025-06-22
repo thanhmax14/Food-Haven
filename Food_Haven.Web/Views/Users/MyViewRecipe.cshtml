@@ -703,7 +703,7 @@
          <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
     @Html.PagedListPager(
         Model.Recipes,
-        page => Url.Action("ViewRecipe", new { page }),
+        page => Url.Action("MyViewRecipe", new { page }),
         new PagedListRenderOptions
         {
             LiElementClasses = new[] { "page-item" },
