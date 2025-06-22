@@ -79,11 +79,6 @@ namespace Food_Haven.Web.Controllers
             _complaintService = complaintService;
             _manageTransaction = managetrans;
         }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
         public async Task<IActionResult> FeedbackList()
         {
             var result = new List<ReivewViewModel>();
@@ -1702,7 +1697,209 @@ namespace Food_Haven.Web.Controllers
        public async Task<IActionResult> Chat()
         {
              return View();
+        }     
+        public async Task<IActionResult> Index()
+        {
+             return View();
+        }    
+        [HttpGet]
+        public async Task<IActionResult> GetDateConfig()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var today = DateTime.Now.Date;
+                var todayStr = today.ToString("yyyy-MM-dd");
+
+                // Fallback config nếu không có dữ liệu
+                var fallbackConfig = new
+                {
+                    minDate = todayStr,
+                    maxDate = todayStr,
+                    defaultDays = 1
+                };
+
+                // Lấy store của seller
+                var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
+                if (store == null) return Json(fallbackConfig);
+
+                // Lấy danh sách sản phẩm thuộc store
+                var products = await _product.ListAsync(p => p.StoreID == store.ID);
+                if (!products.Any()) return Json(fallbackConfig);
+
+                var productIds = products.Select(p => p.ID).ToList();
+
+                // Lấy các variant (product types)
+                var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
+                if (!variants.Any()) return Json(fallbackConfig);
+
+                var variantIds = variants.Select(v => v.ID).ToList();
+
+                // Lấy chi tiết đơn hàng chứa các variant này
+                var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
+                if (!orderDetails.Any()) return Json(fallbackConfig);
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+
+                // Lấy đơn hàng
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && o.Status.ToUpper() == "CONFIRMED".ToUpper());
+                if (!orders.Any()) return Json(fallbackConfig);
+
+                // Tính khoảng thời gian từ đơn hàng
+                var minDateValue = orders.Min(o => o.CreatedDate).Date;
+                var maxDateValue = orders.Max(o => o.CreatedDate).Date;
+
+                int totalDays = (maxDateValue - minDateValue).Days + 1; // Tính số ngày
+
+                return Json(new
+                {
+                    minDate = minDateValue.ToString("yyyy-MM-dd"),
+                    maxDate = maxDateValue.ToString("yyyy-MM-dd"),
+                    defaultDays = totalDays < 30 ? totalDays : 30
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình ngày", message = ex.Message });
+            }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetStatisticsByDate(DateTime? from = null, DateTime? to = null)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { error = "Bạn chưa đăng nhập!!" });
+
+                var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+                if (store == null)
+                    return Json(new { error = "Không tìm thấy cửa hàng." });
+
+                var products = await _product.ListAsync(p => p.StoreID == store.ID);
+                if (!products.Any())
+                    return Json(new { error = "Không có sản phẩm." });
+
+                var productIds = products.Select(p => p.ID).ToList();
+                var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
+                if (!variants.Any())
+                    return Json(new { error = "Không có biến thể sản phẩm." });
+
+                var variantIds = variants.Select(v => v.ID).ToList();
+                var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
+                if (!orderDetails.Any())
+                    return Json(new { error = "Không có chi tiết đơn hàng." });
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
+                if (!orders.Any())
+                    return Json(new { error = "Không có đơn hàng." });
+
+                var minDate = orders.Min(o => o.CreatedDate).Date;
+                var maxDate = orders.Max(o => o.CreatedDate).Date;
+
+                if (!from.HasValue || !to.HasValue)
+                {
+                    to = maxDate;
+                    from = to.Value.AddDays(-29);
+                }
+
+                var fromDate = from.Value.Date;
+                var toDate = to.Value.Date;
+
+                if (fromDate < minDate) fromDate = minDate;
+                if (toDate > maxDate) toDate = maxDate;
+
+                if (fromDate > toDate)
+                    return BadRequest(new { error = "Ngày bắt đầu không thể lớn hơn ngày kết thúc" });
+
+                var daysDiff = (int)(toDate - fromDate).TotalDays + 1;
+
+                var ordersInRange = orders.Where(o => o.CreatedDate.Date >= fromDate && o.CreatedDate.Date <= toDate).ToList();
+
+                var successOrders = ordersInRange.Where(o => o.Status.ToLower() == "CONFIRMED".ToLower()).ToList();
+                var canceledOrders = ordersInRange.Where(o => o.Status.ToLower() == "Cancelled by User".ToLower() || o.Status.ToLower() == "Cancelled by Shop".ToLower()).ToList();
+
+                var successOrderIds = successOrders.Select(o => o.ID).ToList();
+                var successOrderDetails = orderDetails.Where(od => successOrderIds.Contains(od.OrderID)).ToList();
+
+                var totalOrders = successOrders.Count;
+                var totalEarnings = successOrders.Sum(o => o.TotalPrice);
+
+                var today = DateTime.Now.Date;
+                var pendingBalance = successOrders
+                    .Where(o => (today - o.CreatedDate.Date).TotalDays < 3)
+                    .Sum(o => o.TotalPrice);
+
+                double cancellationRate = ordersInRange.Count > 0
+                    ? Math.Round((double)canceledOrders.Count * 100 / ordersInRange.Count, 1)
+                    : 0.0;
+
+                var result = new
+                {
+                    totalOrders,
+                    totalEarnings,
+                    pendingBalance,
+                    cancellationRate,
+                    period = new
+                    {
+                        from = fromDate.ToString("dd/MM/yyyy"),
+                        to = toDate.ToString("dd/MM/yyyy"),
+                        days = daysDiff,
+                        isAdjusted = true
+                    },
+                    dateConfig = new
+                    {
+                        minDate = minDate.ToString("yyyy-MM-dd"),
+                        maxDate = maxDate.ToString("yyyy-MM-dd")
+                    }
+                };
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
+            }
+        }
+
+
+        private StatisticsModel GenerateMockStatistics(int days)
+        {
+            var random = new Random();
+
+            // Số đơn hàng (15-50 đơn/ngày)
+            var baseOrdersPerDay = random.Next(15, 50);
+            var totalOrders = baseOrdersPerDay * days;
+
+            // Số tiền bán được (80k - 300k/đơn)
+            var avgOrderValue = random.Next(80000, 300000);
+            var totalEarnings = (long)(totalOrders * avgOrderValue);
+
+            // Số tiền đang tạm giữ (15-35% tổng tiền bán được)
+            var pendingBalance = (long)(totalEarnings * (random.NextDouble() * 0.2 + 0.15));
+
+            // Tỷ lệ đơn hủy (2-12%)
+            var cancellationRate = Math.Round(random.NextDouble() * 10 + 2, 1);
+
+            return new StatisticsModel
+            {
+                TotalOrders = totalOrders,
+                TotalEarnings = totalEarnings,
+                PendingBalance = pendingBalance,
+                CancellationRate = cancellationRate
+            };
+        }
+
+        // Model đơn giản
+        public class StatisticsModel
+        {
+            public int TotalOrders { get; set; }
+            public long TotalEarnings { get; set; }
+            public long PendingBalance { get; set; }
+            public double CancellationRate { get; set; }
+        }
     }
 }
