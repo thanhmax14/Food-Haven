@@ -48,7 +48,7 @@ using BusinessLogic.Services.RecipeReviewReviews; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
-
+    [Authorize]
     public class UsersController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
@@ -1694,41 +1694,52 @@ namespace Food_Haven.Web.Controllers
             return View();
         }
         [HttpGet]
-        public async Task<IActionResult> GetUserList()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+          public async Task<IActionResult> GetUserList()
+   {
+       var user = await _userManager.GetUserAsync(User);
+       if (user == null)
+       {
+           return Unauthorized();
+       }
 
-            var currentUserId = user.Id;
-            var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
-            var chatUserIds = _messageService.GetAll()
-                .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
-                .Select(m => m.FromUserId == currentUserId ? m.ToUserId : m.FromUserId)
-                .Distinct()
-                .ToList();
-            if (adminId != currentUserId && !chatUserIds.Contains(adminId))
-            {
-                chatUserIds.Insert(0, adminId);
-            }
+       var currentUserId = user.Id;
+       var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
 
-            var users = _userManager.Users
-                .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
-                .Select(u => new
-                {
-                    id = u.Id,
-                    name = $"{u.UserName}",
-                    status = "online",
-                    profile = u.ImageUrl,
-                    messagecount = _messageService.GetAll().Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead),
-                    nickname = u.UserName
-                })
-                .ToList();
+       // Lấy tất cả tin nhắn 1 lần
+       var allMessages = _messageService.GetAll();
 
-            return Json(users);
-        }
+       // Lấy danh sách các user đã nhắn tin với mình
+       var chatUserIds = allMessages
+           .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
+           .Select(m => m.FromUserId == currentUserId ? m.ToUserId : m.FromUserId)
+           .Distinct()
+           .ToList();
+
+       // Luôn hiển thị admin (nếu khác current user)
+       if (adminId != currentUserId && !chatUserIds.Contains(adminId))
+       {
+           chatUserIds.Insert(0, adminId);
+       }
+
+       // Thời điểm hiện tại
+       var now = DateTime.Now;
+
+       var users = _userManager.Users
+ .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
+ .Select(u => new
+ {
+     id = u.Id,
+     name = u.UserName,
+     profile = u.ImageUrl,
+     nickname = u.UserName,
+     status = ChatHub.IsUserOnline(u.Id) ? "online" : "offline",
+     lastSeen = u.LastAccess.ToString("yyyy-MM-dd HH:mm:ss"),
+     messagecount = allMessages.Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead)
+ })
+ .ToList();
+
+       return Json(users);
+   }
 
 
         [HttpGet]
@@ -1856,8 +1867,10 @@ namespace Food_Haven.Web.Controllers
             public Guid? isReplied { get; set; }   // Guid hoặc int, tùy hệ thống
             public List<string> has_images { get; set; } = new List<string>();
         }
+
         [HttpPost]
         public async Task<IActionResult> addCommentAndStart([FromBody] RecipeReviewViewModel obj)
+
         {
             try
             {
@@ -1938,12 +1951,12 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = "An error occurred while processing the reply." });
             }
         }
+        }
 
 
 
 
     }
 
-}
 
 

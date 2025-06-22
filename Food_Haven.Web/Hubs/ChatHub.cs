@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Models;
+using System.Collections.Concurrent;
 
 namespace Food_Haven.Web.Hubs
 {
@@ -11,7 +12,7 @@ namespace Food_Haven.Web.Hubs
     public class ChatHub : Hub
     {
         private readonly UserManager<AppUser> _userManager;
-        private static readonly Dictionary<string, string> _userConnections = new();
+        private static readonly ConcurrentDictionary<string, HashSet<string>> _userConnections = new();
         private static readonly Dictionary<string, Dictionary<string, DateTime>> _typingUsers = new();
         private readonly IMessageImageService _messageImageService;
         private readonly IMessageService _messageService;
@@ -26,12 +27,21 @@ namespace Food_Haven.Web.Hubs
         public override async Task OnConnectedAsync()
         {
             var userId = Context.UserIdentifier;
+
             if (!string.IsNullOrEmpty(userId))
             {
-                _userConnections[userId] = Context.ConnectionId;
+                _userConnections.AddOrUpdate(userId,
+                    _ => new HashSet<string> { Context.ConnectionId },
+                    (_, connections) => { connections.Add(Context.ConnectionId); return connections; });
+
                 await Clients.Others.SendAsync("UserOnline", userId);
             }
+
             await base.OnConnectedAsync();
+        }
+        public static bool IsUserOnline(string userId)
+        {
+            return _userConnections.ContainsKey(userId);
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -39,24 +49,43 @@ namespace Food_Haven.Web.Hubs
             var userId = Context.UserIdentifier;
             if (!string.IsNullOrEmpty(userId))
             {
-                _userConnections.Remove(userId);
-
-                if (_typingUsers.ContainsKey(userId))
+                if (_userConnections.TryGetValue(userId, out var connections))
                 {
-                    var typingWith = _typingUsers[userId].Keys.ToList();
-                    foreach (var otherUserId in typingWith)
+                    connections.Remove(Context.ConnectionId);
+                    if (connections.Count == 0)
                     {
-                        if (_userConnections.ContainsKey(otherUserId))
-                        {
-                            await Clients.Client(_userConnections[otherUserId])
-                                .SendAsync("UserStoppedTyping", userId);
-                        }
-                    }
-                    _typingUsers.Remove(userId);
-                }
+                        _userConnections.TryRemove(userId, out _);
 
-                await Clients.Others.SendAsync("UserOffline", userId);
+                        if (_typingUsers.ContainsKey(userId))
+                        {
+                            var typingWith = _typingUsers[userId].Keys.ToList();
+                            foreach (var otherUserId in typingWith)
+                            {
+                                if (_userConnections.TryGetValue(otherUserId, out var toConnections))
+                                {
+                                    foreach (var conn in toConnections)
+                                    {
+                                        await Clients.Client(conn).SendAsync("UserStoppedTyping", userId);
+                                    }
+                                }
+                            }
+                            _typingUsers.Remove(userId);
+                        }
+
+                       
+
+
+                        var user = await _userManager.FindByIdAsync(userId);
+                        if (user != null)
+                        {
+                            user.LastAccess = DateTime.Now;
+                            await _userManager.UpdateAsync(user);
+                        }
+                        await Clients.Others.SendAsync("UserOffline", userId, user.LastAccess.ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                }
             }
+
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -93,9 +122,12 @@ namespace Food_Haven.Web.Hubs
                 is_read = false
             };
 
-            if (_userConnections.ContainsKey(toUserId))
+            if (_userConnections.TryGetValue(toUserId, out var toConnections))
             {
-                await Clients.Client(_userConnections[toUserId]).SendAsync("ReceiveMessage", messageData);
+                foreach (var conn in toConnections)
+                {
+                    await Clients.Client(conn).SendAsync("ReceiveMessage", messageData);
+                }
             }
 
             await Clients.Caller.SendAsync("MessageSent", messageData);
@@ -112,11 +144,13 @@ namespace Food_Haven.Web.Hubs
 
             _typingUsers[fromUserId][toUserId] = DateTime.Now;
 
-            if (_userConnections.ContainsKey(toUserId))
+            if (_userConnections.TryGetValue(toUserId, out var toConnections))
             {
                 var fromUser = await _userManager.FindByIdAsync(fromUserId);
-                await Clients.Client(_userConnections[toUserId])
-                    .SendAsync("UserStartedTyping", fromUserId, fromUser?.UserName ?? "Someone");
+                foreach (var conn in toConnections)
+                {
+                    await Clients.Client(conn).SendAsync("UserStartedTyping", fromUserId, fromUser?.UserName ?? "Someone");
+                }
             }
         }
 
@@ -127,17 +161,18 @@ namespace Food_Haven.Web.Hubs
             if (_typingUsers.ContainsKey(fromUserId))
             {
                 _typingUsers[fromUserId].Remove(toUserId);
-
                 if (!_typingUsers[fromUserId].Any())
                 {
                     _typingUsers.Remove(fromUserId);
                 }
             }
 
-            if (_userConnections.ContainsKey(toUserId))
+            if (_userConnections.TryGetValue(toUserId, out var toConnections))
             {
-                await Clients.Client(_userConnections[toUserId])
-                    .SendAsync("UserStoppedTyping", fromUserId);
+                foreach (var conn in toConnections)
+                {
+                    await Clients.Client(conn).SendAsync("UserStoppedTyping", fromUserId);
+                }
             }
         }
 
@@ -145,13 +180,14 @@ namespace Food_Haven.Web.Hubs
         {
             var toUserId = Context.UserIdentifier;
 
-            if (_userConnections.ContainsKey(fromUserId))
+            if (_userConnections.TryGetValue(fromUserId, out var fromConnections))
             {
-                await Clients.Client(_userConnections[fromUserId])
-                    .SendAsync("MessagesRead", messageId, toUserId);
+                foreach (var conn in fromConnections)
+                {
+                    await Clients.Client(conn).SendAsync("MessagesRead", messageId, toUserId);
+                }
             }
 
-            // ✅ Cập nhật trạng thái đã đọc trong DB
             var message = await _messageService.GetAsyncById(Guid.Parse(messageId));
             if (message != null && !message.IsRead)
             {

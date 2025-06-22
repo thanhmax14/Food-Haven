@@ -352,13 +352,13 @@
                                                                 </div>
                                                                 <div class="flex-grow-1 overflow-hidden">
                                                                     <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
+                                                                        <div id="active-user-status" class="flex-shrink-0 chat-user-img online user-own-img align-self-center me-3 ms-0">
                                                                             <img src="assets/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="">
                                                                             <span class="user-status"></span>
                                                                         </div>
                                                                         <div class="flex-grow-1 overflow-hidden">
                                                                             <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
-                                                                            <p class="text-truncate text-muted fs-14 mb-0 userStatus"><small>Online</small></p>
+                                                                            <p id="active-user-status-text" class="text-truncate text-muted fs-14 mb-0 userStatus"><small></small></p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1624,45 +1624,51 @@
         // Initialize application
         async function initializeApp() {
             try {
-                // ✅ Kiểm tra xem có cần mở chat với user cụ thể không
+                // Kiểm tra xem có cần mở chat với user cụ thể không
                 const userIdToStart = localStorage.getItem('startChatUserId');
                 if (userIdToStart) {
                     console.log('🎯 Phát hiện startChatUserId:', userIdToStart);
                     shouldAutoClickFirstUser = false;
                     localStorage.removeItem('startChatUserId');
                 }
-               
+
                 // Load users
                 const userList = await api.call('/Users/GetUserList');
                 users = userList || [];
-                
-                // Render user list
+
+                // Render user list với trạng thái
                 const userListContainer = document.getElementById('userList');
                 if (userListContainer) {
                     userListContainer.innerHTML = '';
                     users.forEach(function (user) {
-                        const userHtml = `<li id="contact-id-${user.id}" data-name="direct-message" class="${user.id === 1 && shouldAutoClickFirstUser ? 'active' : ''}">
-                            <a href="javascript:void(0);" class="${user.messagecount ? 'unread-msg-user' : ''}">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0 chat-user-img ${user.status || 'offline'} align-self-center me-2 ms-0">
-                                        <div class="avatar-xxs">
-                                            ${user.profile ?
+                        // ✅ Xác định trạng thái user
+                        const statusClass = user.status === 'online' ? 'online' : 'offline';
+                        const activeClass = user.id === 1 && shouldAutoClickFirstUser ? 'active' : '';
+
+                        const userHtml = `<li id="contact-id-${user.id}" data-name="direct-message" class="${activeClass}">
+                        <a href="javascript:void(0);" class="${user.messagecount ? 'unread-msg-user' : ''}">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 chat-user-img ${statusClass} align-self-center me-2 ms-0">
+                                    <div class="avatar-xxs">
+                                        ${user.profile ?
                                 `<img src="${user.profile}" class="rounded-circle img-fluid userprofile" alt="">` :
                                 `<div class="avatar-title rounded-circle bg-primary text-white fs-10">${user.nickname || user.name?.charAt(0) || 'U'}</div>`
                             }
-                                            <span class="user-status"></span>
-                                        </div>
+                                        <span class="user-status"></span>
                                     </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <p class="text-truncate mb-0">${user.name || 'Unknown User'}</p>
-                                    </div>
-                                    ${user.messagecount ? `<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">${user.messagecount}</span></div>` : ''}
                                 </div>
-                            </a>
-                        </li>`;
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="text-truncate mb-0">${user.name || 'Unknown User'}</p>
+                                    <small class="text-muted userStatus">${user.status === 'online' ? 'Đang hoạt động' : `Hoạt động ${getTimeAgo(user.lastSeen || new Date())}`}</small>
+                                </div>
+                                ${user.messagecount ? `<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">${user.messagecount}</span></div>` : ''}
+                            </div>
+                        </a>
+                    </li>`;
                         userListContainer.innerHTML += userHtml;
                     });
                 }
+
                 await initializeSignalR();
                 requestNotificationPermission();
 
@@ -1672,12 +1678,12 @@
                 setupChatForm();
                 setupEmojiPicker();
 
-                // ✅ Xử lý startChatUserId sau khi đã render user list
+                // Xử lý startChatUserId sau khi đã render user list
                 if (userIdToStart) {
                     console.log('🚀 Bắt đầu chat với user:', userIdToStart);
                     await startChatWithUser(userIdToStart);
                 } else if (shouldAutoClickFirstUser) {
-                    // ✅ Chỉ auto-click user đầu tiên khi không có startChatUserId
+                    // Chỉ auto-click user đầu tiên khi không có startChatUserId
                     const firstUser = document.querySelector('#userList li');
                     if (firstUser) {
                         firstUser.querySelector('a')?.click();
@@ -1712,6 +1718,26 @@
                     const profileUserNameElement = document.querySelector('.profile-offcanvas .username');
                     if (profileUserNameElement) profileUserNameElement.textContent = userName;
 
+                    // ✅ Cập nhật avatar và trạng thái của user đang chat
+                    const userImg = userElement.querySelector('.userprofile')?.getAttribute('src');
+                    const isOnline = userElement.querySelector('.chat-user-img')?.classList.contains('online');
+
+                    // Update avatar trong header
+                    const topbarAvatar = document.querySelector('#active-user-status img');
+                    if (topbarAvatar && userImg) {
+                        topbarAvatar.setAttribute('src', userImg);
+                    }
+
+                    // ✅ Cập nhật trạng thái ban đầu của user được chọn
+                    const user = users.find(u => u.id === otherUserId);
+                    if (user) {
+                        const statusText = user.status === 'online' ? 'online' : `offline ${user.lastSeen || 'một lúc trước'}`;
+                        updateActiveUserStatus(statusText, otherUserId);
+                    } else {
+                        // Mặc định là offline nếu không tìm thấy thông tin user
+                        updateActiveUserStatus('offline một lúc trước', otherUserId);
+                    }
+
                     // Handle reply card
                     if (isReply) {
                         isReply = false;
@@ -1719,16 +1745,10 @@
                         if (replyCard) replyCard.classList.remove('show');
                     }
 
-                    // Update user images
-                    const userImg = userElement.querySelector('.userprofile')?.getAttribute('src');
-                    const topbarAvatar = document.querySelector('.user-chat-topbar .avatar-xs');
+                    // Update profile avatar
                     const profileAvatar = document.querySelector('.profile-offcanvas .avatar-lg');
-
-                    if (topbarAvatar) {
-                        topbarAvatar.setAttribute('src', userImg || CONFIG.defaultUserImage);
-                    }
-                    if (profileAvatar) {
-                        profileAvatar.setAttribute('src', userImg || CONFIG.defaultUserImage);
+                    if (profileAvatar && userImg) {
+                        profileAvatar.setAttribute('src', userImg);
                     }
 
                     // Update chat avatars
@@ -1986,15 +2006,19 @@
                     hideTypingIndicator();
                 });
 
-                // User online/offline
-                connection.on("UserOnline", function (userId) {
-                    updateUserStatus(userId, 'online');
-                });
 
-                connection.on("UserOffline", function (userId) {
-                    updateUserStatus(userId, 'offline');
-                });
 
+                // Sửa phần SignalR event handlers
+connection.on("UserOnline", function (userId) {
+    console.log("🟢 User online:", userId);
+    updateUserStatus(userId, "online");
+});
+
+connection.on("UserOffline", function (userId, lastSeen) {
+    console.log("🔴 User offline:", userId, lastSeen);
+    const timeAgo = getTimeAgo(lastSeen);
+    updateUserStatus(userId, `offline ${timeAgo}`);
+});
                 // Bắt đầu kết nối
                 await connection.start();
                 console.log("🚀 SignalR connected successfully");
@@ -2092,15 +2116,71 @@
                 typingIndicator.remove();
             }
         }
-
-        // Cập nhật trạng thái online/offline
-        function updateUserStatus(userId, status) {
+        function updateUserStatus(userId, statusText) {
+            // ✅ Cập nhật trong danh sách user
             const userElement = document.querySelector(`#contact-id-${userId}`);
             if (userElement) {
                 const statusElement = userElement.querySelector('.chat-user-img');
                 if (statusElement) {
+                    // Cập nhật class trạng thái avatar
                     statusElement.className = statusElement.className.replace(/\b(online|offline)\b/g, '');
-                    statusElement.classList.add(status);
+                    const isOnline = statusText.includes("online");
+                    statusElement.classList.add(isOnline ? "online" : "offline");
+
+                    // ✅ Tìm thẻ hiển thị văn bản trạng thái (bên cạnh avatar)
+                    const parent = statusElement.closest('.d-flex.align-items-center');
+                    if (parent) {
+                        const userStatusText = parent.querySelector('.userStatus');
+                        if (userStatusText) {
+                            if (isOnline) {
+                                userStatusText.textContent = "Đang hoạt động";
+                            } else {
+                                const lastSeenTime = statusText.replace("offline ", "");
+                                let timeAgo = getTimeAgo(lastSeenTime);
+                                if (timeAgo.toLowerCase().includes("invalid")) timeAgo = "một lúc trước";
+
+                                userStatusText.textContent = `Hoạt động ${timeAgo}`;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            // ✅ Kiểm tra xem có phải user đang chat không
+            const activeUser = document.querySelector('.chat-user-list li.active');
+            const activeUserId = activeUser?.getAttribute('id')?.replace('contact-id-', '');
+
+            if (activeUserId === userId) {
+                updateActiveUserStatus(statusText, userId);
+            }
+        }
+
+        // Sửa function updateActiveUserStatus để nhận thêm userId
+        function updateActiveUserStatus(statusText, userId = null) {
+            // ✅ Cập nhật avatar class trong header chat
+            const avatar = document.querySelector('#active-user-status');
+            if (avatar) {
+                avatar.className = avatar.className.replace(/\b(online|offline)\b/g, '');
+                avatar.classList.add(statusText.includes("online") ? "online" : "offline");
+            }
+
+            // ✅ Cập nhật text trạng thái
+            const statusTextElement = document.querySelector('#active-user-status-text small');
+            if (statusTextElement) {
+                if (statusText.includes("online")) {
+                    statusTextElement.textContent = "Đang hoạt động";
+                } else {
+                    // Hiển thị thời gian offline
+                    let lastSeen = getTimeAgo(statusText.replace('offline ', ''));
+
+                    // Nếu kết quả là 'không xác định' hoặc 'Invalid Date' → fallback
+                    if (lastSeen === "không xác định" || lastSeen.toLowerCase().includes("invalid")) {
+                        lastSeen = "một lúc trước";
+                    }
+
+                    statusTextElement.textContent = `Hoạt động ${lastSeen}`;
+
                 }
             }
         }
@@ -2279,5 +2359,26 @@
             return v.toString(16);
         });
     }
+    function getTimeAgo(lastSeenString) {
+        if (!lastSeenString) return "một lúc trước";
+
+        const lastSeen = new Date(lastSeenString);
+        if (isNaN(lastSeen)) return "một lúc trước"; // ⬅️ ✅ fallback ở đây luôn
+
+        const now = new Date();
+        const diffMs = now - lastSeen;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHour = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHour / 24);
+
+        if (diffSec < 60) return "vừa xong";
+        if (diffMin < 60) return `${diffMin} phút trước`;
+        if (diffHour < 24) return `${diffHour} giờ trước`;
+        if (diffDay < 7) return `${diffDay} ngày trước`;
+
+        return lastSeen.toLocaleDateString('vi-VN');
+    }
+
 
 </script>
