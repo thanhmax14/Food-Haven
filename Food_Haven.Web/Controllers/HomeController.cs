@@ -1345,8 +1345,22 @@ namespace Food_Haven.Web.Controllers
         [Route("Error/404")]
         public IActionResult NotFoundPage()
         {
-            return View();
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                if (User.IsInRole("Seller") || User.IsInRole("Admin"))
+                {
+                    return View("NotFound"); 
+                }
+                else if (User.IsInRole("User"))
+                {
+                    return View("Error404");   
+                }
+            }
+
+            return View("Error404"); 
         }
+
+
         [HttpPost]
         public async Task<IActionResult> GetBalance()
         {
@@ -1589,6 +1603,21 @@ namespace Food_Haven.Web.Controllers
             {
                 return StatusCode(500, new { message = "Lỗi server", error = ex.ToString() });
             }
+        }
+        [HttpGet]
+        [Route("Home/GetCurrentUserRole")]
+        public IActionResult GetCurrentUserRole()
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Json(new { role = "Guest" });
+
+            string role = "User";
+            if (User.IsInRole("Admin"))
+                role = "Admin";
+            else if (User.IsInRole("Seller"))
+                role = "Seller";
+
+            return Json(new { role });
         }
 
 

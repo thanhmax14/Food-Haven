@@ -29,6 +29,7 @@ using BusinessLogic.Hash;
 
 namespace Food_Haven.Web.Controllers
 {
+    [Authorize (Roles = "Seller")]
     public class SellerController : Controller
     {
         private readonly IReviewService _reviewService;
@@ -1698,7 +1699,10 @@ namespace Food_Haven.Web.Controllers
             }
         }
 
-       
+       public async Task<IActionResult> Chat()
+        {
+             return View();
+        }
 
     }
 }

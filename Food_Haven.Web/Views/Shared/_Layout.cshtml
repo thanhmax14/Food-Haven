@@ -232,12 +232,38 @@
 
         function goToChat(userId) {
             localStorage.setItem('startChatUserId', userId);
-            setTimeout(() => {
-                window.location.href = '/users/chatlist';
-            }, 100);
+
+            fetch('/Home/GetCurrentUserRole') 
+                .then(response => {
+                    if (!response.ok) throw new Error("Không thể lấy vai trò");
+                    return response.json();
+                })
+                .then(data => {
+                    let redirectUrl = '/users/chatlist'; 
+                    if (data.role === "Admin") {
+                        redirectUrl = '/Admin/chat';
+                    } else if (data.role === "Seller") {
+                        redirectUrl = '/Seller/chat';
+                    }
+
+                    window.location.href = redirectUrl;
+                })
+                .catch(error => {
+                    console.error("Lỗi khi lấy vai trò người dùng:", error);
+                    window.location.href = '/users/chatlist';
+                });
+        }
+
+    </script>
+    <script>
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = '/'; // Fallback nếu không có referrer
+            }
         }
     </script>
-
 </body>
 
 </html>
