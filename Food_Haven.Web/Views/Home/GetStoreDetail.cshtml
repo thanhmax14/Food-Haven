@@ -31,7 +31,8 @@
 
 <body>
     <!-- Quick view -->
-    <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
+    <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -80,7 +81,8 @@
                         <div class="col-md-6 col-sm-12 col-xs-12">
                             <div class="detail-info pr-30 pl-30">
                                 <span class="stock-status out-stock"> Sale Off </span>
-                                <h3 class="title-detail"><a href="shop-product-right.html" class="text-heading">Seeds of Change Organic Quinoa, Brown</a></h3>
+                                <h3 class="title-detail"><a href="shop-product-right.html" class="text-heading">Seeds of
+                                        Change Organic Quinoa, Brown</a></h3>
                                 <div class="product-detail-rating">
                                     <div class="product-rate-cover text-end">
                                         <div class="product-rate d-inline-block">
@@ -105,7 +107,8 @@
                                         <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                     </div>
                                     <div class="product-extra-link2">
-                                        <button type="submit" class="button button-add-to-cart"><i class="fi-rs-shopping-cart"></i>Add to cart</button>
+                                        <button type="submit" class="button button-add-to-cart"><i
+                                                class="fi-rs-shopping-cart"></i>Add to cart</button>
                                     </div>
                                 </div>
                                 <div class="font-xs">
@@ -308,7 +311,7 @@
     </div>
     <!--End header-->
     <main class="main">
-     
+
         <div class="container mb-30">
             <div class="archive-header-2 text-center pt-80 pb-50">
                 <h1 class="display-2 mb-50">@Model.Name Store</h1>
@@ -330,48 +333,53 @@
                 <div class="col-lg-4-5">
 
                     <div class="row product-grid">
-               
-                        @foreach(var item in Model.ProductViewModel){
 
-                        <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                            <div class="product-cart-wrap mb-30">
-                                <div class="product-img-action-wrap">
-                                    <div class="product-img product-img-zoom">
+                        @foreach (var item in Model.ProductViewModel)
+                        {
+
+                            <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                                <div class="product-cart-wrap mb-30">
+                                    <div class="product-img-action-wrap">
+                                        <div class="product-img product-img-zoom">
                                             <a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@item.ID">
-                                            <img class="default-img" src="@item.Img.FirstOrDefault()" alt="" />
+                                                <img class="default-img" src="@item.Img.FirstOrDefault()" alt="" />
 
-                                           
-                                        </a>
-                                    </div>
-                                    <div class="product-action-1">
-                                        <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist('@item.ID')"><i id="iconsave" class="fi-rs-heart"></i></a>
-                                        <a aria-label="Compare" class="action-btn" href="">
-                                            <i class="fi-rs-shuffle"></i>
-                                        </a>
-                                        <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                           data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                    </div>
-                                    <div class="product-badges product-badges-position product-badges-mrg">
-                                        <span class="hot">Hot</span>
-                                    </div>
-                                </div>
-                                <div class="product-content-wrap">
-                                    <div class="product-category">
-                                        <a href="shop-grid-right.html">@item.CategoryName</a>
-                                    </div>
-                                    <h2><a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@item.ID">@item.Name</a></h2>
-                                    <div class="product-rate-cover">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
+
+                                            </a>
                                         </div>
-                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        <div class="product-action-1">
+                                            <a aria-label="Add To Wishlist" class="action-btn"
+                                                onclick="AddWishlist('@item.ID')"><i id="iconsave"
+                                                    class="fi-rs-heart"></i></a>
+                                            <a aria-label="Compare" class="action-btn" href="">
+                                                <i class="fi-rs-shuffle"></i>
+                                            </a>
+                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
+                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                                        </div>
+                                        <div class="product-badges product-badges-position product-badges-mrg">
+                                            <span class="hot">Hot</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="font-small text-muted">
-                                                By  <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@item.StoreId">@item.StoreName</a>
-                                        </span>
-                                    </div>
-                                    <div class="product-card-bottom">
+                                    <div class="product-content-wrap">
+                                        <div class="product-category">
+                                            <a href="shop-grid-right.html">@item.CategoryName</a>
+                                        </div>
+                                        <h2><a asp-action="ProductDetail" asp-controller="Home"
+                                                asp-route-id="@item.ID">@item.Name</a></h2>
+                                        <div class="product-rate-cover">
+                                            <div class="product-rate d-inline-block">
+                                                <div class="product-rating" style="width: 90%"></div>
+                                            </div>
+                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-small text-muted">
+                                                By <a asp-action="GetStoreDetail" asp-controller="Home"
+                                                    asp-route-id="@item.StoreId">@item.StoreName</a>
+                                            </span>
+                                        </div>
+                                        <div class="product-card-bottom">
                                             <div class="product-card-bottom">
                                                 <div class="product-price">
                                                     @if (item.Price == 0)
@@ -387,25 +395,26 @@
                                                 @if (item.Price > 0)
                                                 {
                                                     <div class="add-cart">
-                                                        <a class="add" href="javascript:void(0);" onclick="AddToCart('@item.ID')">
+                                                        <a class="add" href="javascript:void(0);"
+                                                            onclick="AddToCart('@item.ID')">
                                                             <i class="fi-rs-shopping-cart mr-5"></i>Add
                                                         </a>
                                                     </div>
                                                 }
                                             </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        
-                       
-                    }
-                   } </div>
-                    <!--product grid-->
-                  
 
-                   
+
+
+                        }
+                    </div>
+                    <!--product grid-->
+
+
+
 
                     <!--End Deals-->
                 </div>
@@ -424,7 +433,8 @@
 
                             <div class="vendor-des mb-30">
                                 <strong>
-                                    Owner:  <a asp-action="UserInformation" asp-controller="Home" asp-route-id="@Model.UserID">
+                                    Owner: <a asp-action="UserInformation" asp-controller="Home"
+                                        asp-route-id="@Model.UserID">
                                         <span class="text-brand">@Model.UserName</span>
                                     </a>
                                 </strong>
@@ -435,7 +445,7 @@
                                 </div>
                                 <span class="font-small ml-5 text-muted"> (4.0)</span>
                             </div>
-                            
+
                             <div class="follow-social mb-20">
                                 <h6 class="mb-15">Follow Us</h6>
                                 <ul class="social-network">
@@ -463,40 +473,125 @@
                             </div>
                             <div class="vendor-info">
                                 <ul class="font-sm mb-20">
-                                    <li><img class="mr-5" src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>@Model.Address</span></li>
-                                    <li><img class="mr-5" src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call Us:</strong><span>@Model.Phone</span></li>
+                                    <li><img class="mr-5" src="~/assets/imgs/theme/icons/icon-location.svg"
+                                            alt="" /><strong>Address: </strong> <span>@Model.Address</span></li>
+                                    <li><img class="mr-5" src="~/assets/imgs/theme/icons/icon-contact.svg"
+                                            alt="" /><strong>Call Us:</strong><span>@Model.Phone</span></li>
                                 </ul>
                                 @* <a href="vendor-details-1.html" class="btn btn-xs">Contact Seller <i class="fi-rs-arrow-small-right"></i></a> *@
                             </div>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#reportModal">
+                                Tố cáo người dùng này
+                            </button>
                         </div>
                     </div>
                     <div class="sidebar-widget widget-category-2 mb-30">
                         <h5 class="section-title style-1 mb-30">@Model.CategoryName</h5>
-                       
-                            <ul>
-                              
-                                <li>
-                                    <a href="shop-grid-right.html"> <img src="~/assets/imgs/theme/icons/category-1.svg" alt=""/>@Model.CategoryName</a><span class="count"></span>
-                                </li>
-                                
-                               
 
-                            </ul>
-                        
-                      
+                        <ul>
+
+                            <li>
+                                <a href="shop-grid-right.html"> <img src="~/assets/imgs/theme/icons/category-1.svg"
+                                        alt="" />@Model.CategoryName</a><span class="count"></span>
+                            </li>
+
+
+
+                        </ul>
+
+
                     </div>
 
                     <!-- Fillter By Price -->
-                  
 
-                    
-                  
+
+
+
                 </div>
 
-                 
-              
+                <!-- Modal -->
+                <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form asp-action="StoreReport" asp-controller="Home" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="modal-content">
+
+                                <!-- ✅ Hidden field: StoreID -->
+                                <input type="hidden" name="StoreID" value="@Model.ID" />
+
+                                <!-- Tiêu đề -->
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="reportModalLabel">Tố cáo người dùng này</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Đóng"></button>
+                                </div>
+
+                                <!-- Nội dung -->
+                                <div class="modal-body">
+
+                                    <!-- Username (chỉ hiển thị, không gửi) -->
+                                    <div class="mb-3">
+                                        <label for="UserNameRepo" class="form-label">Tên người dùng</label>
+                                        <input type="text" class="form-control" id="UserNameRepo"
+                                            value="@Model.UserNameRepo" disabled>
+                                    </div>
+
+                                    <!-- Email (chỉ hiển thị, không gửi) -->
+                                    <div class="mb-3">
+                                        <label for="Email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="Email" value="@Model.Email"
+                                            disabled>
+                                    </div>
+
+                                    <!-- ✅ Lý do tố cáo -->
+                                    <label class="form-label">Chọn lý do</label>
+                                    <select class="form-select" name="Reason" id="reasonSelect" required>
+                                        <option selected disabled>-- Chọn lý do --</option>
+                                        <option>Người bán có đăng sản phẩm cấm</option>
+                                        <option>Người dùng có dấu hiệu lừa đảo</option>
+                                        <option>Người bán có đăng sản phẩm giả/nhái</option>
+                                        <option>Spam tin nhắn / Nội dung không lịch sự</option>
+                                        <option>Giao dịch ngoài nền tảng</option>
+                                        <option>Vi phạm quyền riêng tư</option>
+                                        <option>Nội dung thô tục, phản cảm</option>
+                                        <option>Đặt nhiều đơn COD nhưng không nhận</option>
+                                        <option>Đặt nhiều đơn ảo</option>
+                                        <option>Khác</option>
+                                    </select>
+
+                                    <!-- Mô tả lý do -->
+                                    <div id="reasonDetail" class="mt-2 text-muted" style="display: none;"></div>
+
+                                    <!-- ✅ Message -->
+                                    <div class="mt-3">
+                                        <label for="reportDescription" class="form-label fw-bold">
+                                            Miêu tả tố cáo <span class="text-danger">*</span>
+                                        </label>
+                                        <textarea class="form-control" id="reportDescription" name="Message" rows="4"
+                                            maxlength="200" placeholder="Nhập nội dung tố cáo..." required></textarea>
+                                        <div class="text-end text-muted mt-1">
+                                            <span id="charCount">0</span>/200
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- Gửi -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="submit" class="btn btn-danger">Gửi tố cáo</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
             </div>
-       
+
+        </div>
+
     </main>
     <footer class="main">
         <section class="newsletter mb-15">
@@ -509,7 +604,8 @@
                                     Stay home & get your daily <br />
                                     needs from our shop
                                 </h2>
-                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest Mart</span></p>
+                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest
+                                        Mart</span></p>
                                 <form class="form-subcriber d-flex">
                                     <input type="email" placeholder="Your emaill address" />
                                     <button class="btn" type="submit">Subscribe</button>
@@ -599,14 +695,20 @@
                     <div class="col">
                         <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
                             <div class="logo mb-30">
-                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
+                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg"
+                                        alt="logo" /></a>
                                 <p class="font-lg text-heading">Awesome grocery store website template</p>
                             </div>
                             <ul class="contact-infor">
-                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span></li>
-                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call Us:</strong><span>(+91) - 540-025-124553</span></li>
-                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg" alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
-                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg" alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address:
+                                    </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span>
+                                </li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call
+                                        Us:</strong><span>(+91) - 540-025-124553</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg"
+                                        alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg"
+                                        alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
                             </ul>
                         </div>
                     </div>
@@ -662,8 +764,10 @@
                         <h4 class="widget-title">Install App</h4>
                         <p class="wow fadeIn animated">From App Store or Google Play</p>
                         <div class="download-app">
-                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
-                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active"
+                                    src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg"
+                                    alt="" /></a>
                         </div>
                         <p class="mb-20">Secured Payment Gateways</p>
                         <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
@@ -677,7 +781,8 @@
                     <div class="footer-bottom"></div>
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
-                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce Template <br />All rights reserved</p>
+                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
+                        Template <br />All rights reserved</p>
                 </div>
                 <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
                     <div class="hotline d-lg-inline-flex mr-30">
@@ -737,6 +842,42 @@
     <!-- Template  JS -->
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
+    <script>
+        const reasonSelect = document.getElementById('reasonSelect');
+        const reasonDetail = document.getElementById('reasonDetail');
+        const textarea = document.getElementById('reportDescription');
+        const charCount = document.getElementById('charCount');
+
+        const reasonDescriptions = {
+            "Người bán có đăng sản phẩm cấm": "Sản phẩm bị cấm theo quy định pháp luật hoặc chính sách của nền tảng.",
+            "Người dùng có dấu hiệu lừa đảo": "Người dùng có hành vi gian lận, chiếm đoạt tài sản.",
+            "Người bán có đăng sản phẩm giả/nhái": "Sản phẩm không chính hãng, vi phạm bản quyền thương hiệu.",
+            "Spam tin nhắn / Nội dung không lịch sự": "Gửi nhiều tin nhắn rác hoặc nội dung thô tục.",
+            "Giao dịch ngoài nền tảng": "Người dùng yêu cầu giao dịch không qua hệ thống gây rủi ro.",
+            "Vi phạm quyền riêng tư": "Lạm dụng thông tin cá nhân của người khác.",
+            "Nội dung thô tục, phản cảm": "Bình luận, hình ảnh phản cảm, không phù hợp.",
+            "Đặt nhiều đơn COD nhưng không nhận": "Đặt hàng liên tục nhưng không nhận gây ảnh hưởng người bán.",
+            "Đặt nhiều đơn ảo": "Tạo đơn ảo để phá hoại hoặc thao túng.",
+            "Khác": "Các lý do khác không nằm trong danh sách."
+        };
+
+        reasonSelect.addEventListener('change', function () {
+            const selectedReason = this.value;
+            const detail = reasonDescriptions[selectedReason];
+            if (detail) {
+                reasonDetail.style.display = 'block';
+                reasonDetail.textContent = detail;
+            } else {
+                reasonDetail.style.display = 'none';
+                reasonDetail.textContent = '';
+            }
+        });
+
+        textarea.addEventListener('input', function () {
+            charCount.textContent = this.value.length;
+        });
+    </script>
+
 </body>
 
 </html>

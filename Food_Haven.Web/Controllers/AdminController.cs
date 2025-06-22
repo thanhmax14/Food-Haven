@@ -13,6 +13,7 @@ using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +54,10 @@ namespace Food_Haven.Web.Controllers
         private readonly IVoucherServices _voucher;
         private readonly IIngredientTagService _ingredienttag;
         private readonly IRecipeService _recipeService;
-        public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product, IVoucherServices voucher, IRecipeService recipeService)
+        private readonly IStoreReportServices _storeReport;
+
+
+        public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport)
 
         {
             _ingredienttag = ingredientTagService;
@@ -79,6 +83,7 @@ namespace Food_Haven.Web.Controllers
             _product = product;
             _voucher = voucher;
             _recipeService = recipeService;
+            _storeReport = storeReport;
         }
         public async Task<IActionResult> Index()
         {
@@ -1521,6 +1526,48 @@ namespace Food_Haven.Web.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public async Task<IActionResult> ManagementReportStore()
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null) return RedirectToAction("Login", "Home");
+            else if (!await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                var list = new List<StoreReportViewModel>();
+                var obj = await _storeReport.ListAsync();
+                if (obj.Any())
+                {
+                    foreach (var item in obj)
+                    {
+                        var reportingUser = await _userManager.FindByIdAsync(item.UserID);
+                        var viewModel = new StoreReportViewModel
+                        {
+                            ID = item.ID,
+                            StoreID = item.ID,
+                            UserID = item.UserID,
+                            Reason = item.Reason,
+                            Message = item.Message,
+                            CreatedDate = item.CreatedDate,
+                            UserName = reportingUser?.UserName ?? "Ẩn danh",
+                            Email = reportingUser?.Email ?? "Không rõ"
+                        };
+                        list.Add(viewModel);
+                    }
+                }
+                return View(list);
+
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+        }
+
 
 
     }

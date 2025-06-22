@@ -39,6 +39,8 @@ using Repository.MessageImages;
 using Repository.Messages;
 using BusinessLogic.Services.RecipeReviewReviews;
 using Repository.RecipeReviews;
+using BusinessLogic.Services.StoreReports;
+using Repository.StoreReport;
 
 namespace BusinessLogic.Config
 {
@@ -79,6 +81,7 @@ namespace BusinessLogic.Config
             services.AddScoped<IMessageImageRepository, MessageImageRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IRecipeReviewsRepository, RecipeReviewsRepository>();
+            services.AddScoped<IStoreReportRepository, StoreReportRepository>();
         }
 
 

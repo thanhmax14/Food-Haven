@@ -48,6 +48,7 @@ using BusinessLogic.Services.Reviews;
 using Microsoft.AspNetCore.SignalR;
 using Food_Haven.Web.Hubs;
 using BusinessLogic.Services.VoucherServices;
+using BusinessLogic.Services.StoreReports;
 
 
 
@@ -74,12 +75,12 @@ namespace Food_Haven.Web.Controllers
         private readonly PayOS _payos;
         private readonly IVoucherServices _voucher;
         private readonly IRecipeService _recipeService;
-
+        private readonly IStoreReportServices _storeReport;
 
 
 
         public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
-, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos,IVoucherServices voucherServices)
+, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport)
 
         {
             _recipeService = recipeService;
@@ -102,6 +103,7 @@ namespace Food_Haven.Web.Controllers
             _order = order;
             _payos = payos;
             _voucher = voucherServices;
+            _storeReport = storeReport;
         }
 
         public IActionResult Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
@@ -413,7 +415,7 @@ namespace Food_Haven.Web.Controllers
                 {
                     ID = p.ID,
                     Name = p.Name,
-                   
+
                     LongDescription = p.LongDescription,
                     Price = p.ProductTypes
                         .OrderBy(v => v.SellPrice)
@@ -663,6 +665,7 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> GetStoreDetail(Guid id)
         {
+            var users = await _userManager.GetUserAsync(User);
             // 1. Lấy thông tin cửa hàng
             var storeDetails = await _storeDetailService.FindAsync(s => s.ID == id);
             if (storeDetails == null)
@@ -721,7 +724,9 @@ namespace Food_Haven.Web.Controllers
                 UserID = storeDetails.UserID,
                 UserName = user?.UserName,
                 ProductViewModel = productList,
-                CategoryViewModels = new List<CategoryViewModel>() // nếu sau này cần thêm
+                CategoryViewModels = new List<CategoryViewModel>(), // nếu sau này cần thêm
+                Email = users.Email,
+                UserNameRepo = users.UserName
             };
 
             return View(storeVM);
@@ -1349,15 +1354,15 @@ namespace Food_Haven.Web.Controllers
             {
                 if (User.IsInRole("Seller") || User.IsInRole("Admin"))
                 {
-                    return View("NotFound"); 
+                    return View("NotFound");
                 }
                 else if (User.IsInRole("User"))
                 {
-                    return View("Error404");   
+                    return View("Error404");
                 }
             }
 
-            return View("Error404"); 
+            return View("Error404");
         }
 
 
@@ -1584,7 +1589,7 @@ namespace Food_Haven.Web.Controllers
                 // ViewModel
                 var model = new SellerViewModel
                 {
-                    UserId= user.Id,
+                    UserId = user.Id,
                     RegisterDate = user.JoinedDate,
                     UserName = user.UserName,
                     ProductPurchased = $"{totalOrders} đơn hàng",
@@ -1619,7 +1624,32 @@ namespace Food_Haven.Web.Controllers
 
             return Json(new { role });
         }
+        [HttpPost]
+        public async Task<IActionResult> StoreReport(StoreReportViewModel obj)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return RedirectToAction("Login", "Home");
+                var viewModel = new StoreReport
+                {
+                    StoreID = obj.StoreID,
+                    UserID = user.Id,
+                    Reason = obj.Reason,
+                    Message = obj.Message,
+                    CreatedDate = DateTime.UtcNow,
+                };
+                await _storeReport.AddAsync(viewModel);
+                await _storeReport.SaveChangesAsync();
+                return RedirectToAction("GetAllStore", "Home");
 
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+
+        }
 
 
     }
