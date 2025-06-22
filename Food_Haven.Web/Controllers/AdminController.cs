@@ -53,9 +53,6 @@ namespace Food_Haven.Web.Controllers
         private readonly IVoucherServices _voucher;
         private readonly IIngredientTagService _ingredienttag;
         private readonly IRecipeService _recipeService;
-
-
-
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService, IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail, IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, IProductService product, IVoucherServices voucher, IRecipeService recipeService)
 
         {
@@ -1520,7 +1517,10 @@ namespace Food_Haven.Web.Controllers
                 });
             }
         }
-
+        public async Task<IActionResult> Chat()
+        {
+            return View();
+        }
 
 
     }
