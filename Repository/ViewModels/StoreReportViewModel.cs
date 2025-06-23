@@ -16,7 +16,9 @@ namespace Repository.ViewModels
         public string Email { get; set; }
         [StringLength(100)]
         public string Reason { get; set; }
-        [StringLength(500)]
+        [StringLength(200, ErrorMessage = "Message must be at most 200 characters.")]
+
+        [Required(ErrorMessage = "Message is require")]
         public string Message { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }

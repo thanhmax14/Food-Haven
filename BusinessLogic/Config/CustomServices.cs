@@ -34,6 +34,7 @@ using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message;
 using BusinessLogic.Services.RecipeReviewReviews;
 using BusinessLogic.Services.StoreReports;
+using BusinessLogic.Services.FavoriteFavoriteRecipes;
 
 namespace BusinessLogic.Config
 {
@@ -63,6 +64,7 @@ namespace BusinessLogic.Config
             services.AddScoped<IMessageService, MessageServices>();
             services.AddScoped<IRecipeReviewService, RecipeReviewService>();
             services.AddScoped<IStoreReportServices, StoreReportServices>();
+            services.AddScoped<IFavoriteRecipeService, FavoriteRecipeService>();
 
 
 
