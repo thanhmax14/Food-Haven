@@ -1740,9 +1740,10 @@ namespace Food_Haven.Web.Controllers
                 if (!orderDetails.Any()) return Json(fallbackConfig);
 
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
-
+                var confirmedStatuses = new[] { "CONFIRMED" };
+                var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
                 // Lấy đơn hàng
-                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && o.Status.ToUpper() == "CONFIRMED".ToUpper());
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && (confirmedStatuses.Contains(o.Status.ToUpper()) || cancelledStatuses.Contains(o.Status.ToUpper())));
                 if (!orders.Any()) return Json(fallbackConfig);
 
                 // Tính khoảng thời gian từ đơn hàng
@@ -1825,7 +1826,7 @@ namespace Food_Haven.Web.Controllers
                 var successOrderIds = successOrders.Select(o => o.ID).ToList();
                 var successOrderDetails = orderDetails.Where(od => successOrderIds.Contains(od.OrderID)).ToList();
 
-                var totalOrders = successOrders.Count;
+            
                 var totalEarnings = successOrders.Sum(o => o.TotalPrice);
 
                 var today = DateTime.Now.Date;
@@ -1833,8 +1834,10 @@ namespace Food_Haven.Web.Controllers
                     .Where(o => (today - o.CreatedDate.Date).TotalDays < 3)
                     .Sum(o => o.TotalPrice);
 
-                double cancellationRate = ordersInRange.Count > 0
-                    ? Math.Round((double)canceledOrders.Count * 100 / ordersInRange.Count, 1)
+                var processedOrders = successOrders.Count + canceledOrders.Count;
+                var totalOrders = processedOrders;
+                double cancellationRate = processedOrders > 0
+                    ? Math.Round((double)canceledOrders.Count * 100 / processedOrders, 1)
                     : 0.0;
 
                 var result = new
@@ -1864,42 +1867,199 @@ namespace Food_Haven.Web.Controllers
                 return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
             }
         }
-
-
-        private StatisticsModel GenerateMockStatistics(int days)
+        [HttpGet]
+        public async Task<IActionResult> GetValidMonths()
         {
-            var random = new Random();
+            var today = DateTime.Now.Date;
+            var todayStr = today.ToString("yyyy-MM");
 
-            // Số đơn hàng (15-50 đơn/ngày)
-            var baseOrdersPerDay = random.Next(15, 50);
-            var totalOrders = baseOrdersPerDay * days;
+            // Fallback: chỉ cho chọn tháng hiện tại
+            var fallbackMonths = new List<string> { todayStr };
 
-            // Số tiền bán được (80k - 300k/đơn)
-            var avgOrderValue = random.Next(80000, 300000);
-            var totalEarnings = (long)(totalOrders * avgOrderValue);
-
-            // Số tiền đang tạm giữ (15-35% tổng tiền bán được)
-            var pendingBalance = (long)(totalEarnings * (random.NextDouble() * 0.2 + 0.15));
-
-            // Tỷ lệ đơn hủy (2-12%)
-            var cancellationRate = Math.Round(random.NextDouble() * 10 + 2, 1);
-
-            return new StatisticsModel
+            try
             {
-                TotalOrders = totalOrders,
-                TotalEarnings = totalEarnings,
-                PendingBalance = pendingBalance,
-                CancellationRate = cancellationRate
-            };
+                var user = await _userManager.GetUserAsync(User);
+
+                // Lấy store của seller
+                var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
+                if (store == null) return Json(fallbackMonths);
+
+                // Lấy danh sách sản phẩm thuộc store
+                var products = await _product.ListAsync(p => p.StoreID == store.ID);
+                if (!products.Any()) return Json(fallbackMonths);
+
+                var productIds = products.Select(p => p.ID).ToList();
+
+                // Lấy các variant (product types)
+                var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
+                if (!variants.Any()) return Json(fallbackMonths);
+
+                var variantIds = variants.Select(v => v.ID).ToList();
+
+                // Lấy chi tiết đơn hàng chứa các variant này
+                var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
+                if (!orderDetails.Any()) return Json(fallbackMonths);
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+
+                var confirmedStatuses = new[] { "CONFIRMED" };
+                var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && (confirmedStatuses.Contains(o.Status.ToUpper()) || cancelledStatuses.Contains(o.Status.ToUpper())));
+                if (!orders.Any()) return Json(fallbackMonths);
+
+                // Lấy các tháng năm có đơn hàng
+                var months = orders
+                    .Select(o => o.CreatedDate.ToString("yyyy-MM"))
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+
+                return Json(months);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình tháng", message = ex.Message });
+            }
         }
 
-        // Model đơn giản
-        public class StatisticsModel
+
+        [HttpGet]
+        public async Task<IActionResult> GetMonthlyData(string month)
         {
-            public int TotalOrders { get; set; }
-            public long TotalEarnings { get; set; }
-            public long PendingBalance { get; set; }
-            public double CancellationRate { get; set; }
+            // month format: "YYYY-MM"
+            if (string.IsNullOrEmpty(month))
+                month = DateTime.Now.ToString("yyyy-MM");
+
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { error = "Bạn chưa đăng nhập!!" });
+
+                var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+                if (store == null)
+                    return Json(new { error = "Không tìm thấy cửa hàng." });
+
+                var products = await _product.ListAsync(p => p.StoreID == store.ID);
+                if (!products.Any())
+                    return Json(new { error = "Không có sản phẩm." });
+
+                var productIds = products.Select(p => p.ID).ToList();
+                var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
+                if (!variants.Any())
+                    return Json(new { error = "Không có biến thể sản phẩm." });
+
+                var variantIds = variants.Select(v => v.ID).ToList();
+                var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
+                if (!orderDetails.Any())
+                    return Json(new { error = "Không có chi tiết đơn hàng." });
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
+                if (!orders.Any())
+                    return Json(new { error = "Không có đơn hàng." });
+
+                // Phân loại trạng thái đơn hàng (Confirmed = thành công, Cancelled = hủy)
+                var confirmedStatuses = new[] { "CONFIRMED" };
+                var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
+
+                // Chuẩn bị dải ngày trong tháng đó
+                int year = int.Parse(month.Split('-')[0]);
+                int m = int.Parse(month.Split('-')[1]);
+                int daysInMonth = DateTime.DaysInMonth(year, m);
+
+                var chartOrders = new Dictionary<string, int>();
+                var chartEarnings = new Dictionary<string, decimal>();
+                var chartCanceled = new Dictionary<string, int>();
+                var chartCustomers = new Dictionary<string, int>();
+
+                int totalOrders = 0;
+                decimal totalEarnings = 0;
+                int totalCanceled = 0;
+                HashSet<string> uniqueCustomers = new HashSet<string>();
+
+                DateTime now = DateTime.Now.Date;
+
+                for (int day = 1; day <= daysInMonth; day++)
+                {
+                    var date = new DateTime(year, m, day);
+                    if (date > now) break; // Không lấy ngày tương lai
+
+                    string dateKey = date.ToString("yyyy-MM-dd");
+
+                    // Lọc đơn hàng theo ngày
+                    var dayOrders = orders.Where(o =>
+                    o.CreatedDate.Date == date &&
+                     (confirmedStatuses.Contains(o.Status.ToUpper()) || cancelledStatuses.Contains(o.Status.ToUpper())));
+                    int orderCount = dayOrders.Count();
+
+                    chartOrders[dateKey] = orderCount;
+                    totalOrders += orderCount;
+
+                    // Tổng doanh thu (chỉ đơn Confirmed)
+                    decimal earning = dayOrders.Where(o => confirmedStatuses.Contains(o.Status.ToUpper())).Sum(o => o.TotalPrice);
+                    chartEarnings[dateKey] = earning;
+                    totalEarnings += earning;
+
+                    // Đơn hủy (status Cancelled)
+                    int canceledCount = dayOrders.Count(o => cancelledStatuses.Contains(o.Status.ToUpper()));
+                    chartCanceled[dateKey] = canceledCount;
+                    totalCanceled += canceledCount;
+
+                    // Số khách duy nhất đặt hàng trong ngày (dựa vào UserId/CustomerId)
+                    var customersInDay = dayOrders
+                        .Where(o => o.UserID != null)
+                        .Select(o => o.UserID)
+                        .Distinct()
+                        .ToList();
+                    chartCustomers[dateKey] = customersInDay.Count;
+
+                    // Đếm khách unique của cả tháng (nếu cần thống kê tổng)
+                    foreach (var cid in customersInDay)
+                        uniqueCustomers.Add(cid);
+                }
+
+                // Format trả về (tương thích frontend)
+                var summary = new
+                {
+                    orders = totalOrders,
+                    earnings = totalEarnings,
+                    refunds = totalCanceled,
+                    newCustomers = uniqueCustomers.Count
+                };
+                var chartData = new
+                {
+                    orders = chartOrders,
+                    earnings = chartEarnings,
+                    refunds = chartCanceled,
+                    newCustomers = chartCustomers
+                };
+
+                return Json(new { summary, chartData });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
+            }
         }
+
+
+        public class MonthlyDashboardSummary
+        {
+            public int Orders { get; set; }
+            public decimal Earnings { get; set; }
+            public int Refunds { get; set; }
+            public int NewCustomers { get; set; }
+        }
+
+        public class MonthlyDashboardData
+        {
+            public MonthlyDashboardSummary Summary { get; set; }
+            public Dictionary<string, int> Orders { get; set; }
+            public Dictionary<string, decimal> Earnings { get; set; }
+            public Dictionary<string, int> Refunds { get; set; }
+            public Dictionary<string, int> NewCustomers { get; set; }
+        }
+
     }
 }
