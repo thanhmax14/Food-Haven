@@ -2716,7 +2716,7 @@
                                 </div> <!-- end row-->
 
                                 <div class="row">
-                                    <div class="col-xl-8">
+                                    <div class="col-xl-12">
                                         <div class="card">
                                             <div class="card-header border-0 align-items-center d-flex">
                                                 <h4 class="card-title mb-0 flex-grow-1">Revenue by month</h4>
@@ -2759,44 +2759,48 @@
                                                 <div class="row g-0 text-center">
                                                     <div class="col-6 col-sm-3">
                                                         <div class="p-3 border border-dashed border-start-0">
-                                                            <h5 class="mb-1"><span class="counter-value"
-                                                                    data-target="7585">0</span></h5>
+                                                            <h5 class="mb-1">
+                                                                <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
+                                                                <span class="counter-value" id="ordersCounter"></span>
+                                                            </h5>
                                                             <p class="text-muted mb-0">Orders</p>
                                                         </div>
                                                     </div>
-                                                    <!--end col-->
                                                     <div class="col-6 col-sm-3">
                                                         <div class="p-3 border border-dashed border-start-0">
-                                                            <h5 class="mb-1">$<span class="counter-value"
-                                                                    data-target="22.89">0</span>k</h5>
+                                                            <h5 class="mb-1">
+                                                                <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
+                                                                <span class="counter-value" id="earningsCounter"></span>
+                                                            </h5>
                                                             <p class="text-muted mb-0">Earnings</p>
                                                         </div>
                                                     </div>
-                                                    <!--end col-->
                                                     <div class="col-6 col-sm-3">
                                                         <div class="p-3 border border-dashed border-start-0">
-                                                            <h5 class="mb-1"><span class="counter-value"
-                                                                    data-target="367">0</span></h5>
+                                                            <h5 class="mb-1">
+                                                                <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
+                                                                <span class="counter-value" id="refundsCounter"></span>
+                                                            </h5>
                                                             <p class="text-muted mb-0">Refunds</p>
                                                         </div>
                                                     </div>
-                                                    <!--end col-->
                                                     <div class="col-6 col-sm-3">
-                                                        <div
-                                                            class="p-3 border border-dashed border-start-0 border-end-0">
-                                                            <h5 class="mb-1 text-success"><span class="counter-value"
-                                                                    data-target="18.92">0</span>%</h5>
-                                                            <p class="text-muted mb-0">Conversation Ratio</p>
+                                                        <div class="p-3 border border-dashed border-start-0 border-end-0">
+                                                            <h5 class="mb-1 text-success">
+                                                                <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
+                                                                <span class="counter-value" id="newCustomersCounter"></span>
+                                                            </h5>
+                                                            <p class="text-muted mb-0">New Customer</p>
                                                         </div>
                                                     </div>
-                                                    <!--end col-->
                                                 </div>
+
                                             </div><!-- end card header -->
 
                                             <div class="card-body p-0 pb-2">
                                                 <div class="w-100">
-                                                    <div id="customer_impression_charts"
-                                                        data-colors='["--vz-primary", "--vz-success", "--vz-danger"]'
+                                                    <div id="customer_charts"
+                                                         data-colors='["--vz-primary", "--vz-success", "--vz-danger", "--vz-warning"]'
                                                         data-colors-minimal='["--vz-light", "--vz-primary", "--vz-info"]'
                                                         data-colors-saas='["--vz-success", "--vz-info", "--vz-danger"]'
                                                         data-colors-modern='["--vz-warning", "--vz-primary", "--vz-success"]'
@@ -2810,9 +2814,9 @@
                                                 </div>
                                             </div><!-- end card body -->
                                         </div><!-- end card -->
-                                    </div><!-- end col -->
+                                    </div>
 
-                                    <div class="col-xl-4">
+                            @*         <div class="col-xl-4">
                                         <!-- card -->
                                         <div class="card card-height-100">
                                             <div class="card-header align-items-center d-flex">
@@ -2860,7 +2864,7 @@
                                             <!-- end card body -->
                                         </div>
                                         <!-- end card -->
-                                    </div>
+                                    </div> *@
                                     <!-- end col -->
                                 </div>
 
@@ -5193,3 +5197,335 @@
 <!-- Mirrored from themesbrand.com/velzon/html/master/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:20:07 GMT -->
 
 </html>
+<script>
+    // Khởi tạo biến global
+    var customerImpressionChart = "";
+  var currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+var validMonths = [];
+
+document.addEventListener("DOMContentLoaded", function () {
+    $.ajax({
+        url: '/Seller/GetValidMonths', // Đổi route nếu cần
+        method: 'GET',
+        dataType: 'json',
+        success: function (months) {
+            validMonths = months;
+            initFlatpickrWithValidMonths();
+        },
+        error: function () {
+            // Nếu lỗi, chỉ cho chọn tháng hiện tại
+            validMonths = [currentMonth];
+            initFlatpickrWithValidMonths();
+        }
+    });
+});
+
+function initFlatpickrWithValidMonths() {
+    flatpickr("#monthPicker", {
+        dateFormat: "Y-m",
+        defaultDate: currentMonth,
+        plugins: [
+            new monthSelectPlugin({
+                shorthand: true,
+                dateFormat: "Y-m",
+                altFormat: "F Y"
+            })
+        ],
+        disable: [
+            function (date) {
+                var y = date.getFullYear();
+                var m = (date.getMonth() + 1).toString().padStart(2, '0');
+                var ym = y + '-' + m;
+                return validMonths.indexOf(ym) === -1;
+            }
+        ],
+        onChange: function (selectedDates, dateStr, instance) {
+            currentMonth = dateStr;
+            loadMonthlyData(dateStr);
+        }
+    });
+
+    // Load dữ liệu cho tháng hiện tại
+    loadMonthlyData(currentMonth);
+}
+
+
+
+    // Hàm load dữ liệu từ backend
+    function loadMonthlyData(month) {
+        // Hiển thị loading spinner
+        showLoadingSpinners(true);
+
+        // Gửi AJAX request
+        $.ajax({
+            url: '/seller/GetMonthlyData', 
+            method: 'GET',
+            data: {
+                month: month
+            },
+            dataType: 'json',
+            success: function (response) {
+                // Cập nhật counter values
+                updateCounterValues(response.summary);
+
+                // Vẽ chart với dữ liệu nhận được
+                renderMonthlyChart(response.chartData, month);
+
+                // Ẩn loading spinner
+                showLoadingSpinners(false);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error loading monthly data:', error);
+                alert('Failed to load monthly data. Please try again later.');
+            }
+        });
+    }
+
+    // Hàm hiển thị/ẩn loading spinner
+    function showLoadingSpinners(show) {
+        // Xử lý spinner
+        var spinners = document.querySelectorAll('.loading-spinner');
+        spinners.forEach(function (spinner) {
+            spinner.style.display = show ? 'inline-block' : 'none';
+        });
+
+        // Ẩn/hiện các counter
+        var counters = [
+            document.getElementById('ordersCounter'),
+            document.getElementById('earningsCounter'),
+            document.getElementById('refundsCounter'),
+            document.getElementById('newCustomersCounter')
+        ];
+        counters.forEach(function (counter) {
+            if (counter) {
+                counter.style.display = show ? 'none' : 'inline';
+            }
+        });
+    }
+
+function updateCounterValues(summary) {
+    var ordersElem = document.getElementById('ordersCounter');
+    var earningsElem = document.getElementById('earningsCounter');
+    var refundsElem = document.getElementById('refundsCounter');
+    var newCustomersElem = document.getElementById('newCustomersCounter');
+    if (!summary || summary.orders == null || summary.earnings == null || summary.refunds == null || summary.newCustomers == null) {
+        if (ordersElem) ordersElem.textContent = '';
+        if (earningsElem) earningsElem.textContent = '';
+        if (refundsElem) refundsElem.textContent = '';
+        if (newCustomersElem) newCustomersElem.textContent = '';
+        return;
+    }
+
+    // Có dữ liệu hợp lệ mới hiện số
+    if (ordersElem) ordersElem.textContent = summary.orders;
+    if (earningsElem) earningsElem.textContent = summary.earnings;
+    if (refundsElem) refundsElem.textContent = summary.refunds;
+    if (newCustomersElem) newCustomersElem.textContent = summary.newCustomers;
+}
+
+
+    // Hàm vẽ chart
+    function renderMonthlyChart(chartData, month) {
+        var chartColors = getChartColorsArray("customer_charts");
+
+        if (!chartColors) {
+            console.warn('Chart colors not found');
+            return;
+        }
+
+        // Tạo danh sách ngày trong tháng
+        var daysInMonth = getDaysInMonth(month);
+        var currentDate = new Date();
+        var selectedDate = new Date(month + '-01');
+
+        // Lọc dữ liệu theo ngày hiện tại (chỉ hiển thị đến ngày hiện tại)
+        var filteredDays = daysInMonth.filter(function (day) {
+            var dayDate = new Date(month + '-' + String(day).padStart(2, '0'));
+            return dayDate <= currentDate || selectedDate.getMonth() !== currentDate.getMonth() || selectedDate.getFullYear() !== currentDate.getFullYear();
+        });
+        var categories = filteredDays.map(function (day) {
+            return day + '/' + (selectedDate.getMonth() + 1);
+        });
+
+        var ordersData = processSeriesData(chartData.orders, filteredDays, month);
+        var earningsData = processSeriesData(chartData.earnings, filteredDays, month);
+        var refundsData = processSeriesData(chartData.refunds, filteredDays, month);
+        var newCustomersData = processSeriesData(chartData.newCustomers, filteredDays, month);
+
+        var options = {
+            series: [
+                {
+                    name: "Orders",
+                    type: "area",
+                    data: ordersData
+                },
+                {
+                    name: "Earnings",
+                    type: "area",
+                    data: earningsData
+                },
+                {
+                    name: "Refunds",
+                    type: "area",
+                    data: refundsData
+                },
+                {
+                    name: "New Customer",
+                    type: "area",
+                    data: newCustomersData
+                }
+            ],
+            chart: {
+                height: 370,
+                type: "area",
+                toolbar: { show: false },
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: true  // Thêm dòng này
+                }
+            },
+            stroke: {
+                curve: "smooth",
+                width: 2
+            },
+            fill: {
+                type: "gradient",
+                opacity: [0.3, 0.3, 0.3, 0.3]
+            },
+            xaxis: {
+                categories: categories,
+                axisTicks: { show: false },
+                axisBorder: { show: false }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) {
+                        if (val % 1 === 0) return val;
+                        return val.toFixed(2);
+                    }
+                },
+                forceNiceScale: true  // Thêm dòng này để làm cho scale đẹp hơn
+            },
+            grid: {
+                show: true,
+                xaxis: { lines: { show: true } },
+                yaxis: { lines: { show: false } },
+                padding: { top: 0, right: -2, bottom: 15, left: 10 }
+            },
+            legend: {
+                show: true,
+                horizontalAlign: "center",
+                offsetX: 0,
+                offsetY: -5,
+                markers: { width: 9, height: 9, radius: 6 },
+                itemMargin: { horizontal: 10, vertical: 0 }
+            },
+            colors: chartColors,
+            tooltip: {
+                shared: true,
+                y: [{
+                    formatter: function (value) {
+                        return value !== undefined ? value.toFixed(0) : value;
+                    }
+                }, {
+                    formatter: function (value) {
+                        return value !== undefined ? "$" + value.toFixed(2) + "k" : value;
+                    }
+                }, {
+                    formatter: function (value) {
+                        return value !== undefined ? value.toFixed(0) + " Sales" : value;
+                    }
+                }, {
+                    formatter: function (value) {
+                        return value !== undefined ? value.toFixed(0) + " Customer" : value;
+                    }
+                }]
+            }
+        };
+
+        // Destroy existing chart if exists
+        if (customerImpressionChart && customerImpressionChart.destroy) {
+            customerImpressionChart.destroy();
+        }
+
+        // Render new chart
+        customerImpressionChart = new ApexCharts(
+            document.querySelector("#customer_charts"),
+            options
+        );
+        customerImpressionChart.render();
+    }
+
+    // Hàm lấy số ngày trong tháng
+    function getDaysInMonth(month) {
+        var date = new Date(month + '-01');
+        var year = date.getFullYear();
+        var monthNum = date.getMonth();
+        var daysInMonth = new Date(year, monthNum + 1, 0).getDate();
+
+        var days = [];
+        for (var i = 1; i <= daysInMonth; i++) {
+            days.push(i);
+        }
+        return days;
+    }
+
+    // Hàm xử lý dữ liệu series
+    function processSeriesData(data, days, month) {
+        return days.map(function (day) {
+            var dateKey = month + '-' + String(day).padStart(2, '0');
+            return data[dateKey] || 0; // Nếu không có dữ liệu thì trả về 0
+        });
+    }
+
+    // Hàm load dữ liệu demo (dùng khi có lỗi AJAX)
+    function loadDemoData(month) {
+        var daysInMonth = getDaysInMonth(month);
+        var currentDate = new Date();
+        var selectedDate = new Date(month + '-01');
+
+        // Tạo dữ liệu demo
+        var demoData = {
+            summary: {
+                orders: Math.floor(Math.random() * 10000) + 5000,
+                earnings: (Math.random() * 50 + 10).toFixed(2),
+                refunds: Math.floor(Math.random() * 500) + 100,
+                newCustomers: (Math.random() * 30 + 5).toFixed(2)
+            },
+            chartData: {
+                orders: {},
+                earnings: {},
+                refunds: {},
+                newCustomers: {}
+            }
+        };
+
+        // Tạo dữ liệu random cho từng ngày
+        daysInMonth.forEach(function (day) {
+            var dateKey = month + '-' + String(day).padStart(2, '0');
+            var dayDate = new Date(dateKey);
+
+            // Chỉ tạo dữ liệu cho các ngày <= ngày hiện tại (nếu cùng tháng/năm)
+            if (dayDate <= currentDate || selectedDate.getMonth() !== currentDate.getMonth() || selectedDate.getFullYear() !== currentDate.getFullYear()) {
+                demoData.chartData.orders[dateKey] = Math.floor(Math.random() * 100) + 10;
+                demoData.chartData.earnings[dateKey] = Math.random() * 200 + 50;
+                demoData.chartData.refunds[dateKey] = Math.floor(Math.random() * 20);
+                demoData.chartData.newCustomers[dateKey] = Math.floor(Math.random() * 50) + 5;
+            }
+        });
+
+        // Cập nhật UI với dữ liệu demo
+        updateCounterValues(demoData.summary);
+        renderMonthlyChart(demoData.chartData, month);
+    }
+
+    // Resize handler
+    window.addEventListener('resize', function () {
+        setTimeout(function () {
+            if (customerImpressionChart && customerImpressionChart.render) {
+                customerImpressionChart.render();
+            }
+        }, 100);
+    });
+    </script>
