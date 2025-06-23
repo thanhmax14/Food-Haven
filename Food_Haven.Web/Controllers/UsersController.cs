@@ -44,7 +44,8 @@ using SixLabors.ImageSharp.Processing;
 using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message; // nhớ import
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using BusinessLogic.Services.RecipeReviewReviews; // nhớ import
+using BusinessLogic.Services.RecipeReviewReviews;
+using BusinessLogic.Services.FavoriteFavoriteRecipes; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -76,8 +77,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IMessageService _messageService;
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly IRecipeReviewService _recipeReviewService;
+        private readonly IFavoriteRecipeService _iFavoriteRecipe;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe)
         {
             _userManager = userManager;
             this.client = client;
@@ -103,6 +105,7 @@ namespace Food_Haven.Web.Controllers
             _messageService = messageService;
             _hubContext = hubContext;
             _recipeReviewService = recipeReviewService;
+            _iFavoriteRecipe = iFavoriteRecipe;
         }
 
         [HttpGet]
@@ -1694,52 +1697,52 @@ namespace Food_Haven.Web.Controllers
             return View();
         }
         [HttpGet]
-          public async Task<IActionResult> GetUserList()
-   {
-       var user = await _userManager.GetUserAsync(User);
-       if (user == null)
-       {
-           return Unauthorized();
-       }
+        public async Task<IActionResult> GetUserList()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
 
-       var currentUserId = user.Id;
-       var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
+            var currentUserId = user.Id;
+            var adminId = "af32f202-1cb6-4191-8293-00da0aae4d2d";
 
-       // Lấy tất cả tin nhắn 1 lần
-       var allMessages = _messageService.GetAll();
+            // Lấy tất cả tin nhắn 1 lần
+            var allMessages = _messageService.GetAll();
 
-       // Lấy danh sách các user đã nhắn tin với mình
-       var chatUserIds = allMessages
-           .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
-           .Select(m => m.FromUserId == currentUserId ? m.ToUserId : m.FromUserId)
-           .Distinct()
-           .ToList();
+            // Lấy danh sách các user đã nhắn tin với mình
+            var chatUserIds = allMessages
+                .Where(m => m.FromUserId == currentUserId || m.ToUserId == currentUserId)
+                .Select(m => m.FromUserId == currentUserId ? m.ToUserId : m.FromUserId)
+                .Distinct()
+                .ToList();
 
-       // Luôn hiển thị admin (nếu khác current user)
-       if (adminId != currentUserId && !chatUserIds.Contains(adminId))
-       {
-           chatUserIds.Insert(0, adminId);
-       }
+            // Luôn hiển thị admin (nếu khác current user)
+            if (adminId != currentUserId && !chatUserIds.Contains(adminId))
+            {
+                chatUserIds.Insert(0, adminId);
+            }
 
-       // Thời điểm hiện tại
-       var now = DateTime.Now;
+            // Thời điểm hiện tại
+            var now = DateTime.Now;
 
-       var users = _userManager.Users
- .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
- .Select(u => new
- {
-     id = u.Id,
-     name = u.UserName,
-     profile = u.ImageUrl,
-     nickname = u.UserName,
-     status = ChatHub.IsUserOnline(u.Id) ? "online" : "offline",
-     lastSeen = u.LastAccess.ToString("yyyy-MM-dd HH:mm:ss"),
-     messagecount = allMessages.Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead)
- })
- .ToList();
+            var users = _userManager.Users
+      .Where(u => chatUserIds.Contains(u.Id) && u.Id != currentUserId)
+      .Select(u => new
+      {
+          id = u.Id,
+          name = u.UserName,
+          profile = u.ImageUrl,
+          nickname = u.UserName,
+          status = ChatHub.IsUserOnline(u.Id) ? "online" : "offline",
+          lastSeen = u.LastAccess.ToString("yyyy-MM-dd HH:mm:ss"),
+          messagecount = allMessages.Count(m => m.FromUserId == u.Id && m.ToUserId == currentUserId && !m.IsRead)
+      })
+      .ToList();
 
-       return Json(users);
-   }
+            return Json(users);
+        }
 
 
         [HttpGet]
@@ -1951,12 +1954,112 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = "An error occurred while processing the reply." });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> FavoriteRecipes(int? page)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Home");
+
+            try
+            {
+                var list = new List<FavoriteRecipeViewModel>();
+                var obj = await _iFavoriteRecipe.ListAsync();
+                var userFavorites = obj.Where(f => f.UserID == user.Id);
+
+                foreach (var item in userFavorites)
+                {
+
+                    var recipe = await _recipeService.FindAsync(a => a.ID == item.RecipeID);
+                    var typeOfDish = await _typeOfDishService.GetAsyncById(recipe.TypeOfDishID);
+
+                    if (recipe == null) continue;
+
+                    var viewModel = new FavoriteRecipeViewModel
+                    {
+                        ID = item.ID,
+                        CreatedDate = item.CreatedDate,
+                        RecipeID = item.RecipeID,
+                        UserID = item.UserID,
+                        ThumbnailImage = recipe.ThumbnailImage,
+                        Title = recipe.Title,
+                        DifficultyLevel = recipe.DifficultyLevel,
+                        status = recipe.status,
+                        ShortDescriptions = recipe.ShortDescriptions,
+                        TypeOfDishName = typeOfDish?.Name ?? "Unknown"
+
+                    };
+                    list.Add(viewModel);
+                }
+
+                int pageSize = 10;
+                int pageNumber = page ?? 1;
+
+                var pagedList = list.ToPagedList(pageNumber, pageSize);
+                return View(pagedList);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddFavoriteRecipes([FromBody] FavoriteRecipeViewModel obj)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { success = false, message = "Please login to add favorite." });
+            var isExist = await _iFavoriteRecipe.FindAsync(x => x.RecipeID == obj.RecipeID && x.UserID == user.Id);
+            if (isExist != null)
+            {
+                return Json(new { success = false, message = "You have already favorited this recipe." });
+            }
+            try
+            {
+                var viewModel = new FavoriteRecipe
+                {
+                    ID = Guid.NewGuid(),
+                    CreatedDate = DateTime.UtcNow,
+                    RecipeID = obj.RecipeID,
+                    UserID = user.Id
+                };
+
+                await _iFavoriteRecipe.AddAsync(viewModel);
+                await _iFavoriteRecipe.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Added to favorites." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteFavoriteRecipe([FromBody] Guid id)
+        {
+            try
+            {
+                var favorite = await _iFavoriteRecipe.FindAsync(f => f.ID == id);
+                if (favorite == null)
+                    return Json(new { success = false, message = "Favorite not found." });
+
+                await _iFavoriteRecipe.DeleteAsync(favorite);
+                await _iFavoriteRecipe.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Favorite removed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
 
 
-
     }
+
+
+}
 
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace Repository.ViewModels
         public string? LongDescriptions { get; set; }
         public string? ShortDescriptions { get; set; }
         public string CategoryName { get; set; }
-        
+
 
         public List<ProductsViewModel> ProductViewModel { get; set; }
 
@@ -31,6 +32,9 @@ namespace Repository.ViewModels
         public string? UserNameRepo { get; set; }
         public string? Email { get; set; }
         public int MyProperty { get; set; }
-    
+        [StringLength(200, ErrorMessage = "Message must be at most 200 characters.")]
+
+        [Required(ErrorMessage = "Message is require")]
+        public string Message { get; set; }
     }
 }

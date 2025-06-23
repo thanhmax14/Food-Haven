@@ -1630,8 +1630,16 @@ namespace Food_Haven.Web.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null) return RedirectToAction("Login", "Home");
-                var viewModel = new StoreReport
+                if (user == null)
+                    return Json(new { success = false, message = "You must be logged in to report." });
+
+                if (string.IsNullOrWhiteSpace(obj.Reason) || obj.Reason == "-- Select a reason --")
+                    return Json(new { success = false, message = "Please select a reason for reporting." });
+
+                if (string.IsNullOrWhiteSpace(obj.Message))
+                    return Json(new { success = false, message = "Message is required." });
+
+                var report = new StoreReport
                 {
                     StoreID = obj.StoreID,
                     UserID = user.Id,
@@ -1639,17 +1647,19 @@ namespace Food_Haven.Web.Controllers
                     Message = obj.Message,
                     CreatedDate = DateTime.UtcNow,
                 };
-                await _storeReport.AddAsync(viewModel);
+
+                await _storeReport.AddAsync(report);
                 await _storeReport.SaveChangesAsync();
-                return RedirectToAction("GetAllStore", "Home");
 
+                return Json(new { success = true, message = "Report submitted successfully." });
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                throw;
+                return Json(new { success = false, message = "An error occurred. Please try again later." });
             }
-
         }
+
+
 
 
     }
