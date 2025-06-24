@@ -487,6 +487,12 @@
                                                 <i class="fi-rs-user mr-10"></i>Wallet
                                             </a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="Feedback-tab" data-bs-toggle="tab" href="#Feedback"
+                                               role="tab" aria-controls="Feedback" aria-selected="true">
+                                                <i class="fi-rs-user mr-10"></i>My Feedback
+                                            </a>
+                                        </li>
                                   
                                         @* <li class="nav-item"> 
                                             <a class="nav-link" id="Feedback-tab" data-bs-toggle="tab" href="#Feedback"
@@ -1730,7 +1736,16 @@ document.addEventListener("click", function (e) {
                                     </div>
                           
          
-
+ <div class="tab-pane fade show" id="Feedback" role="tabpanel" aria-labelledby="Feedback-tab">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="mb-0">Your FeedBack</h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="table-responsive" id="table-feedback"></div>
+                                            </div>
+                                        </div>
+                                    </div>
 
 
                                     @* ///FEEDBACK *@
@@ -2602,3 +2617,59 @@ document.addEventListener("click", function (e) {
         });
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const container = document.getElementById("table-feedback");
+
+        // ✅ Hàm định dạng ngày (không có giờ)
+        function formatDate(dateStr) {
+            if (!dateStr) return "N/A";
+            const date = new Date(dateStr);
+            return `${date.getDate().toString().padStart(2, '0')}/${
+                (date.getMonth() + 1).toString().padStart(2, '0')}/${
+                date.getFullYear()}`;
+        }
+
+        function loadFeedback() {
+            fetch('/Users/ViewMyFeedBack')
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to fetch");
+                    return response.json();
+                })
+                .then(feedbackList => {
+                    new gridjs.Grid({
+                        columns: [
+                            { name: "STT", width: "60px" },
+                            { name: "ProductName", width: "150px" },
+                            { name: "Comment", width: "350px" },
+                            { name: "Comment Date", width: "180px" },
+                            { name: "Reply", width: "250px" },
+                        ],
+                        data: feedbackList.map((fb, index) => [
+                            index + 1,
+                            fb.productName || "Unknown",  // <-- đúng key JS
+                            fb.comment,
+                            formatDate(fb.commentDate),
+                            fb.reply || "N/A"
+                        ]),
+                        pagination: {
+                            enabled: true,
+                            limit: 5,
+                            summary: true
+                        },
+                        sort: true,
+                        search: true
+                    }).render(container);
+                })
+                .catch(error => {
+                    container.innerHTML = `<p class="text-danger">Error loading feedback.</p>`;
+                    console.error(error);
+                });
+        }
+
+        // Gọi khi load trang
+        loadFeedback();
+    });
+</script>
+
+
