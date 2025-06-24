@@ -60,6 +60,7 @@ namespace Repository.ViewModels
         public ICollection<RecipeReview> RecipeReviews { get; set; }
         public IEnumerable<RecipeReviewViewModel> RecipeReviewViewModels { get; set; } = new List<RecipeReviewViewModel>();
         public string? RecipeOwnerUserName { get; set; }
+        public bool IsFavorite { get; set; } // mới thêm
 
     }
 

@@ -485,10 +485,17 @@
                                 @* <a href="vendor-details-1.html" class="btn btn-xs">Contact Seller <i class="fi-rs-arrow-small-right"></i></a> *@
                             </div>
                             <!-- Nút dùng file-signature -->
-                            <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                data-bs-target="#reportModal">
-                                <i class="fas fa-file-signature me-2"></i>
-                            </button>
+@if (User.Identity.IsAuthenticated && Model.UserID != User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+{
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+            data-bs-target="#reportModal">
+        <i class="fas fa-file-signature me-2"></i>
+    </button>
+}
+
+
+
+                         
 
 
                         </div>

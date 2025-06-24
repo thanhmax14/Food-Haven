@@ -25,6 +25,9 @@
             font-size: 19px;
             
         }
+ .heart-red svg path {
+    fill: red !important;
+}
         .single-comment .desc {
     word-wrap: break-word;
     white-space: normal;
@@ -736,7 +739,7 @@
         <div class="row">
             <div class="col-lg-10">
                 <!-- Category -->
-                <h6><a href="#" class="category-link">Recipes</a></h6>
+                @* <h6><a href="#" class="category-link">Recipes</a></h6> *@
                 
                 <!-- Main Title -->
                 <h2 class="recipe-title">@Model.Title</h2>
@@ -789,19 +792,23 @@
             </svg>
         </button>
     </li>
-    <li>
-        <button class="add-favorite" data-recipe-id="@Model.ID" title="Add to Favorites"
-                style="all: unset; cursor: pointer;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 
-                         2 12.28 2 8.5 2 5.42 4.42 3 7.5 
-                         3c1.74 0 3.41.81 4.5 2.09C13.09 
-                         3.81 14.76 3 16.5 3 19.58 3 22 
-                         5.42 22 8.5c0 3.78-3.4 6.86-8.55 
-                         11.54L12 21.35z" />
-            </svg>
-        </button>
-    </li>
+<li>
+    <button class="add-favorite @(Model.IsFavorite ? "heart-red" : "")"
+            data-recipe-id="@Model.ID"
+            title="Toggle Favorite"
+            style="all: unset; cursor: pointer;">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 
+                     2 12.28 2 8.5 2 5.42 4.42 3 7.5 
+                     3c1.74 0 3.41.81 4.5 2.09C13.09 
+                     3.81 14.76 3 16.5 3 19.58 3 22 
+                     5.42 22 8.5c0 3.78-3.4 6.86-8.55 
+                     11.54L12 21.35z" />
+        </svg>
+    </button>
+</li>
+
+
 </ul>
 
                     </div>
@@ -1931,36 +1938,71 @@ document.getElementById('Relycomment-form').addEventListener('submit', function 
 });
 </script>
 <script>
-$(document).on('click', '.add-favorite', function () {
-    const recipeId = $(this).data('recipe-id');
-    const button = $(this);
+    $(document).on('click', '.add-favorite', function () {
+        const recipeId = $(this).data('recipe-id');
+        const button = $(this);
 
-    $.ajax({
-        url: '/Users/AddFavoriteRecipes',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ RecipeID: recipeId }), // ✅ Gửi đúng JSON
-        success: function (res) {
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Added!',
-                    text: 'This recipe has been added to your favorites.',
-                    timer: 1500,
-                    showConfirmButton: false
+        $.ajax({
+            url: '/Users/AddFavoriteRecipes',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ RecipeID: recipeId }),
+            success: function (res) {
+                if (res.success) {
+                    if (res.isFavorite) {
+                        button.addClass('heart-red');
+
+                        new Notify({
+                            status: 'success',
+                            title: 'Favorited!',
+                            text: res.message || 'Recipe has been added to favorites.',
+                            position: 'right top',
+                            autoclose: true,
+                            autotimeout: 2000,
+                            showIcon: true
+                        });
+
+                    } else {
+                        button.removeClass('heart-red');
+
+                        new Notify({
+                            status: 'info',
+                            title: 'Removed!',
+                            text: res.message || 'Recipe has been removed from favorites.',
+                            position: 'right top',
+                            autoclose: true,
+                            autotimeout: 2000,
+                            showIcon: true
+                        });
+                    }
+                } else {
+                    new Notify({
+                        status: 'error',
+                        title: 'Error!',
+                        text: res.message || 'An error occurred while processing your request.',
+                        position: 'right top',
+                        autoclose: true,
+                        autotimeout: 4000,
+                        showIcon: true
+                    });
+                }
+            },
+            error: function () {
+                new Notify({
+                    status: 'error',
+                    title: 'Connection Failed!',
+                    text: 'Unable to connect to the server.',
+                    position: 'right top',
+                    autoclose: true,
+                    autotimeout: 4000,
+                    showIcon: true
                 });
-              
-            } else {
-                Swal.fire("Error", res.message, "error");
             }
-        },
-        error: function () {
-            Swal.fire("Error", "Failed to add to favorites.", "error");
-        }
+        });
     });
-});
-
 </script>
+
+
 
 
 
