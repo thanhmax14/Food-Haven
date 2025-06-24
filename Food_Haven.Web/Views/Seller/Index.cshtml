@@ -4,7 +4,7 @@
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 @{
-    Layout = "_Layout";
+    Layout = "_loadNotify";
 }
 
 
@@ -41,7 +41,137 @@
     <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        .wraphe {
+            word-break: break-word;
+            white-space: normal;
+        }
 
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+            .search-box input {
+                padding-left: 40px;
+            }
+
+            .search-box i {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #6c757d;
+            }
+
+        .filter-dropdown {
+            min-width: 180px;
+        }
+
+        .product-image {
+            width: 40px;
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6c757d;
+        }
+
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .fs-14 {
+            font-size: 14px !important;
+        }
+
+        .fs-12 {
+            font-size: 12px !important;
+        }
+
+        .fw-medium {
+            font-weight: 500 !important;
+        }
+
+        .text-reset {
+            color: inherit !important;
+            text-decoration: none;
+        }
+
+            .text-reset:hover {
+                text-decoration: underline;
+            }
+
+        .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        .bg-danger-subtle {
+            background-color: rgba(220, 53, 69, 0.1) !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .text-success {
+            color: #198754 !important;
+        }
+
+        .table > :not(caption) > * > * {
+            padding: 0.75rem;
+            background-color: var(--bs-table-bg);
+            border-bottom-width: 1px;
+            box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
+        }
+
+        .table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: var(--bs-table-hover-bg);
+            color: var(--bs-table-hover-color);
+        }
+
+        .table-nowrap th,
+        .table-nowrap td {
+            white-space: nowrap;
+        }
+
+        .table-centered th,
+        .table-centered td {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body>
@@ -2390,7 +2520,8 @@
                                     <!--end col-->
                                 </div>
                                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                             
+
                                 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
                                 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
                                 <script>
@@ -2869,473 +3000,1167 @@
                                 </div>
 
                                 <div class="row">
+                                    <!-- Best Selling Products -->
                                     <div class="col-xl-6">
                                         <div class="card">
-                                            <div class="card-header align-items-center d-flex">
-                                                <h4 class="card-title mb-0 flex-grow-1">Best Selling Products</h4>
-                                                <div class="flex-shrink-0">
-                                                    <div class="dropdown card-header-dropdown">
-                                                        <a class="text-reset dropdown-btn" href="#"
-                                                            data-bs-toggle="dropdown" aria-haspopup="true"
-                                                            aria-expanded="false">
-                                                            <span class="fw-semibold text-uppercase fs-12">Sort by:
-                                                            </span><span class="text-muted">Today<i
-                                                                    class="mdi mdi-chevron-down ms-1"></i></span>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                            <a class="dropdown-item" href="#">Today</a>
-                                                            <a class="dropdown-item" href="#">Yesterday</a>
-                                                            <a class="dropdown-item" href="#">Last 7 Days</a>
-                                                            <a class="dropdown-item" href="#">Last 30 Days</a>
-                                                            <a class="dropdown-item" href="#">This Month</a>
-                                                            <a class="dropdown-item" href="#">Last Month</a>
-                                                        </div>
-                                                    </div>
+                                            <div class="card-header d-flex align-items-center justify-content-between">
+                                                <h4 class="card-title mb-0">Best Selling Products</h4>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                            type="button" id="productsFilter" data-bs-toggle="dropdown">
+                                                        <span class="fw-semibold text-uppercase fs-12">Sort by: </span>
+                                                        <span class="text-muted" id="productsFilterText">Today</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end filter-dropdown">
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="today">Today</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="yesterday">Yesterday</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="last7days">Last 7 Days</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="last30days">Last 30 Days</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="thismonth">This Month</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="lastmonth">Last Month</a>
+                                                        </li>
+                                                         <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="alltime">All Time</a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
-                                            </div><!-- end card header -->
+                                            </div>
 
                                             <div class="card-body">
-                                                <div class="table-responsive table-card">
-                                                    <table
-                                                        class="table table-hover table-centered align-middle table-nowrap mb-0">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div
-                                                                            class="avatar-sm bg-light rounded p-1 me-2">
-                                                                            <img src="~/assetsAdmin/images/products/img-1.png"
-                                                                                alt="" class="img-fluid d-block" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 class="fs-14 my-1"><a
-                                                                                    href="apps-ecommerce-product-details.html"
-                                                                                    class="text-reset">Branded
-                                                                                    T-Shirts</a></h5>
-                                                                            <span class="text-muted">24 Apr 2021</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$29.00</h5>
-                                                                    <span class="text-muted">Price</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">62</h5>
-                                                                    <span class="text-muted">Orders</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">510</h5>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$1,798</h5>
-                                                                    <span class="text-muted">Amount</span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div
-                                                                            class="avatar-sm bg-light rounded p-1 me-2">
-                                                                            <img src="~/assetsAdmin/images/products/img-2.png"
-                                                                                alt="" class="img-fluid d-block" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 class="fs-14 my-1"><a
-                                                                                    href="apps-ecommerce-product-details.html"
-                                                                                    class="text-reset">Bentwood
-                                                                                    Chair</a></h5>
-                                                                            <span class="text-muted">19 Mar 2021</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$85.20</h5>
-                                                                    <span class="text-muted">Price</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">35</h5>
-                                                                    <span class="text-muted">Orders</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal"><span
-                                                                            class="badge bg-danger-subtle text-danger">Out
-                                                                            of stock</span> </h5>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$2982</h5>
-                                                                    <span class="text-muted">Amount</span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div
-                                                                            class="avatar-sm bg-light rounded p-1 me-2">
-                                                                            <img src="~/assetsAdmin/images/products/img-3.png"
-                                                                                alt="" class="img-fluid d-block" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 class="fs-14 my-1"><a
-                                                                                    href="apps-ecommerce-product-details.html"
-                                                                                    class="text-reset">Borosil Paper
-                                                                                    Cup</a></h5>
-                                                                            <span class="text-muted">01 Mar 2021</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$14.00</h5>
-                                                                    <span class="text-muted">Price</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">80</h5>
-                                                                    <span class="text-muted">Orders</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">749</h5>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$1120</h5>
-                                                                    <span class="text-muted">Amount</span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div
-                                                                            class="avatar-sm bg-light rounded p-1 me-2">
-                                                                            <img src="~/assetsAdmin/images/products/img-4.png"
-                                                                                alt="" class="img-fluid d-block" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 class="fs-14 my-1"><a
-                                                                                    href="apps-ecommerce-product-details.html"
-                                                                                    class="text-reset">One Seater
-                                                                                    Sofa</a></h5>
-                                                                            <span class="text-muted">11 Feb 2021</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$127.50</h5>
-                                                                    <span class="text-muted">Price</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">56</h5>
-                                                                    <span class="text-muted">Orders</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal"><span
-                                                                            class="badge bg-danger-subtle text-danger">Out
-                                                                            of stock</span></h5>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$7140</h5>
-                                                                    <span class="text-muted">Amount</span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div
-                                                                            class="avatar-sm bg-light rounded p-1 me-2">
-                                                                            <img src="~/assetsAdmin/images/products/img-5.png"
-                                                                                alt="" class="img-fluid d-block" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 class="fs-14 my-1"><a
-                                                                                    href="apps-ecommerce-product-details.html"
-                                                                                    class="text-reset">Stillbird
-                                                                                    Helmet</a></h5>
-                                                                            <span class="text-muted">17 Jan 2021</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$54</h5>
-                                                                    <span class="text-muted">Price</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">74</h5>
-                                                                    <span class="text-muted">Orders</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">805</h5>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 my-1 fw-normal">$3996</h5>
-                                                                    <span class="text-muted">Amount</span>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
+                                                <div class="search-box">
+                                                    <i class="fas fa-search"></i>
+                                                    <input type="text" class="form-control" id="productSearch"
+                                                           placeholder="Search products...">
                                                 </div>
-
-                                                <div
-                                                    class="align-items-center mt-4 pt-2 justify-content-between row text-center text-sm-start">
-                                                    <div class="col-sm">
-                                                        <div class="text-muted">
-                                                            Showing <span class="fw-semibold">5</span> of <span
-                                                                class="fw-semibold">25</span> Results
+                                                <div style="position: relative;">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover table-centered align-middle table-nowrap mb-0"
+                                                               id="productsTable">
+                                                            <tbody>
+                                                                <!-- Products will be loaded here -->
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div id="productsLoading" class="loading-overlay"
+                                                         style="display: none;">
+                                                        <div class="text-center">
+                                                            <div class="spinner-border text-primary" role="status">
+                                                                <span class="visually-hidden">Loading...</span>
+                                                            </div>
+                                                            <div class="mt-2">Loading products...</div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-sm-auto  mt-3 mt-sm-0">
-                                                        <ul
-                                                            class="pagination pagination-separated pagination-sm mb-0 justify-content-center">
-                                                            <li class="page-item disabled">
-                                                                <a href="#" class="page-link">←</a>
-                                                            </li>
-                                                            <li class="page-item">
-                                                                <a href="#" class="page-link">1</a>
-                                                            </li>
-                                                            <li class="page-item active">
-                                                                <a href="#" class="page-link">2</a>
-                                                            </li>
-                                                            <li class="page-item">
-                                                                <a href="#" class="page-link">3</a>
-                                                            </li>
-                                                            <li class="page-item">
-                                                                <a href="#" class="page-link">→</a>
-                                                            </li>
+                                                </div>
+
+                                                <!-- Products Pagination -->
+                                                <div class="align-items-center mt-4 pt-2 justify-content-between row text-center text-sm-start"
+                                                     id="productsPagination">
+                                                    <div class="col-sm">
+                                                        <div class="text-muted">
+                                                            Showing <span class="fw-semibold"
+                                                                          id="productsShowingStart">0</span>-<span class="fw-semibold" id="productsShowingEnd">0</span> of
+                                                            <span class="fw-semibold" id="productsTotal">0</span>
+                                                            Results
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-auto mt-3 mt-sm-0">
+                                                        <ul class="pagination pagination-separated pagination-sm mb-0 justify-content-center"
+                                                            id="productsPaginationList">
+                                                            <!-- Pagination will be rendered here -->
                                                         </ul>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Top Customers -->
                                     <div class="col-xl-6">
-                                        <div class="card card-height-100">
-                                            <div class="card-header align-items-center d-flex">
-                                                <h4 class="card-title mb-0 flex-grow-1">Top Customers</h4>
-                                                <div class="flex-shrink-0">
-                                                    <div class="dropdown card-header-dropdown">
-                                                        <a class="text-reset dropdown-btn" href="#"
-                                                            data-bs-toggle="dropdown" aria-haspopup="true"
-                                                            aria-expanded="false">
-                                                            <span class="text-muted">Report<i
-                                                                    class="mdi mdi-chevron-down ms-1"></i></span>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-end">
-                                                            <a class="dropdown-item" href="#">Download Report</a>
-                                                            <a class="dropdown-item" href="#">Export</a>
-                                                            <a class="dropdown-item" href="#">Import</a>
-                                                        </div>
-                                                    </div>
+                                        <div class="card">
+                                            <div class="card-header d-flex align-items-center justify-content-between">
+                                                <h4 class="card-title mb-0">Top Customers</h4>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                            type="button" id="customersFilter" data-bs-toggle="dropdown">
+                                                        <span class="fw-semibold text-uppercase fs-12">Sort by: </span>
+                                                        <span class="text-muted" id="customersFilterText">Today</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end filter-dropdown">
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="today">Today</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="yesterday">Yesterday</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="last7days">Last 7 Days</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="last30days">Last 30 Days</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="thismonth">This Month</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#"
+                                                               data-period="lastmonth">Last Month</a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
-                                            </div><!-- end card header -->
+                                            </div>
 
                                             <div class="card-body">
-                                                <div class="table-responsive table-card">
-                                                    <table
-                                                        class="table table-centered table-hover align-middle table-nowrap mb-0">
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-2">
-                                                                            <img src="~/assetsAdmin/images/companies/img-1.png"
-                                                                                alt="" class="avatar-sm p-2" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 class="fs-14 my-1 fw-medium">
-                                                                                <a href="apps-ecommerce-seller-details.html"
-                                                                                    class="text-reset">iTest Factory</a>
-                                                                            </h5>
-                                                                            <span class="text-muted">Oliver Tyler</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">Bags and Wallets</span>
-                                                                </td>
-                                                                <td>
-                                                                    <p class="mb-0">8547</p>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">$541200</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 mb-0">32%<i
-                                                                            class="ri-bar-chart-fill text-success fs-16 align-middle ms-2"></i>
-                                                                    </h5>
-                                                                </td>
-                                                            </tr><!-- end -->
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-2">
-                                                                            <img src="~/assetsAdmin/images/companies/img-2.png"
-                                                                                alt="" class="avatar-sm p-2" />
-                                                                        </div>
-                                                                        <div class="flex-grow-1">
-                                                                            <h5 class="fs-14 my-1 fw-medium"><a
-                                                                                    href="apps-ecommerce-seller-details.html"
-                                                                                    class="text-reset">Digitech
-                                                                                    Galaxy</a></h5>
-                                                                            <span class="text-muted">John Roberts</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">Watches</span>
-                                                                </td>
-                                                                <td>
-                                                                    <p class="mb-0">895</p>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">$75030</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 mb-0">79%<i
-                                                                            class="ri-bar-chart-fill text-success fs-16 align-middle ms-2"></i>
-                                                                    </h5>
-                                                                </td>
-                                                            </tr><!-- end -->
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-2">
-                                                                            <img src="~/assetsAdmin/images/companies/img-3.png"
-                                                                                alt="" class="avatar-sm p-2" />
-                                                                        </div>
-                                                                        <div class="flex-gow-1">
-                                                                            <h5 class="fs-14 my-1 fw-medium"><a
-                                                                                    href="apps-ecommerce-seller-details.html"
-                                                                                    class="text-reset">Nesta
-                                                                                    Technologies</a></h5>
-                                                                            <span class="text-muted">Harley
-                                                                                Fuller</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">Bike Accessories</span>
-                                                                </td>
-                                                                <td>
-                                                                    <p class="mb-0">3470</p>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">$45600</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 mb-0">90%<i
-                                                                            class="ri-bar-chart-fill text-success fs-16 align-middle ms-2"></i>
-                                                                    </h5>
-                                                                </td>
-                                                            </tr><!-- end -->
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-2">
-                                                                            <img src="~/assetsAdmin/images/companies/img-8.png"
-                                                                                alt="" class="avatar-sm p-2" />
-                                                                        </div>
-                                                                        <div class="flex-grow-1">
-                                                                            <h5 class="fs-14 my-1 fw-medium"><a
-                                                                                    href="apps-ecommerce-seller-details.html"
-                                                                                    class="text-reset">Zoetic
-                                                                                    Fashion</a></h5>
-                                                                            <span class="text-muted">James Bowen</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">Clothes</span>
-                                                                </td>
-                                                                <td>
-                                                                    <p class="mb-0">5488</p>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">$29456</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 mb-0">40%<i
-                                                                            class="ri-bar-chart-fill text-success fs-16 align-middle ms-2"></i>
-                                                                    </h5>
-                                                                </td>
-                                                            </tr><!-- end -->
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 me-2">
-                                                                            <img src="~/assetsAdmin/images/companies/img-5.png"
-                                                                                alt="" class="avatar-sm p-2" />
-                                                                        </div>
-                                                                        <div class="flex-grow-1">
-                                                                            <h5 class="fs-14 my-1 fw-medium">
-                                                                                <a href="apps-ecommerce-seller-details.html"
-                                                                                    class="text-reset">Meta4Systems</a>
-                                                                            </h5>
-                                                                            <span class="text-muted">Zoe Dennis</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">Furniture</span>
-                                                                </td>
-                                                                <td>
-                                                                    <p class="mb-0">4100</p>
-                                                                    <span class="text-muted">Stock</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span class="text-muted">$11260</span>
-                                                                </td>
-                                                                <td>
-                                                                    <h5 class="fs-14 mb-0">57%<i
-                                                                            class="ri-bar-chart-fill text-success fs-16 align-middle ms-2"></i>
-                                                                    </h5>
-                                                                </td>
-                                                            </tr><!-- end -->
-                                                        </tbody>
-                                                    </table><!-- end table -->
+                                                <div class="search-box">
+                                                    <i class="fas fa-search"></i>
+                                                    <input type="text" class="form-control" id="customerSearch"
+                                                           placeholder="Search customers...">
                                                 </div>
-
-                                                <div
-                                                    class="align-items-center mt-4 pt-2 justify-content-between row text-center text-sm-start">
-                                                    <div class="col-sm">
-                                                        <div class="text-muted">
-                                                            Showing <span class="fw-semibold">5</span> of <span
-                                                                class="fw-semibold">25</span> Results
+                                                <div style="position: relative;">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-centered table-hover align-middle table-nowrap mb-0"
+                                                               id="customersTable">
+                                                            <tbody>
+                                                                <!-- Customers will be loaded here -->
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div id="customersLoading" class="loading-overlay"
+                                                         style="display: none;">
+                                                        <div class="text-center">
+                                                            <div class="spinner-border text-primary" role="status">
+                                                                <span class="visually-hidden">Loading...</span>
+                                                            </div>
+                                                            <div class="mt-2">Loading customers...</div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-sm-auto  mt-3 mt-sm-0">
-                                                        <ul
-                                                            class="pagination pagination-separated pagination-sm mb-0 justify-content-center">
-                                                            <li class="page-item disabled">
-                                                                <a href="#" class="page-link">←</a>
-                                                            </li>
-                                                            <li class="page-item">
-                                                                <a href="#" class="page-link">1</a>
-                                                            </li>
-                                                            <li class="page-item active">
-                                                                <a href="#" class="page-link">2</a>
-                                                            </li>
-                                                            <li class="page-item">
-                                                                <a href="#" class="page-link">3</a>
-                                                            </li>
-                                                            <li class="page-item">
-                                                                <a href="#" class="page-link">→</a>
-                                                            </li>
+                                                </div>
+
+                                                <!-- Customers Pagination -->
+                                                <div class="align-items-center mt-4 pt-2 justify-content-between row text-center text-sm-start"
+                                                     id="customersPagination">
+                                                    <div class="col-sm">
+                                                        <div class="text-muted">
+                                                            Showing <span class="fw-semibold"
+                                                                          id="customersShowingStart">0</span>-<span class="fw-semibold" id="customersShowingEnd">0</span> of
+                                                            <span class="fw-semibold" id="customersTotal">0</span>
+                                                            Results
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-auto mt-3 mt-sm-0">
+                                                        <ul class="pagination pagination-separated pagination-sm mb-0 justify-content-center"
+                                                            id="customersPaginationList">
+                                                            <!-- Pagination will be rendered here -->
                                                         </ul>
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                     
+                                <script>
+                                    // Pagination state
+                                    let productsCurrentPage = 1;
+                                    let customersCurrentPage = 1;
+                                    const itemsPerPage = 5;
+                                    let allProducts = [];
+                                    let allCustomers = [];
+                                    let filteredProducts = [];
+                                    let filteredCustomers = [];
 
-                                            </div> <!-- .card-body-->
-                                        </div> <!-- .card-->
-                                    </div> <!-- .col-->
-                                </div> <!-- end row-->
+                                    // AJAX API functions - Updated to call backend
+                                    async function fetchProducts(period = 'today', search = '') {
+                                        try {
+                                            const response = await fetch(`/Seller/GetProducts?period=${encodeURIComponent(period)}&search=${encodeURIComponent(search)}`, {
+                                                method: 'GET',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                }
+                                            });
+
+                                            if (!response.ok) {
+                                                throw new Error(`HTTP error! status: ${response.status}`);
+                                            }
+
+                                            const data = await response.json();
+
+                                            // Check if there's an error in the response
+                                            if (data.error) {
+                                                throw new Error(data.error);
+                                            }
+
+                                            return data;
+                                        } catch (error) {
+                                            console.error('Error fetching products:', error);
+                                            throw error;
+                                        }
+                                    }
+
+                                    async function fetchCustomers(period = 'today', search = '') {
+                                        try {
+                                            const response = await fetch(`/Seller/GetCustomers?period=${encodeURIComponent(period)}&search=${encodeURIComponent(search)}`, {
+                                                method: 'GET',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                }
+                                            });
+
+                                            if (!response.ok) {
+                                                throw new Error(`HTTP error! status: ${response.status}`);
+                                            }
+
+                                            const data = await response.json();
+
+                                            // Check if there's an error in the response
+                                            if (data.error) {
+                                                throw new Error(data.error);
+                                            }
+
+                                            return data;
+                                        } catch (error) {
+                                            console.error('Error fetching customers:', error);
+                                            throw error;
+                                        }
+                                    }
+
+                                    function renderProducts(products, page = 1) {
+                                        const tbody = document.querySelector('#productsTable tbody');
+                                        const startIndex = (page - 1) * itemsPerPage;
+                                        const endIndex = startIndex + itemsPerPage;
+                                        const paginatedProducts = products.slice(startIndex, endIndex);
+
+                                        if (paginatedProducts.length === 0) {
+                                            tbody.innerHTML = `
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="no-data">
+                                                            <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                                                            <h5>No products found</h5>
+                                                            <p class="text-muted">Try adjusting your search terms or filter criteria.</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                            document.getElementById('productsPagination').style.display = 'none';
+                                            return;
+                                        }
+
+                                        tbody.innerHTML = paginatedProducts.map(product => `
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-sm bg-light rounded p-1 me-2">
+                                                            <div style="font-size: 18px;">${product.image || '📦'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <h5 class="fs-14 my-1">
+                                                                <a href="/UpdateProductType?variantId=${product.id}" target="_blank" class="text-reset">${product.name}</a>
+                                                            </h5>
+                                                            <span class="text-muted">${product.date}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <h5 class="fs-14 my-1 fw-normal">$${parseFloat(product.price).toFixed(2)}</h5>
+                                                    <span class="text-muted">Price</span>
+                                                </td>
+                                                <td>
+                                                    <h5 class="fs-14 my-1 fw-normal">${product.orders}</h5>
+                                                    <span class="text-muted">Orders</span>
+                                                </td>
+                                                <td>
+                                                    ${product.stock === 0 ?
+                                                '<h5 class="fs-14 my-1 fw-normal"><span class="badge bg-danger-subtle text-danger">Out of stock</span></h5>' :
+                                                `<h5 class="fs-14 my-1 fw-normal">${product.stock}</h5>`
+                                            }
+                                                    <span class="text-muted">Stock</span>
+                                                </td>
+                                                <td>
+                                                    <h5 class="fs-14 my-1 fw-normal">$${parseInt(product.totalSell).toLocaleString()}</h5>
+                                                    <span class="text-muted">Amount</span>
+                                                </td>
+                                            </tr>
+                                        `).join('');
+
+                                        renderProductsPagination(products.length, page);
+                                    }
+
+                                    function renderCustomers(customers, page = 1) {
+                                        const tbody = document.querySelector('#customersTable tbody');
+                                        const startIndex = (page - 1) * itemsPerPage;
+                                        const endIndex = startIndex + itemsPerPage;
+                                        const paginatedCustomers = customers.slice(startIndex, endIndex);
+
+                                        if (paginatedCustomers.length === 0) {
+                                            tbody.innerHTML = `
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="no-data">
+                                                            <i class="fas fa-users fa-3x mb-3 text-muted"></i>
+                                                            <h5>No customers found</h5>
+                                                            <p class="text-muted">Try adjusting your search terms or filter criteria.</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                            document.getElementById('customersPagination').style.display = 'none';
+                                            return;
+                                        }
+
+                                        tbody.innerHTML = paginatedCustomers.map(customer => `
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0 me-2">
+                                                            <div class="avatar-sm p-2" style="background: linear-gradient(45deg, #007bff, #0056b3); color: white; border-radius: 50%;">
+                                                                ${customer.userName}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <h5 class="fs-14 my-1 fw-medium">
+                                                                                                                                        <a href="#" class="text-reset">${customer.userName}</a>
+                                                            </h5>
+                                                            <span class="text-muted">${customer.rolebuy}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0 wraphe">${customer.phone}</p>
+                                                    <span class="text-muted">Phone</span>
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0">${parseInt(customer.stock).toLocaleString()}</p>
+                                                    <span class="text-muted">Order</span>
+                                                </td>
+                                                <td>
+                                                    <p class="mb-0">$${parseInt(customer.amount).toLocaleString()}</p>
+                                                    <span class="text-muted">Amounts</span>
+                                                </td>
+                                                <td>
+                                                    <h5 class="fs-14 mb-0 ${customer.growth >= 0 ? 'text-success' : 'text-danger'}">
+                                                        ${customer.growth}%<i class="fas ${customer.growth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'} fs-6 align-middle ms-2"></i>
+                                                    </h5>
+                                                </td>
+                                            </tr>
+                                        `).join('');
+
+                                        renderCustomersPagination(customers.length, page);
+                                    }
+
+                                    function renderProductsPagination(totalItems, currentPage) {
+                                        const totalPages = Math.ceil(totalItems / itemsPerPage);
+                                        const startItem = (currentPage - 1) * itemsPerPage + 1;
+                                        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+                                        document.getElementById('productsShowingStart').textContent = startItem;
+                                        document.getElementById('productsShowingEnd').textContent = endItem;
+                                        document.getElementById('productsTotal').textContent = totalItems;
+
+                                        if (totalPages <= 1) {
+                                            document.getElementById('productsPagination').style.display = 'none';
+                                            return;
+                                        }
+
+                                        document.getElementById('productsPagination').style.display = 'flex';
+
+                                        const paginationList = document.getElementById('productsPaginationList');
+                                        let paginationHTML = '';
+
+                                        // Previous button
+                                        paginationHTML += `
+                                            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                                <a href="#" class="page-link" data-page="${currentPage - 1}" data-type="products">
+                                                    ←
+                                                </a>
+                                            </li>
+                                        `;
+
+                                        // Calculate page range to show
+                                        let startPage = Math.max(1, currentPage - 2);
+                                        let endPage = Math.min(totalPages, startPage + 4);
+
+                                        if (endPage - startPage < 4) {
+                                            startPage = Math.max(1, endPage - 4);
+                                        }
+
+                                        // First page and ellipsis
+                                        if (startPage > 1) {
+                                            paginationHTML += `
+                                                <li class="page-item">
+                                                    <a href="#" class="page-link" data-page="1" data-type="products">1</a>
+                                                </li>
+                                            `;
+                                            if (startPage > 2) {
+                                                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                            }
+                                        }
+
+                                        // Page numbers
+                                        for (let i = startPage; i <= endPage; i++) {
+                                            paginationHTML += `
+                                                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                                    <a href="#" class="page-link" data-page="${i}" data-type="products">${i}</a>
+                                                </li>
+                                            `;
+                                        }
+
+                                        // Last page and ellipsis
+                                        if (endPage < totalPages) {
+                                            if (endPage < totalPages - 1) {
+                                                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                            }
+                                            paginationHTML += `
+                                                <li class="page-item">
+                                                    <a href="#" class="page-link" data-page="${totalPages}" data-type="products">${totalPages}</a>
+                                                </li>
+                                            `;
+                                        }
+
+                                        // Next button
+                                        paginationHTML += `
+                                            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                                                <a href="#" class="page-link" data-page="${currentPage + 1}" data-type="products">
+                                                    →
+                                                </a>
+                                            </li>
+                                        `;
+
+                                        paginationList.innerHTML = paginationHTML;
+                                    }
+
+                                    function renderCustomersPagination(totalItems, currentPage) {
+                                        const totalPages = Math.ceil(totalItems / itemsPerPage);
+                                        const startItem = (currentPage - 1) * itemsPerPage + 1;
+                                        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+                                        document.getElementById('customersShowingStart').textContent = startItem;
+                                        document.getElementById('customersShowingEnd').textContent = endItem;
+                                        document.getElementById('customersTotal').textContent = totalItems;
+
+                                        if (totalPages <= 1) {
+                                            document.getElementById('customersPagination').style.display = 'none';
+                                            return;
+                                        }
+
+                                        document.getElementById('customersPagination').style.display = 'flex';
+
+                                        const paginationList = document.getElementById('customersPaginationList');
+                                        let paginationHTML = '';
+
+                                        // Previous button
+                                        paginationHTML += `
+                                            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                                <a href="#" class="page-link" data-page="${currentPage - 1}" data-type="customers">
+                                                    ←
+                                                </a>
+                                            </li>
+                                        `;
+
+                                        // Calculate page range to show
+                                        let startPage = Math.max(1, currentPage - 2);
+                                        let endPage = Math.min(totalPages, startPage + 4);
+
+                                        if (endPage - startPage < 4) {
+                                            startPage = Math.max(1, endPage - 4);
+                                        }
+
+                                        // First page and ellipsis
+                                        if (startPage > 1) {
+                                            paginationHTML += `
+                                                <li class="page-item">
+                                                    <a href="#" class="page-link" data-page="1" data-type="customers">1</a>
+                                                </li>
+                                            `;
+                                            if (startPage > 2) {
+                                                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                            }
+                                        }
+
+                                        // Page numbers
+                                        for (let i = startPage; i <= endPage; i++) {
+                                            paginationHTML += `
+                                                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                                    <a href="#" class="page-link" data-page="${i}" data-type="customers">${i}</a>
+                                                </li>
+                                            `;
+                                        }
+
+                                        // Last page and ellipsis
+                                        if (endPage < totalPages) {
+                                            if (endPage < totalPages - 1) {
+                                                paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                                            }
+                                            paginationHTML += `
+                                                <li class="page-item">
+                                                    <a href="#" class="page-link" data-page="${totalPages}" data-type="customers">${totalPages}</a>
+                                                </li>
+                                            `;
+                                        }
+
+                                        // Next button
+                                        paginationHTML += `
+                                            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                                                <a href="#" class="page-link" data-page="${currentPage + 1}" data-type="customers">
+                                                    →
+                                                </a>
+                                            </li>
+                                        `;
+
+                                        paginationList.innerHTML = paginationHTML;
+                                    }
+
+                                    async function loadProducts(period = 'today', search = '', page = 1) {
+                                        const loadingEl = document.getElementById('productsLoading');
+                                        if (loadingEl) {
+                                            loadingEl.style.display = 'flex';
+                                        }
+
+                                        try {
+                                            allProducts = await fetchProducts(period, search);
+                                            filteredProducts = allProducts;
+                                            productsCurrentPage = page;
+                                            renderProducts(filteredProducts, page);
+                                        } catch (error) {
+                                            console.error('Error loading products:', error);
+                                            document.querySelector('#productsTable tbody').innerHTML = `
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="no-data">
+                                                            <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                                                            <h5>Error loading products</h5>
+                                                            <p class="text-muted">Please try again later. ${error.message}</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        } finally {
+                                            if (loadingEl) {
+                                                loadingEl.style.display = 'none';
+                                            }
+                                        }
+                                    }
+
+                                    async function loadCustomers(period = 'today', search = '', page = 1) {
+                                        const loadingEl = document.getElementById('customersLoading');
+                                        if (loadingEl) {
+                                            loadingEl.style.display = 'flex';
+                                        }
+
+                                        try {
+                                            allCustomers = await fetchCustomers(period, search);
+                                            filteredCustomers = allCustomers;
+                                            customersCurrentPage = page;
+                                            renderCustomers(filteredCustomers, page);
+                                        } catch (error) {
+                                            console.error('Error loading customers:', error);
+                                            document.querySelector('#customersTable tbody').innerHTML = `
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="no-data">
+                                                            <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                                                            <h5>Error loading customers</h5>
+                                                            <p class="text-muted">Please try again later. ${error.message}</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                        } finally {
+                                            if (loadingEl) {
+                                                loadingEl.style.display = 'none';
+                                            }
+                                        }
+                                    }
+
+                                    // Helper function to get current filter period
+                                    function getCurrentPeriod(filterTextElement) {
+                                        const filterText = filterTextElement.textContent.toLowerCase().trim();
+                                        const periodMap = {
+                                            'today': 'today',
+                                            'yesterday': 'yesterday',
+                                            'last 7 days': 'last7days',
+                                            'last 30 days': 'last30days',
+                                            'this month': 'thismonth',
+                                            'last month': 'lastmonth'
+                                        };
+                                        return periodMap[filterText] || 'today';
+                                    }
+
+                                    // Event Listeners
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Load initial data
+                                        loadProducts();
+                                        loadCustomers();
+
+                                        // Pagination click handler
+                                        document.addEventListener('click', function (e) {
+                                            if (e.target.matches('.page-link') || e.target.closest('.page-link')) {
+                                                e.preventDefault();
+
+                                                const linkEl = e.target.matches('.page-link') ? e.target : e.target.closest('.page-link');
+                                                const page = parseInt(linkEl.dataset.page);
+                                                const type = linkEl.dataset.type;
+
+                                                if (isNaN(page) || linkEl.closest('.page-item').classList.contains('disabled')) return;
+
+                                                if (type === 'products') {
+                                                    productsCurrentPage = page;
+                                                    renderProducts(filteredProducts, page);
+                                                } else if (type === 'customers') {
+                                                    customersCurrentPage = page;
+                                                    renderCustomers(filteredCustomers, page);
+                                                }
+
+                                                // Scroll to top of respective table
+                                                const tableContainer = type === 'products' ?
+                                                    document.querySelector('#productsTable').closest('.card') :
+                                                    document.querySelector('#customersTable').closest('.card');
+                                                if (tableContainer) {
+                                                    tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                }
+                                            }
+                                        });
+
+                                        // Search functionality with debouncing
+                                        let productSearchTimeout;
+                                        let customerSearchTimeout;
+
+                                        const productSearchEl = document.getElementById('productSearch');
+                                        if (productSearchEl) {
+                                            productSearchEl.addEventListener('input', function (e) {
+                                                clearTimeout(productSearchTimeout);
+                                                const searchValue = e.target.value.trim();
+
+                                                productSearchTimeout = setTimeout(() => {
+                                                    const filterTextEl = document.getElementById('productsFilterText');
+                                                    const currentPeriod = filterTextEl ? getCurrentPeriod(filterTextEl) : 'today';
+                                                    loadProducts(currentPeriod, searchValue, 1);
+                                                }, 300);
+                                            });
+                                        }
+
+                                        const customerSearchEl = document.getElementById('customerSearch');
+                                        if (customerSearchEl) {
+                                            customerSearchEl.addEventListener('input', function (e) {
+                                                clearTimeout(customerSearchTimeout);
+                                                const searchValue = e.target.value.trim();
+
+                                                customerSearchTimeout = setTimeout(() => {
+                                                    const filterTextEl = document.getElementById('customersFilterText');
+                                                    const currentPeriod = filterTextEl ? getCurrentPeriod(filterTextEl) : 'today';
+                                                    loadCustomers(currentPeriod, searchValue, 1);
+                                                }, 300);
+                                            });
+                                        }
+
+                                        // Filter functionality for products
+                                        document.addEventListener('click', function (e) {
+                                            if (e.target.matches('#productsFilter + .dropdown-menu .dropdown-item')) {
+                                                e.preventDefault();
+                                                const period = e.target.dataset.period;
+                                                const periodText = e.target.textContent;
+                                                const searchValue = productSearchEl ? productSearchEl.value.trim() : '';
+
+                                                const filterTextEl = document.getElementById('productsFilterText');
+                                                if (filterTextEl) {
+                                                    filterTextEl.textContent = periodText;
+                                                }
+                                                loadProducts(period, searchValue, 1);
+                                            }
+                                        });
+
+                                        // Filter functionality for customers
+                                        document.addEventListener('click', function (e) {
+                                            if (e.target.matches('#customersFilter + .dropdown-menu .dropdown-item')) {
+                                                e.preventDefault();
+                                                const period = e.target.dataset.period;
+                                                const periodText = e.target.textContent;
+                                                const searchValue = customerSearchEl ? customerSearchEl.value.trim() : '';
+
+                                                const filterTextEl = document.getElementById('customersFilterText');
+                                                if (filterTextEl) {
+                                                    filterTextEl.textContent = periodText;
+                                                }
+                                                loadCustomers(period, searchValue, 1);
+                                            }
+                                        });
+
+                                        // Clear search functionality
+                                        if (productSearchEl) {
+                                            productSearchEl.addEventListener('keydown', function (e) {
+                                                if (e.key === 'Escape') {
+                                                    e.target.value = '';
+                                                    const filterTextEl = document.getElementById('productsFilterText');
+                                                    const currentPeriod = filterTextEl ? getCurrentPeriod(filterTextEl) : 'today';
+                                                    loadProducts(currentPeriod, '', 1);
+                                                }
+                                            });
+                                        }
+
+                                        if (customerSearchEl) {
+                                            customerSearchEl.addEventListener('keydown', function (e) {
+                                                if (e.key === 'Escape') {
+                                                    e.target.value = '';
+                                                    const filterTextEl = document.getElementById('customersFilterText');
+                                                    const currentPeriod = filterTextEl ? getCurrentPeriod(filterTextEl) : 'today';
+                                                    loadCustomers(currentPeriod, '', 1);
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    // Utility functions
+                                    function formatCurrency(amount) {
+                                        return new Intl.NumberFormat('en-US', {
+                                            style: 'currency',
+                                            currency: 'USD'
+                                        }).format(amount);
+                                    }
+
+                                    function formatNumber(number) {
+                                        return new Intl.NumberFormat('en-US').format(number);
+                                    }
+
+                                    // Export functions for potential external use
+                                    window.dashboardAPI = {
+                                        loadProducts,
+                                        loadCustomers,
+                                        renderProducts,
+                                        renderCustomers,
+                                        formatCurrency,
+                                        formatNumber
+                                    };
+
+                                    // Additional utility functions for debouncing
+                                    function debounce(func, wait) {
+                                        let timeout;
+                                        return function executedFunction(...args) {
+                                            const later = () => {
+                                                clearTimeout(timeout);
+                                                func(...args);
+                                            };
+                                            clearTimeout(timeout);
+                                            timeout = setTimeout(later, wait);
+                                        };
+                                    }
+
+                                    // Enhanced search functionality
+                                    function handleAdvancedSearch() {
+                                        const productSearchInput = document.getElementById('productSearch');
+                                        const customerSearchInput = document.getElementById('customerSearch');
+
+                                        // Add search suggestions
+                                        function addSearchSuggestions(inputElement, suggestions) {
+                                            const suggestionsList = document.createElement('div');
+                                            suggestionsList.className = 'search-suggestions position-absolute w-100 bg-white border rounded shadow-sm';
+                                            suggestionsList.style.top = '100%';
+                                            suggestionsList.style.zIndex = '1000';
+                                            suggestionsList.style.maxHeight = '200px';
+                                            suggestionsList.style.overflowY = 'auto';
+
+                                            suggestions.forEach(suggestion => {
+                                                const item = document.createElement('div');
+                                                item.className = 'px-3 py-2 cursor-pointer';
+                                                item.style.cursor = 'pointer';
+                                                item.textContent = suggestion;
+                                                item.addEventListener('click', () => {
+                                                    inputElement.value = suggestion;
+                                                    inputElement.dispatchEvent(new Event('input'));
+                                                    suggestionsList.remove();
+                                                });
+                                                item.addEventListener('mouseenter', () => {
+                                                    item.style.backgroundColor = '#f8f9fa';
+                                                });
+                                                item.addEventListener('mouseleave', () => {
+                                                    item.style.backgroundColor = 'white';
+                                                });
+                                                suggestionsList.appendChild(item);
+                                            });
+
+                                            // Remove existing suggestions
+                                            const existingSuggestions = inputElement.parentElement.querySelector('.search-suggestions');
+                                            if (existingSuggestions) {
+                                                existingSuggestions.remove();
+                                            }
+
+                                            if (suggestions.length > 0) {
+                                                inputElement.parentElement.appendChild(suggestionsList);
+                                            }
+                                        }
+
+                                        // Product search suggestions
+                                        productSearchInput.addEventListener('input', debounce((e) => {
+                                            const value = e.target.value.toLowerCase();
+                                            if (value.length > 1) {
+                                                const suggestions = allProducts
+                                                    .filter(product => product.name.toLowerCase().includes(value))
+                                                    .slice(0, 5)
+                                                    .map(product => product.name);
+                                                addSearchSuggestions(productSearchInput, suggestions);
+                                            }
+                                        }, 200));
+
+                                        // Customer search suggestions
+                                        customerSearchInput.addEventListener('input', debounce((e) => {
+                                            const value = e.target.value.toLowerCase();
+                                            if (value.length > 1) {
+                                                const suggestions = [
+                                                    ...allCustomers.filter(customer => customer.UserName.toLowerCase().includes(value)).slice(0, 3).map(c => c.UserName),
+                                                    ...allCustomers.filter(customer => customer.rolebuy.toLowerCase().includes(value)).slice(0, 2).map(c => c.rolebuy)
+                                                ];
+                                                addSearchSuggestions(customerSearchInput, [...new Set(suggestions)].slice(0, 5));
+                                            }
+                                        }, 200));
+
+                                        // Hide suggestions when clicking outside
+                                        document.addEventListener('click', (e) => {
+                                            if (!e.target.closest('.search-box')) {
+                                                document.querySelectorAll('.search-suggestions').forEach(el => el.remove());
+                                            }
+                                        });
+                                    }
+
+                                    // Enhanced pagination with keyboard navigation
+                                    function addKeyboardNavigation() {
+                                        document.addEventListener('keydown', (e) => {
+                                            if (e.ctrlKey || e.metaKey) {
+                                                switch (e.key) {
+                                                    case 'ArrowLeft':
+                                                        e.preventDefault();
+                                                        // Navigate to previous page of products
+                                                        if (productsCurrentPage > 1) {
+                                                            productsCurrentPage--;
+                                                            renderProducts(filteredProducts, productsCurrentPage);
+                                                        }
+                                                        break;
+                                                    case 'ArrowRight':
+                                                        e.preventDefault();
+                                                        // Navigate to next page of products
+                                                        const maxProductsPage = Math.ceil(filteredProducts.length / itemsPerPage);
+                                                        if (productsCurrentPage < maxProductsPage) {
+                                                            productsCurrentPage++;
+                                                            renderProducts(filteredProducts, productsCurrentPage);
+                                                        }
+                                                        break;
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    // Export functionality
+                                    function exportToCSV(data, filename, type) {
+                                        const headers = type === 'products'
+                                            ? ['Name', 'Price', 'Orders', 'Stock', 'Total Sales', 'Date']
+                                            : ['UserName', 'rolebuy', 'Phone', 'Total Order', 'Amount', 'Growth'];
+
+                                        const csvContent = [
+                                            headers.join(','),
+                                            ...data.map(item => {
+                                                if (type === 'products') {
+                                                    return [
+                                                        `"${item.name}"`,
+                                                        item.price,
+                                                        item.orders,
+                                                        item.stock,
+                                                        item.totalSell,
+                                                        `"${item.date}"`
+                                                    ].join(',');
+                                                } else {
+                                                    return [
+                                                        `"${item.UserName}"`,
+                                                        `"${item.rolebuy}"`,
+                                                        `"${item.Phone}"`,
+                                                        item.stock,
+                                                        item.amount,
+                                                        `${item.growth}%`
+                                                    ].join(',');
+                                                }
+                                            })
+                                        ].join('\n');
+
+                                        const blob = new Blob([csvContent], { type: 'text/csv' });
+                                        const url = window.URL.createObjectURL(blob);
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.download = filename;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        window.URL.revokeObjectURL(url);
+                                    }
+
+                                    // Add export buttons
+                                    function addExportButtons() {
+                                        const productsHeader = document.querySelector('#productsTable').closest('.card').querySelector('.card-header');
+                                        const customersHeader = document.querySelector('#customersTable').closest('.card').querySelector('.card-header');
+
+                                        // Products export button
+                                        const productsExportBtn = document.createElement('button');
+                                        productsExportBtn.className = 'btn btn-sm btn-outline-primary me-2';
+                                        productsExportBtn.innerHTML = '<i class="fas fa-download me-1"></i>Export';
+                                        productsExportBtn.addEventListener('click', () => {
+                                            exportToCSV(filteredProducts, 'products.csv', 'products');
+                                        });
+
+                                        // Customers export button
+                                        const customersExportBtn = document.createElement('button');
+                                        customersExportBtn.className = 'btn btn-sm btn-outline-primary me-2';
+                                        customersExportBtn.innerHTML = '<i class="fas fa-download me-1"></i>Export';
+                                        customersExportBtn.addEventListener('click', () => {
+                                            exportToCSV(filteredCustomers, 'customers.csv', 'customers');
+                                        });
+
+                                        productsHeader.insertBefore(productsExportBtn, productsHeader.querySelector('.dropdown'));
+                                        customersHeader.insertBefore(customersExportBtn, customersHeader.querySelector('.dropdown'));
+                                    }
+
+                                    // Enhanced table interactions
+                                    function addTableInteractions() {
+                                        // Add sorting functionality
+                                        function addSortingToTables() {
+                                            // This would typically involve adding clickable headers
+                                            // For now, we'll add a simple sort indicator
+                                            const tables = document.querySelectorAll('table');
+                                            tables.forEach(table => {
+                                                table.addEventListener('click', (e) => {
+                                                    if (e.target.tagName === 'TH') {
+                                                        // Visual feedback for sorting
+                                                        e.target.style.cursor = 'pointer';
+                                                        console.log('Sorting by:', e.target.textContent);
+                                                    }
+                                                });
+                                            });
+                                        }
+
+                                        // Add row selection
+                                        function addRowSelection() {
+                                            document.addEventListener('click', (e) => {
+                                                if (e.target.closest('tbody tr')) {
+                                                    const row = e.target.closest('tbody tr');
+                                                    const isSelected = row.classList.contains('table-active');
+
+                                                    // Clear other selections in the same table
+                                                    const table = row.closest('table');
+                                                    table.querySelectorAll('tbody tr').forEach(r => r.classList.remove('table-active'));
+
+                                                    if (!isSelected) {
+                                                        row.classList.add('table-active');
+                                                    }
+                                                }
+                                            });
+                                        }
+
+                                        addSortingToTables();
+                                        addRowSelection();
+                                    }
+
+                                    // Performance monitoring
+                                    function addPerformanceMonitoring() {
+                                        const performanceData = {
+                                            loadTimes: [],
+                                            searchTimes: [],
+                                            renderTimes: []
+                                        };
+
+                                        // Monitor load times
+                                        const originalLoadProducts = window.dashboardAPI.loadProducts;
+                                        const originalLoadCustomers = window.dashboardAPI.loadCustomers;
+
+                                        window.dashboardAPI.loadProducts = async function (...args) {
+                                            const startTime = performance.now();
+                                            const result = await originalLoadProducts.apply(this, args);
+                                            const endTime = performance.now();
+                                            performanceData.loadTimes.push(endTime - startTime);
+                                            return result;
+                                        };
+
+                                        window.dashboardAPI.loadCustomers = async function (...args) {
+                                            const startTime = performance.now();
+                                            const result = await originalLoadCustomers.apply(this, args);
+                                            const endTime = performance.now();
+                                            performanceData.loadTimes.push(endTime - startTime);
+                                            return result;
+                                        };
+
+                                        // Log performance stats periodically
+                                        setInterval(() => {
+                                            if (performanceData.loadTimes.length > 0) {
+                                                const avgLoadTime = performanceData.loadTimes.reduce((a, b) => a + b, 0) / performanceData.loadTimes.length;
+                                                console.log(`Average load time: ${avgLoadTime.toFixed(2)}ms`);
+                                            }
+                                        }, 30000); // Every 30 seconds
+                                    }
+
+                                    // Responsive table enhancements
+                                    function addResponsiveFeatures() {
+                                        function checkViewport() {
+                                            const isMobile = window.innerWidth < 768;
+                                            const tables = document.querySelectorAll('.table-responsive');
+
+                                            tables.forEach(table => {
+                                                if (isMobile) {
+                                                    table.classList.add('table-responsive-sm');
+                                                    // Hide less important columns on mobile
+                                                    const lessImportantCells = table.querySelectorAll('td:nth-child(3), th:nth-child(3)');
+                                                    lessImportantCells.forEach(cell => {
+                                                        cell.style.display = window.innerWidth < 576 ? 'none' : 'table-cell';
+                                                    });
+                                                } else {
+                                                    table.classList.remove('table-responsive-sm');
+                                                    const hiddenCells = table.querySelectorAll('td, th');
+                                                    hiddenCells.forEach(cell => {
+                                                        cell.style.display = 'table-cell';
+                                                    });
+                                                }
+                                            });
+                                        }
+
+                                        window.addEventListener('resize', debounce(checkViewport, 250));
+                                        checkViewport(); // Initial check
+                                    }
+
+                                    // Initialize all enhancements
+                                    function initializeEnhancements() {
+                                        handleAdvancedSearch();
+                                        addKeyboardNavigation();
+                                        addExportButtons();
+                                        addTableInteractions();
+                                        addPerformanceMonitoring();
+                                        addResponsiveFeatures();
+
+                                        console.log('Dashboard enhancements initialized');
+                                    }
+
+                                    // Auto-refresh functionality
+                                    function addAutoRefresh() {
+                                        let refreshInterval;
+
+                                        function startAutoRefresh(intervalMinutes = 5) {
+                                            if (refreshInterval) {
+                                                clearInterval(refreshInterval);
+                                            }
+
+                                            refreshInterval = setInterval(() => {
+                                                const productsFilter = document.getElementById('productsFilterText').textContent.toLowerCase().replace(/\s+/g, '');
+                                                const customersFilter = document.getElementById('customersFilterText').textContent.toLowerCase().replace(/\s+/g, '');
+                                                const productSearch = document.getElementById('productSearch').value.trim();
+                                                const customerSearch = document.getElementById('customerSearch').value.trim();
+
+                                                // Refresh data silently
+                                                Promise.all([
+                                                    loadProducts(productsFilter, productSearch, productsCurrentPage),
+                                                    loadCustomers(customersFilter, customerSearch, customersCurrentPage)
+                                                ]).then(() => {
+                                                    console.log('Data refreshed automatically');
+                                                });
+                                            }, intervalMinutes * 60 * 1000);
+                                        }
+
+                                        function stopAutoRefresh() {
+                                            if (refreshInterval) {
+                                                clearInterval(refreshInterval);
+                                                refreshInterval = null;
+                                            }
+                                        }
+
+                                        // Add to dashboard API
+                                        window.dashboardAPI.startAutoRefresh = startAutoRefresh;
+                                        window.dashboardAPI.stopAutoRefresh = stopAutoRefresh;
+
+                                        // Start auto-refresh by default
+                                        startAutoRefresh();
+                                    }
+
+                                    // Theme management
+                                    function addThemeSupport() {
+                                        const themes = {
+                                            light: {
+                                                '--bs-body-bg': '#ffffff',
+                                                '--bs-body-color': '#212529',
+                                                '--bs-card-bg': '#ffffff'
+                                            },
+                                            dark: {
+                                                '--bs-body-bg': '#1a1a1a',
+                                                '--bs-body-color': '#ffffff',
+                                                '--bs-card-bg': '#2d2d2d'
+                                            }
+                                        };
+
+                                        function applyTheme(themeName) {
+                                            const theme = themes[themeName];
+                                            if (theme) {
+                                                Object.entries(theme).forEach(([property, value]) => {
+                                                    document.documentElement.style.setProperty(property, value);
+                                                });
+                                                localStorage.setItem('dashboard-theme', themeName);
+                                            }
+                                        }
+
+                                        function addThemeToggle() {
+                                            const themeToggle = document.createElement('button');
+                                            themeToggle.className = 'btn btn-sm btn-outline-secondary position-fixed';
+                                            themeToggle.style.top = '20px';
+                                            themeToggle.style.right = '20px';
+                                            themeToggle.style.zIndex = '1050';
+                                            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                                            themeToggle.title = 'Toggle theme';
+
+                                            let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
+                                            applyTheme(currentTheme);
+
+                                            themeToggle.addEventListener('click', () => {
+                                                currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+                                                applyTheme(currentTheme);
+                                                themeToggle.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                                            });
+
+                                            document.body.appendChild(themeToggle);
+                                        }
+
+                                        addThemeToggle();
+                                    }
+
+                                    // Initialize everything when DOM is loaded
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Wait a bit for the main dashboard to initialize
+                                        setTimeout(() => {
+                                            initializeEnhancements();
+                                            addAutoRefresh();
+                                            addThemeSupport();
+                                        }, 1000);
+                                    });
+
+                                    // Cleanup function
+                                    window.addEventListener('beforeunload', () => {
+                                        if (window.dashboardAPI && window.dashboardAPI.stopAutoRefresh) {
+                                            window.dashboardAPI.stopAutoRefresh();
+                                        }
+                                    });
+                                </script>
 
                                 <div class="row">
                                     <div class="col-xl-4">

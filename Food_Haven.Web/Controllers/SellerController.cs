@@ -2060,6 +2060,152 @@ namespace Food_Haven.Web.Controllers
             public Dictionary<string, int> Refunds { get; set; }
             public Dictionary<string, int> NewCustomers { get; set; }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetProducts(string period = "today", string search = "")
+        {
+            try
+            {
+                // 1. Lấy user đăng nhập
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { error = "Bạn chưa đăng nhập!" });
+
+                // 2. Lấy Store của user
+                var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
+                if (store == null)
+                    return Json(new { error = "Không tìm thấy cửa hàng!" });
+
+                // 3. Lấy danh sách sản phẩm thuộc Store
+                var products = await _product.ListAsync(p => p.StoreID == store.ID);
+                if (!products.Any())
+                    return Json(new List<object>());
+
+                var productIds = products.Select(p => p.ID).ToList();
+
+                // 4. Lấy tất cả ProductTypes (variants) của các Product này
+                var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+                if (!productTypes.Any())
+                    return Json(new List<object>());
+
+                var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+
+                // 5. Lấy tất cả OrderDetail liên quan các ProductType này
+                var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
+                if (!orderDetails.Any())
+                    return Json(new List<object>());
+
+                // 6. Lấy các OrderID liên quan
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+
+                // 7. Lấy danh sách Order cha (chỉ lấy đã Confirmed)
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && o.Status.ToLower() == "confirmed");
+                if (!orders.Any())
+                    return Json(new List<object>());
+
+                // 8. Chỉ giữ lại các OrderDetail thuộc Order đã Confirmed
+                var confirmedOrderIds = orders.Select(o => o.ID).ToHashSet();
+                var confirmedOrderDetails = orderDetails.Where(od => confirmedOrderIds.Contains(od.OrderID)).ToList();
+                if (!confirmedOrderDetails.Any())
+                    return Json(new List<object>());
+
+                // 9. Lọc theo thời gian (dựa vào CreatedDate của OrderDetail)
+                var now = DateTime.Now;
+                IEnumerable<OrderDetail> filteredOrderDetails = confirmedOrderDetails;
+
+                switch (period?.ToLower())
+                {
+                    case "today":
+                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate.Date == now.Date);
+                        break;
+                    case "yesterday":
+                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate.Date == now.AddDays(-1).Date);
+                        break;
+                    case "last7days":
+                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate >= now.AddDays(-7));
+                        break;
+                    case "last30days":
+                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate >= now.AddDays(-30));
+                        break;
+                    case "thismonth":
+                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate.Month == now.Month && od.CreatedDate.Year == now.Year);
+                        break;
+                    case "lastmonth":
+                        var lastMonth = now.AddMonths(-1);
+                        filteredOrderDetails = filteredOrderDetails.Where(od =>
+                            od.CreatedDate.Month == lastMonth.Month && od.CreatedDate.Year == lastMonth.Year);
+                        break;
+                    case "alltime":
+              
+                        break;
+                    default:
+                        // Không lọc thời gian
+                        break;
+                }
+
+                // 10. Gom nhóm theo ProductID (qua ProductTypes)
+                var joinPT = productTypes.ToDictionary(pt => pt.ID, pt => pt.ProductID);
+
+                // Lấy danh sách main image của các sản phẩm trong top bán chạy
+                var filteredProductIds = filteredOrderDetails
+                    .Where(od => joinPT.ContainsKey(od.ProductTypesID))
+                    .Select(od => joinPT[od.ProductTypesID])
+                    .Distinct()
+                    .ToList();
+
+                var productImages = await _productImageService.ListAsync(img =>
+                    filteredProductIds.Contains(img.ProductID) && img.IsMain);
+
+
+                var topProducts = filteredOrderDetails
+      .Where(od => joinPT.ContainsKey(od.ProductTypesID))
+      .GroupBy(od => joinPT[od.ProductTypesID])
+      .Select(g =>
+      {
+          var product = products.FirstOrDefault(p => p.ID == g.Key);
+
+          // Lấy ProductTypeId bán nhiều nhất
+          var topTypeId = g.GroupBy(x => x.ProductTypesID)
+                           .OrderByDescending(x => x.Sum(y => y.Quantity))
+                           .First().Key;
+          var topType = productTypes.FirstOrDefault(pt => pt.ID == topTypeId);
+
+          // Lấy giá và tồn kho của loại bán chạy nhất
+          decimal price = topType?.SellPrice ?? 0;
+          int stock = topType?.Stock ?? 0;
+
+
+          return new
+          {
+              id = product?.ID ?? Guid.Empty,
+              name = product?.Name ?? "Unknown",
+              price = price,
+              stock = stock,
+              image = "🍪",
+              orders = g.Sum(x => x.Quantity),
+              totalSell = g.Sum(x => x.Quantity * x.ProductPrice),
+              date = g.Max(x => x.CreatedDate).ToString("dd MMM yyyy"),
+          };
+      })
+      .Where(x => x.id != Guid.Empty)
+      .OrderByDescending(x => x.totalSell)
+      .ToList();
+
+
+                // 11. Search theo tên sản phẩm
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    topProducts = topProducts
+                        .Where(p => p.name.ToLower().Contains(search.ToLower()))
+                        .ToList();
+                }
+
+                return Json(topProducts);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
 
     }
 }
