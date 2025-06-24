@@ -2053,6 +2053,47 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> ViewMyFeedBack()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Home");
+
+            try
+            {
+                var feedbacks = await _review.ListAsync();
+                var userFeedbacks = new List<ReivewViewModel>();
+
+                foreach (var item in feedbacks.Where(x => x.UserID == user.Id))
+                {
+                    var userInfo = await _userManager.FindByIdAsync(item.UserID); // 👈 Lấy user
+                    var product = await _product.GetAsyncById(item.ProductID);
+                    var viewModel = new ReivewViewModel
+                    {
+                        ID = item.ID,
+                        Comment = item.Comment,
+                        CommentDate = item.CommentDate,
+                        Reply = item.Reply,
+                        ReplyDate = item.ReplyDate,
+                        UserID = item.UserID,
+                        Username = userInfo?.UserName ?? "Unknown", // 👈 Gán Username
+                        ProductID = item.ProductID,
+                        ProductName = product?.Name ?? "Unknown"
+                    };
+
+                    userFeedbacks.Add(viewModel);
+                }
+
+                return Json(userFeedbacks);
+            }
+            catch (Exception ex)
+            {
+                // Bạn có thể log lỗi hoặc xử lý nó cụ thể hơn
+                return StatusCode(500, "Lỗi khi lấy danh sách phản hồi.");
+            }
+        }
+
 
 
 
