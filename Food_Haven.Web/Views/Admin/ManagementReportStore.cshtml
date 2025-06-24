@@ -1201,35 +1201,58 @@
                         <!-- end col -->
                     </div>
                     <!-- end row -->
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            if (document.getElementById("table-gridjs1111")) {
-                                var users = @Html.Raw(JsonSerializer.Serialize(Model));
+              <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (document.getElementById("table-gridjs1111")) {
+            var users = @Html.Raw(JsonSerializer.Serialize(Model));
 
-                                new gridjs.Grid({
-                                    columns: [
-                                        { name: "UserName", width: "140px" },
-                                        { name: "Email", width: "150px" },
-                                        { name: "Reason", width: "200px" },
-                                        { name: "Message", width: "250px" }
-                                    ],
-                                    pagination: {
-                                        enabled: true,
-                                        limit: 10,
-                                        summary: true
-                                    },
-                                    sort: true,
-                                    search: true,
-                                    data: users.map(user => [
-                                        user.UserName,
-                                        user.Email,
-                                        user.Reason,
-                                        user.Message
-                                    ])
-                                }).render(document.getElementById("table-gridjs1111"));
-                            }
-                        });
-                    </script>
+            new gridjs.Grid({
+                columns: [
+                    {
+                        name: "UserName",
+                        width: "140px",
+                        formatter: (cell, row) => {
+                            const userId = row.cells[5].data;
+                            return gridjs.html(`<a href="/Home/UserInformation/${userId}" target="_blank">${cell}</a>`);
+                        }
+                    },
+                    { name: "Email", width: "150px" },
+                    {
+                        name: "Store Name",
+                        width: "150px",
+                        formatter: (cell, row) => {
+                            const storeId = row.cells[6].data;
+                            return gridjs.html(`<a href="/Home/GetStoreDetail/${storeId}" target="_blank">${cell}</a>`);
+                        }
+                    },
+                    { name: "Reason", width: "200px" },
+                    { name: "Message", width: "250px" },
+                    { name: "UserID", hidden: true },
+                    { name: "StoreID", hidden: true }
+                ],
+                pagination: {
+                    enabled: true,
+                    limit: 10,
+                    summary: true
+                },
+                sort: true,
+                search: true,
+                data: users.map(user => [
+                    user.UserName,
+                    user.Email,
+                    user.StoreName,
+                    user.Reason,
+                    user.Message,
+                    user.UserID,    // index 5
+                    user.StoreID    // index 6
+                ])
+            }).render(document.getElementById("table-gridjs1111"));
+        }
+    });
+</script>
+
+
+
 
 
 

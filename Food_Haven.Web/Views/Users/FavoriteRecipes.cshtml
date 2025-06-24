@@ -334,14 +334,14 @@
 
                                                 <span class="post-on">@item.TypeOfDishName</span>
                                                 <span class="post-on has-dot">@item.DifficultyLevel</span>
-                                                @* <span
-                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span> *@
+                                                <span
+                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
                                                 <span class="hit-count has-dot">126k Views</span>
-                                                <span class="hit-count has-dot">@item.status</span>
+                                                @* <span class="hit-count has-dot">@item.status</span> *@
                                             </div>
-                                            @* <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
+                                            <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
                                                 class="text-brand font-heading font-weight-bold">Read more <i
-                                                    class="fi-rs-arrow-right"></i></a> *@
+                                                    class="fi-rs-arrow-right"></i></a>
                                         </div>
 
                                     </div>

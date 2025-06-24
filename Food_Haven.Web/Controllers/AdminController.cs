@@ -1544,16 +1544,18 @@ namespace Food_Haven.Web.Controllers
                     foreach (var item in obj)
                     {
                         var reportingUser = await _userManager.FindByIdAsync(item.UserID);
+                        var store = await _storeService.GetAsyncById(item.StoreID);
                         var viewModel = new StoreReportViewModel
                         {
                             ID = item.ID,
-                            StoreID = item.ID,
+                            StoreID = store.ID,
                             UserID = item.UserID,
                             Reason = item.Reason,
                             Message = item.Message,
                             CreatedDate = item.CreatedDate,
                             UserName = reportingUser?.UserName ?? "Ẩn danh",
-                            Email = reportingUser?.Email ?? "Không rõ"
+                            Email = reportingUser?.Email ?? "Không rõ",
+                            StoreName = store.Name,
                         };
                         list.Add(viewModel);
                     }

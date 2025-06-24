@@ -1537,7 +1537,12 @@ namespace Food_Haven.Web.Controllers
                     UserID = reviewer?.UserName ?? "Ẩn danh"
                 });
             }
-
+            bool isFavorite = false;
+            if (user != null)
+            {
+                var fav = await _iFavoriteRecipe.FindAsync(f => f.UserID == user.Id && f.RecipeID == id);
+                isFavorite = fav != null;
+            }
             var recipeViewModel = new RecipeViewModels
             {
                 ID = recipe.ID,
@@ -1558,7 +1563,8 @@ namespace Food_Haven.Web.Controllers
                 Username = user?.UserName,
                 Email = user?.Email,
                 RecipeReviewViewModels = reviewViewModel,
-                RecipeOwnerUserName = recipeOwner?.UserName ?? "Ẩn danh"
+                RecipeOwnerUserName = recipeOwner?.UserName ?? "Ẩn danh",
+                IsFavorite = isFavorite // ✅ thêm vào ViewModel
 
             };
 
@@ -2009,11 +2015,16 @@ namespace Food_Haven.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Json(new { success = false, message = "Please login to add favorite." });
-            var isExist = await _iFavoriteRecipe.FindAsync(x => x.RecipeID == obj.RecipeID && x.UserID == user.Id);
-            if (isExist != null)
+
+            var existing = await _iFavoriteRecipe.FindAsync(x => x.RecipeID == obj.RecipeID && x.UserID == user.Id);
+            if (existing != null)
             {
-                return Json(new { success = false, message = "You have already favorited this recipe." });
+                // Nếu đã tồn tại thì xóa
+                await _iFavoriteRecipe.DeleteAsync(existing);
+                await _iFavoriteRecipe.SaveChangesAsync();
+                return Json(new { success = true, isFavorite = false, message = "Removed from favorites." });
             }
+
             try
             {
                 var viewModel = new FavoriteRecipe
@@ -2027,13 +2038,14 @@ namespace Food_Haven.Web.Controllers
                 await _iFavoriteRecipe.AddAsync(viewModel);
                 await _iFavoriteRecipe.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Added to favorites." });
+                return Json(new { success = true, isFavorite = true, message = "Added to favorites." });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
         [HttpPost]
         public async Task<IActionResult> DeleteFavoriteRecipe([FromBody] Guid id)
         {

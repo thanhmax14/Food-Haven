@@ -30,7 +30,14 @@
     <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
+
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <style>
+      .post-exerpt {
+    min-height: 60px;
+}
+
+    </style>
 </head>
 
 <body>
@@ -308,40 +315,44 @@
                         <div class="loop-grid loop-list pr-30 mb-50">
                             @foreach (var item in Model)
                             {
-                                <article class="wow fadeIn animated hover-up mb-30 animated">
+                                <article class="wow fadeIn animated hover-up mb-30 animated d-flex">
                                     <div class="post-thumb" style="background-image: url('@item.ThumbnailImage');">
                                         <div class="entry-meta">
                                             <a class="entry-meta meta-2" href="#"><i class="fi-rs-play-alt"></i></a>
                                         </div>
                                     </div>
 
-                                    <div class="entry-content-2 pl-50">
+                                    <div class="entry-content-2 pl-50 d-flex flex-column h-100">
                                         <h3 class="post-title mb-20">
                                             <a href="blog-post-right.html">@item.Title</a>
                                         </h3>
-                                        <p class="post-exerpt mb-40">@item.ShortDescriptions</p>
-                                        <div class="entry-meta meta-1 font-xs color-grey mt-10 pb-10">
 
-                                            <div>
+                                        <p class="post-exerpt mb-40">
+                                            @(!string.IsNullOrWhiteSpace(item.ShortDescriptions) ? item.ShortDescriptions :
+                                                                                    "No description available.")
+                                    </p>
 
+                                        <div class="entry-meta meta-1 font-xs color-grey mt-auto pb-10">
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
                                                 <span class="post-on">@item.TypeOfDishName</span>
                                                 <span class="post-on has-dot">@item.DifficultyLevel</span>
-                                                @* <span
-                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span> *@
+                                                <span
+                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
                                                 <span class="hit-count has-dot">126k Views</span>
-                                                <span class="hit-count has-dot">@item.status</span>
                                             </div>
-                                            <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
-                                                class="text-brand font-heading font-weight-bold">Read more <i
-                                                    class="fi-rs-arrow-right"></i></a>
-                                        </div>
 
+                                            <div class="text-end">
+                                                <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
+                                                    class="text-brand font-heading font-weight-bold">
+                                                    Read more <i class="fi-rs-arrow-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </article>
-                            }
-
-
+                                                        }
                         </div>
+
                         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                             @Html.PagedListPager(
                             Model,

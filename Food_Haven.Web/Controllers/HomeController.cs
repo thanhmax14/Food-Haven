@@ -662,7 +662,7 @@ namespace Food_Haven.Web.Controllers
                 return View(list); // Trả về view rỗng nếu lỗi
             }
         }
-
+        
         public async Task<IActionResult> GetStoreDetail(Guid id)
         {
             var users = await _userManager.GetUserAsync(User);
@@ -725,8 +725,8 @@ namespace Food_Haven.Web.Controllers
                 UserName = user?.UserName,
                 ProductViewModel = productList,
                 CategoryViewModels = new List<CategoryViewModel>(), // nếu sau này cần thêm
-                Email = users.Email,
-                UserNameRepo = users.UserName
+                Email = user.Email,
+                UserNameRepo = user.UserName
             };
 
             return View(storeVM);
