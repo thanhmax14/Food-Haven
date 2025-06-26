@@ -258,6 +258,54 @@
             background-color: #e9ecef;
             border-color: #adb5bd;
         }
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .chart-loading-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 20;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-message {
+            display: none;
+            color: #dc3545;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .fa-spin-custom {
+            animation: fa-spin 2s infinite linear;
+        }
+       
+        
+        .no-data-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 333px;
+            flex-direction: column;
+            color: #6c757d;
+        }
     </style>
 </head>
 
@@ -4271,6 +4319,7 @@
                                                         <li><a class="dropdown-item chart-filter" href="#" data-period="last30days">Last 30 Days</a></li>
                                                         <li><a class="dropdown-item chart-filter" href="#" data-period="thismonth">This Month</a></li>
                                                         <li><a class="dropdown-item chart-filter" href="#" data-period="lastmonth">Last Month</a></li>
+                                                        <li><a class="dropdown-item chart-filter" href="#" data-period="alltime">All time</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -4298,20 +4347,31 @@
                                         <div class="card">
                                             <div class="card-header align-items-center d-flex">
                                                 <h4 class="card-title mb-0 flex-grow-1">Recent Orders</h4>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="tableFilter"
-                                                            data-bs-toggle="dropdown">
-                                                        <span class="fw-semibold text-uppercase fs-12">Sort by: </span>
-                                                        <span class="text-muted" id="tableFilterText">Today</span>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end filter-dropdown">
-                                                        <li><a class="dropdown-item table-filter" href="#" data-period="today">Today</a></li>
-                                                        <li><a class="dropdown-item table-filter" href="#" data-period="yesterday">Yesterday</a></li>
-                                                        <li><a class="dropdown-item table-filter" href="#" data-period="last7days">Last 7 Days</a></li>
-                                                        <li><a class="dropdown-item table-filter" href="#" data-period="last30days">Last 30 Days</a></li>
-                                                        <li><a class="dropdown-item table-filter" href="#" data-period="thismonth">This Month</a></li>
-                                                        <li><a class="dropdown-item table-filter" href="#" data-period="lastmonth">Last Month</a></li>
-                                                    </ul>
+                                                <div class="d-flex gap-2">
+                                                    <!-- Search Box -->
+                                                    <div class="search-box">
+                                                        <i class="fas fa-search search-icon"></i>
+                                                        <input type="text" class="form-control form-control-sm" id="orderSearch"
+                                                               placeholder="Search orders..." style="width: 200px;">
+                                                    </div>
+
+                                                    <!-- Filter Dropdown -->
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="tableFilter"
+                                                                data-bs-toggle="dropdown">
+                                                            <span class="fw-semibold text-uppercase fs-12">Sort by: </span>
+                                                            <span class="text-muted" id="tableFilterText">Today</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end filter-dropdown">
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="today">Today</a></li>
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="yesterday">Yesterday</a></li>
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="last7days">Last 7 Days</a></li>
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="last30days">Last 30 Days</a></li>
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="thismonth">This Month</a></li>
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="lastmonth">Last Month</a></li>
+                                                            <li><a class="dropdown-item table-filter" href="#" data-period="alltime">All time</a></li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="card-body">
@@ -4365,10 +4425,10 @@
                         <script>
                             // Configuration
                             const API_CONFIG = {
-                                BASE_URL: 'https://your-api-domain.com/api',
+                                BASE_URL: window.location.origin,
                                 ENDPOINTS: {
-                                    CHART_DATA: '/dashboard/product-stats',
-                                    TABLE_DATA: '/dashboard/orders'
+                                    CHART_DATA: '/seller/ProductStatistics',
+                                    TABLE_DATA: '/seller/RecentOrders'
                                 },
                                 TIMEOUT: 10000
                             };
@@ -4389,98 +4449,25 @@
                             let currentChartPeriod = 'today';
                             let currentTablePeriod = 'today';
                             let allOrders = [];
+                            let filteredOrders = [];
                             let currentPage = 1;
                             let itemsPerPage1 = 5;
+                            let searchQuery = '';
 
-                            // Generate mock data for chart
-                            function generateMockChartData(period) {
-                                const products = ['Pizza', 'Burger', 'Sushi', 'Pasta', 'Salad', 'Tacos', 'Sandwich', 'Noodles', 'Rice Bowl', 'Soup'];
-                                const data = [];
-                                const totalSold = Math.floor(Math.random() * 1000) + 500;
-
-                                // Randomly select 5-10 products to show
-                                const numProducts = Math.floor(Math.random() * 6) + 5; // 5-10 products
-                                const selectedProducts = products.slice(0, numProducts);
-
-                                let remaining = totalSold;
-                                for (let i = 0; i < selectedProducts.length - 1; i++) {
-                                    const value = Math.floor(Math.random() * (remaining / 2)) + 10;
-                                    data.push(value);
-                                    remaining -= value;
-                                }
-                                data.push(remaining);
-
-                                return {
-                                    series: data,
-                                    labels: selectedProducts,
-                                    total: totalSold
-                                };
-                            }
-
-                            // Generate mock data for table
-                            function generateMockTableData(period) {
-                                const customers = [
-                                    { name: 'Alex Smith', avatar: 'https://via.placeholder.com/40/007bff/ffffff?text=AS' },
-                                    { name: 'Maria Garcia', avatar: 'https://via.placeholder.com/40/28a745/ffffff?text=MG' },
-                                    { name: 'John Doe', avatar: 'https://via.placeholder.com/40/ffc107/ffffff?text=JD' },
-                                    { name: 'Sarah Wilson', avatar: 'https://via.placeholder.com/40/dc3545/ffffff?text=SW' },
-                                    { name: 'Mike Johnson', avatar: 'https://via.placeholder.com/40/6f42c1/ffffff?text=MJ' },
-                                    { name: 'Emma Brown', avatar: 'https://via.placeholder.com/40/fd7e14/ffffff?text=EB' },
-                                    { name: 'David Lee', avatar: 'https://via.placeholder.com/40/20c997/ffffff?text=DL' },
-                                    { name: 'Lisa Chen', avatar: 'https://via.placeholder.com/40/e83e8c/ffffff?text=LC' },
-                                    { name: 'Robert Kim', avatar: 'https://via.placeholder.com/40/17a2b8/ffffff?text=RK' },
-                                    { name: 'Anna White', avatar: 'https://via.placeholder.com/40/6610f2/ffffff?text=AW' },
-                                    { name: 'James Taylor', avatar: 'https://via.placeholder.com/40/fd7e14/ffffff?text=JT' },
-                                    { name: 'Sophie Davis', avatar: 'https://via.placeholder.com/40/20c997/ffffff?text=SD' },
-                                    { name: 'Daniel Wilson', avatar: 'https://via.placeholder.com/40/dc3545/ffffff?text=DW' },
-                                    { name: 'Grace Miller', avatar: 'https://via.placeholder.com/40/007bff/ffffff?text=GM' },
-                                    { name: 'Kevin Brown', avatar: 'https://via.placeholder.com/40/28a745/ffffff?text=KB' },
-                                    { name: 'Olivia Jones', avatar: 'https://via.placeholder.com/40/ffc107/ffffff?text=OJ' },
-                                    { name: 'Ryan Garcia', avatar: 'https://via.placeholder.com/40/6f42c1/ffffff?text=RG' },
-                                    { name: 'Mia Anderson', avatar: 'https://via.placeholder.com/40/e83e8c/ffffff?text=MA' },
-                                    { name: 'Jacob Martinez', avatar: 'https://via.placeholder.com/40/17a2b8/ffffff?text=JM' },
-                                    { name: 'Chloe Thompson', avatar: 'https://via.placeholder.com/40/6610f2/ffffff?text=CT' }
-                                ];
-
-                                const statusList = Object.keys(ORDER_STATUS);
-                                const orders = [];
-
-                                const count = Math.floor(Math.random() * 50) + 25;
-                                for (let i = 0; i < count; i++) {
-                                    const customer = customers[Math.floor(Math.random() * customers.length)];
-                                    const status = statusList[Math.floor(Math.random() * statusList.length)];
-                                    const quantity = Math.floor(Math.random() * 10) + 1;
-                                    const amount = (Math.random() * 200 + 50).toFixed(2);
-
-                                    orders.push({
-                                        id: '#VZ' + (2000 + Math.floor(Math.random() * 9000)),
-                                        customer: customer,
-                                        quantity: quantity,
-                                        amount: parseFloat(amount),
-                                        status: status
-                                    });
-                                }
-
-                                return orders;
-                            }
-
-                            // Chart functions with enhanced color palette
+                            // Chart functions
                             function getChartColorsArray(itemCount) {
-                                // Extended color palette for more products
                                 const baseColors = [
                                     '#405189', '#0ab39c', '#f7b84b', '#f06548', '#299cdb',
                                     '#6f42c1', '#e83e8c', '#fd7e14', '#20c997', '#198754',
                                     '#dc3545', '#6610f2', '#d63384', '#495057', '#17a2b8'
                                 ];
 
-                                // If we need more colors than available, generate additional ones
                                 if (itemCount > baseColors.length) {
                                     const additionalColors = [];
                                     for (let i = baseColors.length; i < itemCount; i++) {
-                                        // Generate colors using HSL for better distribution
-                                        const hue = (i * 137.508) % 360; // Golden angle approximation
-                                        const lightness = 45 + (i % 3) * 10; // Vary lightness: 45%, 55%, 65%
-                                        const saturation = 65 + (i % 2) * 20; // Vary saturation: 65%, 85%
+                                        const hue = (i * 137.508) % 360;
+                                        const lightness = 45 + (i % 3) * 10;
+                                        const saturation = 65 + (i % 2) * 20;
                                         additionalColors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
                                     }
                                     return [...baseColors, ...additionalColors];
@@ -4506,32 +4493,62 @@
 
                                 errorElement.style.display = 'none';
 
-                                setTimeout(() => {
-                                    $.ajax({
-                                        url: `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CHART_DATA}`,
-                                        method: 'GET',
-                                        data: { period: period },
-                                        timeout: API_CONFIG.TIMEOUT,
-                                        success: function (response) {
-                                            loadingElement.style.display = 'none';
-                                            overlayElement.style.display = 'none';
-                                            renderChart(response.data || generateMockChartData(period));
-                                        },
-                                        error: function (xhr, status, error) {
-                                            console.warn('API call failed, using mock data:', error);
-                                            loadingElement.style.display = 'none';
-                                            overlayElement.style.display = 'none';
-
-                                            const mockData = generateMockChartData(period);
-                                            renderChart(mockData);
+                                $.ajax({
+                                    url: `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.CHART_DATA}`,
+                                    method: 'GET',
+                                    data: { period: period },
+                                    timeout: API_CONFIG.TIMEOUT,
+                                    success: function (response) {
+                                        loadingElement.style.display = 'none';
+                                        overlayElement.style.display = 'none';
+                                        if (response && response.success && response.data) {
+                                            renderChart(response.data);
+                                        } else {
+                                            renderChart({ series: [], labels: [], total: 0 });
                                         }
-                                    });
-                                }, 1000);
+                                    },
+                                    error: function (xhr, status, error) {
+                                        loadingElement.style.display = 'none';
+                                        overlayElement.style.display = 'none';
+                                        chartContainer.innerHTML = `
+                                                <div class="no-data-chart">
+                                                    <i class="fas fa-exclamation-triangle fa-3x mb-3 text-danger"></i>
+                                                    <h5>Failed to load chart</h5>
+                                                    <p class="mb-0 text-danger">Cannot load product statistics.</p>
+                                                </div>
+                                            `;
+                                    }
+                                });
                             }
 
                             function renderChart(data) {
+                                const chartContainer = document.getElementById('product-stats-chart');
+
+                                // Handle empty data
+                                if (!data.series || data.series.length === 0) {
+                                    if (productStatsChart) {
+                                        productStatsChart.destroy();
+                                        productStatsChart = null;
+                                    }
+                                    chartContainer.innerHTML = `
+                                            <div class="no-data-chart d-flex flex-column align-items-center justify-content-center" style="height:330px;">
+                                                <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                                                <h5>No Data Available</h5>
+                                                <p class="mb-0">No product statistics found for the selected period.</p>
+                                            </div>
+                                        `;
+                                    return;
+                                }
+                                if (productStatsChart) {
+                                    productStatsChart.destroy();
+                                    productStatsChart = null;
+                                }
+                                chartContainer.innerHTML = '';
+
                                 const colors = getChartColorsArray(data.series.length);
                                 const total = data.series.reduce((a, b) => a + b, 0);
+
+                                const percentages = data.percentages; // <-- lấy từ response!
 
                                 const options = {
                                     series: data.series,
@@ -4552,14 +4569,8 @@
                                             useSeriesColors: false
                                         }
                                     },
-                                    stroke: {
-                                        show: false
-                                    },
-                                    dataLabels: {
-                                        dropShadow: {
-                                            enabled: false
-                                        }
-                                    },
+                                    stroke: { show: false },
+                                    dataLabels: { dropShadow: { enabled: false } },
                                     plotOptions: {
                                         pie: {
                                             donut: {
@@ -4570,21 +4581,15 @@
                                                         show: true,
                                                         fontSize: '16px',
                                                         fontWeight: 600,
-                                                        color: '#2d3748', // Dark color that works on both light and dark backgrounds
-                                                        offsetY: -10,
-                                                        formatter: function (val) {
-                                                            return val
-                                                        }
+                                                        color: '#2d3748',
+                                                        offsetY: -10
                                                     },
                                                     value: {
                                                         show: true,
                                                         fontSize: '24px',
                                                         fontWeight: 700,
-                                                        color: '#1a202c', // Very dark color for better contrast
-                                                        offsetY: 10,
-                                                        formatter: function (val) {
-                                                            return val
-                                                        }
+                                                        color: '#1a202c',
+                                                        offsetY: 10
                                                     },
                                                     total: {
                                                         show: true,
@@ -4592,7 +4597,7 @@
                                                         label: 'Total Products',
                                                         fontSize: '14px',
                                                         fontWeight: 600,
-                                                        color: '#4a5568', // Medium-dark gray that's visible on both backgrounds
+                                                        color: '#4a5568',
                                                         formatter: function (w) {
                                                             return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                                                         }
@@ -4605,67 +4610,28 @@
                                     tooltip: {
                                         enabled: true,
                                         theme: 'light',
-                                        style: {
-                                            fontSize: '14px',
-                                            color: '#333333'
-                                        },
                                         y: {
                                             formatter: function (val, opts) {
-                                                const percentage = ((val / total) * 100).toFixed(1);
-                                                return val + ' (' + percentage + '%)';
-                                            }
-                                        },
-                                        onDatasetHover: {
-                                            highlightDataSeries: true,
-                                        }
-                                    },
-                                    states: {
-                                        hover: {
-                                            filter: {
-                                                type: 'lighten',
-                                                value: 0.15,
-                                            }
-                                        },
-                                        active: {
-                                            allowMultipleDataPointsSelection: false,
-                                            filter: {
-                                                type: 'darken',
-                                                value: 0.7,
+                                                const idx = opts.seriesIndex;
+                                                const percent = percentages && percentages[idx] !== undefined ? percentages[idx] : '';
+                                                return val + (percent !== '' ? ` (${percent}%)` : '');
                                             }
                                         }
                                     },
                                     responsive: [{
                                         breakpoint: 768,
                                         options: {
-                                            chart: {
-                                                height: 280
-                                            },
-                                            plotOptions: {
-                                                pie: {
-                                                    donut: {
-                                                        labels: {
-                                                            name: {
-                                                                fontSize: '14px'
-                                                            },
-                                                            value: {
-                                                                fontSize: '20px'
-                                                            },
-                                                            total: {
-                                                                fontSize: '12px'
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            chart: { height: 280 }
                                         }
                                     }]
                                 };
+
 
                                 if (productStatsChart) {
                                     productStatsChart.destroy();
                                 }
 
-                                productStatsChart = new ApexCharts(document.querySelector("#product-stats-chart"), options);
+                                productStatsChart = new ApexCharts(chartContainer, options);
                                 productStatsChart.render();
                             }
 
@@ -4679,85 +4645,106 @@
                                 errorElement.style.display = 'none';
                                 tableBody.innerHTML = '';
 
-                                setTimeout(() => {
-                                    $.ajax({
-                                        url: `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TABLE_DATA}`,
-                                        method: 'GET',
-                                        data: { period: period },
-                                        timeout: API_CONFIG.TIMEOUT,
-                                        success: function (response) {
-                                            loadingElement.style.display = 'none';
-                                            allOrders = response.data || generateMockTableData(period);
-                                            currentPage = 1;
-                                            renderTable();
-                                        },
-                                        error: function (xhr, status, error) {
-                                            console.warn('API call failed, using mock data:', error);
-                                            loadingElement.style.display = 'none';
-
-                                            allOrders = generateMockTableData(period);
-                                            currentPage = 1;
-                                            renderTable();
+                                $.ajax({
+                                    url: `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.TABLE_DATA}`,
+                                    method: 'GET',
+                                    data: { period: period },
+                                    timeout: API_CONFIG.TIMEOUT,
+                                    success: function (response) {
+                                        loadingElement.style.display = 'none';
+                                        if (response && response.success && Array.isArray(response.data)) {
+                                            allOrders = response.data;
+                                        } else {
+                                            allOrders = [];
                                         }
-                                    });
-                                }, 800);
+                                        filteredOrders = allOrders;
+                                        currentPage = 1;
+                                        applySearch();
+                                    },
+                                    error: function (xhr, status, error) {
+                                        loadingElement.style.display = 'none';
+                                        errorElement.innerHTML = 'Failed to load orders data. Please try again later.';
+                                        errorElement.style.display = 'block';
+                                    }
+                                });
+                            }
+
+                            function applySearch() {
+                                const query = searchQuery.toLowerCase().trim();
+
+                                if (query === '') {
+                                    filteredOrders = allOrders;
+                                } else {
+                                    filteredOrders = allOrders.filter(order =>
+                                        order.id.toLowerCase().includes(query) ||
+                                        order.customer.name.toLowerCase().includes(query) ||
+                                        order.status.toLowerCase().includes(query)
+                                    );
+                                }
+
+                                currentPage = 1;
+                                renderTable();
                             }
 
                             function renderTable() {
                                 const tableBody = document.getElementById('ordersTableBody');
 
-                                if (allOrders.length === 0) {
+                                if (filteredOrders.length === 0) {
+                                    const message = searchQuery ?
+                                        `No orders found matching "${searchQuery}"` :
+                                        'No orders found for this period';
+
                                     tableBody.innerHTML = `
-                                                                                <tr>
-                                                                                    <td colspan="6" class="text-center text-muted py-4">
-                                                                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                                                                                        No orders found for this period
-                                                                                    </td>
-                                                                                </tr>
-                                                                            `;
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">
+                                                    <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                                    ${message}
+                                                </td>
+                                            </tr>
+                                        `;
                                     document.getElementById('ordersPagination').style.display = 'none';
                                     return;
                                 }
 
-                                const totalItems = allOrders.length;
+                                const totalItems = filteredOrders.length;
                                 const totalPages = Math.ceil(totalItems / itemsPerPage1);
                                 const startIndex = (currentPage - 1) * itemsPerPage1;
                                 const endIndex = Math.min(startIndex + itemsPerPage1, totalItems);
-                                const currentOrders = allOrders.slice(startIndex, endIndex);
+                                const currentOrders = filteredOrders.slice(startIndex, endIndex);
 
                                 const rows = currentOrders.map(order => {
                                     const statusConfig = ORDER_STATUS[order.status] || ORDER_STATUS['Pending'];
-
                                     return `
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        <a href="#" class="fw-medium link-primary">${order.id}</a>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div class="d-flex align-items-center">
-                                                                                            <div class="flex-shrink-0 me-2">
-                                                                                                <img src="${order.customer.avatar}" alt="${order.customer.name}"
-                                                                                                     class="avatar-xs rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" />
-                                                                                            </div>
-                                                                                            <div class="flex-grow-1">${order.customer.name}</div>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <span>${order.quantity}</span>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <span class="text-success">$${order.amount.toFixed(2)}</span>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <span class="badge ${statusConfig.class}">${statusConfig.text}</span>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <button class="btn btn-sm btn-outline-primary">
-                                                                                            <i class="fas fa-eye me-1"></i>View Detail
-                                                                                        </button>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            `;
+                                            <tr>
+                                                <td>
+                                                                                <a href="/seller/ViewOrderDetails/${order.id}" target="_blank" class="fw-medium link-primary">${order.id}</a>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-grow-1">${order.customer.name}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span>${order.quantity}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-success">$${order.amount.toFixed(2)}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge ${statusConfig.class}">${statusConfig.text}</span>
+                                                </td>
+                                                <td>
+                                                                               <button
+                                class="btn btn-sm btn-outline-primary"
+                                onclick="window.open('/seller/ViewOrderDetails/${order.id}', '_blank')"
+                                type="button"
+                            >
+                                <i class="fas fa-eye me-1"></i>View Detail
+                            </button>
+
+                                                </td>
+                                            </tr>
+                                        `;
                                 }).join('');
 
                                 tableBody.innerHTML = rows;
@@ -4780,18 +4767,19 @@
 
                                 let paginationHTML = '';
 
+                                // Previous button
                                 if (currentPage > 1) {
                                     paginationHTML += `
-                                                                                <li class="page-item">
-                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">←</a>
-                                                                                </li>
-                                                                            `;
+                                            <li class="page-item">
+                                                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">←</a>
+                                            </li>
+                                        `;
                                 } else {
                                     paginationHTML += `
-                                                                                <li class="page-item disabled">
-                                                                                    <a class="page-link" href="#" tabindex="-1">←</a>
-                                                                                </li>
-                                                                            `;
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1">←</a>
+                                            </li>
+                                        `;
                                 }
 
                                 const maxVisiblePages = 5;
@@ -4803,63 +4791,40 @@
                                 }
 
                                 if (startPage > 1) {
-                                    paginationHTML += `
-                                                                                <li class="page-item">
-                                                                                    <a class="page-link" href="#" onclick="changePage(1)">1</a>
-                                                                                </li>
-                                                                            `;
+                                    paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(1)">1</a></li>`;
                                     if (startPage > 2) {
-                                        paginationHTML += `
-                                                                                    <li class="page-item disabled">
-                                                                                        <a class="page-link" href="#" tabindex="-1">...</a>
-                                                                                    </li>
-                                                                                `;
+                                        paginationHTML += `<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">...</a></li>`;
                                     }
                                 }
 
                                 for (let i = startPage; i <= endPage; i++) {
                                     if (i === currentPage) {
-                                        paginationHTML += `
-                                                                                    <li class="page-item active">
-                                                                                        <a class="page-link" href="#">${i}</a>
-                                                                                    </li>
-                                                                                `;
+                                        paginationHTML += `<li class="page-item active"><a class="page-link" href="#">${i}</a></li>`;
                                     } else {
-                                        paginationHTML += `
-                                                                                    <li class="page-item">
-                                                                                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                                                                                    </li>
-                                                                                `;
+                                        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${i})">${i}</a></li>`;
                                     }
                                 }
 
                                 if (endPage < totalPages) {
                                     if (endPage < totalPages - 1) {
-                                        paginationHTML += `
-                                                                                    <li class="page-item disabled">
-                                                                                        <a class="page-link" href="#" tabindex="-1">...</a>
-                                                                                    </li>
-                                                                                `;
+                                        paginationHTML += `<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">...</a></li>`;
                                     }
-                                    paginationHTML += `
-                                                                                <li class="page-item">
-                                                                                    <a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a>
-                                                                                </li>
-                                                                            `;
+                                    paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a></li>`;
                                 }
 
+                                // Next button
                                 if (currentPage < totalPages) {
                                     paginationHTML += `
-                                                                                <li class="page-item">
-                                                                                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">→</a>
-                                                                                </li>
-                                                                            `;
+                                            <li class="page-item">
+                                                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">→</a>
+                                            </li>
+                                        `;
                                 } else {
                                     paginationHTML += `
-                                                                               <li class="page-item disabled">
-                                                                                   <a class="page-link" href="#" tabindex="-1">→</a>
-                                                                               </li>
-                                                                           `;
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1">→</a>
+                                            </li>
+                                        `;
                                 }
 
                                 paginationList.innerHTML = paginationHTML;
@@ -4894,6 +4859,20 @@
                                     loadTable(period);
                                 });
 
+                                // Search functionality
+                                $('#orderSearch').on('input', function () {
+                                    searchQuery = $(this).val();
+                                    applySearch();
+                                });
+
+                                $('#orderSearch').on('keydown', function (e) {
+                                    if (e.key === 'Escape') {
+                                        $(this).val('');
+                                        searchQuery = '';
+                                        applySearch();
+                                    }
+                                });
+
                                 // Initial load
                                 loadChart(currentChartPeriod);
                                 loadTable(currentTablePeriod);
@@ -4905,556 +4884,14 @@
                                 }, 300000);
                             });
 
-                            // Utility functions
-                            function formatCurrency(amount) {
-                                return new Intl.NumberFormat('en-US', {
-                                    style: 'currency',
-                                    currency: 'USD'
-                                }).format(amount);
-                            }
-
-                            function formatDate(date) {
-                                return new Intl.DateTimeFormat('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                }).format(new Date(date));
-                            }
-
-                            // Handle window resize for chart responsiveness
+                            // Chart resize
                             window.addEventListener('resize', function () {
                                 if (productStatsChart) {
                                     productStatsChart.resize();
                                 }
                             });
-
-                            // Error handling for network issues
-                            $(document).ajaxError(function (event, xhr, settings, thrownError) {
-                                console.error('AJAX Error:', thrownError);
-
-                                if (settings.url.includes('product-stats')) {
-                                    document.getElementById('chartLoading').style.display = 'none';
-                                    document.getElementById('chartLoadingOverlay').style.display = 'none';
-                                    document.getElementById('chartError').innerHTML = 'Failed to load chart data. Please try again later.';
-                                    document.getElementById('chartError').style.display = 'block';
-                                } else if (settings.url.includes('orders')) {
-                                    document.getElementById('tableLoading').style.display = 'none';
-                                    document.getElementById('tableError').innerHTML = 'Failed to load orders data. Please try again later.';
-                                    document.getElementById('tableError').style.display = 'block';
-                                }
-                            });
                         </script>
-                        <div class="col-auto layout-rightside-col">
-                            <div class="overlay"></div>
-                            <div class="layout-rightside">
-                                <div class="card h-100 rounded-0">
-                                    <div class="card-body p-0">
-                                        <div class="p-3">
-                                            <h6 class="text-muted mb-0 text-uppercase fw-semibold">Recent Activity</h6>
-                                        </div>
-                                        <div data-simplebar style="max-height: 410px;" class="p-3 pt-0">
-                                            <div class="acitivity-timeline acitivity-main">
-                                                <div class="acitivity-item d-flex">
-                                                    <div class="flex-shrink-0 avatar-xs acitivity-avatar">
-                                                        <div
-                                                            class="avatar-title bg-success-subtle text-success rounded-circle material-shadow">
-                                                            <i class="ri-shopping-cart-2-line"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Purchase by James Price</h6>
-                                                        <p class="text-muted mb-1">Product noise evolve smartwatch </p>
-                                                        <small class="mb-0 text-muted">02:14 PM Today</small>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item py-3 d-flex">
-                                                    <div class="flex-shrink-0 avatar-xs acitivity-avatar">
-                                                        <div
-                                                            class="avatar-title bg-danger-subtle text-danger rounded-circle material-shadow">
-                                                            <i class="ri-stack-fill"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Added new <span
-                                                                class="fw-semibold">style collection</span></h6>
-                                                        <p class="text-muted mb-1">By Nesta Technologies</p>
-                                                        <div class="d-inline-flex gap-2 border border-dashed p-2 mb-2">
-                                                            <a href="apps-ecommerce-product-details.html"
-                                                                class="bg-light rounded p-1">
-                                                                <img src="~/assetsAdmin/images/products/img-8.png" alt=""
-                                                                    class="img-fluid d-block" />
-                                                            </a>
-                                                            <a href="apps-ecommerce-product-details.html"
-                                                                class="bg-light rounded p-1">
-                                                                <img src="~/assetsAdmin/images/products/img-2.png" alt=""
-                                                                    class="img-fluid d-block" />
-                                                            </a>
-                                                            <a href="apps-ecommerce-product-details.html"
-                                                                class="bg-light rounded p-1">
-                                                                <img src="~/assetsAdmin/images/products/img-10.png" alt=""
-                                                                    class="img-fluid d-block" />
-                                                            </a>
-                                                        </div>
-                                                        <p class="mb-0 text-muted"><small>9:47 PM Yesterday</small></p>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item py-3 d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <img src="~/assetsAdmin/images/users/avatar-2.jpg" alt=""
-                                                            class="avatar-xs rounded-circle acitivity-avatar material-shadow">
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Natasha Carey have liked the products
-                                                        </h6>
-                                                        <p class="text-muted mb-1">Allow users to like products in your
-                                                            WooCommerce store.</p>
-                                                        <small class="mb-0 text-muted">25 Dec, 2021</small>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item py-3 d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="avatar-xs acitivity-avatar">
-                                                            <div
-                                                                class="avatar-title rounded-circle bg-secondary material-shadow">
-                                                                <i class="mdi mdi-sale fs-14"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Today offers by <a
-                                                                href="apps-ecommerce-seller-details.html"
-                                                                class="link-secondary">Digitech Galaxy</a></h6>
-                                                        <p class="text-muted mb-2">Offer is valid on orders of Rs.500 Or
-                                                            above for selected products only.</p>
-                                                        <small class="mb-0 text-muted">12 Dec, 2021</small>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item py-3 d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="avatar-xs acitivity-avatar">
-                                                            <div
-                                                                class="avatar-title rounded-circle bg-danger-subtle text-danger material-shadow">
-                                                                <i class="ri-bookmark-fill"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Favorite Product</h6>
-                                                        <p class="text-muted mb-2">Esther James have Favorite product.
-                                                        </p>
-                                                        <small class="mb-0 text-muted">25 Nov, 2021</small>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item py-3 d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="avatar-xs acitivity-avatar">
-                                                            <div
-                                                                class="avatar-title rounded-circle bg-secondary material-shadow">
-                                                                <i class="mdi mdi-sale fs-14"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Flash sale starting <span
-                                                                class="text-primary">Tomorrow.</span></h6>
-                                                        <p class="text-muted mb-0">Flash sale by <a
-                                                                href="javascript:void(0);"
-                                                                class="link-secondary fw-medium">Zoetic Fashion</a></p>
-                                                        <small class="mb-0 text-muted">22 Oct, 2021</small>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item py-3 d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <div class="avatar-xs acitivity-avatar">
-                                                            <div
-                                                                class="avatar-title rounded-circle bg-info-subtle text-info material-shadow">
-                                                                <i class="ri-line-chart-line"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Monthly sales report</h6>
-                                                        <p class="text-muted mb-2"><span class="text-danger">2 days
-                                                                left</span> notification to submit the monthly sales
-                                                            report. <a href="javascript:void(0);"
-                                                                class="link-warning text-decoration-underline">Reports
-                                                                Builder</a></p>
-                                                        <small class="mb-0 text-muted">15 Oct</small>
-                                                    </div>
-                                                </div>
-                                                <div class="acitivity-item d-flex">
-                                                    <div class="flex-shrink-0">
-                                                        <img src="~/assetsAdmin/images/users/avatar-3.jpg" alt=""
-                                                            class="avatar-xs rounded-circle acitivity-avatar material-shadow" />
-                                                    </div>
-                                                    <div class="flex-grow-1 ms-3">
-                                                        <h6 class="mb-1 lh-base">Frank Hook Commented</h6>
-                                                        <p class="text-muted mb-2 fst-italic">" A product that has
-                                                            reviews is more likable to be sold than a product. "</p>
-                                                        <small class="mb-0 text-muted">26 Aug, 2021</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="p-3 mt-2">
-                                            <h6 class="text-muted mb-3 text-uppercase fw-semibold">Top 10 Categories
-                                            </h6>
-
-                                            <ol class="ps-3 text-muted">
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Mobile & Accessories <span
-                                                            class="float-end">(10,294)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Desktop <span
-                                                            class="float-end">(6,256)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Electronics <span
-                                                            class="float-end">(3,479)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Home & Furniture <span
-                                                            class="float-end">(2,275)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Grocery <span
-                                                            class="float-end">(1,950)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Fashion <span
-                                                            class="float-end">(1,582)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Appliances <span
-                                                            class="float-end">(1,037)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Beauty, Toys & More <span
-                                                            class="float-end">(924)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Food & Drinks <span
-                                                            class="float-end">(701)</span></a>
-                                                </li>
-                                                <li class="py-1">
-                                                    <a href="#" class="text-muted">Toys & Games <span
-                                                            class="float-end">(239)</span></a>
-                                                </li>
-                                            </ol>
-                                            <div class="mt-3 text-center">
-                                                <a href="javascript:void(0);"
-                                                    class="text-muted text-decoration-underline">View all Categories</a>
-                                            </div>
-                                        </div>
-                                        <div class="p-3">
-                                            <h6 class="text-muted mb-3 text-uppercase fw-semibold">Products Reviews</h6>
-                                            <!-- Swiper -->
-                                            <div class="swiper vertical-swiper" style="height: 250px;">
-                                                <div class="swiper-wrapper">
-                                                    <div class="swiper-slide">
-                                                        <div class="card border border-dashed shadow-none">
-                                                            <div class="card-body">
-                                                                <div class="d-flex">
-                                                                    <div class="flex-shrink-0 avatar-sm">
-                                                                        <div
-                                                                            class="avatar-title bg-light rounded material-shadow">
-                                                                            <img src="~/assetsAdmin/images/companies/img-1.png"
-                                                                                alt="" height="30">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="flex-grow-1 ms-3">
-                                                                        <div>
-                                                                            <p
-                                                                                class="text-muted mb-1 fst-italic text-truncate-two-lines">
-                                                                                " Great product and looks great, lots of
-                                                                                features. "</p>
-                                                                            <div
-                                                                                class="fs-11 align-middle text-warning">
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="text-end mb-0 text-muted">
-                                                                            - by <cite title="Source Title">Force
-                                                                                Medicines</cite>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="swiper-slide">
-                                                        <div class="card border border-dashed shadow-none">
-                                                            <div class="card-body">
-                                                                <div class="d-flex">
-                                                                    <div class="flex-shrink-0">
-                                                                        <img src="~/assetsAdmin/images/users/avatar-3.jpg"
-                                                                            alt=""
-                                                                            class="avatar-sm rounded material-shadow">
-                                                                    </div>
-                                                                    <div class="flex-grow-1 ms-3">
-                                                                        <div>
-                                                                            <p
-                                                                                class="text-muted mb-1 fst-italic text-truncate-two-lines">
-                                                                                " Amazing template, very easy to
-                                                                                understand and manipulate. "</p>
-                                                                            <div
-                                                                                class="fs-11 align-middle text-warning">
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-half-fill"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="text-end mb-0 text-muted">
-                                                                            - by <cite title="Source Title">Henry
-                                                                                Baird</cite>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="swiper-slide">
-                                                        <div class="card border border-dashed shadow-none">
-                                                            <div class="card-body">
-                                                                <div class="d-flex">
-                                                                    <div class="flex-shrink-0 avatar-sm">
-                                                                        <div class="avatar-title bg-light rounded">
-                                                                            <img src="~/assetsAdmin/images/companies/img-8.png"
-                                                                                alt="" height="30">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="flex-grow-1 ms-3">
-                                                                        <div>
-                                                                            <p
-                                                                                class="text-muted mb-1 fst-italic text-truncate-two-lines">
-                                                                                "Very beautiful product and Very helpful
-                                                                                customer service."</p>
-                                                                            <div
-                                                                                class="fs-11 align-middle text-warning">
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-line"></i>
-                                                                                <i class="ri-star-line"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="text-end mb-0 text-muted">
-                                                                            - by <cite title="Source Title">Zoetic
-                                                                                Fashion</cite>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="swiper-slide">
-                                                        <div class="card border border-dashed shadow-none">
-                                                            <div class="card-body">
-                                                                <div class="d-flex">
-                                                                    <div class="flex-shrink-0">
-                                                                        <img src="~/assetsAdmin/images/users/avatar-2.jpg"
-                                                                            alt=""
-                                                                            class="avatar-sm rounded material-shadow">
-                                                                    </div>
-                                                                    <div class="flex-grow-1 ms-3">
-                                                                        <div>
-                                                                            <p
-                                                                                class="text-muted mb-1 fst-italic text-truncate-two-lines">
-                                                                                " The product is very beautiful. I like
-                                                                                it. "</p>
-                                                                            <div
-                                                                                class="fs-11 align-middle text-warning">
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-fill"></i>
-                                                                                <i class="ri-star-half-fill"></i>
-                                                                                <i class="ri-star-line"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="text-end mb-0 text-muted">
-                                                                            - by <cite title="Source Title">Nancy
-                                                                                Martino</cite>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="p-3">
-                                            <h6 class="text-muted mb-3 text-uppercase fw-semibold">Customer Reviews</h6>
-                                            <div class="bg-light px-3 py-2 rounded-2 mb-2">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-grow-1">
-                                                        <div class="fs-16 align-middle text-warning">
-                                                            <i class="ri-star-fill"></i>
-                                                            <i class="ri-star-fill"></i>
-                                                            <i class="ri-star-fill"></i>
-                                                            <i class="ri-star-fill"></i>
-                                                            <i class="ri-star-half-fill"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex-shrink-0">
-                                                        <h6 class="mb-0">4.5 out of 5</h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="text-center">
-                                                <div class="text-muted">Total <span class="fw-medium">5.50k</span>
-                                                    reviews</div>
-                                            </div>
-
-                                            <div class="mt-3">
-                                                <div class="row align-items-center g-2">
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0">5 star</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="p-1">
-                                                            <div class="progress animated-progress progress-sm">
-                                                                <div class="progress-bar bg-success" role="progressbar"
-                                                                    style="width: 50.16%" aria-valuenow="50.16"
-                                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0 text-muted">2758</h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end row -->
-
-                                                <div class="row align-items-center g-2">
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0">4 star</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="p-1">
-                                                            <div class="progress animated-progress progress-sm">
-                                                                <div class="progress-bar bg-success" role="progressbar"
-                                                                    style="width: 29.32%" aria-valuenow="29.32"
-                                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0 text-muted">1063</h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end row -->
-
-                                                <div class="row align-items-center g-2">
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0">3 star</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="p-1">
-                                                            <div class="progress animated-progress progress-sm">
-                                                                <div class="progress-bar bg-warning" role="progressbar"
-                                                                    style="width: 18.12%" aria-valuenow="18.12"
-                                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0 text-muted">997</h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end row -->
-
-                                                <div class="row align-items-center g-2">
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0">2 star</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="p-1">
-                                                            <div class="progress animated-progress progress-sm">
-                                                                <div class="progress-bar bg-success" role="progressbar"
-                                                                    style="width: 4.98%" aria-valuenow="4.98"
-                                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0 text-muted">227</h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end row -->
-
-                                                <div class="row align-items-center g-2">
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0">1 star</h6>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col">
-                                                        <div class="p-1">
-                                                            <div class="progress animated-progress progress-sm">
-                                                                <div class="progress-bar bg-danger" role="progressbar"
-                                                                    style="width: 7.42%" aria-valuenow="7.42"
-                                                                    aria-valuemin="0" aria-valuemax="100"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <div class="p-1">
-                                                            <h6 class="mb-0 text-muted">408</h6>
-                                                        </div>
-                                                    </div>
-                                                </div><!-- end row -->
-                                            </div>
-                                        </div>
-
-                                        <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
-                                            <div class="card-body">
-                                                <img src="~/assetsAdmin/images/giftbox.png" alt="">
-                                                <div class="mt-4">
-                                                    <h5>Invite New Seller</h5>
-                                                    <p class="text-muted lh-base">Refer a new seller to us and earn $100
-                                                        per refer.</p>
-                                                    <button type="button"
-                                                        class="btn btn-primary btn-label rounded-pill"><i
-                                                            class="ri-mail-fill label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                                        Invite Now</button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div> <!-- end card-->
-                            </div> <!-- end .rightbar-->
-
-                        </div> <!-- end col -->
+                        
                     </div>
 
                 </div>
