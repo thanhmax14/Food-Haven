@@ -383,15 +383,27 @@
                                         <p class="post-exerpt mb-40">@item.ShortDescriptions</p>
                                         <div class="entry-meta meta-1 font-xs color-grey mt-10 pb-10">
 
-                                            <div>
+                                      <div class="d-flex flex-wrap gap-2 mb-2">
+    <!-- Dòng 1 -->
+    <div class="d-flex flex-row gap-2 w-100">
+        <span class="post-on has-dot">@item.TypeOfDishName</span>
+        <span class="post-on has-dot">@item.DifficultyLevel</span>
+        <span class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
+    </div>
 
-                                                <span class="post-on">@item.TypeOfDishName</span>
-                                                <span class="post-on has-dot">@item.DifficultyLevel</span>
-                                                <span
-                                                    class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
-                                                <span class="hit-count has-dot">126k Views</span>
-                                                <span class="hit-count has-dot">@item.status</span>
-                                            </div>
+    <!-- Dòng 2 -->
+    <div class="d-flex flex-row gap-2 w-100">
+        <span class="hit-count has-dot">126k Views</span>
+        <span class="hit-count has-dot 
+            @(item.status?.ToLower() == "accept" ? "text-success" :
+              item.status?.ToLower() == "pending" ? "text-warning" :
+              item.status?.ToLower() == "reject" ? "text-danger" : "")">
+            @item.status
+        </span>
+        <!-- Có thể thêm mục thứ 3 ở đây nếu muốn -->
+    </div>
+</div>
+
                                             <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
                                                 class="text-brand font-heading font-weight-bold">Read more <i
                                                     class="fi-rs-arrow-right"></i></a>
