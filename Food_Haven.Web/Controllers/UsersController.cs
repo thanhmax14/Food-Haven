@@ -1488,8 +1488,8 @@ namespace Food_Haven.Web.Controllers
                     TypeOfDishID = item.TypeOfDishID,
                     UserID = item.UserID,
                     IngredientTags = selectedTags.Select(x => x.IngredientTag).ToList(),
-                    SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList()
-
+                    SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(),
+                    status = item.status,
                 });
             }
 

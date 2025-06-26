@@ -451,13 +451,13 @@
                                             </a>
                                         </li>
 
-                                        <li class="nav-item">
+                                        @* <li class="nav-item">
                                             <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab"
                                                href="#track-orders" role="tab" aria-controls="track-orders"
                                                aria-selected="false">
                                                 <i class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order
                                             </a>
-                                        </li>
+                                        </li> *@
                                        
                                         @if (Model.userView.RequestSeller == "0" || Model.userView.RequestSeller == "1" || Model.userView.RequestSeller == "3") // Nếu chưa đăng ký seller
                                         {
@@ -1303,7 +1303,7 @@ document.addEventListener("click", function (e) {
 
 
 
-                                    <div class="tab-pane fade" id="track-orders" role="tabpanel"
+                                    @* <div class="tab-pane fade" id="track-orders" role="tabpanel"
                                          aria-labelledby="track-orders-tab">
                                         <div class="card">
                                             <div class="card-header">
@@ -1340,7 +1340,7 @@ document.addEventListener("click", function (e) {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> *@
                                     <div class="tab-pane fade" id="address" role="tabpanel"
                                          aria-labelledby="address-tab">
                                         <div class="row justify-content-center">
