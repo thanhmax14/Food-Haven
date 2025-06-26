@@ -2181,7 +2181,7 @@ namespace Food_Haven.Web.Controllers
               price = price,
               stock = stock,
               image = "🍪",
-              orders = g.Sum(x => x.Quantity),
+              orders = g.Sum(x => x.Status.ToLower() == "confirmed" ? x.Quantity : 0),
               totalSell = g.Sum(x => x.Quantity * x.ProductPrice),
               date = g.Max(x => x.CreatedDate).ToString("dd MMM yyyy"),
           };
@@ -2205,6 +2205,134 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new { error = ex.Message });
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetCustomers(string period = "today", string search = "")
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { error = "Bạn chưa đăng nhập!" });
+            var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+            if (getStore == null)
+                return Json(new { error = "Không tìm thấy cửa hàng!" });
+            var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
+            if (!products.Any())
+                return Json(new List<object>());
+            var productIds = products.Select(p => p.ID).ToList();
+            var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+            if (!productTypes.Any())
+                return Json(new List<object>());
+            var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+            var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
+            if (!orderDetails.Any())
+                return Json(new List<object>());
+            var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+            var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && o.Status.ToLower() == "confirmed");
+            var now = DateTime.Now;
+            IEnumerable<Order> filteredOrders = orders;
+            switch (period.ToLower())
+            {
+                case "today":
+                    filteredOrders = orders.Where(o => o.CreatedDate.Date == now.Date);
+                    break;
+                case "yesterday":
+                    filteredOrders = orders.Where(o => o.CreatedDate.Date == now.AddDays(-1).Date);
+                    break;
+                case "last7days":
+                    filteredOrders = orders.Where(o => o.CreatedDate >= now.AddDays(-7));
+                    break;
+                case "last30days":
+                    filteredOrders = orders.Where(o => o.CreatedDate >= now.AddDays(-30));
+                    break;
+                case "thismonth":
+                    filteredOrders = orders.Where(o => o.CreatedDate.Month == now.Month && o.CreatedDate.Year == now.Year);
+                    break;
+                case "lastmonth":
+                    var lastMonth = now.AddMonths(-1);
+                    filteredOrders = orders.Where(o => o.CreatedDate.Month == lastMonth.Month && o.CreatedDate.Year == lastMonth.Year);
+                    break;
+                case "alltime":
+                    break;
+            }
+            var filteredOrderIds = filteredOrders.Select(o => o.ID).ToHashSet();
+            var filteredOrderDetails = orderDetails.Where(od => filteredOrderIds.Contains(od.OrderID)).ToList();
+            var orderDict = filteredOrders.ToDictionary(o => o.ID, o => o);
+            var customerGroups = filteredOrderDetails
+                .Where(od => orderDict.ContainsKey(od.OrderID))
+                .GroupBy(od => orderDict[od.OrderID].UserID)
+                .Select(g => new
+                {
+                    UserID = g.Key,
+                    TotalAmount = g.Sum(od => od.Quantity * od.ProductPrice),
+                    OrderCount = g.Select(od => od.OrderID).Distinct().Count(),
+                    LastOrderDate = g.Max(od => orderDict[od.OrderID].CreatedDate)
+                })
+                .OrderByDescending(x => x.TotalAmount)
+                .ToList();
+
+            if (!customerGroups.Any())
+                return Json(new List<object>());
+
+            var userIds = customerGroups.Select(x => x.UserID).ToList();
+            var users = await _userManager.Users
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new
+                {
+                    u.Id,
+                    u.UserName,
+                    u.Email,
+                    u.PhoneNumber,
+                    u.ImageUrl
+                })
+                .ToListAsync();
+
+            // Lấy roles của users sử dụng UserManager
+            var userRoles = new List<dynamic>();
+            foreach (var userId in userIds)
+            {
+                var userEntity = await _userManager.FindByIdAsync(userId);
+                if (userEntity != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(userEntity);
+                    var roleName = roles.FirstOrDefault() ?? "Customer";
+                    userRoles.Add(new { UserId = userId, RoleName = roleName });
+                }
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchLower = search.ToLower();
+                users = users.Where(u =>
+                    (u.UserName != null && u.UserName.ToLower().Contains(searchLower)) ||
+                    (u.PhoneNumber != null && u.PhoneNumber.Contains(searchLower))
+                ).ToList();
+                customerGroups = customerGroups.Where(c => users.Any(u => u.Id == c.UserID)).ToList();
+            }
+
+            var totalAmountAll = customerGroups.Sum(x => x.TotalAmount);
+
+            var result = customerGroups.Select((c, idx) =>
+            {
+                var u = users.FirstOrDefault(u => u.Id == c.UserID);
+                // Lấy role từ userRoles
+                var role = userRoles.FirstOrDefault(ur => ur.UserId == c.UserID)?.RoleName ?? "Customer";
+
+                return new
+                {
+                    stt = idx + 1,
+                    id = u?.Id,
+                    userName = u?.UserName ?? "Unknown",
+                    rolebuy = role,
+                    phone = u?.PhoneNumber ?? "",
+                    stock = c.OrderCount,
+                    amount = c.TotalAmount,
+                    growth = totalAmountAll == 0 ? 0 : Math.Round(100m * c.TotalAmount / totalAmountAll, 2), // 2 chữ số thập phân
+                    lastOrderDate = c.LastOrderDate.ToString("dd/MM/yyyy"),
+                    image = u?.ImageUrl ?? "/assets/imgs/theme/icons/icon-user.svg",
+                };
+            }).ToList();
+
+            return Json(result);
         }
 
     }
