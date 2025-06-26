@@ -1262,16 +1262,12 @@ namespace Food_Haven.Web.Controllers
 
                     try
                     {
-
-                        // Lấy danh sách chi tiết đơn hàng
                         var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
                         if (orderDetails == null)
                             return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
                         var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
                         if (order == null)
                             return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
-
-
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
                         await _orderDetail.UpdateAsync(orderDetails);
@@ -1344,8 +1340,6 @@ namespace Food_Haven.Web.Controllers
                             var originalOrder = await _order.FindAsync(x => x.ID == orderDetail.OrderID);
                             if (originalOrder == null)
                                 throw new Exception("Không tìm thấy đơn hàng gốc.");
-
-                            // Tạo voucher giảm 100%
                             var voucherCode = $"Warranty-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
                             var voucher = new Voucher
                             {
@@ -1355,7 +1349,6 @@ namespace Food_Haven.Web.Controllers
                                 DiscountType = "Percent",
                                 StartDate = DateTime.Now,
                                 ExpirationDate = DateTime.Now.AddDays(3),
-                              //  Scope = "Warranty",
                                 MaxUsage = 1,
                                 CurrentUsage = 0,
                                 MinOrderValue = 0,
@@ -1710,55 +1703,36 @@ namespace Food_Haven.Web.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 var today = DateTime.Now.Date;
                 var todayStr = today.ToString("yyyy-MM-dd");
-
-                // Fallback config nếu không có dữ liệu
                 var fallbackConfig = new
                 {
                     minDate = todayStr,
                     maxDate = todayStr,
                     defaultDays = 1
                 };
-
-                // Lấy store của seller
                 var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
                 if (store == null) return Json(fallbackConfig);
-
-                // Lấy danh sách sản phẩm thuộc store
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any()) return Json(fallbackConfig);
-
                 var productIds = products.Select(p => p.ID).ToList();
-
-                // Lấy các variant (product types)
                 var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
                 if (!variants.Any()) return Json(fallbackConfig);
-
                 var variantIds = variants.Select(v => v.ID).ToList();
-
-                // Lấy chi tiết đơn hàng chứa các variant này
                 var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
                 if (!orderDetails.Any()) return Json(fallbackConfig);
-
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
                 var confirmedStatuses = new[] { "CONFIRMED" };
                 var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
-                // Lấy đơn hàng
                 var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && (confirmedStatuses.Contains(o.Status.ToUpper()) || cancelledStatuses.Contains(o.Status.ToUpper())));
                 if (!orders.Any()) return Json(fallbackConfig);
-
-                // Tính khoảng thời gian từ đơn hàng
                 var minDateValue = orders.Min(o => o.CreatedDate).Date;
                 var maxDateValue = orders.Max(o => o.CreatedDate).Date;
-
-                int totalDays = (maxDateValue - minDateValue).Days + 1; // Tính số ngày
-
+                int totalDays = (maxDateValue - minDateValue).Days + 1; 
                 return Json(new
                 {
                     minDate = minDateValue.ToString("yyyy-MM-dd"),
                     maxDate = maxDateValue.ToString("yyyy-MM-dd"),
                     defaultDays = totalDays < 30 ? totalDays : 30
                 });
-
             }
             catch (Exception ex)
             {
@@ -1872,48 +1846,30 @@ namespace Food_Haven.Web.Controllers
         {
             var today = DateTime.Now.Date;
             var todayStr = today.ToString("yyyy-MM");
-
-            // Fallback: chỉ cho chọn tháng hiện tại
             var fallbackMonths = new List<string> { todayStr };
-
             try
             {
                 var user = await _userManager.GetUserAsync(User);
-
-                // Lấy store của seller
                 var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
                 if (store == null) return Json(fallbackMonths);
-
-                // Lấy danh sách sản phẩm thuộc store
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any()) return Json(fallbackMonths);
-
                 var productIds = products.Select(p => p.ID).ToList();
-
-                // Lấy các variant (product types)
                 var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
                 if (!variants.Any()) return Json(fallbackMonths);
-
                 var variantIds = variants.Select(v => v.ID).ToList();
-
-                // Lấy chi tiết đơn hàng chứa các variant này
                 var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
                 if (!orderDetails.Any()) return Json(fallbackMonths);
-
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
-
                 var confirmedStatuses = new[] { "CONFIRMED" };
                 var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
                 var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && (confirmedStatuses.Contains(o.Status.ToUpper()) || cancelledStatuses.Contains(o.Status.ToUpper())));
                 if (!orders.Any()) return Json(fallbackMonths);
-
-                // Lấy các tháng năm có đơn hàng
                 var months = orders
                     .Select(o => o.CreatedDate.ToString("yyyy-MM"))
                     .Distinct()
                     .OrderBy(x => x)
                     .ToList();
-
                 return Json(months);
             }
             catch (Exception ex)
@@ -1926,7 +1882,6 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMonthlyData(string month)
         {
-            // month format: "YYYY-MM"
             if (string.IsNullOrEmpty(month))
                 month = DateTime.Now.ToString("yyyy-MM");
 
@@ -1935,91 +1890,64 @@ namespace Food_Haven.Web.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                     return Json(new { error = "Bạn chưa đăng nhập!!" });
-
                 var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
                 if (store == null)
                     return Json(new { error = "Không tìm thấy cửa hàng." });
-
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any())
                     return Json(new { error = "Không có sản phẩm." });
-
                 var productIds = products.Select(p => p.ID).ToList();
                 var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
                 if (!variants.Any())
                     return Json(new { error = "Không có biến thể sản phẩm." });
-
                 var variantIds = variants.Select(v => v.ID).ToList();
                 var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
                 if (!orderDetails.Any())
                     return Json(new { error = "Không có chi tiết đơn hàng." });
-
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
                 var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
                 if (!orders.Any())
                     return Json(new { error = "Không có đơn hàng." });
-
-                // Phân loại trạng thái đơn hàng (Confirmed = thành công, Cancelled = hủy)
                 var confirmedStatuses = new[] { "CONFIRMED" };
                 var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
-
-                // Chuẩn bị dải ngày trong tháng đó
                 int year = int.Parse(month.Split('-')[0]);
                 int m = int.Parse(month.Split('-')[1]);
                 int daysInMonth = DateTime.DaysInMonth(year, m);
-
                 var chartOrders = new Dictionary<string, int>();
                 var chartEarnings = new Dictionary<string, decimal>();
                 var chartCanceled = new Dictionary<string, int>();
                 var chartCustomers = new Dictionary<string, int>();
-
                 int totalOrders = 0;
                 decimal totalEarnings = 0;
                 int totalCanceled = 0;
                 HashSet<string> uniqueCustomers = new HashSet<string>();
-
                 DateTime now = DateTime.Now.Date;
-
                 for (int day = 1; day <= daysInMonth; day++)
                 {
                     var date = new DateTime(year, m, day);
-                    if (date > now) break; // Không lấy ngày tương lai
-
+                    if (date > now) break;
                     string dateKey = date.ToString("yyyy-MM-dd");
-
-                    // Lọc đơn hàng theo ngày
                     var dayOrders = orders.Where(o =>
                     o.CreatedDate.Date == date &&
                      (confirmedStatuses.Contains(o.Status.ToUpper()) || cancelledStatuses.Contains(o.Status.ToUpper())));
                     int orderCount = dayOrders.Count();
-
                     chartOrders[dateKey] = orderCount;
                     totalOrders += orderCount;
-
-                    // Tổng doanh thu (chỉ đơn Confirmed)
                     decimal earning = dayOrders.Where(o => confirmedStatuses.Contains(o.Status.ToUpper())).Sum(o => o.TotalPrice);
                     chartEarnings[dateKey] = earning;
                     totalEarnings += earning;
-
-                    // Đơn hủy (status Cancelled)
                     int canceledCount = dayOrders.Count(o => cancelledStatuses.Contains(o.Status.ToUpper()));
                     chartCanceled[dateKey] = canceledCount;
                     totalCanceled += canceledCount;
-
-                    // Số khách duy nhất đặt hàng trong ngày (dựa vào UserId/CustomerId)
                     var customersInDay = dayOrders
                         .Where(o => o.UserID != null)
                         .Select(o => o.UserID)
                         .Distinct()
                         .ToList();
                     chartCustomers[dateKey] = customersInDay.Count;
-
-                    // Đếm khách unique của cả tháng (nếu cần thống kê tổng)
                     foreach (var cid in customersInDay)
                         uniqueCustomers.Add(cid);
                 }
-
-                // Format trả về (tương thích frontend)
                 var summary = new
                 {
                     orders = totalOrders,
@@ -2065,50 +1993,31 @@ namespace Food_Haven.Web.Controllers
         {
             try
             {
-                // 1. Lấy user đăng nhập
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
                     return Json(new { error = "Bạn chưa đăng nhập!" });
-
-                // 2. Lấy Store của user
                 var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
                 if (store == null)
                     return Json(new { error = "Không tìm thấy cửa hàng!" });
-
-                // 3. Lấy danh sách sản phẩm thuộc Store
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any())
                     return Json(new List<object>());
-
                 var productIds = products.Select(p => p.ID).ToList();
-
-                // 4. Lấy tất cả ProductTypes (variants) của các Product này
                 var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
                 if (!productTypes.Any())
                     return Json(new List<object>());
-
                 var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
-
-                // 5. Lấy tất cả OrderDetail liên quan các ProductType này
                 var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
                 if (!orderDetails.Any())
                     return Json(new List<object>());
-
-                // 6. Lấy các OrderID liên quan
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
-
-                // 7. Lấy danh sách Order cha (chỉ lấy đã Confirmed)
                 var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && o.Status.ToLower() == "confirmed");
                 if (!orders.Any())
                     return Json(new List<object>());
-
-                // 8. Chỉ giữ lại các OrderDetail thuộc Order đã Confirmed
                 var confirmedOrderIds = orders.Select(o => o.ID).ToHashSet();
                 var confirmedOrderDetails = orderDetails.Where(od => confirmedOrderIds.Contains(od.OrderID)).ToList();
                 if (!confirmedOrderDetails.Any())
                     return Json(new List<object>());
-
-                // 9. Lọc theo thời gian (dựa vào CreatedDate của OrderDetail)
                 var now = DateTime.Now;
                 IEnumerable<OrderDetail> filteredOrderDetails = confirmedOrderDetails;
 
@@ -2138,38 +2047,27 @@ namespace Food_Haven.Web.Controllers
               
                         break;
                     default:
-                        // Không lọc thời gian
+                   
                         break;
                 }
-
-                // 10. Gom nhóm theo ProductID (qua ProductTypes)
                 var joinPT = productTypes.ToDictionary(pt => pt.ID, pt => pt.ProductID);
-
-                // Lấy danh sách main image của các sản phẩm trong top bán chạy
                 var filteredProductIds = filteredOrderDetails
                     .Where(od => joinPT.ContainsKey(od.ProductTypesID))
                     .Select(od => joinPT[od.ProductTypesID])
                     .Distinct()
                     .ToList();
-
                 var productImages = await _productImageService.ListAsync(img =>
                     filteredProductIds.Contains(img.ProductID) && img.IsMain);
-
-
                 var topProducts = filteredOrderDetails
       .Where(od => joinPT.ContainsKey(od.ProductTypesID))
       .GroupBy(od => joinPT[od.ProductTypesID])
       .Select(g =>
       {
           var product = products.FirstOrDefault(p => p.ID == g.Key);
-
-          // Lấy ProductTypeId bán nhiều nhất
           var topTypeId = g.GroupBy(x => x.ProductTypesID)
                            .OrderByDescending(x => x.Sum(y => y.Quantity))
                            .First().Key;
           var topType = productTypes.FirstOrDefault(pt => pt.ID == topTypeId);
-
-          // Lấy giá và tồn kho của loại bán chạy nhất
           decimal price = topType?.SellPrice ?? 0;
           int stock = topType?.Stock ?? 0;
 
@@ -2190,8 +2088,6 @@ namespace Food_Haven.Web.Controllers
       .OrderByDescending(x => x.totalSell)
       .ToList();
 
-
-                // 11. Search theo tên sản phẩm
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     topProducts = topProducts
@@ -2285,8 +2181,6 @@ namespace Food_Haven.Web.Controllers
                     u.ImageUrl
                 })
                 .ToListAsync();
-
-            // Lấy roles của users sử dụng UserManager
             var userRoles = new List<dynamic>();
             foreach (var userId in userIds)
             {
@@ -2314,7 +2208,6 @@ namespace Food_Haven.Web.Controllers
             var result = customerGroups.Select((c, idx) =>
             {
                 var u = users.FirstOrDefault(u => u.Id == c.UserID);
-                // Lấy role từ userRoles
                 var role = userRoles.FirstOrDefault(ur => ur.UserId == c.UserID)?.RoleName ?? "Customer";
 
                 return new
@@ -2326,7 +2219,7 @@ namespace Food_Haven.Web.Controllers
                     phone = u?.PhoneNumber ?? "",
                     stock = c.OrderCount,
                     amount = c.TotalAmount,
-                    growth = totalAmountAll == 0 ? 0 : Math.Round(100m * c.TotalAmount / totalAmountAll, 2), // 2 chữ số thập phân
+                    growth = totalAmountAll == 0 ? 0 : Math.Round(100m * c.TotalAmount / totalAmountAll, 2), 
                     lastOrderDate = c.LastOrderDate.ToString("dd/MM/yyyy"),
                     image = u?.ImageUrl ?? "/assets/imgs/theme/icons/icon-user.svg",
                 };
@@ -2334,6 +2227,190 @@ namespace Food_Haven.Web.Controllers
 
             return Json(result);
         }
+        [HttpGet]
+        public async Task<IActionResult> ProductStatistics(string period = "today")
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { success = false, msg = "Bạn chưa đăng nhập!!" });
 
+                var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+                if (getStore == null)
+                    return Json(new { success = false, msg = "Store not found" });
+
+                var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
+                if (!products.Any())
+                    return Json(new { success = true, data = new { series = new double[0], labels = new string[0], orders = new int[0], total = 0 } });
+
+                var productIds = products.Select(p => p.ID).ToList();
+                var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+                if (!productTypes.Any())
+                    return Json(new { success = true, data = new { series = new double[0], labels = new string[0], orders = new int[0], total = 0 } });
+
+                var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+
+                DateTime startDate = GetStartDateByPeriod(period);
+                DateTime endDate = DateTime.Now;
+
+                var orderDetails = period.ToLower() == "alltime" ?
+                    await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID)) :
+                    await _orderDetail.ListAsync(od =>
+                        productTypeIds.Contains(od.ProductTypesID) &&
+                        od.CreatedDate >= startDate &&
+                        od.CreatedDate <= endDate);
+                var validStatuses = new[]
+{
+    "CONFIRMED",
+    "DELIVERING",
+    "PREPARING IN KITCHEN",
+    "CANCELLED BY SHOP",
+    "CANCELLED BY USER",
+    "DELIVERY FAILED"
+};
+
+                if (!orderDetails.Any())
+                    return Json(new { success = true, data = new { series = new double[0], labels = new string[0], orders = new int[0], total = 0 } });
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+                var ordersList = await _order.ListAsync(o => orderIds.Contains(o.ID) && validStatuses.Contains(o.Status.ToUpper()));
+
+                var validOrderIds = ordersList.Select(o => o.ID).ToHashSet();
+                var validOrderDetails = orderDetails.Where(od => validOrderIds.Contains(od.OrderID)).ToList();
+                var productTypeDict = productTypes.ToDictionary(pt => pt.ID, pt => pt);
+                var productDict = products.ToDictionary(p => p.ID, p => p);
+
+                var stats = validOrderDetails
+                    .GroupBy(od => od.ProductTypesID)
+                    .Select(g =>
+                    {
+                        var productType = productTypeDict[g.Key];
+                        var product = productDict[productType.ProductID];
+                        return new
+                        {
+                            label = string.IsNullOrEmpty(productType.Name) ? product.Name : $"{product.Name} ({productType.Name})",
+                            orderCount = g.Sum(x => x.Quantity)
+                        };
+                    })
+                    .Where(x => x.orderCount > 0)
+                    .OrderByDescending(x => x.orderCount)
+                    .ToList();
+
+                var labels = stats.Select(x => x.label).ToArray();
+                var ordersArr = stats.Select(x => x.orderCount).ToArray();
+                int totalOrders = ordersArr.Sum();
+                var rawPercentages = ordersArr.Select(x => totalOrders > 0 ? x * 100.0 / totalOrders : 0).ToList();
+                var roundedPercentages = rawPercentages.Select(x => Math.Round(x, 1)).ToList();
+                double totalPercent = roundedPercentages.Sum();
+                double diff = Math.Round(100.0 - totalPercent, 1);
+                if (Math.Abs(diff) > 0.0001 && roundedPercentages.Count > 0)
+                {
+                    int maxIdx = roundedPercentages.IndexOf(roundedPercentages.Max());
+                    roundedPercentages[maxIdx] += diff;
+                    if (roundedPercentages[maxIdx] < 0) roundedPercentages[maxIdx] = 0;
+                }
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        series = ordersArr,            
+                        percentages = roundedPercentages, 
+                        labels = labels,
+                        total = totalOrders
+                    }
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> RecentOrders(string period = "today")
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { success = false, msg = "Bạn chưa đăng nhập!!" });
+                var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
+                if (getStore == null)
+                    return Json(new { success = false, msg = "Store not found" });
+                var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
+                if (!products.Any())
+                    return Json(new { success = true, data = new List<object>() });
+                var productIds = products.Select(p => p.ID).ToList();
+                var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+                if (!productTypes.Any())
+                    return Json(new { success = true, data = new List<object>() });
+                var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+                DateTime startDate = GetStartDateByPeriod(period);
+                DateTime endDate = DateTime.Now;
+
+                var orderDetails = period.ToLower() == "alltime" ?
+                    await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID)) :
+                    await _orderDetail.ListAsync(od =>
+                        productTypeIds.Contains(od.ProductTypesID) &&
+                        od.CreatedDate >= startDate &&
+                        od.CreatedDate <= endDate);
+                if (!orderDetails.Any())
+                    return Json(new { success = true, data = new List<object>() });
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID),
+                    orderBy: q => q.OrderByDescending(x => x.CreatedDate));
+                if (!orders.Any())
+                    return Json(new { success = true, data = new List<object>() });
+                var userIds = orders.Select(o => o.UserID).Distinct().ToList();
+                var users = await _userManager.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => new { u.UserName, u.FirstName, u.LastName });
+                var result = orders.Select(order =>
+                {
+                    var orderDetailsForOrder = orderDetails.Where(od => od.OrderID == order.ID).ToList();
+                    var userName = users.ContainsKey(order.UserID) ? users[order.UserID] : null;
+                    var displayName = userName != null ?
+                        (!string.IsNullOrEmpty(userName.FirstName) || !string.IsNullOrEmpty(userName.LastName) ?
+                            $"{userName.FirstName} {userName.LastName}".Trim() : userName.UserName) : "Unknown";
+                    return new
+                    {
+                        id = order.OrderTracking,
+                        customer = new
+                        {
+                            name = displayName 
+                        },
+                        quantity = orderDetailsForOrder.Sum(od => od.Quantity),
+                        amount = order.TotalPrice,
+                        status = order.Status, 
+                        createdDate = order.CreatedDate
+                    };
+                }).ToList();
+
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        private DateTime GetStartDateByPeriod(string period)
+        {
+            DateTime now = DateTime.Now;
+            return period.ToLower() switch
+            {
+                "today" => now.Date,
+                "yesterday" => now.Date.AddDays(-1),
+                "last7days" => now.Date.AddDays(-7),
+                "last30days" => now.Date.AddDays(-30),
+                "thismonth" => new DateTime(now.Year, now.Month, 1),
+                "lastmonth" => new DateTime(now.Year, now.Month, 1).AddMonths(-1),
+                "alltime" => DateTime.MinValue,
+                _ => now.Date
+            };
+        }
     }
 }
