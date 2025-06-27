@@ -2221,7 +2221,7 @@ connection.on("UserOffline", function (userId, lastSeen) {
        
         function playNotificationSound() {
             try {
-                const audio = new Audio('/audio/deja-vu.mp3'); // Thêm file âm thanh
+                const audio = new Audio('/audio/notify.mp3'); // Thêm file âm thanh
                 audio.volume = 0.5;
                 audio.play().catch(e => console.log('Cannot play notification sound:', e));
             } catch (error) {
