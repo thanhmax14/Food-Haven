@@ -138,7 +138,7 @@
             console.log("📩 New message received:", message);
             if (!window.location.pathname.includes("/Chat")) {
                 showToastNotification(message.senderName + " vừa gửi: " + message.msg, message.from_id);
-                const audio = new Audio('/audio/deja-vu.mp3');
+                const audio = new Audio('/audio/notify.mp3');
                 audio.play().catch(e => console.warn("🔇 Notification sound blocked:", e));
             }
         });
