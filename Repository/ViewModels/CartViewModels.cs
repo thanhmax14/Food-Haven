@@ -20,6 +20,8 @@ namespace Repository.ViewModels
         public decimal Subtotal { get; set; }
         public int Stock { get; set; }
         public int Rating { get; set; } = 5;
+        public Guid StoreID { get; set; }
+        public string StoreName { get; set; } // nếu bạn muốn hiện tên cửa hàng
 
         public string UserID { get; set; }
 
