@@ -1970,24 +1970,7 @@ namespace Food_Haven.Web.Controllers
                 return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
             }
         }
-
-
-        public class MonthlyDashboardSummary
-        {
-            public int Orders { get; set; }
-            public decimal Earnings { get; set; }
-            public int Refunds { get; set; }
-            public int NewCustomers { get; set; }
-        }
-
-        public class MonthlyDashboardData
-        {
-            public MonthlyDashboardSummary Summary { get; set; }
-            public Dictionary<string, int> Orders { get; set; }
-            public Dictionary<string, decimal> Earnings { get; set; }
-            public Dictionary<string, int> Refunds { get; set; }
-            public Dictionary<string, int> NewCustomers { get; set; }
-        }
+    
         [HttpGet]
         public async Task<IActionResult> GetProducts(string period = "today", string search = "")
         {
