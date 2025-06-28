@@ -85,51 +85,7 @@ namespace Food_Haven.Web.Controllers
             _recipeService = recipeService;
             _storeReport = storeReport;
         }
-        public async Task<IActionResult> Index()
-        {
-            var admin = await _userManager.GetUserAsync(User);
-            if (admin == null)
-            {
-                return RedirectToAction("Login", "Home");
-            }
-            if (!await _userManager.IsInRoleAsync(admin, "Admin"))
-            {
-                return RedirectToAction("Login", "Home");
-            }
-            try
-            {
-                var list = new List<UsersViewModel>();
-                var obj = _userManager.Users.ToList();
-                if (obj.Any())
-                {
-                    foreach (var user in obj)
-                    {
-                        // Kiểm tra nếu là Admin thì bỏ qua
-                        if (_userManager.IsInRoleAsync(user, "Admin").Result)
-                            continue;
-                        list.Add(new UsersViewModel
-                        {
-                            Birthday = user.Birthday,
-                            Address = user.Address,
-                            img = user.ImageUrl,
-                            RequestSeller = user.RequestSeller,
-                            isUpdateProfile = user.IsProfileUpdated,
-                            ModifyUpdate = user.ModifyUpdate,
-                            PhoneNumber = user.PhoneNumber,
-                            UserName = user.UserName,
-                            Email = user.Email,
-                            IsBanByadmin = user.IsBannedByAdmin,
-                        });
-                    }
-                }
-                return View(list);
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving users", error = ex.Message });
-            }
-        }
+      
         [HttpPost]
         public async Task<IActionResult> HiddenAccount([FromBody] UsersViewModel obj)
         {
@@ -1569,7 +1525,56 @@ namespace Food_Haven.Web.Controllers
                 throw;
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> ManagerUser()
+        {
+            var admin = await _userManager.GetUserAsync(User);
+            if (admin == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            if (!await _userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            try
+            {
+                var list = new List<UsersViewModel>();
+                var obj = _userManager.Users.ToList();
+                if (obj.Any())
+                {
+                    foreach (var user in obj)
+                    {
+                        // Kiểm tra nếu là Admin thì bỏ qua
+                        if (_userManager.IsInRoleAsync(user, "Admin").Result)
+                            continue;
+                        list.Add(new UsersViewModel
+                        {
+                            Birthday = user.Birthday,
+                            Address = user.Address,
+                            img = user.ImageUrl,
+                            RequestSeller = user.RequestSeller,
+                            isUpdateProfile = user.IsProfileUpdated,
+                            ModifyUpdate = user.ModifyUpdate,
+                            PhoneNumber = user.PhoneNumber,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            IsBanByadmin = user.IsBannedByAdmin,
+                        });
+                    }
+                }
+                return View(list);
 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving users", error = ex.Message });
+            }
+        }
+        public async Task<IActionResult> Index()
+        {
+            return View();
+         }
 
 
     }
