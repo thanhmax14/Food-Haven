@@ -16,6 +16,7 @@ namespace Models
         public string DisplayOrder { get; set; }
         [StringLength(100)]
         public string Name { get; set; }
+        [Range(0, 100)]
         public float Commission { get; set; }
         public bool IsActive { get; set; } = false;
         public DateTime? CreatedDate { get; set; }

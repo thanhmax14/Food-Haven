@@ -16,6 +16,10 @@ namespace Models
         public bool IsFeedback { get; set; } = false;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
+        [StringLength(100)]
+        public string ProductTypeName { get; set; }
+        [Range(0, 100)]
+        public float? CommissionPercent { get; set; }
         [ForeignKey("Order")]
         public Guid OrderID { get; set; }
         public virtual Order Order { get; set; }

@@ -2676,12 +2676,12 @@
                                     function updateStatistics(startDate, endDate) {
                                         const dayDiff = getDaysDiff(startDate, endDate);
                                         document.getElementById("dateRangeLabel").innerText =
-                                            `Thống kê trong ${dayDiff} ngày (${startDate.toLocaleDateString('vi-VN')} - ${endDate.toLocaleDateString('vi-VN')})`;
+                                            `Statistics for ${dayDiff} days (${startDate.toLocaleDateString('vi-VN')} - ${endDate.toLocaleDateString('vi-VN')})`;
 
                                         showLoading(true);
 
                                         $.ajax({
-                                            url: '/Seller/GetStatisticsByDate',
+                                            url: '/admin/GetStatisticsByDate',
                                             method: 'GET',
                                             data: {
                                                 from: startDate.toISOString(),
@@ -2695,7 +2695,7 @@
 
                                                 if (res.period && res.period.isAdjusted) {
                                                     document.getElementById("dateRangeLabel").innerText =
-                                                        `Thống kê trong ${res.period.days} ngày (${res.period.from} - ${res.period.to}) - Đã điều chỉnh`;
+                                                        `Statistics for ${res.period.days} days (${res.period.from} - ${res.period.to}) - Adjusted`;
                                                 }
                                             },
                                             error: function (xhr) {
@@ -2711,7 +2711,7 @@
                                         });
                                     }
 
-                                    // Hàm helper để chuẩn hóa ngày về local time
+                                    // Hàm helper để chuẩn hóa days về local time
                                     function normalizeToLocalDate(date) {
                                         const localDate = new Date(date);
                                         // Đặt giờ về 00:00:00 local time
@@ -2719,7 +2719,7 @@
                                         return localDate;
                                     }
 
-                                    // Hàm helper để convert ngày sang ISO string với local timezone
+                                    // Hàm helper để convert days sang ISO string với local timezone
                                     function toLocalISOString(date) {
                                         const localDate = normalizeToLocalDate(date);
                                         // Tạo ISO string mà không bị ảnh hưởng timezone
@@ -2732,35 +2732,45 @@
                                     function updateStatistics(startDate, endDate) {
                                         const dayDiff = getDaysDiff(startDate, endDate);
                                         document.getElementById("dateRangeLabel").innerText =
-                                            `Thống kê trong ${dayDiff} ngày (${startDate.toLocaleDateString('vi-VN')} - ${endDate.toLocaleDateString('vi-VN')})`;
+                                            `Statistics for ${dayDiff} days (${startDate.toLocaleDateString('vi-VN')} - ${endDate.toLocaleDateString('vi-VN')})`;
 
                                         showLoading(true);
 
                                         $.ajax({
-                                            url: '/Seller/GetStatisticsByDate',
+                                            url: '/admin/GetStatisticsByDate',
                                             method: 'GET',
                                             data: {
-                                                // Sử dụng hàm helper để đảm bảo đúng ngày
+                                                // Sử dụng hàm helper để đảm bảo đúng days
                                                 from: toLocalISOString(startDate),
                                                 to: toLocalISOString(endDate)
                                             },
                                             success: function (res) {
-                                                $(".total-order").text(formatNumber(res.totalOrders));
-                                                $(".total-earning").text(formatNumber(res.totalEarnings) + "₫");
-                                                $(".cancel-rate-value").text(res.cancellationRate + "%");
-                                                $(".pending-balance").text(formatNumber(res.pendingBalance) + "₫");
+                                                $(".total-earning").text(formatNumber(res.totalEarnings)+ "₫");
+                                                $(".total-Commission-Revenue").text(formatNumber(res.commissionRevenue) + "₫");
+                                                $(".total-deposit").text(formatNumber(res.totaldeposit) + "₫");
+                                                $(".new-customer").text(res.newcustomer)
+
+                                                $(".total-complant").text(formatNumber(res.totalcomplant)+ "");
+                                                $(".pending-withdraw").text(formatNumber(res.pendingwithdraw) + "₫");
+                                                $(".pending-seller-request").text(formatNumber(res.sellerrequest) + "");
+                                                $(".pending-store-opending").text(res.pendingstoreopen)
 
                                                 if (res.period && res.period.isAdjusted) {
                                                     document.getElementById("dateRangeLabel").innerText =
-                                                        `Thống kê trong ${res.period.days} ngày (${res.period.from} - ${res.period.to}) - Đã điều chỉnh`;
+                                                        `Statistics for ${res.period.days} days (${res.period.from} - ${res.period.to}) - Adjusted`;
                                                 }
                                             },
                                             error: function (xhr) {
                                                 alert(xhr.responseJSON?.error || "Lỗi khi lấy dữ liệu thống kê.");
-                                                $(".total-order").text("0");
-                                                $(".total-earning").text("0₫");
-                                                $(".cancel-rate-value").text("0%");
-                                                $(".pending-balance").text("0₫");
+                                                $(".total-earning").text("0");
+                                                $(".total-Commission-Revenue").text("0₫");
+                                                $(".total-deposit").text("0₫");
+                                                $(".new-customer").text("0");
+                                                $(".total-complant").text("0");
+                                                $(".pending-withdraw").text("0₫");
+                                                $(".pending-seller-request").text("0");
+                                                $(".pending-store-opending").text("0")
+
                                             },
                                             complete: function () {
                                                 showLoading(false);
@@ -2770,7 +2780,7 @@
 
                                     $(document).ready(function () {
                                         $.ajax({
-                                            url: '/Seller/GetDateConfig',
+                                            url: '/admin/GetDateConfig',
                                             method: 'GET',
                                             success: function (config) {
                                                 console.log('Config received:', config);
@@ -2779,7 +2789,7 @@
                                                 const maxDate = normalizeToLocalDate(new Date(config.maxDate));
                                                 const minDate = normalizeToLocalDate(new Date(config.minDate));
 
-                                                // Tính ngày mặc định
+                                                // Tính days mặc định
                                                 const defaultEndDate = new Date(maxDate);
                                                 const defaultStartDate = new Date(maxDate);
                                                 defaultStartDate.setDate(maxDate.getDate() - (config.defaultDays - 1));
@@ -2808,7 +2818,7 @@
                                                         console.log('Selected dates (after normalize):', selectedDates.map(d => normalizeToLocalDate(d)));
 
                                                         if (selectedDates.length === 2) {
-                                                            // Chuẩn hóa ngày trước khi gửi
+                                                            // Chuẩn hóa days trước khi gửi
                                                             const normalizedStart = normalizeToLocalDate(selectedDates[0]);
                                                             const normalizedEnd = normalizeToLocalDate(selectedDates[1]);
                                                             updateStatistics(normalizedStart, normalizedEnd);
@@ -2832,7 +2842,7 @@
                                             },
                                             error: function (xhr, status, error) {
                                                 console.error('Error loading date config:', error);
-                                                alert("Không thể lấy cấu hình ngày");
+                                                alert("Không thể lấy cấu hình days");
                                             }
                                         });
                                     });
@@ -2853,7 +2863,7 @@
                                                     <div class="flex-grow-1 overflow-hidden">
                                                         <p
                                                             class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            Total Earnings</p>
+                                                            Gross Sales</p>
                                                     </div>
                                                     <div class="flex-shrink-0">
                                                        @*  <h5 class="text-success fs-14 mb-0">
@@ -2886,7 +2896,7 @@
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-grow-1 overflow-hidden">
                                                         <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            Totals Deposit
+                                                            Commission Revenue
                                                         </p>
                                                     </div>
                                                     <div class="flex-shrink-0">
@@ -2898,7 +2908,7 @@
                                                 </div>
                                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                                     <div>
-                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span class="total-order">0</span></h4>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span class="total-Commission-Revenue">0</span></h4>
                                                         <a href="#" class="text-decoration-underline">
                                                             View all
                                                             orders
@@ -2921,7 +2931,8 @@
                                                     <div class="flex-grow-1 overflow-hidden">
                                                         <p
                                                             class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            Totals withdraw </p>
+                                                            Totals Deposit
+                                                         </p>
                                                     </div>
                                                     <div class="flex-shrink-0">
                                                        @*  <h5 class="text-success fs-14 mb-0">
@@ -2933,10 +2944,134 @@
                                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                                     <div>
                                                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                                            <span class="pending-balance">0₫</span>
+                                                            <span class="total-deposit">0₫</span>
                                                         </h4>
                                                         <a href="#" class="text-decoration-underline">View net
                                                             earnings</a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                                                            <i class="bx bx-dollar-circle text-success"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end card body -->
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-3 col-md-6">
+     <!-- card -->
+     <div class="card card-animate">
+         <div class="card-body">
+             <div class="d-flex align-items-center">
+                 <div class="flex-grow-1 overflow-hidden">
+                     <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                         New Customer
+                     </p>
+                 </div>
+                 <div class="flex-shrink-0">
+                     @* <h5 class="text-danger fs-14 mb-0">
+                     <i class="ri-arrow-up-s-line fs-13 align-middle"></i>
+                     +1.12%
+                     </h5> *@
+                 </div>
+             </div>
+             <div class="d-flex align-items-end justify-content-between mt-4">
+                 <div>
+                     <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                         <span class="new-customer">0</span>
+                     </h4>
+                     <a href="#" class="text-decoration-underline">
+                         View cancelled
+                         orders
+                     </a>
+                 </div>
+                 <div class="avatar-sm flex-shrink-0">
+                     <span class="avatar-title bg-danger-subtle rounded fs-3">
+                         <i class="bx bx-x-circle text-danger"></i>
+                     </span>
+                 </div>
+             </div>
+         </div><!-- end card body -->
+     </div><!-- end card -->
+ </div>
+                                    <div class="row mb-3 pb-1">
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-lg-center flex-lg-row flex-column">
+                                                <div class="flex-grow-1">
+                                                    <h4 class="fs-16 mb-1"> All-time statistics</h4>
+                                                 @*    <p id="" class="text-muted mb-0">Đang thống kê...</p> *@
+
+                                                </div>
+                                        
+                                            </div><!-- end card header -->
+                                        </div>
+                                        <!--end col-->
+                                    </div>
+
+                                    <div class="col-xl-3 col-md-6">
+                                        <!-- card -->
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Complain
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        @*  <h5 class="text-success fs-14 mb-0">
+                                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                                                        +16.24 %
+                                                        </h5> *@
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="total-complant">0₫</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">
+                                                            View net
+                                                            earnings
+                                                        </a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                                                            <i class="bx bx-dollar-circle text-success"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end card body -->
+                                        </div>
+                                    </div>
+                           
+
+                                    <div class="col-xl-3 col-md-6">
+                                        <!-- card -->
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Seller Upgrade
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        @*  <h5 class="text-success fs-14 mb-0">
+                                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                                                        +16.24 %
+                                                        </h5> *@
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="pending-seller-request">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">
+                                                            View net
+                                                            earnings
+                                                        </a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
                                                         <span class="avatar-title bg-success-subtle rounded fs-3">
@@ -2953,24 +3088,26 @@
                                             <div class="card-body">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-grow-1 overflow-hidden">
-                                                        <p
-                                                            class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            New Customer</p>
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Store Opening
+                                                        </p>
                                                     </div>
                                                     <div class="flex-shrink-0">
                                                         @* <h5 class="text-danger fs-14 mb-0">
-                                                            <i class="ri-arrow-up-s-line fs-13 align-middle"></i>
-                                                            +1.12%
+                                                        <i class="ri-arrow-up-s-line fs-13 align-middle"></i>
+                                                        +1.12%
                                                         </h5> *@
                                                     </div>
                                                 </div>
                                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                                     <div>
                                                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                                            <span class="cancel-rate-value">0%</span>
+                                                            <span class="pending-store-opending">0</span>
                                                         </h4>
-                                                        <a href="#" class="text-decoration-underline">View cancelled
-                                                            orders</a>
+                                                        <a href="#" class="text-decoration-underline">
+                                                            View cancelled
+                                                            orders
+                                                        </a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
                                                         <span class="avatar-title bg-danger-subtle rounded fs-3">
@@ -2980,8 +3117,44 @@
                                                 </div>
                                             </div><!-- end card body -->
                                         </div><!-- end card -->
-                                    </div><!-- end col -->
+                                    </div>
 
+                                    <div class="col-xl-3 col-md-6">
+                                        <!-- card -->
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Withdrawal
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        @*  <h5 class="text-danger fs-14 mb-0">
+                                                        <i class="ri-arrow-right-down-line fs-13 align-middle"></i>
+                                                        -3.57 %
+                                                        </h5> *@
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span class="pending-withdraw">0</span></h4>
+                                                        <a href="#" class="text-decoration-underline">
+                                                            View all
+                                                            orders
+                                                        </a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-info-subtle rounded fs-3">
+                                                            <i class="bx bx-shopping-bag text-info"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end card body -->
+                                        </div><!-- end card -->
+
+                                    </div><!-- end col -->
+                                    <!-- end
                                 </div> <!-- end row-->
 
                                 <div class="row">
@@ -3030,36 +3203,36 @@
                                                         <div class="p-3 border border-dashed border-start-0">
                                                             <h5 class="mb-1">
                                                                 <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
-                                                                <span class="counter-value" id="ordersCounter"></span>
+                                                                <span class="counter-value" id="grosssales"></span>
                                                             </h5>
-                                                            <p class="text-muted mb-0">Orders</p>
+                                                            <p class="text-muted mb-0">Gross Sales</p>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-sm-3">
                                                         <div class="p-3 border border-dashed border-start-0">
                                                             <h5 class="mb-1">
                                                                 <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
-                                                                <span class="counter-value" id="earningsCounter"></span>
+                                                                <span class="counter-value" id="commissonrevenue"></span>
                                                             </h5>
-                                                            <p class="text-muted mb-0">Earnings</p>
+                                                            <p class="text-muted mb-0">Commission Revenue</p>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-sm-3">
                                                         <div class="p-3 border border-dashed border-start-0">
                                                             <h5 class="mb-1">
                                                                 <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
-                                                                <span class="counter-value" id="refundsCounter"></span>
+                                                                <span class="counter-value" id="totalsdeposit"></span>
                                                             </h5>
-                                                            <p class="text-muted mb-0">Refunds</p>
+                                                                <p class="text-muted mb-0">Totals Deposit</p>
                                                         </div>
                                                     </div>
                                                     <div class="col-6 col-sm-3">
                                                         <div class="p-3 border border-dashed border-start-0 border-end-0">
                                                             <h5 class="mb-1 text-success">
                                                                 <span class="loading-spinner spinner-border spinner-border-sm" role="status"></span>
-                                                                <span class="counter-value" id="newCustomersCounter"></span>
+                                                                <span class="counter-value" id="totalswithdrawal"></span>
                                                             </h5>
-                                                            <p class="text-muted mb-0">New Customer</p>
+                                                            <p class="text-muted mb-0">Totals Withdrawal</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3069,7 +3242,7 @@
                                             <div class="card-body p-0 pb-2">
                                                 <div class="w-100">
                                                     <div id="customer_charts"
-                                                         data-colors='["--vz-primary", "--vz-success", "--vz-danger", "--vz-warning"]'
+                                                         data-colors='["--vz-primary", "--vz-success",  "--vz-warning","--vz-danger"]'
                                                         data-colors-minimal='["--vz-light", "--vz-primary", "--vz-info"]'
                                                         data-colors-saas='["--vz-success", "--vz-info", "--vz-danger"]'
                                                         data-colors-modern='["--vz-warning", "--vz-primary", "--vz-success"]'
@@ -3234,7 +3407,7 @@
                                     <div class="col-xl-6">
                                         <div class="card">
                                             <div class="card-header d-flex align-items-center justify-content-between">
-                                                <h4 class="card-title mb-0">Top Seller</h4>
+                                                    <h4 class="card-title mb-0">Top Category</h4>
                                                 <div class="dropdown">
                                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                                                             type="button" id="customersFilter" data-bs-toggle="dropdown">
@@ -3295,7 +3468,7 @@
                                                             <div class="spinner-border text-primary" role="status">
                                                                 <span class="visually-hidden">Loading...</span>
                                                             </div>
-                                                            <div class="mt-2">Loading customers...</div>
+                                                            <div class="mt-2">Loading Category...</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3336,7 +3509,7 @@
                                     // AJAX API functions - Updated to call backend
                                     async function fetchProducts(period = 'today', search = '') {
                                         try {
-                                            const response = await fetch(`/Seller/GetProducts?period=${encodeURIComponent(period)}&search=${encodeURIComponent(search)}`, {
+                                                const response = await fetch(`/admin/GetTopStores?period=${encodeURIComponent(period)}&search=${encodeURIComponent(search)}`, {
                                                 method: 'GET',
                                                 headers: {
                                                     'Content-Type': 'application/json',
@@ -3364,7 +3537,7 @@
 
                                     async function fetchCustomers(period = 'today', search = '') {
                                         try {
-                                            const response = await fetch(`/Seller/GetCustomers?period=${encodeURIComponent(period)}&search=${encodeURIComponent(search)}`, {
+                                                const response = await fetch(`/admin/GetTopCategories?period=${encodeURIComponent(period)}&search=${encodeURIComponent(search)}`, {
                                                 method: 'GET',
                                                 headers: {
                                                     'Content-Type': 'application/json',
@@ -3402,8 +3575,8 @@
                                                     <td colspan="5">
                                                         <div class="no-data">
                                                             <i class="fas fa-search fa-3x mb-3 text-muted"></i>
-                                                            <h5>No products found</h5>
-                                                            <p class="text-muted">Try adjusting your search terms or filter criteria.</p>
+                                                            <h5>No Shop found</h5>
+                                                           
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -3421,30 +3594,27 @@
                                                         </div>
                                                         <div>
                                                             <h5 class="fs-14 my-1">
-                                                                <a href="/UpdateProductType?variantId=${product.id}" target="_blank" class="text-reset">${product.name}</a>
+                                                           <a href="/Admin/ViewStoredetail${product.storeid}" target="_blank" class="text-reset wraphe">${product.storename}</a>
                                                             </h5>
-                                                            <span class="text-muted">${product.date}</span>
+                                                            <span class="text-muted">${product.storejoindate}</span>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <h5 class="fs-14 my-1 fw-normal">$${parseFloat(product.price).toFixed(2)}</h5>
-                                                    <span class="text-muted">Price</span>
+                                                    <h5 class="fs-14 my-1 fw-normal">${product.productcount}</h5>
+                                                    <span class="text-muted">Totals Product</span>
                                                 </td>
                                                 <td>
-                                                    <h5 class="fs-14 my-1 fw-normal">${product.orders}</h5>
+                                                    <h5 class="fs-14 my-1 fw-normal">${product.ordercount}</h5>
                                                     <span class="text-muted">Orders</span>
                                                 </td>
                                                 <td>
-                                                    ${product.stock === 0 ?
-                                                '<h5 class="fs-14 my-1 fw-normal"><span class="badge bg-danger-subtle text-danger">Out of stock</span></h5>' :
-                                                `<h5 class="fs-14 my-1 fw-normal">${product.stock}</h5>`
-                                            }
-                                                    <span class="text-muted">Stock</span>
+                                                   <h5 class="fs-14 my-1 fw-normal">₫${formatNumber(product.grosssales  )}</h5>
+                                                    <span class="text-muted">Gross Sales</span>
                                                 </td>
                                                 <td>
-                                                    <h5 class="fs-14 my-1 fw-normal">$${parseInt(product.totalSell).toLocaleString()}</h5>
-                                                    <span class="text-muted">Amount</span>
+                                                                                                                                  <h5 class="fs-14 my-1 fw-normal">₫${formatNumber(product.commissionrevenue)}</h5>
+                                                <span class="text-muted">Revenue</span>
                                                 </td>
                                             </tr>
                                         `).join('');
@@ -3464,7 +3634,7 @@
                                                     <td colspan="5">
                                                         <div class="no-data">
                                                             <i class="fas fa-users fa-3x mb-3 text-muted"></i>
-                                                            <h5>No customers found</h5>
+                                                                                                    <h5>No Category found</h5>
                                                             <p class="text-muted">Try adjusting your search terms or filter criteria.</p>
                                                         </div>
                                                     </td>
@@ -3480,28 +3650,28 @@
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0 me-2">
                                                             <div class="avatar-sm p-2" style="background: linear-gradient(45deg, #007bff, #0056b3); color: white; border-radius: 50%;">
-                                                                ${customer.userName}
+                                                                ${customer.name}
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <h5 class="fs-14 my-1 fw-medium">
-                                                                                                                                        <a href="#" class="text-reset">${customer.userName}</a>
+                                                          <div>
+                                                            <h5 class="fs-14 my-1">
+                                                                                                     <a href="/Admin/UpdateCategory/${customer.id}" target="_blank" class="text-reset wraphe">${customer.name}</a>
                                                             </h5>
-                                                            <span class="text-muted">${customer.rolebuy}</span>
+                                                           <span class="text-muted">${customer.createdDate}</span>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <p class="mb-0 wraphe">${customer.phone}</p>
-                                                    <span class="text-muted">Phone</span>
+                                                                                            <p class="mb-0 wraphe">${customer.commitson}</p>
+                                                    <span class="text-muted">Commission</span>
                                                 </td>
                                                 <td>
-                                                    <p class="mb-0">${parseInt(customer.stock).toLocaleString()}</p>
+                                                                                            <p class="mb-0">${parseInt(customer.orderCount).toLocaleString()}</p>
                                                     <span class="text-muted">Order</span>
                                                 </td>
                                                 <td>
-                                                    <p class="mb-0">$${parseInt(customer.amount).toLocaleString()}</p>
-                                                    <span class="text-muted">Amounts</span>
+                                                <p class="mb-0">$${parseInt(customer.grossSales).toLocaleString()}</p>
+                                                   <span class="text-muted">Gross Sales</span>
                                                 </td>
                                                 <td>
                                                     <h5 class="fs-14 mb-0 ${customer.growth >= 0 ? 'text-success' : 'text-danger'}">
@@ -3719,13 +3889,13 @@
                                             customersCurrentPage = page;
                                             renderCustomers(filteredCustomers, page);
                                         } catch (error) {
-                                            console.error('Error loading customers:', error);
+                                                console.error('Error loading Category:', error);
                                             document.querySelector('#customersTable tbody').innerHTML = `
                                                 <tr>
                                                     <td colspan="5">
                                                         <div class="no-data">
                                                             <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
-                                                            <h5>Error loading customers</h5>
+                                                            <h5>Error loading Category</h5>
                                                             <p class="text-muted">Please try again later. ${error.message}</p>
                                                         </div>
                                                     </td>
@@ -4016,7 +4186,7 @@
                                     // Export functionality
                                     function exportToCSV(data, filename, type) {
                                         const headers = type === 'products'
-                                            ? ['Name', 'Price', 'Orders', 'Stock', 'Total Sales', 'Date']
+                                                ? ['Shop Name', 'Totals Product', 'Orders', 'Gross Sales', 'Commission Revenue', 'Date']
                                             : ['UserName', 'rolebuy', 'Phone', 'Total Order', 'Amount', 'Growth'];
 
                                         const csvContent = [
@@ -4024,12 +4194,12 @@
                                             ...data.map(item => {
                                                 if (type === 'products') {
                                                     return [
-                                                        `"${item.name}"`,
-                                                        item.price,
-                                                        item.orders,
-                                                        item.stock,
-                                                        item.totalSell,
-                                                        `"${item.date}"`
+                                                        `"${item.storename}"`,
+                                                        item.productcount,
+                                                        item.ordercount,
+                                                        item.grosssales,
+                                                            item.commissionrevenue,
+                                                        `"${item.storejoindate}"`
                                                     ].join(',');
                                                 } else {
                                                     return [
@@ -4059,13 +4229,16 @@
                                     function addExportButtons() {
                                         const productsHeader = document.querySelector('#productsTable').closest('.card').querySelector('.card-header');
                                         const customersHeader = document.querySelector('#customersTable').closest('.card').querySelector('.card-header');
-
+                                        const now = new Date();
+                                        const pad = n => String(n).padStart(2, '0');
+                                        const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+                                        const filename = `Best Selling Shop_${dateStr}.csv`;
                                         // Products export button
                                         const productsExportBtn = document.createElement('button');
                                         productsExportBtn.className = 'btn btn-sm btn-outline-primary me-2';
                                         productsExportBtn.innerHTML = '<i class="fas fa-download me-1"></i>Export';
                                         productsExportBtn.addEventListener('click', () => {
-                                            exportToCSV(filteredProducts, 'products.csv', 'products');
+                                                exportToCSV(filteredProducts, filename, 'products');
                                         });
 
                                         // Customers export button
@@ -4430,8 +4603,8 @@
                             const API_CONFIG = {
                                 BASE_URL: window.location.origin,
                                 ENDPOINTS: {
-                                    CHART_DATA: '/seller/ProductStatistics',
-                                    TABLE_DATA: '/seller/RecentOrders'
+                                    CHART_DATA: '/admin/ProductStatistics',
+                                    TABLE_DATA: '/admin/RecentOrders'
                                 },
                                 TIMEOUT: 10000
                             };
@@ -4720,7 +4893,7 @@
                                     return `
                                             <tr>
                                                 <td>
-                                                                                <a href="/seller/ViewOrderDetails/${order.id}" target="_blank" class="fw-medium link-primary">${order.id}</a>
+                                                                                <a href="/admin/ViewOrderDetails/${order.id}" target="_blank" class="fw-medium link-primary">${order.id}</a>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -4739,7 +4912,7 @@
                                                 <td>
                                                                                <button
                                 class="btn btn-sm btn-outline-primary"
-                                onclick="window.open('/seller/ViewOrderDetails/${order.id}', '_blank')"
+                                onclick="window.open('/admin/ViewOrderDetails/${order.id}', '_blank')"
                                 type="button"
                             >
                                 <i class="fas fa-eye me-1"></i>View Detail
@@ -6031,7 +6204,7 @@ var validMonths = [];
 
 document.addEventListener("DOMContentLoaded", function () {
     $.ajax({
-        url: '/Seller/GetValidMonths', // Đổi route nếu cần
+        url: '/admin/GetValidMonths', // Đổi route nếu cần
         method: 'GET',
         dataType: 'json',
         success: function (months) {
@@ -6084,7 +6257,7 @@ function initFlatpickrWithValidMonths() {
 
         // Gửi AJAX request
         $.ajax({
-            url: '/seller/GetMonthlyData', 
+            url: '/admin/GetMonthlyData', 
             method: 'GET',
             data: {
                 month: month
@@ -6117,10 +6290,10 @@ function initFlatpickrWithValidMonths() {
 
         // Ẩn/hiện các counter
         var counters = [
-            document.getElementById('ordersCounter'),
-            document.getElementById('earningsCounter'),
-            document.getElementById('refundsCounter'),
-            document.getElementById('newCustomersCounter')
+            document.getElementById('grosssales'),
+            document.getElementById('commissonrevenue'),
+            document.getElementById('totalsdeposit'),
+            document.getElementById('totalswithdrawal')
         ];
         counters.forEach(function (counter) {
             if (counter) {
@@ -6130,11 +6303,11 @@ function initFlatpickrWithValidMonths() {
     }
 
 function updateCounterValues(summary) {
-    var ordersElem = document.getElementById('ordersCounter');
-    var earningsElem = document.getElementById('earningsCounter');
-    var refundsElem = document.getElementById('refundsCounter');
-    var newCustomersElem = document.getElementById('newCustomersCounter');
-    if (!summary || summary.orders == null || summary.earnings == null || summary.refunds == null || summary.newCustomers == null) {
+    var ordersElem = document.getElementById('grosssales');
+    var earningsElem = document.getElementById('commissonrevenue');
+    var refundsElem = document.getElementById('totalsdeposit');
+    var newCustomersElem = document.getElementById('totalswithdrawal');
+    if (!summary || summary.grosssales == null || summary.commissonrevenue == null || summary.totalsdeposit == null || summary.totalswithdrawal == null) {
         if (ordersElem) ordersElem.textContent = '';
         if (earningsElem) earningsElem.textContent = '';
         if (refundsElem) refundsElem.textContent = '';
@@ -6143,10 +6316,10 @@ function updateCounterValues(summary) {
     }
 
     // Có dữ liệu hợp lệ mới hiện số
-    if (ordersElem) ordersElem.textContent = summary.orders;
-    if (earningsElem) earningsElem.textContent = summary.earnings;
-    if (refundsElem) refundsElem.textContent = summary.refunds;
-    if (newCustomersElem) newCustomersElem.textContent = summary.newCustomers;
+    if (ordersElem) ordersElem.textContent = formatNumber(summary.grosssales)+ " ₫" ;
+    if (earningsElem) earningsElem.textContent =formatNumber(summary.commissonrevenue)+ " ₫" ;
+        if (refundsElem) refundsElem.textContent = formatNumber(summary.totalsdeposit)+ " ₫" ;
+        if (newCustomersElem) newCustomersElem.textContent = formatNumber(summary.totalswithdrawal) + " ₫";
 }
 
 
@@ -6159,12 +6332,12 @@ function updateCounterValues(summary) {
             return;
         }
 
-        // Tạo danh sách ngày trong tháng
+        // Tạo danh sách days trong tháng
         var daysInMonth = getDaysInMonth(month);
         var currentDate = new Date();
         var selectedDate = new Date(month + '-01');
 
-        // Lọc dữ liệu theo ngày hiện tại (chỉ hiển thị đến ngày hiện tại)
+        // Lọc dữ liệu theo days hiện tại (chỉ hiển thị đến days hiện tại)
         var filteredDays = daysInMonth.filter(function (day) {
             var dayDate = new Date(month + '-' + String(day).padStart(2, '0'));
             return dayDate <= currentDate || selectedDate.getMonth() !== currentDate.getMonth() || selectedDate.getFullYear() !== currentDate.getFullYear();
@@ -6173,30 +6346,30 @@ function updateCounterValues(summary) {
             return day + '/' + (selectedDate.getMonth() + 1);
         });
 
-        var ordersData = processSeriesData(chartData.orders, filteredDays, month);
-        var earningsData = processSeriesData(chartData.earnings, filteredDays, month);
-        var refundsData = processSeriesData(chartData.refunds, filteredDays, month);
-        var newCustomersData = processSeriesData(chartData.newCustomers, filteredDays, month);
+        var ordersData = processSeriesData(chartData.grosssales, filteredDays, month);
+        var earningsData = processSeriesData(chartData.commissonrevenue, filteredDays, month);
+        var refundsData = processSeriesData(chartData.totalsdeposit, filteredDays, month);
+        var newCustomersData = processSeriesData(chartData.totalswithdrawal, filteredDays, month);
 
         var options = {
             series: [
                 {
-                    name: "Orders",
+                    name: "Gross Sales",
                     type: "area",
                     data: ordersData
                 },
                 {
-                    name: "Earnings",
+                    name: "Commission Revenue",
                     type: "area",
                     data: earningsData
                 },
                 {
-                    name: "Refunds",
+                    name: "Totals Deposit",
                     type: "area",
                     data: refundsData
                 },
                 {
-                    name: "New Customer",
+                    name: "Totals Withdrawal",
                     type: "area",
                     data: newCustomersData
                 }
@@ -6252,19 +6425,19 @@ function updateCounterValues(summary) {
                 shared: true,
                 y: [{
                     formatter: function (value) {
-                        return value !== undefined ? value.toFixed(0) : value;
+                        return value !== undefined ? value.toFixed(0) + " ₫" : value;
                     }
                 }, {
                     formatter: function (value) {
-                        return value !== undefined ? "$" + value.toFixed(2) + "k" : value;
+                        return value !== undefined ? "₫" + value.toFixed(2) + "₫" : value;
                     }
                 }, {
                     formatter: function (value) {
-                        return value !== undefined ? value.toFixed(0) + " Sales" : value;
+                        return value !== undefined ? value.toFixed(0) + " ₫" : value;
                     }
                 }, {
                     formatter: function (value) {
-                        return value !== undefined ? value.toFixed(0) + " Customer" : value;
+                        return value !== undefined ? value.toFixed(0) + " ₫" : value;
                     }
                 }]
             }
@@ -6283,7 +6456,7 @@ function updateCounterValues(summary) {
         customerImpressionChart.render();
     }
 
-    // Hàm lấy số ngày trong tháng
+    // Hàm lấy số days trong tháng
     function getDaysInMonth(month) {
         var date = new Date(month + '-01');
         var year = date.getFullYear();
@@ -6327,12 +6500,12 @@ function updateCounterValues(summary) {
             }
         };
 
-        // Tạo dữ liệu random cho từng ngày
+        // Tạo dữ liệu random cho từng days
         daysInMonth.forEach(function (day) {
             var dateKey = month + '-' + String(day).padStart(2, '0');
             var dayDate = new Date(dateKey);
 
-            // Chỉ tạo dữ liệu cho các ngày <= ngày hiện tại (nếu cùng tháng/năm)
+            // Chỉ tạo dữ liệu cho các days <= days hiện tại (nếu cùng tháng/năm)
             if (dayDate <= currentDate || selectedDate.getMonth() !== currentDate.getMonth() || selectedDate.getFullYear() !== currentDate.getFullYear()) {
                 demoData.chartData.orders[dateKey] = Math.floor(Math.random() * 100) + 10;
                 demoData.chartData.earnings[dateKey] = Math.random() * 200 + 50;
