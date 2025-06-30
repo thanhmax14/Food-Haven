@@ -931,7 +931,7 @@
                                                     </div>
                                                 </div> *@
                                                 <!--Author box-->
-                                                <div class="author-bio p-30 mt-50 border-radius-15 bg-white">
+                                                @* <div class="author-bio p-30 mt-50 border-radius-15 bg-white">
                                                     <div class="author-image mb-30">
                                                         <a href="author.html"><img src="~/assets/imgs/blog/author-1.png"
                                                                 alt="" class="avatar" /></a>
@@ -956,7 +956,7 @@
     {
         <p></p>
     }
-</div>
+</div> *@
 
                                                 </div>
                                                 <!--Comment form-->
@@ -982,21 +982,21 @@
                                                                         <div class="form-group">
                                                                             <input class="form-control" name="name"
                                                                                 id="name" type="text"
-                                                                                placeholder="Name" value="@Model.Username" />
+                                                                                placeholder="Name" value="@Model.Username" readonly/>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-sm-6">
                                                                         <div class="form-group">
                                                                             <input class="form-control" name="email"
                                                                                 id="email" type="email"
-                                                                                placeholder="Email" value="@Model.Email"  />
+                                                                                placeholder="Email" value="@Model.Email"  readonly/>
                                                                         </div>
                                                                     </div>
                                                                      <div class="col-12">
                                                                         <div class="form-group">
                                                                             <input class="form-control" name="Title"
                                                                                 id="Title" type="text"
-                                                                                placeholder="Title" value="@Model.Title" />
+                                                                                placeholder="Title" value="@Model.Title" readonly/>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-12">

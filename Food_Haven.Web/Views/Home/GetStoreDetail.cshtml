@@ -487,10 +487,23 @@
                             <!-- Nút dùng file-signature -->
 @if (User.Identity.IsAuthenticated && Model.UserID != User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
 {
-    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-            data-bs-target="#reportModal">
-        <i class="fas fa-file-signature me-2"></i>
+
+ <div class="d-flex gap-2">
+    <!-- Nút REPORT -->
+    <button type="button" class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#reportModal">
+        <i class="fas fa-file-signature me-1"></i> REPORT
     </button>
+
+    <!-- Nút FOLLOW -->
+  <button id="followBtn" class="btn btn-success btn-sm fw-bold" data-store-id="@Model.ID">
+    <i class="fas fa-heart me-1"></i> FOLLOW
+</button>
+
+</div>
+
+
+
+
 }
 
 
@@ -882,62 +895,27 @@
         });
     </script>
 
-    <script>
-        $(document).ready(function () {
-            // Đếm ký tự
-            $('#reportDescription').on('input', function () {
-                $('#charCount').text($(this).val().length);
-            });
+ <script>
+    $(document).ready(function () {
+        // === 1. Đếm ký tự REPORT ===
+        $('#reportDescription').on('input', function () {
+            $('#charCount').text($(this).val().length);
+        });
 
-            // Gửi form bằng AJAX
-            $('#reportForm').on('submit', function (e) {
-                e.preventDefault();
+        // === 2. Gửi form REPORT bằng AJAX ===
+        $('#reportForm').on('submit', function (e) {
+            e.preventDefault();
 
-                $.ajax({
-                    url: '/Home/StoreReport',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            new Notify({
-                                status: 'success',
-                                title: 'Success!',
-                                text: response.message || 'Report submitted successfully!',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
-
-                            $('#reportModal').modal('hide');
-                            $('#reportForm')[0].reset();
-                            $('#charCount').text('0');
-                            $('#messageValidation').text('');
-                        } else {
-                            new Notify({
-                                status: 'error',
-                                title: 'Error!',
-                                text: response.message || 'Please check your message content.',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
-
-                            $('#messageValidation').text(response.message);
-                        }
-                    },
-                    error: function () {
+            $.ajax({
+                url: '/Home/StoreReport',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.success) {
                         new Notify({
-                            status: 'error',
-                            title: 'Unexpected Error',
-                            text: 'Something went wrong. Please try again.',
+                            status: 'success',
+                            title: 'Success!',
+                            text: response.message || 'Report submitted successfully!',
                             effect: 'fade',
                             speed: 300,
                             showIcon: true,
@@ -946,11 +924,121 @@
                             autotimeout: 3000,
                             position: 'right top'
                         });
+
+                        $('#reportModal').modal('hide');
+                        $('#reportForm')[0].reset();
+                        $('#charCount').text('0');
+                        $('#messageValidation').text('');
+                    } else {
+                        new Notify({
+                            status: 'error',
+                            title: 'Error!',
+                            text: response.message || 'Please check your message content.',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+
+                        $('#messageValidation').text(response.message);
                     }
-                });
+                },
+                error: function () {
+                    new Notify({
+                        status: 'error',
+                        title: 'Unexpected Error',
+                        text: 'Something went wrong. Please try again.',
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top'
+                    });
+                }
             });
         });
-    </script>
+
+        // === 3. Gửi FOLLOW bằng AJAX (có xác nhận khi UNFOLLOW) ===
+        $('#followBtn').on('click', function () {
+            const storeId = $(this).data('store-id');
+            const isCurrentlyFollowing = $(this).text().trim().toUpperCase() === 'FOLLOWED';
+
+         if (isCurrentlyFollowing) {
+    // Show confirmation using SweetAlert2
+    Swal.fire({
+        title: 'Unfollow Confirmation',
+        text: 'Are you sure you want to unfollow this store?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Unfollow',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            sendFollowRequest(storeId);
+        }
+    });
+} else {
+    sendFollowRequest(storeId);
+}
+
+        });
+
+        function sendFollowRequest(storeId) {
+            $.ajax({
+                url: '/Users/StoreFollowers',
+                type: 'POST',
+                data: { StoreID: storeId },
+                success: function (response) {
+                    if (response.success) {
+                        new Notify({
+                            status: 'success',
+                            title: response.isFollowing ? 'Followed' : 'Unfollowed',
+                            text: response.message || (response.isFollowing
+                                ? 'Bạn đã theo dõi cửa hàng.'
+                                : 'Bạn đã bỏ theo dõi cửa hàng.'),
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+
+                       if (response.isFollowing) {
+    $('#followBtn').html('<i class="fas fa-heart me-1 text-danger"></i> FOLLOWED');
+} else {
+    $('#followBtn').html('<i class="fas fa-heart me-1"></i> FOLLOW');
+}
+                    }
+                },
+                error: function () {
+                    new Notify({
+                        status: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top'
+                    });
+                }
+            });
+        }
+    });
+</script>
+
+
 
 </body>
 

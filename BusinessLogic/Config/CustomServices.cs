@@ -35,6 +35,7 @@ using BusinessLogic.Services.Message;
 using BusinessLogic.Services.RecipeReviewReviews;
 using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.FavoriteFavoriteRecipes;
+using BusinessLogic.Services.StoreFollowers;
 
 namespace BusinessLogic.Config
 {
@@ -65,6 +66,7 @@ namespace BusinessLogic.Config
             services.AddScoped<IRecipeReviewService, RecipeReviewService>();
             services.AddScoped<IStoreReportServices, StoreReportServices>();
             services.AddScoped<IFavoriteRecipeService, FavoriteRecipeService>();
+            services.AddScoped<IStoreFollowersService, StoreFollowersService>();
 
 
 

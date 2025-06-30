@@ -49,6 +49,7 @@ using Microsoft.AspNetCore.SignalR;
 using Food_Haven.Web.Hubs;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.StoreReports;
+using BusinessLogic.Services.StoreFollowers;
 
 
 
@@ -76,11 +77,11 @@ namespace Food_Haven.Web.Controllers
         private readonly IVoucherServices _voucher;
         private readonly IRecipeService _recipeService;
         private readonly IStoreReportServices _storeReport;
-
+        private readonly IStoreFollowersService _storeFollowersService;
 
 
         public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
-, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport)
+, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService)
 
         {
             _recipeService = recipeService;
@@ -104,6 +105,7 @@ namespace Food_Haven.Web.Controllers
             _payos = payos;
             _voucher = voucherServices;
             _storeReport = storeReport;
+            _storeFollowersService = storeFollowersService;
         }
 
         public IActionResult Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
@@ -662,7 +664,7 @@ namespace Food_Haven.Web.Controllers
                 return View(list); // Trả về view rỗng nếu lỗi
             }
         }
-        
+
         public async Task<IActionResult> GetStoreDetail(Guid id)
         {
             var users = await _userManager.GetUserAsync(User);
@@ -1658,7 +1660,73 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, message = "An error occurred. Please try again later." });
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> ManagementFollowedStores()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Home");
 
+            var list = new List<StoreFollowerViewModel>();
+
+            // Lấy danh sách theo dõi
+            var followedStores = await _storeFollowersService.ListAsync(f => f.UserID == user.Id);
+
+            foreach (var item in followedStores)
+            {
+                var store = await _storeDetailService.GetAsyncById(item.StoreID);
+                if (store != null)
+                {
+                    list.Add(new StoreFollowerViewModel
+                    {
+                        ID = store.ID,
+                        Name = store.Name,
+                        Img = store.ImageUrl,
+                        Address = store.Address,
+                        Phone = store.Phone,
+                        ShortDescriptions = store.ShortDescriptions,
+                        CreatedDate = store.CreatedDate,
+                        // Thêm các thuộc tính khác nếu cần
+                    });
+                }
+            }
+
+            return View(list);
+        }
+        [HttpPost]
+        public async Task<IActionResult> UnfollowStore(Guid storeId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "You must be logged in to perform this action." });
+                }
+
+                var storeFollower = await _storeFollowersService.FindAsync(sf => sf.StoreID == storeId && sf.UserID == user.Id);
+                if (storeFollower == null)
+                {
+                    return Json(new { success = false, message = "You are not following this store." });
+                }
+
+                await _storeFollowersService.DeleteAsync(storeFollower);
+                await _storeFollowersService.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Successfully unfollowed the store." });
+            }
+            catch (Exception ex)
+            {
+                // Optional: log the error e.g. _logger.LogError(ex, "UnfollowStore failed");
+
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while trying to unfollow the store. Please try again later.",
+                    error = ex.Message // Consider removing in production
+                });
+            }
+        }
 
 
 

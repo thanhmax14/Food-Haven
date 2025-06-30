@@ -1214,7 +1214,7 @@
         }
 
         $.ajax({
-            url: '@Url.Action("HideRecipe", "Users")',
+            url: '@Url.Action("ToggleRecipeVisibility", "Users")',
             type: 'POST',
             data: {
                 ID: id,
