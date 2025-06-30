@@ -45,7 +45,8 @@ using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.Message; // nhớ import
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using BusinessLogic.Services.RecipeReviewReviews;
-using BusinessLogic.Services.FavoriteFavoriteRecipes; // nhớ import
+using BusinessLogic.Services.FavoriteFavoriteRecipes;
+using BusinessLogic.Services.StoreFollowers; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -78,8 +79,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly IRecipeReviewService _recipeReviewService;
         private readonly IFavoriteRecipeService _iFavoriteRecipe;
+        private readonly IStoreFollowersService _storeFollowersService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe, IStoreFollowersService storeFollowersService)
         {
             _userManager = userManager;
             this.client = client;
@@ -106,6 +108,7 @@ namespace Food_Haven.Web.Controllers
             _hubContext = hubContext;
             _recipeReviewService = recipeReviewService;
             _iFavoriteRecipe = iFavoriteRecipe;
+            _storeFollowersService = storeFollowersService;
         }
 
         [HttpGet]
@@ -1302,7 +1305,7 @@ namespace Food_Haven.Web.Controllers
                 }
             }
             await _recipeService.SaveChangesAsync();
-            return RedirectToAction("ViewRecipe", "Users");
+            return RedirectToAction("MyViewRecipe", "Users");
         }
         [HttpPost]
         public async Task<IActionResult> SubmitComplaint([FromForm] ComplaintViewModel model)
@@ -1571,7 +1574,7 @@ namespace Food_Haven.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> HideRecipe(Guid ID, bool isActive)
+        public async Task<IActionResult> ToggleRecipeVisibility(Guid ID, bool isActive)
         {
             try
             {
@@ -2103,6 +2106,46 @@ namespace Food_Haven.Web.Controllers
                 // Bạn có thể log lỗi hoặc xử lý nó cụ thể hơn
                 return StatusCode(500, "Lỗi khi lấy danh sách phản hồi.");
             }
+        }
+        [HttpPost]
+        public async Task<IActionResult> StoreFollowers(StoreFollowerViewModel obj)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Home");
+
+            var existingFollow = await _storeFollowersService.FindAsync(x => x.StoreID == obj.StoreID && x.UserID == user.Id);
+            if (existingFollow != null)
+            {
+                // If already following, remove the follow
+                await _storeFollowersService.DeleteAsync(existingFollow);
+                await _storeFollowersService.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    isFollowing = false,
+                    message = "Unfollowed the store"
+                });
+            }
+
+            var viewModel = new StoreFollower
+            {
+                ID = Guid.NewGuid(),
+                StoreID = obj.StoreID,
+                UserID = user.Id,
+                CreatedDate = DateTime.Now
+            };
+
+            await _storeFollowersService.AddAsync(viewModel);
+            await _storeFollowersService.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                isFollowing = true,
+                message = "Followed the store"
+            });
         }
 
 

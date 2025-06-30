@@ -42,6 +42,7 @@ using Repository.RecipeReviews;
 using BusinessLogic.Services.StoreReports;
 using Repository.StoreReport;
 using Repository.FavoriteRecipes;
+using Repository.StoreFollower;
 
 namespace BusinessLogic.Config
 {
@@ -84,6 +85,7 @@ namespace BusinessLogic.Config
             services.AddScoped<IRecipeReviewsRepository, RecipeReviewsRepository>();
             services.AddScoped<IStoreReportRepository, StoreReportRepository>();
             services.AddScoped<IFavoriteRecipeRepository, FavoriteRecipeRepository>();
+            services.AddScoped<IStoreFollowersRepository, StoreFollowersRepository>();
         }
 
 
