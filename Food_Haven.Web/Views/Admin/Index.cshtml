@@ -3594,7 +3594,7 @@
                                                         </div>
                                                         <div>
                                                             <h5 class="fs-14 my-1">
-                                                           <a href="/Admin/ViewStoredetail${product.storeid}" target="_blank" class="text-reset wraphe">${product.storename}</a>
+                                                           <a href="/Admin/ViewStoredetail/${product.storeid}" target="_blank" class="text-reset wraphe">${product.storename}</a>
                                                             </h5>
                                                             <span class="text-muted">${product.storejoindate}</span>
                                                         </div>
@@ -4481,8 +4481,8 @@
                                     <div class="col-xl-4">
                                         <div class="card card-height-100">
                                             <div class="card-header align-items-center d-flex">
-                                                <h4 class="card-title mb-0 flex-grow-1">Shop Statistics</h4>
-                                                <div class="dropdown">
+                                                <h4 class="card-title mb-0 flex-grow-1">Store Complaints Statistics</h4>
+                                                <div class="dropdown" style="display:none">
                                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="chartFilter"
                                                             data-bs-toggle="dropdown">
                                                         <span class="fw-semibold text-uppercase fs-12">Sort by: </span>
@@ -4522,7 +4522,7 @@
                                     <div class="col-xl-8">
                                         <div class="card">
                                             <div class="card-header align-items-center d-flex">
-                                                <h4 class="card-title mb-0 flex-grow-1">Recent Shop</h4>
+                                                <h4 class="card-title mb-0 flex-grow-1">Recent Store</h4>
                                                 <div class="d-flex gap-2">
                                                     <!-- Search Box -->
                                                     <div class="search-box">
@@ -4560,8 +4560,9 @@
                                                     <table class="table table-borderless table-centered align-middle table-nowrap mb-0" id="ordersTable">
                                                         <thead class="text-muted table-light">
                                                             <tr>
-                                                                <th scope="col">Seller</th>
+                                                              
                                                                 <th scope="col">Name</th>
+                                                                    <th scope="col">Seller</th>
                                                                 <th scope="col">Totals Products</th>
                                                                     <th scope="col">Gross Sales</th>
                                                                 <th scope="col">Status</th>
@@ -4604,7 +4605,7 @@
                                 BASE_URL: window.location.origin,
                                 ENDPOINTS: {
                                         CHART_DATA: '/admin/ShopComplaintRates',
-                                    TABLE_DATA: '/admin/RecentOrders'
+                                    TABLE_DATA: '/admin/RecentShops'
                                 },
                                 TIMEOUT: 10000
                             };
@@ -4617,8 +4618,14 @@
                                 'Cancelled by Shop': { class: 'status-cancelled-shop', text: 'CANCELLED BY SHOP' },
                                 'DELIVERY FAILED': { class: 'status-delivery-failed', text: 'DELIVERY FAILED' },
                                 'DELIVERING': { class: 'status-delivering', text: 'DELIVERING' },
-                                'CONFIRMED': { class: 'status-confirmed', text: 'CONFIRMED' }
+                                'CONFIRMED': { class: 'status-confirmed', text: 'CONFIRMED' },
+                                'CONFIRMED': { class: 'status-confirmed', text: 'Active' },
+                                    'Cancelled by Shop': { class: 'status-cancelled-shop', text: 'Banned' },
                             };
+                                const SHOP_STATUS = {
+                                    'Active': ORDER_STATUS['CONFIRMED'],
+                                    'Banned': ORDER_STATUS['Cancelled by Shop']
+                                };
 
                             // Global variables
                             let productStatsChart = null;
@@ -4770,7 +4777,7 @@
                                                     total: {
                                                         show: true,
                                                         showAlways: true,
-                                                        label: 'Total Products',
+                                                        label: 'Total Complaints',
                                                         fontSize: '14px',
                                                         fontWeight: 600,
                                                         color: '#4a5568',
@@ -4889,22 +4896,22 @@
                                 const currentOrders = filteredOrders.slice(startIndex, endIndex);
 
                                 const rows = currentOrders.map(order => {
-                                    const statusConfig = ORDER_STATUS[order.status] || ORDER_STATUS['Pending'];
+                                        const statusConfig = SHOP_STATUS[order.status] || SHOP_STATUS['Active'];
                                     return `
                                             <tr>
                                                 <td>
-                                                                                <a href="/admin/ViewOrderDetails/${order.id}" target="_blank" class="fw-medium link-primary">${order.id}</a>
+                                     <a href="/Admin/ViewStoredetail/${order.id}" target="_blank" class="fw-medium link-primary wraphe">${order.name}</a>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <div class="flex-grow-1">${order.customer.name}</div>
+                                                                                        <div class="flex-grow-1 wraphe">${order.customer.name}</div>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <span>${order.quantity}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="text-success">$${order.amount.toFixed(2)}</span>
+                                                                                                                    <span class="text-success wraphe">₫${formatNumber(order.amount)}</span>
                                                 </td>
                                                 <td>
                                                     <span class="badge ${statusConfig.class}">${statusConfig.text}</span>
@@ -4912,7 +4919,7 @@
                                                 <td>
                                                                                <button
                                 class="btn btn-sm btn-outline-primary"
-                                onclick="window.open('/admin/ViewOrderDetails/${order.id}', '_blank')"
+                                                                onclick="window.open('/Admin/ViewStoredetail/${order.id}', '_blank')"
                                 type="button"
                             >
                                 <i class="fas fa-eye me-1"></i>View Detail
