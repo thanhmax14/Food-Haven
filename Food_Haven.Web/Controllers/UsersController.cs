@@ -307,7 +307,6 @@ namespace Food_Haven.Web.Controllers
             }
             var request = _httpContextAccessor.HttpContext.Request;
             var baseUrl = $"{request.Scheme}://{request.Host}";
-            this._url = "https://localhost:5555/Gateway/WalletService/CreatePayment";
             var temdata = new DepositViewModel
             {
                 number = number,
@@ -2107,11 +2106,107 @@ namespace Food_Haven.Web.Controllers
         }
 
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Withdraw(long number, string code, string numAccount, string nameAcc)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { success = false, msg = "Bạn chưa đăng nhập!!" });
 
+            if (number < 50000)
+                return Json(new { success = false, msg = "Rút tối thiểu 500,000 VND" });
+
+            if (number % 1 != 0)
+                return Json(new { success = false, msg = "Số tiền phải là số nguyên, không được có phần thập phân." });
+
+            if (string.IsNullOrWhiteSpace(code))
+                return Json(new { success = false, msg = "Vui lòng chọn lại số tài khoản" });
+
+            if (string.IsNullOrWhiteSpace(numAccount))
+                return Json(new { success = false, msg = "Vui lòng nhập số tài khoản" });
+
+            if (string.IsNullOrWhiteSpace(nameAcc))
+                return Json(new { success = false, msg = "Vui lòng nhập tên tài khoản" });
+
+            try
+            {
+                this._url = "https://api.vietqr.io/v2/banks";
+                var response = await this.client.GetAsync(_url);
+
+                if (!response.IsSuccessStatusCode)
+                    return Json(new { success = false, msg = "Không thể xác thực ngân hàng, thử lại sau!" });
+
+                string json = await response.Content.ReadAsStringAsync();
+                string bankName = null;
+
+                using (JsonDocument doc = JsonDocument.Parse(json))
+                {
+                    var root = doc.RootElement;
+                    if (root.TryGetProperty("data", out JsonElement banks))
+                    {
+                        foreach (JsonElement bank in banks.EnumerateArray())
+                        {
+                            if (bank.TryGetProperty("code", out JsonElement codeElement) &&
+                                codeElement.GetString().Equals(code, StringComparison.OrdinalIgnoreCase))
+                            {
+                                bankName = bank.GetProperty("shortName").GetString();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(bankName))
+                    return Json(new { success = false, msg = "Không tìm thấy ngân hàng với mã code đã chọn." });
+
+                var model = new WithdrawViewModels
+                {
+                    UserID = user.Id,
+                    AccountName = nameAcc,
+                    accountNumber = numAccount,
+                    amount = number,
+                    BankName = bankName
+                };
+
+                if (!await _balance.CheckMoney(user.Id, model.amount))
+                    return Json(new { success = false, msg = "Số dư của bạn không đủ!" });
+
+                var getBalance = await _balance.GetBalance(user.Id);
+                var now = DateTime.Now;
+                var temDongTien = new BalanceChange
+                {
+                    MoneyBeforeChange = getBalance,
+                    MoneyChange = -model.amount,
+                    MoneyAfterChange = getBalance - model.amount,
+                    Description = $"{model.AccountName}&{model.accountNumber}&{model.BankName}&{model.amount}",
+                    Status = "PROCESSING",
+                    Method = "Withdraw",
+                    StartTime = now,
+                    DueTime = now,
+                    UserID = user.Id,
+                    CheckDone = true
+                };
+
+                try
+                {
+                    await _balance.AddAsync(temDongTien);
+                    await _balance.SaveChangesAsync();
+                }
+                catch
+                {
+                    return Json(new { success = false, msg = "Đã xảy ra lỗi, hãy thử lại hoặc liên hệ admin!!" });
+                }
+
+                return Json(new { success = true, msg = "Thành Công" });
+            }
+            catch
+            {
+                return Json(new { success = false, msg = "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau!" });
+            }
+        }
 
     }
-
-
 }
 
 
