@@ -2541,12 +2541,12 @@ document.addEventListener("click", function (e) {
         var checkbox = parseInt($("#numOrderVut").val(), 10);
         var token = $("input[name='__RequestVerificationToken']").val();
 
-        if (isNaN(checkbox) || checkbox < 500000) {
+        if (isNaN(checkbox) || checkbox < 50000) {
             setTimeout(() => {
             new Notify({
                 status: 'error',
                 title: 'Thất Bại',
-                text: 'Số tiền rút tối thiểu là 500,000 Vnd',
+                text: 'Số tiền rút tối thiểu là 50,000 Vnd',
                 effect: 'fade',
                 speed: 300,
                 showIcon: true,

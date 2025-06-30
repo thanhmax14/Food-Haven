@@ -3662,7 +3662,7 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                                                            <p class="mb-0 wraphe">${customer.commitson}</p>
+                                                                                            <p class="mb-0 wraphe">${customer.commitson}%</p>
                                                     <span class="text-muted">Commission</span>
                                                 </td>
                                                 <td>
@@ -4560,10 +4560,10 @@
                                                     <table class="table table-borderless table-centered align-middle table-nowrap mb-0" id="ordersTable">
                                                         <thead class="text-muted table-light">
                                                             <tr>
-                                                                <th scope="col">Order ID</th>
-                                                                <th scope="col">Customer</th>
-                                                                <th scope="col">Quantity</th>
-                                                                <th scope="col">Amount</th>
+                                                                <th scope="col">Seller</th>
+                                                                <th scope="col">Name</th>
+                                                                <th scope="col">Totals Products</th>
+                                                                    <th scope="col">Gross Sales</th>
                                                                 <th scope="col">Status</th>
                                                                 <th scope="col">Action</th>
                                                             </tr>
@@ -4603,7 +4603,7 @@
                             const API_CONFIG = {
                                 BASE_URL: window.location.origin,
                                 ENDPOINTS: {
-                                    CHART_DATA: '/admin/ProductStatistics',
+                                        CHART_DATA: '/admin/ShopComplaintRates',
                                     TABLE_DATA: '/admin/RecentOrders'
                                 },
                                 TIMEOUT: 10000
