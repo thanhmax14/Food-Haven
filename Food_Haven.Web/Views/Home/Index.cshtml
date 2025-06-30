@@ -452,9 +452,12 @@
                                             </a>
                                         </div>
                                         <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@item.ID')">
-                                                <i class="fi-rs-heart"></i>
+                                            <a aria-label="@(item.IsWishList ? "Remove wishlist" : "Add To Wishlist")"
+                                               class="action-btn"
+                                               onclick="AddWishlist(this, '@item.ID')">
+                                                <i class="fi-rs-heart @(item.IsWishList ? " text-danger" : "")"></i>
                                             </a>
+
                                             <a aria-label="Compare" class="action-btn" href="">
                                                 <i class="fi-rs-shuffle"></i>
                                             </a>

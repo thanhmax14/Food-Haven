@@ -108,7 +108,7 @@ namespace Food_Haven.Web.Controllers
             _storeFollowersService = storeFollowersService;
         }
 
-        public IActionResult Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
+        public async Task<IActionResult> Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
         {
             try
             {
@@ -157,6 +157,26 @@ namespace Food_Haven.Web.Controllers
                 ViewBag.MinPrice = minPrice ?? 0;
                 ViewBag.MaxPrice = maxPrice ?? 2000;
                 ViewBag.FilterCount = filterCount;
+
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    if (list.Any())
+                    {
+                        foreach(var item in list)
+                        {
+                            
+                            var checkWish = await _wishlist.FindAsync(u => u.UserID == user.Id && u.ProductID == item.ID);
+                            if (checkWish != null)
+                            {
+                               item.IsWishList = true;
+                            }
+                           
+                        }   
+                    }
+                }
+
 
                 return View(list);
             }
