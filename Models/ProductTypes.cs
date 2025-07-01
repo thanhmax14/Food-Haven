@@ -17,6 +17,7 @@ namespace Models
         public decimal SellPrice { get; set; } = 0; // Giá bán
         public decimal? OriginalPrice { get; set; }
         public int Stock { get; set; } = 0;
+        public bool? IsProductTypeBanned { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public DateTime ManufactureDate { get; set; }// Ngày sản xuất
         public bool IsActive { get; set; } = true;
