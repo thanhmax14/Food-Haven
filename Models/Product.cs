@@ -22,6 +22,7 @@ namespace Models
         public DateTime ManufactureDate { get; set; }// Ngày sản xuất
         public bool IsActive { get; set; } = false;
         public bool IsOnSale { get; set; } // Có đang giảm giá?
+        public bool? IsProductBanned { get; set; } = false;
         [ForeignKey("Categories")]
         public Guid CategoryID { get; set; }
         public virtual Categories Categories { get; set; }  
