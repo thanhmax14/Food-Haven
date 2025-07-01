@@ -1,6 +1,9 @@
 @model List<Repository.ViewModels.StoreFollowerViewModel>;
 <!DOCTYPE html>
 <html class="no-js" lang="en">
+@{
+    Layout = "_Layout";
+}
 
 <head>
     <meta charset="utf-8" />
@@ -60,81 +63,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="row vendor-grid">
+<div id="store-container" class="row vendor-grid">
                     @if (Model.Any())
                     {
                         foreach (var item in Model)
                         {
-                            <div class="col-lg-6 col-md-6 col-12 col-sm-6">
-                                <div class="vendor-wrap style-2 mb-40 position-relative">
-
-                                    <!-- Nút Unfollow góc trên bên phải -->
-                                    <div class="position-absolute" style="top: 15px; right: 15px; z-index: 10;">
-                                        <button class="btn btn-sm btn-outline-danger unfollow-btn" data-store-id="@item.ID"
-                                            title="Unfollow">
-                                            Followed
-                                        </button>
-
-
-
-                                    </div>
-
-                                    <div class="vendor-img-action-wrap">
-                                        <div class="vendor-img">
-                                            <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@item.ID">
-                                                <img class="default-img" src="@item.Img" alt="" />
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="vendor-content-wrap">
-                                        <div class="mb-30">
-                                            <div class="product-category">
-                                                <span class="text-muted">@(item.CreatedDate.ToString("dd/MM/yyyy") ??
-                                                                                                "N/A")</span>
-                                    </div>
-
-                                            <h4>
-                                                <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@item.ID">
-                                                    @item.Name
-                                                </a>
-                                            </h4>
-
-                                            <div class="product-rate-cover">
-                                                <div class="product-rate d-inline-block">
-                                                    <div class="product-rating" style="width: 90%"></div>
-                                                </div>
-                                                <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                            </div>
-
-                                            <div class="vendor-info d-flex justify-content-between align-items-end mt-30">
-                                                <ul class="contact-infor text-muted">
-                                                    <li>
-                                                        <img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" />
-                                                        <strong>Shop: </strong> <span>@item.Address</span>
-                                                    </li>
-                                                    <li>
-                                                        <img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" />
-                                                        <strong>Call Us:</strong> <span>@item.Phone</span>
-                                                    </li>
-                                                    <li>
-                                                        <img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" />
-                                                        <strong>Description:</strong> <span>@item.ShortDescriptions</span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Nút Visit Store cố định ở góc dưới bên phải -->
-                                    <div class="position-absolute" style="bottom: 20px; right: 20px;">
-                                        <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@item.ID"
-                                            class="btn btn-xs">
-                                            Visit Store <i class="fi-rs-arrow-small-right"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+            @await Html.PartialAsync("_StoreCardPartial", item)
 
                                         }
                     }
@@ -308,6 +242,7 @@
     <!-- Template  JS -->
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
+
     <script>
         $(document).ready(function () {
             $('.unfollow-btn').on('click', function (e) {
@@ -379,6 +314,11 @@
             });
         });
     </script>
+
+
+   
+
+
 
 
 </body>

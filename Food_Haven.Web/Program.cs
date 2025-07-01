@@ -15,6 +15,7 @@ using Repository.IngredientTagRepositorys;
 using Repository.TypeOfDishRepositoties;
 
 using Repository.IngredientTagRepositorys;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -125,6 +126,20 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(10);
 });
+builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, options =>
+{
+    options.Events.OnSigningIn = async context =>
+    {
+        var identity = (ClaimsIdentity)context.Principal.Identity;
+        var userId = context.Principal.FindFirst("sub")?.Value ?? context.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (!string.IsNullOrEmpty(userId) && identity.FindFirst(ClaimTypes.NameIdentifier) == null)
+        {
+            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userId));
+        }
+    };
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<ITypeOfDishService, TypeOfDishService>();
@@ -186,6 +201,7 @@ app.UseAuthorization();
 app.UseSession();
 app.MapHub<CartHub>("/CartHub");
 app.MapHub<ChatHub>("/chathub");
+app.MapHub<FollowHub>("/followHub");
 
 
 

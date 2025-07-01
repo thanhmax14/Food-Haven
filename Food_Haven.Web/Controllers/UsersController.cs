@@ -77,11 +77,13 @@ namespace Food_Haven.Web.Controllers
         private readonly IMessageImageService _messageImageService;
         private readonly IMessageService _messageService;
         private readonly IHubContext<ChatHub> _hubContext;
+        private readonly IHubContext<FollowHub> _hubContext1;
         private readonly IRecipeReviewService _recipeReviewService;
         private readonly IFavoriteRecipeService _iFavoriteRecipe;
         private readonly IStoreFollowersService _storeFollowersService;
+        private readonly IStoreDetailService _storeDetailService;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe, IStoreFollowersService storeFollowersService)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe, IStoreFollowersService storeFollowersService, IStoreDetailService storeDetailService, IHubContext<FollowHub> hubContext1)
         {
             _userManager = userManager;
             this.client = client;
@@ -109,6 +111,8 @@ namespace Food_Haven.Web.Controllers
             _recipeReviewService = recipeReviewService;
             _iFavoriteRecipe = iFavoriteRecipe;
             _storeFollowersService = storeFollowersService;
+            _storeDetailService = storeDetailService;
+            _hubContext1 = hubContext1;
         }
 
         [HttpGet]
@@ -2110,16 +2114,24 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> StoreFollowers(StoreFollowerViewModel obj)
         {
+            Console.WriteLine($"StoreFollowers called with StoreID: {obj.StoreID}");
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
+            {
+                Console.WriteLine("User is null, redirecting to Login");
                 return RedirectToAction("Login", "Home");
+            }
 
+            // 🔧 Đã sửa lỗi tại đây: kiểm tra theo cả UserID
             var existingFollow = await _storeFollowersService.FindAsync(x => x.StoreID == obj.StoreID && x.UserID == user.Id);
             if (existingFollow != null)
             {
-                // If already following, remove the follow
+                Console.WriteLine($"Unfollowing store: {obj.StoreID}");
                 await _storeFollowersService.DeleteAsync(existingFollow);
                 await _storeFollowersService.SaveChangesAsync();
+
+                await _hubContext1.Clients.User(user.Id).SendAsync("ReceiveFollowUpdate", obj.StoreID.ToString(), false);
+                Console.WriteLine($"Sent ReceiveFollowUpdate: StoreID={obj.StoreID}, IsFollowing=false");
 
                 return Json(new
                 {
@@ -2137,8 +2149,12 @@ namespace Food_Haven.Web.Controllers
                 CreatedDate = DateTime.Now
             };
 
+            Console.WriteLine($"Following store: {obj.StoreID}");
             await _storeFollowersService.AddAsync(viewModel);
             await _storeFollowersService.SaveChangesAsync();
+
+            await _hubContext1.Clients.User(user.Id).SendAsync("ReceiveFollowUpdate", obj.StoreID.ToString(), true);
+            Console.WriteLine($"Sent ReceiveFollowUpdate: StoreID={obj.StoreID}, IsFollowing=true");
 
             return Json(new
             {
@@ -2147,6 +2163,46 @@ namespace Food_Haven.Web.Controllers
                 message = "Followed the store"
             });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> RenderStoreCard(Guid storeId)
+        {
+            Console.WriteLine($"RenderStoreCard called with StoreID: {storeId}");
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                Console.WriteLine("User is null, returning Unauthorized");
+                return Unauthorized();
+            }
+
+            var isFollowed = await _storeFollowersService.FindAsync(f => f.StoreID == storeId && f.UserID == user.Id);
+            if (isFollowed == null)
+            {
+                Console.WriteLine("User is not following this store");
+                return BadRequest("You are not following this store.");
+            }
+
+            var store = await _storeDetailService.GetAsyncById(storeId);
+            if (store == null)
+            {
+                Console.WriteLine("Store not found");
+                return NotFound();
+            }
+
+            var model = new StoreFollowerViewModel
+            {
+                ID = store.ID,
+                Name = store.Name,
+                Img = store.ImageUrl,
+                Address = store.Address,
+                Phone = store.Phone,
+                ShortDescriptions = store.ShortDescriptions,
+                CreatedDate = store.CreatedDate
+            };
+
+            return PartialView("_StoreCardPartial", model);
+        }
+
 
 
         [HttpPost]
