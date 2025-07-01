@@ -858,6 +858,7 @@
     <!-- Template  JS -->
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
+    
     <script>
         const reasonSelect = document.getElementById('reasonSelect');
         const reasonDetail = document.getElementById('reasonDetail');
@@ -997,7 +998,7 @@
                 data: { StoreID: storeId },
                 success: function (response) {
                     if (response.success) {
-                        new Notify({
+                        @* new Notify({
                             status: 'success',
                             title: response.isFollowing ? 'Followed' : 'Unfollowed',
                             text: response.message || (response.isFollowing
@@ -1010,7 +1011,7 @@
                             autoclose: true,
                             autotimeout: 3000,
                             position: 'right top'
-                        });
+                        }); *@
 
                        if (response.isFollowing) {
     $('#followBtn').html('<i class="fas fa-heart me-1 text-danger"></i> FOLLOWED');
@@ -1037,6 +1038,7 @@
         }
     });
 </script>
+
 
 
 

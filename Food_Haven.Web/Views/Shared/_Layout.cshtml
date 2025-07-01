@@ -264,6 +264,110 @@
             }
         }
     </script>
+<script>
+console.log("📍 Script loaded: Initializing followHub SignalR...");
+
+$(document).ready(function () {
+    console.log("📍 DOM ready: Starting followHub SignalR connection...");
+
+    try {
+        if (!window.followConnection) {
+            window.followConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/followHub")
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            window.followConnection.onclose(() => {
+                console.error("❌ followHub connection closed unexpectedly");
+            });
+
+            window.followConnection.start()
+                .then(() => {
+                    console.log("✅ followHub SignalR connected successfully");
+                })
+                .catch(err => {
+                    console.error("❌ followHub connection failed:", err);
+                });
+
+            window.followConnection.on("ReceiveFollowUpdate", function (storeId, isFollowing) {
+                try {
+                    console.log("📡 SignalR event received:");
+                    console.log("   ➤ Store ID:", storeId);
+                    console.log("   ➤ Follow status:", isFollowing ? "Followed" : "Unfollowed");
+
+                    // Kiểm tra nếu đang ở trang ManagementFollowedStores
+                    if (window.location.pathname === "/Home/ManagementFollowedStores") {
+                        if (isFollowing) {
+                            console.log("📥 Sending AJAX GET to load store card...");
+                            $.get("/Users/RenderStoreCard?storeId=" + storeId, function (html) {
+                                console.log("✅ Card HTML received successfully");
+                                if ($('#store-container').length) {
+                                    $('#store-container').prepend(html);
+                                } else {
+                                    console.warn("⚠️ #store-container not found on this page. Reloading...");
+                                    window.location.reload(); // Làm mới trang nếu không có #store-container
+                                }
+                            }).fail(function (xhr) {
+                                console.error("❌ Failed to load card from server");
+                                console.error("   ➤ Status:", xhr.status);
+                                console.error("   ➤ Response:", xhr.responseText);
+                                new Notify({
+                                    status: 'error',
+                                    title: 'Error',
+                                    text: xhr.responseText || 'Failed to load store card.',
+                                    effect: 'fade',
+                                    speed: 300,
+                                    showIcon: true,
+                                    autoclose: true,
+                                    autotimeout: 3000,
+                                    position: 'right top'
+                                });
+                            });
+                        } else {
+                            console.log("🗑 Removing card with store ID:", storeId);
+                            $('.store-item[data-id="' + storeId + '"]').remove();
+                        }
+                    } else if (isFollowing) {
+                        // Nếu không ở trang ManagementFollowedStores, hiển thị thông báo
+                        @* new Notify({
+                            status: 'success',
+                            title: 'Follow Update',
+                            text: 'You followed a store. Visit your followed stores to see it!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        }); *@
+                    }
+
+                    new Notify({
+                        status: 'info',
+                        title: 'Follow Update',
+                        text: isFollowing ? 'You followed a store.' : 'You unfollowed a store.',
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top'
+                    });
+                } catch (e) {
+                    console.error("❌ Error in ReceiveFollowUpdate:", e);
+                }
+            });
+        } else {
+            console.warn("⚠️ followHub SignalR already initialized.");
+        }
+    } catch (e) {
+        console.error("❌ Exception in followHub script:", e);
+    }
+});
+</script>
+
+
+
 </body>
 
 </html>

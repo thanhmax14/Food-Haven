@@ -1,0 +1,39 @@
+@using Repository.ViewModels
+@model StoreFollowerViewModel
+
+<div class="col-lg-6 col-md-6 col-12 col-sm-6 store-item" data-id="@Model.ID">
+    <div class="vendor-wrap style-2 mb-40 position-relative">
+        <div class="vendor-img-action-wrap">
+            <div class="vendor-img">
+                <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@Model.ID">
+                    <img class="default-img" src="@Model.Img" alt="@Model.Name" />
+                </a>
+            </div>
+        </div>
+
+        <div class="vendor-content-wrap">
+            <div class="mb-30">
+                <div class="product-category">
+                    <span class="text-muted">@Model.CreatedDate.ToString("dd/MM/yyyy")</span>
+                </div>
+                <h4>
+                    <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@Model.ID">@Model.Name</a>
+                </h4>
+                <div class="vendor-info">
+                    <ul class="contact-infor text-muted">
+                        <li><strong>Shop:</strong> <span>@Model.Address</span></li>
+                        <li><strong>Call Us:</strong> <span>@Model.Phone</span></li>
+                        <li><strong>Description:</strong> <span>@Model.ShortDescriptions</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút UNFOLLOW -->
+        <div class="position-absolute" style="top: 10px; right: 10px;">
+            <button class="btn btn-sm btn-outline-danger rounded-circle unfollow-btn" data-store-id="@Model.ID" title="Unfollow">
+                <i class="fas fa-times">Followed</i>
+            </button>
+        </div>
+    </div>
+</div>
