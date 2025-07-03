@@ -57,6 +57,7 @@ namespace Food_Haven.Web.Controllers
         private readonly IRecipeService _recipeService;
         private readonly IStoreReportServices _storeReport;
         private readonly IProductImageService _productImageService;
+     
 
 
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService, 
@@ -1670,51 +1671,34 @@ namespace Food_Haven.Web.Controllers
         {
             try
             {
-                // 1. Số cửa hàng đang chờ mở (Status == "Rejected")
-                var storeList = await _storedetail.ListAsync(s => s.Status.ToUpper() == "REJECTED");
-                var pendingstoreopen = storeList.Count();
-
-                // 2. Số user đang yêu cầu lên seller (RequestSeller == "1" || "3")
+                var pendingStoreOpen = (await _storedetail.ListAsync(s => s.Status.ToUpper() == "REJECTED")).Count();
                 var userList = await _userManager.Users.ToListAsync();
-                var sellerrequest = userList.Count(u => u.RequestSeller == "1" || u.RequestSeller == "3");
+                var pendingSellerRequest = userList.Count(u => u.RequestSeller == "1" || u.RequestSeller == "3");
 
-               
                 var allWithdraw = await _balance.ListAsync(b =>
                     b.Method.ToUpper() == "WITHDRAW" &&
                     b.Status.ToUpper() == "PROCESSING"
-                    );
-
-                // 4. Số khiếu nại đang chờ admin xử lý (all time)
+                );
+                var pendingWithdrawal = allWithdraw.Count();
                 var complaintList = await _complaintService.ListAsync(c =>
                     c.Status == "Report to Admin"
                     && c.IsReportAdmin == true
                     && c.AdminReportStatus == "Pending");
                 var totalcomplant = complaintList.Count();
-
-                // --------- Logic thống kê theo khoảng ngày như cũ ---------
+                var totalStore = (await _storedetail.ListAsync(s => s.Status.ToUpper() == "APPROVED")).Count();
+                var totalCustomer = userList.Count();
+                var totalRecipe = (await _recipeService.ListAsync(r => r.status.ToUpper() == "ACCEPT")).Count();
+                var pendingPublicRecipe = (await _recipeService.ListAsync(r => r.status.ToUpper() == "PENDING")).Count();
                 var orders = await _order.ListAsync(o => true);
-
-                var validStatuses = new[]
-                {
-            "CONFIRMED",
-            "DELIVERING",
-            "PREPARING IN KITCHEN",
-            "PENDING"
-        };
-
-                var validOrders = orders
-                    .Where(o => validStatuses.Contains(o.Status.ToUpper()))
-                    .ToList();
-
+                var validStatuses = new[] { "CONFIRMED", "DELIVERING", "PREPARING IN KITCHEN", "PENDING" };
+                var validOrders = orders.Where(o => validStatuses.Contains(o.Status.ToUpper())).ToList();
                 DateTime? minOrderDate = validOrders.Any()
                     ? validOrders.Min(o => o.CreatedDate).Date
                     : (DateTime?)null;
-
                 var depositChanges = await _balance.ListAsync(bc =>
                     bc.Method.ToUpper() == "DEPOSIT" &&
                     bc.Status.ToUpper() == "SUCCESS" &&
                     bc.StartTime.HasValue);
-
                 DateTime? minDepositDate = depositChanges.Any()
                     ? depositChanges.Min(bc => bc.StartTime.Value.Date)
                     : (DateTime?)null;
@@ -1763,7 +1747,7 @@ namespace Food_Haven.Web.Controllers
                     .Where(o => o.CreatedDate.Date >= fromDate && o.CreatedDate.Date <= toDate)
                     .ToList();
 
-                var totalEarnings = ordersInRange.Sum(o => o.TotalPrice);
+                var grossSales = ordersInRange.Sum(o => o.TotalPrice);
 
                 var depositInRange = depositChanges
                     .Where(bc => bc.StartTime.Value.Date >= fromDate && bc.StartTime.Value.Date <= toDate)
@@ -1782,18 +1766,21 @@ namespace Food_Haven.Web.Controllers
                     u.JoinedDate.Value.Date >= minStartDate.Value &&
                     u.JoinedDate.Value.Date >= fromDate &&
                     u.JoinedDate.Value.Date <= toDate);
-                var pendingwithdraw = allWithdraw.Sum(bc => Math.Abs(bc.MoneyChange));
 
                 var result = new
                 {
-                    pendingstoreopen,
-                    sellerrequest,
-                    pendingwithdraw,
-                    totalcomplant,
-                    totalEarnings,
-                    commissionRevenue,
-                    totaldeposit = totalDeposit,
+                    grossSales,                    
+                    commissionRevenue,             
+                    totalDeposit,                 
+                    totalCustomer,                
+                    totalStore,                    
+                    totalRecipe,                  
+                    pendingSellerRequest,          
+                    pendingStoreOpen,              
+                    pendingPublicRecipe,           
+                    pendingWithdrawal,            
                     newcustomer,
+                    totalcomplant,
                     period = new
                     {
                         from = fromDate.ToString("dd/MM/yyyy"),

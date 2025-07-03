@@ -2688,11 +2688,18 @@
                                                 to: endDate.toISOString()
                                             },
                                             success: function (res) {
-                                                $(".total-order").text(formatNumber(res.totalOrders));
-                                                $(".total-earning").text(formatNumber(res.totalEarnings) + "₫");
-                                                $(".cancel-rate-value").text(res.cancellationRate + "%");
-                                                $(".pending-balance").text(formatNumber(res.pendingBalance) + "₫");
-
+                                                // Mapping chính xác từng class/ID cho dashboard:
+                                                $(".total-earning").text(formatNumber(res.grossSales) + "₫");
+                                                $(".total-Commission-Revenue").text(formatNumber(res.commissionRevenue) + "₫");
+                                                $(".total-deposit").text(formatNumber(res.totalDeposit) + "₫");
+                                                $(".new-customer").text(formatNumber(res.newcustomer));
+                                                $(".total-Store").text(formatNumber(res.totalStore));
+                                                $(".total-Recipe").text(formatNumber(res.totalRecipe));
+                                                $(".pending-seller-request").text(formatNumber(res.pendingSellerRequest));
+                                                $(".pending-store-opening").text(formatNumber(res.pendingStoreOpen));
+                                                $(".pending-public-recipe").text(formatNumber(res.pendingPublicRecipe));
+                                                $(".pending-withdraw").text(formatNumber(res.pendingWithdrawal) + "₫");
+                                                $(".pending-complaint").text(formatNumber(res.totalcomplant));
                                                 if (res.period && res.period.isAdjusted) {
                                                     document.getElementById("dateRangeLabel").innerText =
                                                         `Statistics for ${res.period.days} days (${res.period.from} - ${res.period.to}) - Adjusted`;
@@ -2700,10 +2707,16 @@
                                             },
                                             error: function (xhr) {
                                                 alert(xhr.responseJSON?.error || "Lỗi khi lấy dữ liệu thống kê.");
-                                                $(".total-order").text("0");
                                                 $(".total-earning").text("0₫");
-                                                $(".cancel-rate-value").text("0%");
-                                                $(".pending-balance").text("0₫");
+                                                $(".total-Commission-Revenue").text("0₫");
+                                                $(".total-deposit").text("0₫");
+                                                $(".new-customer").text("0");
+                                                $(".total-Store").text("0");
+                                                $(".total-Recipe").text("0");
+                                                $(".pending-seller-request").text("0");
+                                                $(".pending-store-opening").text("0");
+                                                $(".pending-public-recipe").text("0");
+                                                $(".pending-withdraw").text("0₫");
                                             },
                                             complete: function () {
                                                 showLoading(false);
@@ -2745,16 +2758,18 @@
                                                 to: toLocalISOString(endDate)
                                             },
                                             success: function (res) {
-                                                $(".total-earning").text(formatNumber(res.totalEarnings)+ "₫");
+                                                // Mapping chính xác từng class/ID cho dashboard:
+                                                $(".total-earning").text(formatNumber(res.grossSales) + "₫");
                                                 $(".total-Commission-Revenue").text(formatNumber(res.commissionRevenue) + "₫");
-                                                $(".total-deposit").text(formatNumber(res.totaldeposit) + "₫");
-                                                $(".new-customer").text(res.newcustomer)
-
-                                                $(".total-complant").text(formatNumber(res.totalcomplant)+ "");
-                                                $(".pending-withdraw").text(formatNumber(res.pendingwithdraw) + "₫");
-                                                $(".pending-seller-request").text(formatNumber(res.sellerrequest) + "");
-                                                $(".pending-store-opending").text(res.pendingstoreopen)
-
+                                                $(".total-deposit").text(formatNumber(res.totalDeposit) + "₫");
+                                                $(".new-customer").text(formatNumber(res.newcustomer));
+                                                $(".total-Store").text(formatNumber(res.totalStore));
+                                                $(".total-Recipe").text(formatNumber(res.totalRecipe));
+                                                $(".pending-seller-request").text(formatNumber(res.pendingSellerRequest));
+                                                $(".pending-store-opening").text(formatNumber(res.pendingStoreOpen));
+                                                $(".pending-public-recipe").text(formatNumber(res.pendingPublicRecipe));
+                                                $(".pending-withdraw").text(formatNumber(res.pendingWithdrawal));
+                                                $(".pending-complaint").text(formatNumber(res.totalcomplant));
                                                 if (res.period && res.period.isAdjusted) {
                                                     document.getElementById("dateRangeLabel").innerText =
                                                         `Statistics for ${res.period.days} days (${res.period.from} - ${res.period.to}) - Adjusted`;
@@ -2762,14 +2777,16 @@
                                             },
                                             error: function (xhr) {
                                                 alert(xhr.responseJSON?.error || "Lỗi khi lấy dữ liệu thống kê.");
-                                                $(".total-earning").text("0");
+                                                $(".total-earning").text("0₫");
                                                 $(".total-Commission-Revenue").text("0₫");
                                                 $(".total-deposit").text("0₫");
                                                 $(".new-customer").text("0");
-                                                $(".total-complant").text("0");
-                                                $(".pending-withdraw").text("0₫");
+                                                $(".total-Store").text("0");
+                                                $(".total-Recipe").text("0");
                                                 $(".pending-seller-request").text("0");
-                                                $(".pending-store-opending").text("0")
+                                                $(".pending-store-opening").text("0");
+                                                $(".pending-public-recipe").text("0");
+                                                $(".pending-withdraw").text("0");
 
                                             },
                                             complete: function () {
@@ -2852,10 +2869,7 @@
 
 
                                 <div class="row">
-
-
-                               
-                                    <div class="col-xl-3 col-md-6">
+                                    <div class="col-xl-4 col-md-4">
                                         <!-- card -->
                                         <div class="card card-animate">
                                             <div class="card-body">
@@ -2877,8 +2891,7 @@
                                                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
                                                             <span class="total-earning">0₫</span>
                                                         </h4>
-                                                        <a href="#" class="text-decoration-underline">View net
-                                                            earnings</a>
+                                                        <a href="#" class="text-decoration-underline">View all</a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
                                                         <span class="avatar-title bg-success-subtle rounded fs-3">
@@ -2889,7 +2902,7 @@
                                             </div><!-- end card body -->
                                         </div>
                                     </div>
-                                    <div class="col-xl-3 col-md-6">
+                                    <div class="col-xl-4 col-md-4">
                                         <!-- card -->
                                         <div class="card card-animate">
                                             <div class="card-body">
@@ -2911,7 +2924,7 @@
                                                         <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span class="total-Commission-Revenue">0</span></h4>
                                                         <a href="#" class="text-decoration-underline">
                                                             View all
-                                                            orders
+                                                           
                                                         </a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
@@ -2922,8 +2935,8 @@
                                                 </div>
                                             </div><!-- end card body -->
                                         </div><!-- end card -->
-                                    </div><!-- end col -->
-                                    <div class="col-xl-3 col-md-6">
+                                    </div>
+                                    <div class="col-xl-4 col-md-4">
                                         <!-- card -->
                                         <div class="card card-animate">
                                             <div class="card-body">
@@ -2946,8 +2959,7 @@
                                                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
                                                             <span class="total-deposit">0₫</span>
                                                         </h4>
-                                                        <a href="#" class="text-decoration-underline">View net
-                                                            earnings</a>
+                                                        <a href="#" class="text-decoration-underline">View all</a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
                                                         <span class="avatar-title bg-success-subtle rounded fs-3">
@@ -2957,44 +2969,9 @@
                                                 </div>
                                             </div><!-- end card body -->
                                         </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-     <!-- card -->
-     <div class="card card-animate">
-         <div class="card-body">
-             <div class="d-flex align-items-center">
-                 <div class="flex-grow-1 overflow-hidden">
-                     <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                         New Customer
-                     </p>
-                 </div>
-                 <div class="flex-shrink-0">
-                     @* <h5 class="text-danger fs-14 mb-0">
-                     <i class="ri-arrow-up-s-line fs-13 align-middle"></i>
-                     +1.12%
-                     </h5> *@
-                 </div>
-             </div>
-             <div class="d-flex align-items-end justify-content-between mt-4">
-                 <div>
-                     <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                         <span class="new-customer">0</span>
-                     </h4>
-                     <a href="#" class="text-decoration-underline">
-                         View cancelled
-                         orders
-                     </a>
-                 </div>
-                 <div class="avatar-sm flex-shrink-0">
-                     <span class="avatar-title bg-danger-subtle rounded fs-3">
-                         <i class="bx bx-x-circle text-danger"></i>
-                     </span>
-                 </div>
-             </div>
-         </div><!-- end card body -->
-     </div><!-- end card -->
- </div>
-                                    <div class="row mb-3 pb-1">
+                                    </div>                                  
+                                </div> 
+                                <div class="row mb-3 pb-1">
                                         <div class="col-12">
                                             <div class="d-flex align-items-lg-center flex-lg-row flex-column">
                                                 <div class="flex-grow-1">
@@ -3007,89 +2984,15 @@
                                         </div>
                                         <!--end col-->
                                     </div>
-
-                                    <div class="col-xl-3 col-md-6">
+                                <div  class="row">
+                                    <div class="col-xl-4 col-md-4">
                                         <!-- card -->
                                         <div class="card card-animate">
                                             <div class="card-body">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-grow-1 overflow-hidden">
                                                         <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            Pending Complain
-                                                        </p>
-                                                    </div>
-                                                    <div class="flex-shrink-0">
-                                                        @*  <h5 class="text-success fs-14 mb-0">
-                                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                                                        +16.24 %
-                                                        </h5> *@
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-end justify-content-between mt-4">
-                                                    <div>
-                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                                            <span class="total-complant">0₫</span>
-                                                        </h4>
-                                                        <a href="#" class="text-decoration-underline">
-                                                            View net
-                                                            earnings
-                                                        </a>
-                                                    </div>
-                                                    <div class="avatar-sm flex-shrink-0">
-                                                        <span class="avatar-title bg-success-subtle rounded fs-3">
-                                                            <i class="bx bx-dollar-circle text-success"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div><!-- end card body -->
-                                        </div>
-                                    </div>
-                           
-
-                                    <div class="col-xl-3 col-md-6">
-                                        <!-- card -->
-                                        <div class="card card-animate">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-grow-1 overflow-hidden">
-                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            Pending Seller Upgrade
-                                                        </p>
-                                                    </div>
-                                                    <div class="flex-shrink-0">
-                                                        @*  <h5 class="text-success fs-14 mb-0">
-                                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                                                        +16.24 %
-                                                        </h5> *@
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-end justify-content-between mt-4">
-                                                    <div>
-                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                                            <span class="pending-seller-request">0</span>
-                                                        </h4>
-                                                        <a href="#" class="text-decoration-underline">
-                                                            View net
-                                                            earnings
-                                                        </a>
-                                                    </div>
-                                                    <div class="avatar-sm flex-shrink-0">
-                                                        <span class="avatar-title bg-success-subtle rounded fs-3">
-                                                            <i class="bx bx-dollar-circle text-success"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div><!-- end card body -->
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-3 col-md-6">
-                                        <!-- card -->
-                                        <div class="card card-animate">
-                                            <div class="card-body">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="flex-grow-1 overflow-hidden">
-                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                                                            Pending Store Opening
+                                                            Customer
                                                         </p>
                                                     </div>
                                                     <div class="flex-shrink-0">
@@ -3102,11 +3005,10 @@
                                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                                     <div>
                                                         <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                                            <span class="pending-store-opending">0</span>
+                                                            <span class="new-customer">0</span>
                                                         </h4>
                                                         <a href="#" class="text-decoration-underline">
-                                                            View cancelled
-                                                            orders
+                                                           View all
                                                         </a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
@@ -3118,9 +3020,174 @@
                                             </div><!-- end card body -->
                                         </div><!-- end card -->
                                     </div>
-
-                                    <div class="col-xl-3 col-md-6">
+                                    <div class="col-xl-4 col-md-4">
                                         <!-- card -->
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Store
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        @*  <h5 class="text-success fs-14 mb-0">
+                                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                                                        +16.24 %
+                                                        </h5> *@
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="total-Store">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">
+                                                           View all
+                                                        </a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                                                            <i class="bx bx-dollar-circle text-success"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end card body -->
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 col-md-4">
+                                        <!-- card -->
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Recipe
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        @*  <h5 class="text-success fs-14 mb-0">
+                                                        <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
+                                                        +16.24 %
+                                                        </h5> *@
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="total-Recipe">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">
+                                                            View all
+                                                        </a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                                                            <i class="bx bx-dollar-circle text-success"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div><!-- end card body -->
+                                        </div>
+                                    </div>
+                                </div>
+                                  <div class="row mb-3 pb-1">
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-lg-center flex-lg-row flex-column">
+                                                <div class="flex-grow-1">
+                                                    <h4 class="fs-16 mb-1"> All-time statistics</h4>
+                                                 @*    <p id="" class="text-muted mb-0">Đang thống kê...</p> *@
+
+                                                </div>
+                                        
+                                            </div><!-- end card header -->
+                                        </div>
+                                        <!--end col-->
+                                    </div>
+                                <div class="row" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;">
+                                    <!-- 1. Pending Seller Upgrade -->
+                                    <div>
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Seller Upgrade
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="pending-seller-request">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">View all</a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-danger-subtle rounded fs-3">
+                                                            <i class="bx bx-x-circle text-danger"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 2. Pending Store Opening -->
+                                    <div>
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Store Opening
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="pending-store-opening">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">View all </a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-info-subtle rounded fs-3">
+                                                            <i class="bx bx-shopping-bag text-info"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 3. Pending Public Recipe -->
+                                    <div>
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Public Recipe
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="pending-public-recipe">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">View all</a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-danger-subtle rounded fs-3">
+                                                            <i class="bx bx-x-circle text-danger"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 4. Pending Withdrawal -->
+                                    <div>
                                         <div class="card card-animate">
                                             <div class="card-body">
                                                 <div class="d-flex align-items-center">
@@ -3129,20 +3196,13 @@
                                                             Pending Withdrawal
                                                         </p>
                                                     </div>
-                                                    <div class="flex-shrink-0">
-                                                        @*  <h5 class="text-danger fs-14 mb-0">
-                                                        <i class="ri-arrow-right-down-line fs-13 align-middle"></i>
-                                                        -3.57 %
-                                                        </h5> *@
-                                                    </div>
                                                 </div>
                                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                                     <div>
-                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4"><span class="pending-withdraw">0</span></h4>
-                                                        <a href="#" class="text-decoration-underline">
-                                                            View all
-                                                            orders
-                                                        </a>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="pending-withdraw">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">View all</a>
                                                     </div>
                                                     <div class="avatar-sm flex-shrink-0">
                                                         <span class="avatar-title bg-info-subtle rounded fs-3">
@@ -3150,12 +3210,39 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                            </div><!-- end card body -->
-                                        </div><!-- end card -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 5. Pending Complaint -->
+                                    <div>
+                                        <div class="card card-animate">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1 overflow-hidden">
+                                                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                                                            Pending Complaint
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-end justify-content-between mt-4">
+                                                    <div>
+                                                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                                                            <span class="pending-complaint">0</span>
+                                                        </h4>
+                                                        <a href="#" class="text-decoration-underline">View all</a>
+                                                    </div>
+                                                    <div class="avatar-sm flex-shrink-0">
+                                                        <span class="avatar-title bg-warning-subtle rounded fs-3">
+                                                            <i class="bx bx-message-square-dots text-warning"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    </div><!-- end col -->
-                                    <!-- end
-                                </div> <!-- end row-->
+
 
                                 <div class="row">
                                     <div class="col-xl-12">
