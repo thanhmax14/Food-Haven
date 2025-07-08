@@ -42,6 +42,7 @@ namespace Repository.ViewModels
         [Required(ErrorMessage = "Thumbnail image is required")]
         public string ThumbnailImage { get; set; }
         public string TypeOfDishName { get; set; }
+        public string? RejectNote { get; set; }
 
         public List<Categories> Categories { get; set; } = new List<Categories>();
 

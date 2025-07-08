@@ -26,4 +26,10 @@ namespace Repository.ViewModels
         public string UserID { get; set; }
 
     }
+    public class StoreCartViewModel
+    {
+        public int StoreID { get; set; }
+        public string StoreName { get; set; }
+        public List<CartViewModels> CartItems { get; set; }
+    }
 }
