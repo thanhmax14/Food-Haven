@@ -1,0 +1,835 @@
+@model Repository.ViewModels.RecipeViewModels
+@using Newtonsoft.Json
+@using System.Text.Json
+
+<!doctype html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+
+
+<!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+
+<head>
+
+    <meta charset="utf-8" />
+    <title>EasyFood | Seller</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="EasyFood" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="~/assetsAdmin/images/favicon.ico">
+
+    <!-- gridjs css -->
+    <link rel="stylesheet" href="~/assetsAdmin/libs/gridjs/theme/mermaid.min.css">
+
+    <!-- Layout config Js -->
+    <script src="~/assetsAdmin/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="~/assetsAdmin/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Đồng bộ màu nền toàn bộ phần content */
+        .main-content,
+        .page-content,
+        .card-body,
+        .tab-content,
+        .gridjs-wrapper {
+            background-color: #ffffff !important;
+            /* hoặc đổi sang #f3f3f9 nếu bạn thích nền xám nhẹ */
+        }
+
+        /* Nếu muốn lược bỏ bóng của card (tùy template) */
+        .card-body {
+            box-shadow: none !important;
+        }
+
+        /* Chỉnh màu bảng nếu Grid.js vẫn lệch */
+        .gridjs-table {
+            background-color: #ffffff !important;
+        }
+    </style>
+    <style>
+        .multi-select-container {
+            border: 1px solid #ccc;
+            display: flex;
+            gap: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        .multi-select-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .multi-select-column .header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .search-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ced4da !important;
+            border-radius: 6px;
+            padding: 8px 12px;
+            background-color: #fff;
+            outline: none;
+            box-shadow: none;
+            margin-bottom: 10px;
+        }
+
+        .items-list {
+            border: 1px solid #ccc;
+            height: 250px;
+            overflow-y: auto;
+        }
+
+        .item {
+            padding: 5px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .item:hover {
+            background-color: #eee;
+        }
+
+        .item.selected {
+            background-color: #2f00ff;
+            color: white;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        <header id="page-topbar">
+            <div class="layout-width">
+                <div class="navbar-header">
+                    <div class="d-flex">
+                        <!-- LOGO -->
+                        <div class="navbar-brand-box horizontal-logo">
+                            <a href="" class="logo logo-dark">
+                                <span class="logo-sm">
+                                    <img src="/assets/imgs/theme/logo.svg" alt="" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="/assets/imgs/theme/logo.svg" alt="" height="17">
+                                </span>
+                            </a>
+
+                            <a href="" class="logo logo-light">
+                                <span class="logo-sm">
+                                    <img src="/assets/imgs/theme/logo.svg" alt="" height="22">
+                                </span>
+                                <span class="logo-lg">
+                                    <img src="/assets/imgs/theme/logo.svg" alt="" height="17">
+                                </span>
+                            </a>
+                        </div>
+
+                        <button type="button"
+                            class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger material-shadow-none"
+                            id="topnav-hamburger-icon">
+                            <span class="hamburger-icon">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </button>
+
+                        <!-- App Search-->
+
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="dropdown d-md-none topbar-head-dropdown header-item">
+                            <button type="button"
+                                class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle"
+                                id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                                <i class="bx bx-search fs-22"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                                aria-labelledby="page-header-search-dropdown">
+                                <form class="p-3">
+                                    <div class="form-group m-0">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Search ..."
+                                                aria-label="Recipient's username">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="mdi mdi-magnify"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="ms-1 header-item d-none d-sm-flex">
+                            <button type="button"
+                                class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle light-dark-mode">
+                                <i class='bx bx-moon fs-22'></i>
+                            </button>
+                        </div>
+                        <div class="dropdown ms-sm-3 header-item topbar-user">
+                            <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="d-flex align-items-center">
+                                    <img class="rounded-circle header-profile-user"
+                                        src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
+                                    <span class="text-start ms-xl-2">
+                                        <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
+                                            Anna
+                                            Adame
+                                        </span>
+                                        <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">Founder</span>
+                                    </span>
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <h6 class="dropdown-header">Welcome Anna!</h6>
+                                <a class="dropdown-item" asp-controller="Users">
+                                    <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span
+                                        class="align-middle">Profile</span>
+                                </a>
+
+                                <a class="dropdown-item" asp-controller="Home" asp-action="Logout">
+                                    <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span
+                                        class="align-middle" data-key="t-logout">Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- ========== App Menu ========== -->
+        <div class="app-menu navbar-menu">
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+                <!-- Dark Logo-->
+                <a href="" class="logo logo-dark">
+                    <span class="logo-sm">
+                        <img src="/assets/imgs/theme/logo.svg" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="/assets/imgs/theme/logo.svg" alt="" height="17">
+                    </span>
+                </a>
+                <!-- Light Logo-->
+                <a href="" class="logo logo-light">
+                    <span class="logo-sm">
+                        <img src="/assets/imgs/theme/logo.svg" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="/assets/imgs/theme/logo.svg" alt="" height="17">
+                    </span>
+                </a>
+                <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
+                    id="vertical-hover">
+                    <i class="ri-record-circle-line"></i>
+                </button>
+            </div>
+
+            <div id="scrollbar">
+                <div class="container-fluid">
+                    <div id="two-column-menu">
+                    </div>
+                    <ul class="navbar-nav" id="navbar-nav">
+                        <li class="menu-title"><span data-key="t-menu">Menu</span></li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="UserStatistics">
+                                <i class="ri-bar-chart-box-line"></i> <span>User and Seller Statistics</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Revenue">
+                                <i class=" ri-pie-chart-line"></i> <span>Revenue Statistics</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Index">
+                                <i class="ri-account-circle-line"></i> <span>User Accounts</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementSeller">
+                                <i class="ri-user-add-line"></i> <span>Seller Registration Requests</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewAdminStore">
+                                <i class="ri-store-2-line"></i> <span>Store</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link action" asp-controller="Admin"
+                                asp-action="ViewStoreRegistration">
+                                <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewCategories">
+                                <i class="ri-folder-2-line"></i> <span>Categories</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
+                                <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
+                            </a>
+                        </li>
+                        <!-- <li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class="ri-alert-line"></i> <span>Store Reports Form User</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class="ri-error-warning-line"></i> <span>Order Complaintt Reports From Seller</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class=" ri-chat-3-line"></i> <span>Chat</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class="ri-notification-2-line"></i> <span>Notifications</span>
+                            </a>
+                        </li> -->
+                    </ul>
+                </div>
+
+            </div>
+            <!-- Sidebar -->
+        </div>
+        <div class="sidebar-background"></div>
+    </div>
+    <!-- Left Sidebar End -->
+    <!-- Vertical Overlay-->
+    <div class="vertical-overlay"></div>
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+
+        <div class="page-content">
+            <div class="container-fluid">
+                <input type="hidden" id="RecipeId" value="@Model.ID" />
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Management Recipe</h4>
+
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
+                                    <li class="breadcrumb-item active">Management Recipe</li>
+                                </ol>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+                <div class="row">
+                    <!-- Title -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Title" class="form-label">Title</label>
+                        <input asp-for="Title" class="form-control" readonly />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <!-- Servings -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Servings" class="form-label">Servings</label>
+                        <input asp-for="Servings" class="form-control" readonly />
+                        <span asp-validation-for="Servings" class="text-danger"></span>
+                    </div>
+
+                    <!-- Short Description -->
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="ShortDescriptions" class="form-label">Short Description</label>
+                        <textarea asp-for="ShortDescriptions" class="form-control" readonly></textarea>
+                        <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="CateID" disabled>
+                            <option value="" readonly>Choose...</option>
+                            @foreach (var cate in Model.Categories)
+                            {
+                                <option value="@cate.ID" selected="@(cate.ID == Model.CateID ? "selected" : null)">
+                                    @cate.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Type of Dish -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Type of Dish</label>
+                        <select class="form-select" name="TypeOfDishID" disabled>
+                            <option value="">Choose...</option>
+                            @foreach (var dish in Model.typeOfDishes)
+                            {
+                                <option value="@dish.ID" selected="@(dish.ID == Model.TypeOfDishID ? "selected" : null)">
+                                    @dish.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Difficulty -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DifficultyLevel" class="form-label">Difficulty Level</label>
+                        <select asp-for="DifficultyLevel" class="form-select" disabled>
+                            <option value="">-- Select --</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <!-- IsActive -->
+                    <div class="col-md-6 mb-3 form-check mt-4">
+                        <input asp-for="IsActive" class="form-check-input" readonly />
+                        <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                    </div>
+
+
+                    <!-- Time -->
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="PreparationTime" class="form-label">Preparation Time</label>
+                        <input asp-for="PreparationTime" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="CookTime" class="form-label">Cooking Time</label>
+                        <input asp-for="CookTime" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="TotalTime" class="form-label">Total Time</label>
+                        <input asp-for="TotalTime" class="form-control" readonly />
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Ingredient Tags</label>
+                        <input type="text" id="searchAll" placeholder="Search..." class="search-input mb-2" disabled />
+
+                        <div class="multi-select-container" style="pointer-events: none;">
+                            <div class="multi-select-column">
+                                <div class="header">Available</div>
+                                <div id="availableList" class="items-list"></div>
+                            </div>
+                            <div class="multi-select-column">
+                                <div class="header">Selected</div>
+                                <div id="selectedList" class="items-list"></div>
+                            </div>
+                        </div>
+
+                        <select id="IngredientTags" name="SelectedIngredientTags" multiple hidden></select>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Ingredient</label>
+                        <div id="editor-Ingredient" class="bg-white border p-3"
+                            style="min-height: 200px; pointer-events: none;">
+                            @Html.Raw(Model.Ingredient ?? "<p>Enter ingredients here...</p>")
+                        </div>
+                        <input type="hidden" name="Ingredient" id="IngredientHidden" />
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Cooking Steps</label>
+                        <div id="editor-Ingredient" class="bg-white border p-3"
+                            style="min-height: 200px; pointer-events: none;">
+                            @Html.Raw(Model.CookingStep ?? "<p>Enter cooking steps here...</p>")
+                        </div>
+                        <input type="hidden" name="CookingStep" id="CookingStepHidden" />
+                    </div>
+
+                    <!-- Current Image -->
+                    <div class="col-md-6 mb-3 mt-5">
+                        <label class="form-label mt-2">Thumbnail Image</label>
+                        <div class="border p-3 rounded bg-light">
+                            <img src="@Model.ThumbnailImage" alt="Thumbnail" class="img-fluid rounded mx-auto d-block"
+                                style="max-width: 100%; height: auto;" />
+                        </div>
+                    </div>
+
+                    <!-- Nút Accept / Reject -->
+                    <div class="col-md-12 d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-success" onclick="submitWithAjax('Approved')">
+                            <i class="bi bi-check-circle"></i> Accept Recipe
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="openRejectModal()">
+                            <i class="bi bi-x-circle"></i> Reject Recipe
+                        </button>
+                    </div>
+                    <!-- Reject Reason Modal -->
+                    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="rejectModalLabel">Reject Recipe</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label for="rejectReason" class="form-label">Reason for rejection:</label>
+                                    <textarea class="form-control" id="rejectReason" rows="4"
+                                        placeholder="Enter your reason here..."></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger"
+                                        onclick="confirmReject()">Reject</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+
+                <!-- end row -->
+
+
+
+
+
+
+                <!-- end row -->
+
+            </div>
+            <!-- container-fluid -->
+        </div>
+        <!-- End Page-content -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <script>document.write(new Date().getFullYear())</script> © Velzon.
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end d-none d-sm-block">
+                            Design & Develop by EasyFood
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- end main content-->
+    </div>
+    <!-- END layout-wrapper -->
+    <!--start back-to-top-->
+    <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+        <i class="ri-arrow-up-line"></i>
+    </button>
+    <!--end back-to-top-->
+    <!--preloader-->
+    <div id="preloader">
+        <div id="status">
+            <div class="spinner-border text-primary avatar-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- JAVASCRIPT -->
+    <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+    <script src="~/assetsAdmin/libs/node-waves/waves.min.js"></script>
+    <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
+    <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="~/assetsAdmin/js/plugins.js"></script>
+
+    <!-- prismjs plugin -->
+    <script src="~/assetsAdmin/libs/prismjs/prism.js"></script>
+
+    <!-- gridjs js -->
+    <script src="~/assetsAdmin/libs/gridjs/gridjs.umd.js"></script>
+    <!-- gridjs init -->
+    <script src="~/assetsAdmin/js/pages/gridjs.init.js"></script>
+
+    <!-- App js -->
+    <script src="~/assetsAdmin/js/app.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Quill -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script>
+        const allItems = @Html.Raw(Json.Serialize(Model.IngredientTags.Select(t => new { id = t.ID, name = t.Name })));
+        let selectedItems = @Html.Raw(Json.Serialize(Model.SelectedIngredientTags));
+
+        function renderLists() {
+            const availableList = document.getElementById('availableList');
+            const selectedList = document.getElementById('selectedList');
+            const selectElement = document.getElementById('IngredientTags');
+            const searchVal = document.getElementById('searchAll').value.toLowerCase();
+
+            availableList.innerHTML = '';
+            selectedList.innerHTML = '';
+            selectElement.innerHTML = '';
+
+            allItems.forEach(item => {
+                const isSelected = selectedItems.includes(item.id);
+                const matchSearch = item.name.toLowerCase().includes(searchVal);
+
+                if (matchSearch) {
+                    const div = document.createElement('div');
+                    div.textContent = item.name;
+                    div.className = 'item ' + (isSelected ? 'selected' : '');
+                    div.style.cursor = 'pointer';
+                    div.onclick = () => {
+                        if (isSelected) {
+                            selectedItems = selectedItems.filter(id => id !== item.id);
+                        } else {
+                            selectedItems.push(item.id);
+                        }
+                        renderLists(); // Re-render sau khi thay đổi
+                    };
+
+                    if (isSelected) {
+                        selectedList.appendChild(div);
+                    } else {
+                        availableList.appendChild(div);
+                    }
+                }
+
+                // Hidden <select> để gửi về server
+                if (isSelected) {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.selected = true;
+                    selectElement.appendChild(opt);
+                }
+            });
+        }
+
+        document.getElementById('searchAll').addEventListener('input', renderLists);
+        renderLists();
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initialize Quill editors
+            const editorIngredient = new Quill('#editor-Ingredient', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'super' }, { 'script': 'sub' }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            const editorCookingStep = new Quill('#editor-CookingStep', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'super' }, { 'script': 'sub' }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Find form and add submit event listener
+            const form = document.querySelector("form");
+            console.log("Form found:", form); // Debug log
+
+            if (form) {
+                form.addEventListener("submit", function (e) {
+                    console.log("Form submit event triggered!");
+
+                    // Prevent default submission temporarily
+                    e.preventDefault();
+
+                    try {
+                        // Get content from editors
+                        const ingredientContent = editorIngredient.root.innerHTML;
+                        const cookingStepContent = editorCookingStep.root.innerHTML;
+
+                        console.log("Ingredient content:", ingredientContent);
+                        console.log("CookingStep content:", cookingStepContent);
+
+                        // Find hidden inputs
+                        const ingredientHidden = document.getElementById("IngredientHidden");
+                        const cookingStepHidden = document.getElementById("CookingStepHidden");
+
+                        if (ingredientHidden && cookingStepHidden) {
+                            // Set values to hidden inputs
+                            ingredientHidden.value = ingredientContent;
+                            cookingStepHidden.value = cookingStepContent;
+
+                            console.log("Hidden input values set:");
+                            console.log("Ingredient hidden value:", ingredientHidden.value);
+                            console.log("CookingStep hidden value:", cookingStepHidden.value);
+
+                            // Now submit the form
+                            form.submit();
+                        } else {
+                            console.error("Hidden inputs not found!");
+                            alert("Error: Could not find hidden input fields!");
+                        }
+                    } catch (error) {
+                        console.error("Error in form submission:", error);
+                        alert("An error occurred while preparing the form data.");
+                    }
+                });
+            } else {
+                console.error("Form not found!");
+            }
+
+            // Alternative approach: Update hidden fields on editor content change
+            editorIngredient.on('text-change', function () {
+                const ingredientHidden = document.getElementById("IngredientHidden");
+                if (ingredientHidden) {
+                    ingredientHidden.value = editorIngredient.root.innerHTML;
+                }
+            });
+
+            editorCookingStep.on('text-change', function () {
+                const cookingStepHidden = document.getElementById("CookingStepHidden");
+                if (cookingStepHidden) {
+                    cookingStepHidden.value = editorCookingStep.root.innerHTML;
+                }
+            });
+        });
+    </script>
+  <script>
+    function openRejectModal() {
+        const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+        modal.show();
+    }
+
+    function submitWithAjax(status) {
+        const id = $("#RecipeId").val();
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        Swal.fire({
+            title: `Are you sure you want to ${status.toLowerCase()} this recipe?`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, confirm"
+        }).then(result => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/Admin/UpdateRecipeStatus/${id}/${status}`,
+                    type: "POST",
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            Swal.fire("Success", res.message, "success")
+                                .then(() => window.location.href = "/Admin/ManagementRecipe");
+                        } else {
+                            Swal.fire("Error", res.message || "Update failed", "error");
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.fire("Error", xhr.responseText || "System error", "error");
+                    }
+                });
+            }
+        });
+    }
+
+    function confirmReject() {
+        const id = $("#RecipeId").val();
+        const reason = $("#rejectReason").val();
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        if (!reason.trim()) {
+            Swal.fire("Validation", "Please provide a reason for rejection.", "warning");
+            return;
+        }
+
+        $.ajax({
+            url: `/Admin/UpdateRecipeStatus/${id}/Rejected`,
+            type: "POST",
+            data: { rejectNote: reason },
+            headers: {
+                'RequestVerificationToken': token
+            },
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire("Rejected", res.message, "success")
+                        .then(() => window.location.href = "/Admin/ManagementRecipe");
+                } else {
+                    Swal.fire("Error", res.message || "Update failed", "error");
+                }
+            },
+            error: function (xhr) {
+                Swal.fire("Error", xhr.responseText || "System error", "error");
+            }
+        });
+    }
+</script>
+
+
+
+
+</body>
+
+
+<!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+
+</html>

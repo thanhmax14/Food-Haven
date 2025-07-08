@@ -295,7 +295,19 @@ $(document).ready(function () {
                     console.log("   ➤ Store ID:", storeId);
                     console.log("   ➤ Follow status:", isFollowing ? "Followed" : "Unfollowed");
 
-                    // Kiểm tra nếu đang ở trang ManagementFollowedStores
+                    // Cập nhật nút follow/unfollow trên mọi trang
+                    const followBtn = $(`#followBtn[data-store-id="${storeId}"], .unfollow-btn[data-store-id="${storeId}"]`);
+                    if (followBtn.length) {
+                        if (isFollowing) {
+                            followBtn.html('<i class="fas fa-heart me-1 text-danger"></i> FOLLOWED');
+                        } else {
+                            followBtn.html('<i class="fas fa-heart me-1"></i> FOLLOW');
+                        }
+                    } else {
+                        console.warn(`⚠️ No follow button found for store ID: ${storeId}`);
+                    }
+
+                    // Xử lý cho trang ManagementFollowedStores
                     if (window.location.pathname === "/Home/ManagementFollowedStores") {
                         if (isFollowing) {
                             console.log("📥 Sending AJAX GET to load store card...");
@@ -305,7 +317,7 @@ $(document).ready(function () {
                                     $('#store-container').prepend(html);
                                 } else {
                                     console.warn("⚠️ #store-container not found on this page. Reloading...");
-                                    window.location.reload(); // Làm mới trang nếu không có #store-container
+                                    window.location.reload();
                                 }
                             }).fail(function (xhr) {
                                 console.error("❌ Failed to load card from server");
@@ -325,25 +337,13 @@ $(document).ready(function () {
                             });
                         } else {
                             console.log("🗑 Removing card with store ID:", storeId);
-                            $('.store-item[data-id="' + storeId + '"]').remove();
+                            $(`.store-item[data-id="${storeId}"]`).remove();
                         }
-                    } else if (isFollowing) {
-                        // Nếu không ở trang ManagementFollowedStores, hiển thị thông báo
-                        @* new Notify({
-                            status: 'success',
-                            title: 'Follow Update',
-                            text: 'You followed a store. Visit your followed stores to see it!',
-                            effect: 'fade',
-                            speed: 300,
-                            showIcon: true,
-                            autoclose: true,
-                            autotimeout: 3000,
-                            position: 'right top'
-                        }); *@
                     }
 
+                    // Hiển thị thông báo
                     new Notify({
-                        status: 'info',
+                        status: 'success',
                         title: 'Follow Update',
                         text: isFollowing ? 'You followed a store.' : 'You unfollowed a store.',
                         effect: 'fade',

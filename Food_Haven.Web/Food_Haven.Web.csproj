@@ -14,11 +14,14 @@
     <None Remove="wwwroot\microsoft\**" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <Content Remove="Views\Admin\ManagerUser.cshtml" />
-  </ItemGroup>
+  </ItemGroup> -->
 
-
+<!-- Thêm mục này để bao gồm view -->
+  <!-- <ItemGroup>
+    <Content Include="Views\Admin\ManagerUser.cshtml" CopyToOutputDirectory="Always" />
+  </ItemGroup> -->
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="8.0.11" />
@@ -46,7 +49,7 @@
 	  <Folder Include="assets\imgs\theme\icons\" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<!-- <ItemGroup>
 	  <UpToDateCheckInput Remove="Views\Admin\ManagerUser.cshtml" />
 	</ItemGroup>
 
@@ -56,6 +59,6 @@
 
 	<ItemGroup>
 	  <None Include="Views\Admin\ManagerUser.cshtml" />
-	</ItemGroup>
+	</ItemGroup> -->
 
 </Project>

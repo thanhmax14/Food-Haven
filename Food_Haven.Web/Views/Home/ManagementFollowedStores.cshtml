@@ -243,63 +243,52 @@
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
 
-    <script>
-        $(document).ready(function () {
-            $('.unfollow-btn').on('click', function (e) {
-                e.preventDefault();
-                const storeId = $(this).data('store-id');
-                const $button = $(this);
+ <script>
+    $(document).ready(function () {
+        $(document).on('click', '.unfollow-btn', function (e) {
+            e.preventDefault();
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'Do you really want to unfollow this store?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, unfollow',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: '/Home/UnfollowStore',
-                            method: 'POST',
-                            data: { storeId: storeId },
-                            success: function (res) {
-                                if (res.success) {
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Success',
-                                        text: res.message,
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
+            const storeId = $(this).data('store-id');
+            const $button = $(this);
 
-                                    // Remove the current card (button is inside vendor-wrap)
-                                    $button.closest('.vendor-wrap').parent().remove();
-                                } else {
-                                    new Notify({
-                                        status: 'error',
-                                        title: 'Error',
-                                        text: res.message,
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                }
-                            },
-                            error: function () {
+            // Show confirmation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to unfollow this store?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, unfollow',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Home/UnfollowStore',
+                        method: 'POST',
+                        data: { storeId: storeId },
+                        success: function (res) {
+                            if (res.success) {
+                                new Notify({
+                                    status: 'success',
+                                    title: 'Unfollowed',
+                                    text: res.message || 'You have unfollowed the store.',
+                                    effect: 'fade',
+                                    speed: 300,
+                                    showIcon: true,
+                                    autoclose: true,
+                                    autotimeout: 3000,
+                                    position: 'right top'
+                                });
+
+                                $button.closest('.vendor-wrap').parent().fadeOut(300, function () {
+                                    $(this).remove();
+                                });
+                            } else {
                                 new Notify({
                                     status: 'error',
-                                    title: 'Error',
-                                    text: 'Something went wrong. Please try again later.',
+                                    title: 'Failed',
+                                    text: res.message || 'Unable to unfollow the store.',
                                     effect: 'fade',
                                     speed: 300,
                                     showIcon: true,
@@ -308,12 +297,27 @@
                                     position: 'right top'
                                 });
                             }
-                        });
-                    }
-                });
+                        },
+                        error: function () {
+                            new Notify({
+                                status: 'error',
+                                title: 'Error',
+                                text: 'An error occurred. Please try again later.',
+                                effect: 'fade',
+                                speed: 300,
+                                showIcon: true,
+                                autoclose: true,
+                                autotimeout: 3000,
+                                position: 'right top'
+                            });
+                        }
+                    });
+                }
             });
         });
-    </script>
+    });
+</script>
+
 
 
    
