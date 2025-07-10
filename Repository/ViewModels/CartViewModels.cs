@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository.ViewModels
 {
@@ -11,25 +8,29 @@ namespace Repository.ViewModels
         public Guid CartID { get; set; }
         public Guid ProductID { get; set; }
         public Guid ProductTypeID { get; set; }
+
         public int quantity { get; set; } = 0;
         public string? img { get; set; }
         public string? ProductName { get; set; }
         public string? ProductTyName { get; set; }
+
         public float vote { get; set; }
         public decimal price { get; set; } = 0;
         public decimal Subtotal { get; set; }
         public int Stock { get; set; }
         public int Rating { get; set; } = 5;
+
         public Guid StoreID { get; set; }
-        public string StoreName { get; set; } // nếu bạn muốn hiện tên cửa hàng
+        public string StoreName { get; set; } = string.Empty;
 
-        public string UserID { get; set; }
-
+        // Xoá nếu không dùng
+        // public string UserID { get; set; }
     }
+
     public class StoreCartViewModel
     {
-        public int StoreID { get; set; }
-        public string StoreName { get; set; }
-        public List<CartViewModels> CartItems { get; set; }
+        public Guid StoreID { get; set; } // sửa lại từ int → Guid để khớp với CartViewModels
+        public string StoreName { get; set; } = string.Empty;
+        public List<CartViewModels> CartItems { get; set; } = new();
     }
 }

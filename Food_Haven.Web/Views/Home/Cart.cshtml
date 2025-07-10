@@ -1,4 +1,5 @@
-@model List<Repository.ViewModels.CartViewModels>
+@using Repository.ViewModels
+@model List<Repository.ViewModels.StoreCartViewModel>
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 
@@ -284,81 +285,78 @@
             <div class="row">
                 <div class="col-lg-8">
                     <div id = "cart-container1" class="table-responsive shopping-summery">
-                        <table class="table table-wishlist">
-                            <thead>
-                                <tr class="main-heading">
-                                    <th class="custome-checkbox start pl-30">
-                                        <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="">
-                                        <label class="form-check-label" for="exampleCheckbox11"></label>
-                                    </th>
-                                    <th scope="col">Product</th>
-                                    <th scope="col">ProductName</th>
-                                    <th scope="col">Unit Price</th>
-                                    <th scope="col">Quantity</th>
-                                    <th scope="col">Subtotal</th>
-                                    <th scope="col" class="end">Remove</th>
-                                </tr>
-                            </thead>
-                           <tbody>
-    @foreach (var item in Model)
-    {
-        <tr class="@(item.quantity > item.Stock ? "outofstock" : "")">
-            <td class="custome-checkbox pl-30">
-                <input class="form-check-input" type="checkbox" name="checkbox[]" id="checkbox-@item.ProductTypeID" value="@item.ProductTypeID">
-                <label class="form-check-label" for="checkbox-@item.ProductTypeID"></label>
-            </td>
-            <td class="image product-thumbnail">
-                <a  asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductID">
-                <img src="@(item.img ?? "/images/default-product.png")" alt="@(item.ProductTyName ?? "Sản phẩm không tên")">
-                </a>
-            </td>
-            <td class="product-des product-name">
-            <h6 class="mb-5">
-                <a class="product-name mb-10 text-heading" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductID">
-                    @(item.ProductTyName ?? "Sản phẩm không tên")
-                </a>
-            </h6>
-                       @*      <div class="product-rate-cover">
-                    <div class="product-rate d-inline-block">
-                        <div class="product-rating" style="width:@( (item.Rating / 5.0) * 100 )%"></div>
-                    </div>
-                    <span class="font-small ml-5 text-muted">@item.Rating</span>
-                </div>
- *@
-              @*   <!-- Thêm chỗ để hiển thị Product.ID nếu cần -->
-                <span id="product-id-@item.ProductTypeID" class="product-id"></span> *@
-            </td>
-            <td class="price" data-title="Price">
-                <h4 class="text-body" id="price-@item.ProductTypeID">@item.price</h4>
-            </td>
-            <td class="text-center detail-info" data-title="Stock">
-                <div class="detail-extralink mr-15">
-                    <div class="detail-qty border radius">
-                        <a href="#" class="qty-down" data-id="@item.ProductTypeID">
-                            <i class="fi-rs-angle-small-down"></i>
-                        </a>
-                        <input type="text" name="quantity" class="qty-val" value="@item.quantity"
-                               data-id="@item.ProductTypeID" data-stock="@item.Stock" min="1">
-                        <a href="#" class="qty-up" data-id="@item.ProductTypeID">
-                            <i class="fi-rs-angle-small-up"></i>
-                        </a>
-                    </div>
-                </div>
-            </td>
-            <td class="price" data-title="Subtotal">
-                <h4 class="text-brand" id="subtotal-@item.ProductTypeID">@item.Subtotal</h4>
-            </td>
-           <td class="action text-center" data-title="Remove">
-    <a type="button" class="text-body delete-cart" data-id="@item.CartID">
-        <i class="fi-rs-trash"></i>
-    </a>
-</td>
-        </tr>
-    }
-</tbody>
+                     @foreach (var store in Model)
+{
+    <div class="store-cart mb-5">
+        <h4 class="mb-3 text-primary">🛒Store: @store.StoreName</h4>
 
+        <table class="table table-wishlist">
+            <thead>
+                <tr class="main-heading">
+                    <th class="custome-checkbox start pl-30">
+                        <input class="form-check-input select-all" type="checkbox" id="select-all-@store.StoreID" data-store-id="@store.StoreID" />
+                        <label class="form-check-label" for="select-all-@store.StoreID"></label>
+                    </th>
+                    <th scope="col">Product</th>
+                    <th scope="col">ProductName</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Subtotal</th>
+                    <th scope="col" class="end">Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in store.CartItems)
+                {
+                    <tr class="@(item.quantity > item.Stock ? "outofstock" : "")">
+                        <td class="custome-checkbox pl-30">
+                            <input class="form-check-input cart-item" type="checkbox" name="checkbox[]" data-store-id="@store.StoreID" id="checkbox-@item.ProductTypeID" value="@item.ProductTypeID">
+                            <label class="form-check-label" for="checkbox-@item.ProductTypeID"></label>
+                        </td>
+                        <td class="image product-thumbnail">
+                            <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductID">
+                                <img src="@(item.img ?? "/images/default-product.png")" alt="@(item.ProductTyName ?? "Sản phẩm không tên")" width="70">
+                            </a>
+                        </td>
+                        <td class="product-des product-name">
+                            <h6 class="mb-5">
+                                <a class="product-name mb-10 text-heading" asp-controller="Home" asp-action="ProductDetail" asp-route-id="@item.ProductID">
+                                    @(item.ProductTyName ?? "Sản phẩm không tên")
+                                </a>
+                            </h6>
+                        </td>
+                        <td class="price" data-title="Price">
+                            <h4 class="text-body">@item.price.ToString("N0") đ</h4>
+                        </td>
+                        <td class="text-center detail-info" data-title="Stock">
+                            <div class="detail-extralink mr-15">
+                                <div class="detail-qty border radius">
+                                    <a href="#" class="qty-down" data-id="@item.ProductTypeID">
+                                        <i class="fi-rs-angle-small-down"></i>
+                                    </a>
+                                    <input type="text" name="quantity" class="qty-val" value="@item.quantity"
+                                           data-id="@item.ProductTypeID" data-stock="@item.Stock" min="1">
+                                    <a href="#" class="qty-up" data-id="@item.ProductTypeID">
+                                        <i class="fi-rs-angle-small-up"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="price" data-title="Subtotal">
+                            <h4 class="text-brand">@item.Subtotal.ToString("N0") đ</h4>
+                        </td>
+                        <td class="action text-center" data-title="Remove">
+                            <a type="button" class="text-body delete-cart" data-id="@item.CartID">
+                                <i class="fi-rs-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
 
-                        </table>
                     </div>
                     <div class="divider-2 mb-30"></div>
                     <!-- Nút chọn voucher -->
@@ -693,10 +691,16 @@
                     <div class="border p-md-4 cart-totals ml-30">
                         <div class="table-responsive">
                             <table class="table no-border">
-                              @foreach (var item in Model)
-                {
-                    total += item.Subtotal; // 🔥 Cộng dồn Subtotal của từng sản phẩm
-                }
+                          
+
+@foreach (var store in Model)
+{
+    foreach (var cartItem in store.CartItems)
+    {
+        total += cartItem.Subtotal;
+    }
+}
+
                                 
                                      <tbody>
 
@@ -999,211 +1003,44 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
    <script>
-$(document).ready(function () {
-    var pendingRequests = {};
-    var isProcessing = false;
-    var throttleTimeout = 800;
+  $(document).ready(function () {
+    var quantityQueue = {}; // Hàng đợi lưu các thay đổi số lượng
+    var debounceTimeout = 500; // Thời gian debounce (ms)
+    var isProcessing = false; // Biến kiểm soát trạng thái xử lý
+    var isButtonClick = false; // Biến phân biệt click nút vs nhập trực tiếp
 
-    console.log("Script initialized at: ", new Date());
-
-    function checkStock() {
-        $("input.qty-val").each(function () {
-            var inputField = $(this);
-            var productTypeId = inputField.data("id");
-            if (!productTypeId) {
-                console.error("ProductTypeID is not defined for input:", inputField);
-                return;
-            }
-            var stockQty = parseInt(inputField.attr("data-stock")) || 0;
-            var currentQty = parseInt(inputField.val()) || 0;
-            var row = inputField.closest("tr");
-
-            console.log("Checking product:", productTypeId);
-            console.log("Stock quantity:", stockQty, "🛒 Cart quantity:", currentQty);
-
-                 if (currentQty > stockQty) {
-               row.addClass("outofstock");
-                  if (!row.find(".out-of-stock-label").length) {
-                            row.find(".product-des").append('<span class="out-of-stock-label">Quantity exceeds available stock, please reduce it!</span>');
-                        }
-                        row.find(".qty-up").prop("disabled", true);
-                        row.find(".qty-down").prop("disabled", false);
-            } else {
-                row.removeClass("outofstock");
-                row.find(".out-of-stock-label").remove();
-                row.find(".qty-up").prop("disabled", false);
-                row.find(".qty-down").prop("disabled", currentQty <= 1);
-            }
-
-            if (currentQty >= stockQty) {
-                $(".qty-up[data-id='" + productTypeId + "']").hide();
-            } else {
-                $(".qty-up[data-id='" + productTypeId + "']").show();
-            }
-            if (currentQty <= 1) {
-                $(".qty-down[data-id='" + productTypeId + "']").hide();
-            } else {
-                $(".qty-down[data-id='" + productTypeId + "']").show();
-            }
-        });
-    }   
-
-    checkStock();
-
-    function throttle(func, wait) {
-        var timeout = null;
-        var previous = 0;
-        return function () {
-            var now = Date.now();
-            var remaining = wait - (now - previous);
-            var context = this, args = arguments;
-            if (remaining <= 0) {
-                if (timeout) {
-                    clearTimeout(timeout);
-                    timeout = null;
-                }
-                previous = now;
-                func.apply(context, args);
-            } else if (!timeout) {
-                timeout = setTimeout(function () {
-                    previous = Date.now();
-                    timeout = null;
-                    func.apply(context, args);
-                }, remaining);
-            }
-        };
-    }
-
-    $(".qty-up, .qty-down").off("click").off("dblclick").on("click", throttle(function (e) {
-        e.preventDefault();
-
-        console.log("Click triggered for ProductTypeID:", $(this).data("id"), "at", new Date());
-
-        if (isProcessing) {
-            console.log("Global request is being processed...");
-            return;
-        }
-
-        var button = $(this);
-        var productTypeId = button.data("id");
-        if (!productTypeId) {
-            console.error("ProductTypeID is not defined for button:", button);
-            alert("Error: ProductTypeID not found!");
-            return;
-        }
-        productTypeId = productTypeId.toString();
-
-        if (pendingRequests[productTypeId]) {
-            console.log("Request already in progress for ProductTypeID:", productTypeId);
-            return;
-        }
-
-        var inputField = $("input[data-id='" + productTypeId + "']");
-        if (inputField.length === 0) {
-            console.error("Cannot find input with ProductTypeID:", productTypeId);
-            alert("Error: Quantity input not found!");
-            return;
-        }
-
-        var currentQty = parseInt(inputField.val()) || 0;
-        console.log("Before update - ProductTypeID:", productTypeId, "CurrentQty:", currentQty, "Time:", new Date());
+    function checkStock(inputField) {
+        var productTypeId = inputField.data("id");
+        if (!productTypeId) return;
 
         var stockQty = parseInt(inputField.attr("data-stock")) || 0;
-        var isIncrease = button.hasClass("qty-up");
-        var newQty = isIncrease ? currentQty + 1 : currentQty - 1;
+        var currentQty = parseInt(inputField.val()) || 0;
+        var row = inputField.closest("tr");
 
-        console.log("Calculated newQty:", newQty, "StockQty:", stockQty);
+        // Xóa nhãn cũ
+        row.find(".out-of-stock-label").remove();
+        row.removeClass("outofstock");
 
-        if (isIncrease && newQty > stockQty) {
-            alert("The order quantity has reached the stock limit (" + stockQty + ").");
-            inputField.val(stockQty);
-            $(".qty-up[data-id='" + productTypeId + "']").hide();
-            checkStock();
-            return;
+        if (currentQty > stockQty) {
+            row.addClass("outofstock");
+            row.find(".product-des").append('<span class="out-of-stock-label text-danger small">Số lượng vượt kho!</span>');
+            row.find(".qty-up").prop("disabled", true);
+            row.find(".qty-down").prop("disabled", false);
+        } else {
+            row.find(".qty-up").prop("disabled", false);
+            row.find(".qty-down").prop("disabled", currentQty <= 1);
         }
 
-        if (!isIncrease && newQty < 1) {
-            alert("Minimum quantity is 1.");
-            return;
-        }
-
-        var buttons = $(".qty-up[data-id='" + productTypeId + "'], .qty-down[data-id='" + productTypeId + "']");
-        buttons.prop("disabled", true);
-        button.html('<i class="fas fa-spinner fa-spin"></i>');
-
-        pendingRequests[productTypeId] = true;
-        isProcessing = true;
-
-        $.ajax({
-            url: "/Home/CheckQuantity",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({
-                ProductTypeID: productTypeId,
-                quantity: newQty
-            }),
-            success: function (response) {
-                console.log("✅ Server response:", response, "Time:", new Date());
-                if (response.success) {
-                    var serverQty = response.quantity !== undefined ? response.quantity : newQty;
-                    inputField.val(serverQty);
-                    console.log("Quantity updated successfully:", serverQty);
-
-                    if (response.isMaxStock) {
-                        alert("⚠️ " + response.message);
-                    }
-                    if (response.productId) {
-                        console.log(" Product ID:", response.productId);
-                        $("#product-id-" + productTypeId).text(response.productId);
-                    }
-
-                    if (serverQty >= stockQty) {
-                        $(".qty-up[data-id='" + productTypeId + "']").hide();
-                    } else {
-                        $(".qty-up[data-id='" + productTypeId + "']").show();
-                    }
-                    if (serverQty <= 1) {
-                        $(".qty-down[data-id='" + productTypeId + "']").hide();
-                    } else {
-                        $(".qty-down[data-id='" + productTypeId + "']").show();
-                    }
-
-                    var unitPrice = parseFloat($("#price-" + productTypeId).text()) || 0;
-                    var newSubtotal = serverQty * unitPrice;
-                    $("#subtotal-" + productTypeId).text(newSubtotal.toFixed(2));
-                    updateTotalPrice();
-                    checkStock();
-                } else {
-                    alert("⚠️ Update failed: " + response.message);
-                    inputField.val(currentQty);
-                    console.log(" Quantity reverted to:", currentQty);
-                    checkStock();
-                }
-            },
-            error: function (xhr) {
-                console.error("❌ AJAX error:", xhr, "Time:", new Date());
-                alert("⚠️ Server error, please try again!");
-                inputField.val(currentQty);
-                console.log(" Quantity reverted due to error:", currentQty);
-                checkStock();
-            },
-            complete: function () {
-                delete pendingRequests[productTypeId];
-                isProcessing = false;
-                buttons.prop("disabled", false);
-                button.html(isIncrease ? '<i class="fi-rs-angle-small-up"></i>' : '<i class="fi-rs-angle-small-down"></i>');
-            }
-        });
-    }, throttleTimeout)).on("dblclick", function (e) {
-        e.preventDefault();
-        console.log(" Double-click detected and prevented for ProductTypeID:", $(this).data("id"));
-    });
+        $(".qty-up[data-id='" + productTypeId + "']").toggle(currentQty < stockQty);
+        $(".qty-down[data-id='" + productTypeId + "']").toggle(currentQty > 1);
+    }
 
     function updateTotalPrice() {
         var total = 0;
-        var hasCheckedItems = $("input.form-check-input:checked").length > 0;
+        var hasCheckedItems = $("input.cart-item:checked").length > 0;
+
         if (hasCheckedItems) {
-            $("input.form-check-input:checked").each(function () {
+            $("input.cart-item:checked").each(function () {
                 var row = $(this).closest("tr");
                 if (!row.hasClass("outofstock")) {
                     var subtotal = parseFloat(row.find("td.price h4.text-brand").text().replace(/,/g, '')) || 0;
@@ -1216,9 +1053,178 @@ $(document).ready(function () {
                 total += subtotal;
             });
         }
-        $("#cart-total").text(total.toFixed(2));
-        console.log(" Cart total updated:", total.toFixed(2));
+
+        $("#cart-total").text(total.toLocaleString("en-US"));
     }
+
+    function debounce(func, wait) {
+        var timeout;
+        return function () {
+            var context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+
+    function processQuantityChange(productTypeId, newQty, inputField, callback) {
+        var stockQty = parseInt(inputField.attr("data-stock")) || 0;
+
+        // Kiểm tra số lượng hợp lệ
+        if (newQty < 1) {
+            newQty = 1;
+               alert("Minimum quantity is 1.");
+        } else if (newQty > stockQty) {
+            newQty = stockQty;
+    alert("Quantity exceeds available stock!");
+        }
+
+        // Cập nhật hàng đợi
+        quantityQueue[productTypeId] = { quantity: newQty, input: inputField, callback: callback };
+
+        // Gửi yêu cầu AJAX (được debounce) chỉ khi không đang xử lý
+        if (!isProcessing) {
+            sendQuantityUpdate(productTypeId);
+        }
+    }
+
+    var sendQuantityUpdate = debounce(function (productTypeId) {
+        if (isProcessing || !quantityQueue[productTypeId]) return;
+
+        isProcessing = true;
+        var queuedItem = quantityQueue[productTypeId];
+        var newQty = queuedItem.quantity;
+        var inputField = queuedItem.input;
+        var callback = queuedItem.callback;
+
+        // Lưu giá trị gốc để rollback nếu cần
+        var originalValue = inputField.val();
+
+        // Xóa khỏi hàng đợi
+        delete quantityQueue[productTypeId];
+
+        $.ajax({
+            url: "/Home/CheckQuantity",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ ProductTypeID: productTypeId, quantity: newQty }),
+            success: function (res) {
+                if (res.success) {
+                    // Tạm thời tắt event listener để tránh trigger lại
+                    var inputElement = inputField[0];
+                    var clonedElement = inputElement.cloneNode(true);
+                    
+                    // Cập nhật giá trị mà không trigger event
+                    inputElement.parentNode.replaceChild(clonedElement, inputElement);
+                    $(clonedElement).val(res.quantity);
+                    
+                    // Đăng ký lại event listener
+                    $(clonedElement).on("input", inputHandler);
+                    
+                    var unitPrice = parseFloat($("#price-" + productTypeId).text().replace(/,/g, '')) || 0;
+                    var subtotal = res.quantity * unitPrice;
+                    $("#subtotal-" + productTypeId).text(subtotal.toLocaleString("en-US") + " đ");
+                    checkStock($(clonedElement));
+                    updateTotalPrice();
+                    if (callback) callback(true);
+                } else {
+                    alert("⚠️ " + res.message);
+                    inputField.val(originalValue);
+                    checkStock(inputField);
+                    updateTotalPrice();
+                    if (callback) callback(false);
+                }
+            },
+            error: function () {
+                alert("⚠️ Lỗi server.");
+                inputField.val(originalValue);
+                checkStock(inputField);
+                updateTotalPrice();
+                if (callback) callback(false);
+            },
+            complete: function () {
+                isProcessing = false;
+                isButtonClick = false; // Reset flag
+                
+                // Kiểm tra nếu còn yêu cầu trong hàng đợi
+                if (Object.keys(quantityQueue).length > 0) {
+                    var nextProductId = Object.keys(quantityQueue)[0];
+                    sendQuantityUpdate(nextProductId);
+                }
+            }
+        });
+    }, debounceTimeout);
+
+    // Định nghĩa input handler để có thể tái sử dụng
+    var inputHandler = debounce(function () {
+        // Bỏ qua nếu là từ button click
+        if (isButtonClick) return;
+        
+        var input = $(this);
+        var productTypeId = input.data("id");
+        if (!productTypeId) return;
+
+        var newQty = parseInt(input.val()) || 1;
+        processQuantityChange(productTypeId, newQty, input);
+    }, debounceTimeout);
+
+    // Xử lý tăng/giảm bằng nút
+    $(".qty-up, .qty-down").on("click", function (e) {
+        e.preventDefault();
+        isButtonClick = true; // Đánh dấu là button click
+        
+        var button = $(this);
+        var productTypeId = button.data("id");
+        if (!productTypeId) return;
+
+        var inputField = $("input[data-id='" + productTypeId + "']");
+        var currentQty = parseInt(inputField.val()) || 0;
+        var isIncrease = button.hasClass("qty-up");
+        var newQty = isIncrease ? currentQty + 1 : currentQty - 1;
+
+        button.html('<i class="fas fa-spinner fa-spin"></i>');
+        processQuantityChange(productTypeId, newQty, inputField, function (success) {
+            button.html(isIncrease ? '<i class="fi-rs-angle-small-up"></i>' : '<i class="fi-rs-angle-small-down"></i>');
+        });
+    });
+
+    // Xử lý nhập trực tiếp vào ô input
+    $(".qty-val").on("input", inputHandler);
+
+    // Chọn sản phẩm → bỏ chọn store khác
+    $(".cart-item").on("change", function () {
+        var storeId = $(this).data("store-id");
+
+        if ($(this).is(":checked")) {
+            $(".cart-item").not("[data-store-id='" + storeId + "']").prop("checked", false);
+            $(".select-all").not("[data-store-id='" + storeId + "']").prop("checked", false);
+        }
+
+        var totalItems = $(".cart-item[data-store-id='" + storeId + "']").length;
+        var checkedItems = $(".cart-item[data-store-id='" + storeId + "']:checked").length;
+        $(".select-all[data-store-id='" + storeId + "']").prop("checked", totalItems === checkedItems);
+
+        updateTotalPrice();
+    });
+
+    // Chọn select-all store → bỏ store khác
+    $(".select-all").on("change", function () {
+        var storeId = $(this).data("store-id");
+        var isChecked = $(this).is(":checked");
+
+        $(".select-all").not(this).prop("checked", false);
+        $(".cart-item").not("[data-store-id='" + storeId + "']").prop("checked", false);
+        $(".cart-item[data-store-id='" + storeId + "']").prop("checked", isChecked);
+
+        updateTotalPrice();
+    });
+
+    // Khởi động ban đầu
+    $("input.qty-val").each(function () {
+        checkStock($(this));
+    });
+    updateTotalPrice();
 });
 </script>
 

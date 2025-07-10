@@ -50,6 +50,7 @@ using Food_Haven.Web.Hubs;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.StoreFollowers;
+using SixLabors.ImageSharp.Processing;
 
 
 
@@ -164,16 +165,16 @@ namespace Food_Haven.Web.Controllers
                 {
                     if (list.Any())
                     {
-                        foreach(var item in list)
+                        foreach (var item in list)
                         {
-                            
+
                             var checkWish = await _wishlist.FindAsync(u => u.UserID == user.Id && u.ProductID == item.ID);
                             if (checkWish != null)
                             {
-                               item.IsWishList = true;
+                                item.IsWishList = true;
                             }
-                           
-                        }   
+
+                        }
                     }
                 }
 
@@ -983,58 +984,76 @@ namespace Food_Haven.Web.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            // Lấy danh sách giỏ hàng theo User
             var carts = await _cart.ListAsync(x => x.UserID == user.Id);
 
-            // Lấy tất cả biến thể sản phẩm (chỉ lấy active)
             var productVariantIds = carts.Select(c => c.ProductTypesID).ToList();
             var productVariants = await _productvarian.ListAsync(v => productVariantIds.Contains(v.ID) && v.IsActive);
 
-            // Lấy danh sách ProductID từ các biến thể để truy vấn sản phẩm
             var productIds = productVariants.Select(v => v.ProductID).Distinct().ToList();
             var products = await _product.ListAsync(p => productIds.Contains(p.ID));
 
-            var result = new List<CartViewModels>();
+            // ✅ Lấy StoreID từ danh sách sản phẩm
+            var storeIds = products.Select(p => p.StoreID).Distinct().ToList();
+            var stores = await _storeDetailService.ListAsync(s => storeIds.Contains(s.ID)); // lấy toàn bộ store liên quan
 
-            foreach (var cart in carts)
+            var groupedByStore = carts
+                .GroupBy(cart =>
+                {
+                    var variant = productVariants.FirstOrDefault(v => v.ID == cart.ProductTypesID);
+                    var product = products.FirstOrDefault(p => p.ID == variant?.ProductID);
+                    return product?.StoreID ?? Guid.Empty;
+                });
+
+            var result = new List<StoreCartViewModel>();
+
+            foreach (var group in groupedByStore)
             {
-                // Tìm biến thể từ giỏ hàng
-                var variant = productVariants.FirstOrDefault(v => v.ID == cart.ProductTypesID);
-                if (variant == null)
+                var storeCartItems = new List<CartViewModels>();
+                var storeId = group.Key;
+                var store = stores.FirstOrDefault(s => s.ID == storeId); // ✅ tìm Store theo ID
+
+                foreach (var cart in group)
                 {
-                    continue; // Không có biến thể hợp lệ
+                    var variant = productVariants.FirstOrDefault(v => v.ID == cart.ProductTypesID);
+                    if (variant == null) continue;
+
+                    var product = products.FirstOrDefault(p => p.ID == variant.ProductID);
+                    if (product == null) continue;
+
+                    var productImg = await _productimg.FindAsync(x => x.ProductID == product.ID);
+
+                    storeCartItems.Add(new CartViewModels
+                    {
+                        ProductTypeID = cart.ProductTypesID,
+                        CartID = cart.ID,
+                        ProductID = product.ID,
+                        ProductName = product.Name ?? "Không có tên",
+                        quantity = cart.Quantity,
+                        price = variant.SellPrice,
+                        Subtotal = cart.Quantity * variant.SellPrice,
+                        img = productImg?.ImageUrl ?? "/images/default.jpg",
+                        Stock = variant.Stock,
+                        ProductTyName = variant.Name,
+                        StoreID = storeId,
+                        StoreName = store?.Name ?? "Không rõ cửa hàng"
+                    });
                 }
 
-                // Tìm sản phẩm từ biến thể
-                var product = products.FirstOrDefault(p => p.ID == variant.ProductID);
-                if (product == null)
+                if (storeCartItems.Any())
                 {
-                    continue; // Không có sản phẩm tương ứng
+                    result.Add(new StoreCartViewModel
+                    {
+                        StoreID = storeId,
+                        StoreName = store?.Name ?? "Không rõ cửa hàng",
+                        CartItems = storeCartItems
+                    });
                 }
-
-                // Lấy ảnh sản phẩm
-                var productImg = await _productimg.FindAsync(x => x.ProductID == product.ID);
-
-                // Tạo view model cho giỏ hàng
-                var cartItem = new CartViewModels
-                {
-                    ProductTypeID = cart.ProductTypesID,
-                    CartID = cart.ID,
-                    ProductID = product.ID,
-                    ProductName = product.Name ?? "Không có tên",
-                    quantity = cart.Quantity,
-                    price = variant.SellPrice,
-                    Subtotal = cart.Quantity * variant.SellPrice,
-                    img = productImg?.ImageUrl ?? "/images/default.jpg",
-                    Stock = variant.Stock,
-                    ProductTyName = variant.Name,
-                };
-
-                result.Add(cartItem);
             }
 
-            return View(result);
+            return View(result); // model: List<StoreCartViewModel>
         }
+
+
         [HttpPost]
         public async Task<IActionResult> DeleteCart([FromBody] CartViewModels obj)
         {
@@ -1174,8 +1193,10 @@ namespace Food_Haven.Web.Controllers
             {
                 success = true,
                 message = "Cập nhật số lượng thành công.",
-                productId = product.ID // Trả về Product.ID (ví dụ: 14ac68f0-85a7-45d1-83bb-3d8d2f092f0b)
+                quantity = cartItem.Quantity,
+                productId = obj.ProductTypeID // ✅ Đúng với data-id ở phía client
             });
+
         }
         [HttpGet]
         public async Task<IActionResult> CartPart()
