@@ -1,4 +1,4 @@
-﻿@model List<Repository.ViewModels.StoreViewModel>
+﻿@model Repository.ViewModels.ViewStoreDetailViewModel
 @* @using Newtonsoft.Json *@
 @using System.Text.Json
 
@@ -195,12 +195,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewAdminStore">
+                            <a class="nav-link menu-link action" asp-controller="Admin" asp-action="ViewAdminStore">
                                 <i class="ri-store-2-line"></i> <span>Store</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link action" asp-controller="Admin" asp-action="ViewStoreRegistration">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewStoreRegistration">
                                 <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
                             </a>
                         </li>
@@ -263,12 +263,12 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Registration Store List</h4>
+                            <h4 class="mb-sm-0">Store Details</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
-                                    <li class="breadcrumb-item active">Registration Store List</li>
+                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
+                                    <li class="breadcrumb-item active">Form Layout</li>
                                 </ol>
                             </div>
 
@@ -276,109 +276,153 @@
                     </div>
                 </div>
                 <!-- end page title -->
-
-                <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-xxl-12">
                         <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title mb-0 flex-grow-1">Registration Store List</h4>
-                            </div><!-- end card header -->
+                            <div class="card-header align-items-center d-flex">
+                                <h4 class="card-title mb-0 flex-grow-1">Store Information</h4>
+                            </div>
+                        <div class="border rounded p-3 mb-3">
+                            <form method="post">
+                                <input type="hidden" name="ID" value="@Model.ID" />
 
-                            <div class="card-body">
-                                <div id="table-feedback"></div>
-                            </div><!-- end card-body -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Store Name</label>
+                                            <input type="text" class="form-control" value="@Model.StoreName" readonly />
+                                        </div>
+                                    </div>
 
-                        </div><!-- end card -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Store Owner</label>
+                                            <input type="text" class="form-control" value="@Model.StoreOwner" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Created Date</label>
+                                            <input type="text" class="form-control" value="@Model.CreatedDate.ToString("dd-MM-yyyy")" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Modified Date</label>
+                                            <input type="text" class="form-control" value="@Model.ModifiedDate?.ToString("dd-MM-yyyy")" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Status</label>
+                                            <input type="text" class="form-control" value="@Model.Status" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Is Active</label>
+                                            <input type="text" class="form-control" value="@(Model.IsActive ? "Yes" : "No")" readonly />
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(Model.RejectNote))
+                                    {
+                                        <div class="col-md-12">
+                                            <div class="mb-3">
+                                                <label class="form-label text-danger">Reject Note</label>
+                                                <input type="text" class="form-control text-danger" value="@Model.RejectNote" readonly />
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Short Description</label>
+                                            <input type="text" class="form-control" value="@Model.ShortDescriptions" readonly />
+                                        </div>
+                                    </div>
+
+                                    <style>
+                                        .description-box {
+                                            border: 1px solid #ced4da;
+                                            border-radius: 5px;
+                                            padding: 8px;
+                                            min-height: 40px;
+                                            display: block;
+                                            width: 100%;
+                                            box-sizing: border-box;
+                                            background-color: #f8f9fa;
+                                        }
+                                    </style>
+
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">Long Description</label>
+                                            <textarea class="form-control" rows="5" readonly style="resize: vertical;">
+                                                @Html.Raw(Html.Encode(Model.LongDescriptions))
+                                            </textarea>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Address</label>
+                                            <input type="text" class="form-control" value="@Model.Address" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Phone Number</label>
+                                            <input type="text" class="form-control" value="@Model.Phone" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Image</label>
+                                            <div>
+                                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                                {
+                                                    <img src="@Model.ImageUrl" alt="Store Image" class="img-fluid rounded" style="max-height: 200px;" />
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">No image available</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-12 text-end mt-3">
+                                        <a href="/Admin/ViewStoreRegistration" class="btn btn-secondary me-2">
+                                            <i class="ri-arrow-go-back-line"></i> Back to List
+                                        </a>
+
+                                        @if (Model.Status.ToLower() != "approved")
+                                        {
+                                            <button type="button" class="btn btn-success me-2" onclick="updateStoreStatus('@Model.ID', 'Approved')">
+                                                <i class="ri-check-line"></i> Accept
+                                            </button>
+                                        }
+                                        @if (Model.Status.ToLower() == "pending")
+                                        {
+                                            <button type="button" class="btn btn-danger" onclick="updateStoreStatus('@Model.ID', 'Rejected')">
+                                                <i class="ri-close-line"></i> Reject
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                       </div>
                     </div>
-                    <!-- end col -->
-                </div>
-                <!-- end row -->
-
 
                 <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        if (document.getElementById("table-feedback")) {
-                            let storeData = @Html.Raw(Json.Serialize(Model));
-
-                            new gridjs.Grid({
-                                columns: [
-                                    { name: "STT", width: "60px" },
-                                    { name: "ID", hidden: true },
-                                    { name: "Store Name", width: "200px" },
-                                    { name: "UserName", width: "150px" },
-                                    { name: "Created Date", width: "150px", hidden: true },
-                                    { name: "Modified Date", width: "150px", hidden: true },
-                                    { name: "Short Descriptions", width: "250px" },
-                                    { name: "Long Descriptions", width: "300px", hidden: true },
-                                    { name: "Address", width: "250px" },
-                                    { name: "Phone", width: "150px" },
-                                    {
-                                        name: "Image", hidden: true,
-                                                            width: "100px",
-                                        formatter: (cell) => gridjs.html(`
-                                            <img src="${cell}" alt="Store Image" width="50" height="50" style="border-radius: 5px;">
-                                        `)
-                                    },
-                                    {
-                                        name: "Status",
-                                        width: "150px",
-                                        formatter: (cell) => {
-                                            const statusClassMap = {
-                                                approved: "bg-success-subtle text-success",
-                                                rejected: "bg-danger-subtle text-danger",
-                                                pending: "bg-warning-subtle text-warning"
-                                            };
-
-                                            const statusKey = (cell || "").toLowerCase();
-                                            const statusClass = statusClassMap[statusKey] || "bg-secondary-subtle text-secondary";
-
-                                            // Viết hoa chữ cái đầu
-                                            const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-                                            return gridjs.html(`<span class="badge ${statusClass}">${capitalize(cell)}</span>`);
-                                        }
-                                    },
-                                    {
-                                        name: "Actions",
-                                        width: "120px",
-                                        formatter: (_, row) => {
-                                            let storeId = row.cells[1].data;
-
-                                            return gridjs.html(`
-                                <div class="d-flex flex-wrap">
-                                    <a href="/Admin/ViewStoreDetail/${storeId}" class="btn btn-sm btn-primary me-1 mb-1">
-                                        <i class="ri-eye-line"></i> Details
-                                    </a>
-                                </div>
-                            `);
-                                        }
-                                    }
-                                ],
-                                pagination: {
-                                    enabled: true,
-                                    limit: 10,
-                                    summary: true
-                                },
-                                search: true,
-                                sort: true,
-                                data: storeData.map((store, index) => [
-                                    index + 1, // STT
-                                    store.id,
-                                    store.name,
-                                    store.userName,
-                                    formatDate(store.createdDate),
-                                    formatDate(store.modifiedDate) ?? "N/A",
-                                    store.shortDescriptions,
-                                    store.longDescriptions,
-                                    store.address,
-                                    store.phone,
-                                    store.img,
-                                    store.status
-                                ])
-                            }).render(document.getElementById("table-feedback"));
-                        }
-                    });
-
                     function updateStoreStatus(storeId, newStatus) {
                         let actionText = newStatus === "Approved" ? "Accept" : "Reject";
 
@@ -392,7 +436,7 @@
                             confirmButtonText: `Yes, ${actionText.toLowerCase()} it!`
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                fetch(`/Admin/UpdateStoreStatus/${storeId}/${newStatus}`, {  // Truyền storeId vào URL
+                                fetch(`/Admin/UpdateStoreStatus/${storeId}/${newStatus}`, {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" }
                                 })
@@ -411,43 +455,29 @@
                                         }
                                     })
                                     .catch(error => {
-                                        console.error("Error updating store status:", error);
+                                        console.error("Error:", error);
                                         Swal.fire("Error!", "An unexpected error occurred.", "error");
                                     });
                             }
                         });
                     }
-
-                    // Format ngày (dd/MM/yyyy)
-                    function formatDate(dateString) {
-                        if (!dateString) return "";
-                        let date = new Date(dateString);
-                        return date.toLocaleDateString("en-GB");
-                    }
-
                 </script>
 
-                <!-- end row -->
-
-            </div>
-            <!-- container-fluid -->
-        </div>
-        <!-- End Page-content -->
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © Velzon.
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end d-none d-sm-block">
-                            Design & Develop by EasyFood
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <script>document.write(new Date().getFullYear())</script> © EasyFood.
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-sm-end d-none d-sm-block">
+                                    Design & Develop by EasyFood
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </footer>
             </div>
-        </footer>
-    </div>
     <!-- end main content-->
     </div>
     <!-- END layout-wrapper -->

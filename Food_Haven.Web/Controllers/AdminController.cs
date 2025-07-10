@@ -2427,6 +2427,16 @@ namespace Food_Haven.Web.Controllers
             };
         }
         [HttpGet]
+
+        public async Task<IActionResult> ViewStoreDetail(Guid id)
+        {
+            var model = await _storeService.GetStoreDetailAsync(id);
+            if (model == null)
+                return NotFound();
+
+            return View(model);
+        }
+
         public async Task<IActionResult> RecipeDetail(Guid id)
         {
             var recipe = await _recipeService.GetAsyncById(id);
@@ -2470,6 +2480,7 @@ namespace Food_Haven.Web.Controllers
 
             return View("RecipeDetail", viewModel);
         }
+
 
 
 

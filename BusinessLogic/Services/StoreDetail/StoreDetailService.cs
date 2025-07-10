@@ -200,5 +200,9 @@ namespace BusinessLogic.Services.StoreDetail
         {
             return await _repositorys.GetStoreByUserIdAsync(userId);
         }
+        public async Task<ViewStoreDetailViewModel> GetStoreDetailAsync(Guid storeId)
+        {
+            return await _repositorys.GetStoreDetailWithOwnerAsync(storeId);
+        }
     }
 }
