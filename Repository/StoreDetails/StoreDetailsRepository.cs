@@ -141,42 +141,78 @@ namespace Repository.StoreDetails
         {
             var store = await _context.StoreDetails.FindAsync(storeId);
             if (store == null)
-            {
                 return false;
-            }
 
             store.IsActive = isActive;
             store.ModifiedDate = DateTime.UtcNow;
 
-            // Lấy toàn bộ sản phẩm và biến thể của store
             var products = await _context.Products
                 .Where(p => p.StoreID == storeId)
                 .ToListAsync();
 
             var productIds = products.Select(p => p.ID).ToList();
+
             var productVariants = await _context.ProductTypes
                 .Where(v => productIds.Contains(v.ProductID))
                 .ToListAsync();
 
-            if (!isActive) // Nếu store bị khóa
+            if (!isActive)
             {
+                // 🔒 Khóa cửa hàng → vô hiệu hóa toàn bộ + cập nhật trạng thái banned
                 foreach (var product in products)
                 {
+                    if (product.IsActive == true)
+                    {
+                        product.IsProductBanned = false;
+                    }
+                    else
+                    {
+                        product.IsProductBanned = true;
+                    }
+
                     product.IsActive = false;
                 }
 
                 foreach (var variant in productVariants)
                 {
+                    if (variant.IsActive == true)
+                    {
+                        variant.IsProductTypeBanned = false;
+                    }
+                    else
+                    {
+                        variant.IsProductTypeBanned = true;
+                    }
+
                     variant.IsActive = false;
-                    variant.Stock = 0; // Reset tồn kho về 0
+                    variant.Stock = 0;
                 }
             }
+            else
+            {
+                // 🔓 Mở lại cửa hàng → khôi phục trạng thái nếu KHÔNG bị banned
+                foreach (var product in products)
+                {
+                    if (product.IsProductBanned == false && product.IsActive == false)
+                    {
+                        product.IsActive = true;
+                    }
+                }
 
-            // Nếu store được mở trở lại thì KHÔNG bật lại sản phẩm hoặc biến thể (theo yêu cầu)
+                foreach (var variant in productVariants)
+                {
+                    if (variant.IsProductTypeBanned == false && variant.IsActive == false)
+                    {
+                        variant.IsActive = true;
+                    }
+                }
+            }
 
             await _context.SaveChangesAsync();
             return true;
         }
+
+
 
         public async Task<List<Models.StoreDetails>> GetStoresAsync()
         {
