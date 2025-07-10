@@ -1049,24 +1049,27 @@
             </div>
             <div id="scrollbar">
                 <div class="container-fluid">
-
-
                     <div id="two-column-menu">
                     </div>
                     <ul class="navbar-nav" id="navbar-nav">
                         <li class="menu-title"><span data-key="t-menu">Menu</span></li>
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class="ri-bar-chart-box-line"></i> <span>User and Seller Statistics</span> *@
-                        @*     </a> *@
-                        @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class=" ri-pie-chart-line"></i> <span>Revenue Statistics</span> *@
-                        @*     </a> *@
-                        @* </li> *@
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="Admin" asp-action="Index">
+                                <i class=" ri-pie-chart-line"></i> <span>Revenue Statistics</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
+                            <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link active" asp-controller="Admin" asp-action="Managercomplant">
+                            <i class="ri-error-warning-line"></i> <span>Order Complaint Reports From Seller</span>
+                        </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerUser">
                                 <i class="ri-account-circle-line"></i> <span>User Accounts</span>
                             </a>
                         </li>
@@ -1075,67 +1078,62 @@
                                 <i class="ri-user-add-line"></i> <span>Seller Registration Requests</span>
                             </a>
                         </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewStoreRegistration">
+                            <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
+                        </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewAdminStore">
                                 <i class="ri-store-2-line"></i> <span>Store</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewStoreRegistration">
-                                <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
-                            </a>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementReportStore">
+                            <i class="ri-alert-line"></i> <span>Store Reports From User</span>
+                        </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewCategories">
                                 <i class="ri-folder-2-line"></i> <span>Categories</span>
                             </a>
                         </li>
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class=" ri-store-3-line"></i> <span>Store Types</span> *@
-                        @*     </a> *@
-                        @* </li> *@
                         <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
-                                <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementRecipe">
+                                <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span>
                             </a>
                         </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllIngredientTag">
+                            <i class=" ri-price-tag-3-line"></i> <span>Ingredient Tag</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllTypeOfDish">
+                            <i class="ri-restaurant-line"></i> <span>Type of Dish</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerVoucher">
+                            <i class=" ri-coupon-2-line"></i> <span>Voucher</span>
+                        </a>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="Managercomplant">
-                                <i class="ri-exchange-dollar-line"></i> <span>Manager Complant</span>
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Chat">
+                                <i class="ri-chat-3-line"></i> <span>Chat</span>
                             </a>
                         </li>
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class="ri-alert-line"></i> <span>Store Reports Form User</span> *@
-                        @*     </a> *@
-                        @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class="ri-error-warning-line"></i> <span>Order Complaintt Reports From Seller</span> *@
-                        @*     </a> *@
-                        @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span> *@
-                        @*     </a> *@
-                        @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class=" ri-chat-3-line"></i> <span>Chat</span> *@
-                        @*     </a> *@
-                        @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a class="nav-link menu-link" href=""> *@
-                        @*         <i class="ri-notification-2-line"></i> <span>Notifications</span> *@
-                        @*     </a> *@
-                        @* </li> *@
+                        <!--<li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class="ri-notification-2-line"></i> <span>Notifications</span>
+                            </a>
+                        </li> -->
                     </ul>
                 </div>
-                <!-- Sidebar -->
             </div>
-
-            <div class="sidebar-background"></div>
+            <!-- Sidebar -->
+        </div>
+        <div class="sidebar-background"></div>
         </div>
         <!-- Left Sidebar End -->
         <!-- Vertical Overlay-->

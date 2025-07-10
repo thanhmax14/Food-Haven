@@ -6,9 +6,6 @@
 
 
 <header class="header-area header-style-1 header-height-2">
-    <div class="mobile-promotion">
-        <span>Grand opening, <strong>up to 15%</strong> off all items. Only <strong>3 days</strong> left</span>
-    </div>
     <div class="header-middle header-middle-ptb-1 d-none d-lg-block">
         <div class="container">
             <div class="header-wrap">
@@ -32,9 +29,9 @@
                                 <option>Noodles & Rice</option>
                                 <option>Ice cream</option>
                             </select> *@
-            <input type="text" name="searchName" placeholder="Search for items..." value="@ViewData["SearchKeyword"]" />
-                    <button type="submit"> Search by Product</button> <!-- cần nút submit để gửi -->                 
-                           </form>
+            <input type="text" name="searchName" placeholder="Search By Product..." value="@ViewData["SearchKeyword"]" />
+                            <button class="btn mdi mdi-magnify search-widget-icon" type="submit"></button> <!-- cần nút submit để gửi -->
+                        </form>
                     </div>
                     <div class="header-action-right">
                         <div class="header-action-2">
@@ -71,7 +68,26 @@
                                     <img class="svgInject" alt="Nest" src="~/assets/imgs/theme/icons/icon-heart.svg" />
                                     @* <span class="pro-count blue">6</span> *@
                                 </a>
-                                <a asp-controller="Home" asp-action="Wishlist"><span class="lable">Wishlist</span></a>
+                                <a href=""><span class="lable ml-0">Favorites </span></a>
+                                    <div class="cart-dropdown-wrap cart-dropdown-hm2 account-dropdown">
+                                        <ul>
+                                            <li>
+                                                <a asp-action="Wishlist" asp-controller="Home">
+                                                    <i class="fi fi-rs-heart mr-10"></i>Wishlist
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-action="ManagementFollowedStores" asp-controller="Home">
+                                                    <i class="fi fi-rs-heart mr-10"></i>Followed Stores
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-action="FavoriteRecipes" asp-controller="Users">
+                                                    <i class="fi fi-rs-heart mr-10"></i>Favorite Recipes
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                             </div>
 
                             <div id="cart-container">
@@ -218,10 +234,6 @@
 };
                                 });
                             </script>
-
-
-
-
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 <div class="header-action-icon-2">
