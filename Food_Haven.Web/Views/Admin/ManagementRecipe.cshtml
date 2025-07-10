@@ -32,6 +32,27 @@
     <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* Đồng bộ màu nền toàn bộ phần content */
+        .main-content,
+        .page-content,
+        .card-body,
+        .tab-content,
+        .gridjs-wrapper {
+            background-color: #ffffff !important;
+            /* hoặc đổi sang #f3f3f9 nếu bạn thích nền xám nhẹ */
+        }
+
+        /* Nếu muốn lược bỏ bóng của card (tùy template) */
+        .card-body {
+            box-shadow: none !important;
+        }
+
+        /* Chỉnh màu bảng nếu Grid.js vẫn lệch */
+        .gridjs-table {
+            background-color: #ffffff !important;
+        }
+    </style>
 
 </head>
 
@@ -286,12 +307,13 @@
                     <!-- Tabs -->
                     <ul class="nav nav-tabs mb-3" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#tab-manage" role="tab">Recipe
+                            <a class="nav-link" data-bs-toggle="tab" href="#tab-visible" role="tab">Recipe
                                 Management</a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-visible" role="tab">Visibility
-                                Management</a>
+                            <a class="nav-link active" data-bs-toggle="tab" href="#tab-manage" role="tab">Pending Recipe
+                            </a>
                         </li>
 
                     </ul>
@@ -317,7 +339,7 @@
                         // Table 1: Manage by status
                         const table1Data = recipeData.filter(r => {
                             const status = (r.status || r.Status || "").toLowerCase();
-                            return ["pending", "accept", "reject"].includes(status);
+                            return status === "pending" || status === "rejected"; // Không hiển thị approved
                         });
                         new gridjs.Grid({
                             columns: [
@@ -345,19 +367,14 @@
                                     name: "Action",
                                     formatter: (_, row) => {
                                         const id = row.cells[1].data;
-                                        const status = (row.cells[6].data || "").toLowerCase();
-                                        let btn = "";
-                                        if (status === "pending") {
-                                            btn += `<button class="btn btn-sm btn-success me-1" onclick="updateRecipeStatus('${id}', 'Approved')">Accept</button>`;
-                                            btn += `<button class="btn btn-sm btn-danger me-1" onclick="updateRecipeStatus('${id}', 'Rejected')">Reject</button>`;
-                                        } else if (status === "accept") {
-                                            btn += `<button class="btn btn-sm btn-danger me-1" onclick="updateRecipeStatus('${id}', 'Rejected')">Reject</button>`;
-                                        } else if (status === "reject") {
-                                            btn += `<button class="btn btn-sm btn-success me-1" onclick="updateRecipeStatus('${id}', 'Approved')">Accept</button>`;
-                                        }
+
+                                        // Chỉ hiển thị nút Details
+                                        const btn = `<a class="btn btn-sm btn-primary" href="http://localhost:5057/Admin/RecipeDetail?id=${id}">Details</a>`;
+
                                         return gridjs.html(btn);
                                     }
                                 }
+
                             ],
                             data: table1Data.map((r, index) => [
                                 index + 1,
@@ -372,6 +389,7 @@
                             search: true,
                             sort: true
                         }).render(document.getElementById("table-manage"));
+
 
 
                         // Table 2: Hide / Show

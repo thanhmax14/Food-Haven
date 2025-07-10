@@ -395,11 +395,16 @@
     <div class="d-flex flex-row gap-2 w-100">
         <span class="hit-count has-dot">126k Views</span>
         <span class="hit-count has-dot 
-            @(item.status?.ToLower() == "accept" ? "text-success" :
-              item.status?.ToLower() == "pending" ? "text-warning" :
-              item.status?.ToLower() == "reject" ? "text-danger" : "")">
-            @item.status
-        </span>
+    @(item.status?.ToLower() == "accept" ? "text-success" :
+      item.status?.ToLower() == "pending" ? "text-warning" :
+      item.status?.ToLower() == "reject" ? "text-danger" : "")">
+    @item.status
+    @if (item.status?.ToLower() == "reject" && !string.IsNullOrWhiteSpace(item.RejectNote))
+    {
+        <text> - Note: @item.RejectNote</text>
+    }
+</span>
+
         <!-- Có thể thêm mục thứ 3 ở đây nếu muốn -->
     </div>
 </div>
@@ -417,7 +422,7 @@
 <form asp-action="EditRecipe" asp-controller="Users" method="post" enctype="multipart/form-data"
       class="edit-recipe-form" data-recipe-id="@item.ID"
       data-selected-tags='@Html.Raw(Json.Serialize(item.SelectedIngredientTags ?? new List<Guid>()))'>
->
+
 
 
 <input type="hidden" name="ID" value="@item.ID" />
@@ -677,35 +682,36 @@
 </div>
 
                                 <!-- Modal Toggle Show/Hide -->
-                                <div class="modal fade" id="toggleActiveModal-@item.ID" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-sm modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title text-danger" id="modal-title-@item.ID">
-                                                    Confirm @(item.IsActive ? "Hide" : "Show")
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
+                              <div class="modal fade" id="toggleActiveModal-@item.ID" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- 🔁 Đổi từ modal-sm thành modal-lg -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="modal-title-@item.ID">
+                    Confirm @(item.IsActive ? "Hide" : "Show")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
 
-                                            <div class="modal-body">
-                                                Are you sure you want to <strong id="modal-status-text-@item.ID">
-                                                    @(item.IsActive ? "hide" : "show")
-                                                </strong> the recipe:
-                                                <div class="text-dark">"<strong>@item.Title</strong>"?</div>
-                                            </div>
+            <div class="modal-body">
+                Are you sure you want to <strong id="modal-status-text-@item.ID">
+                    @(item.IsActive ? "hide" : "show")
+                </strong> the recipe:
+                <div class="text-dark">"<strong>@item.Title</strong>"?</div>
+            </div>
 
-                                            <div class="modal-footer">
-                                                <button class="btn @(item.IsActive ? "btn-danger" : "btn-success")"
-                                                    onclick="toggleRecipeActive('@item.ID', @(item.IsActive.ToString().ToLower()))"
-                                                    id="confirm-btn-@item.ID">
-                                                    Confirm
-                                                </button>
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cancel</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="modal-footer">
+                <button class="btn @(item.IsActive ? "btn-danger" : "btn-success")"
+                        onclick="toggleRecipeActive('@item.ID', @(item.IsActive.ToString().ToLower()))"
+                        id="confirm-btn-@item.ID">
+                    Confirm
+                </button>
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
                             }

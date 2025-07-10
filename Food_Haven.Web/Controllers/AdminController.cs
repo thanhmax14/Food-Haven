@@ -12,6 +12,7 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
+using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
 using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreReports;
@@ -28,6 +29,7 @@ using Repository.BalanceChange;
 using Repository.OrdeDetails;
 using Repository.StoreDetails;
 using Repository.ViewModels;
+using X.PagedList;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -57,15 +59,14 @@ namespace Food_Haven.Web.Controllers
         private readonly IRecipeService _recipeService;
         private readonly IStoreReportServices _storeReport;
         private readonly IProductImageService _productImageService;
-     
+        private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
 
-
-        public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService, 
-            IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance, 
+        public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService,
+            IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance,
             ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail,
-            IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService, 
+            IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService,
             IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport,
-            IProductImageService productImageService)
+            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce)
 
         {
             _ingredienttag = ingredientTagService;
@@ -93,8 +94,9 @@ namespace Food_Haven.Web.Controllers
             _recipeService = recipeService;
             _storeReport = storeReport;
             _productImageService = productImageService;
+            _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
         }
-      
+
         [HttpPost]
         public async Task<IActionResult> HiddenAccount([FromBody] UsersViewModel obj)
         {
@@ -1446,7 +1448,7 @@ namespace Food_Haven.Web.Controllers
         }
 
         [HttpPost("Admin/UpdateRecipeStatus/{id}/{status}")]
-        public async Task<IActionResult> UpdateRecipeStatus(Guid id, string status)
+        public async Task<IActionResult> UpdateRecipeStatus(Guid id, string status, string rejectNote)
         {
             var admin = await _userManager.GetUserAsync(User);
             if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
@@ -1458,7 +1460,6 @@ namespace Food_Haven.Web.Controllers
                 if (recipe == null)
                     return NotFound();
 
-                // Cập nhật trạng thái
                 if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
                 {
                     recipe.status = "Accept";
@@ -1466,6 +1467,7 @@ namespace Food_Haven.Web.Controllers
                 else if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
                 {
                     recipe.status = "Reject";
+                    recipe.RejectNote = rejectNote;
                 }
                 else
                 {
@@ -1487,6 +1489,7 @@ namespace Food_Haven.Web.Controllers
                 });
             }
         }
+
         public async Task<IActionResult> Chat()
         {
             return View();
@@ -1572,8 +1575,7 @@ namespace Food_Haven.Web.Controllers
                         });
                     }
                 }
-                return View(list);
-
+                return View("~/Views/Admin/ManagerUser.cshtml", list);
             }
             catch (Exception ex)
             {
@@ -1583,7 +1585,7 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> Index()
         {
             return View();
-         }
+        }
 
         [AllowAnonymous]
         [HttpGet]
@@ -1674,7 +1676,6 @@ namespace Food_Haven.Web.Controllers
                 var pendingStoreOpen = (await _storedetail.ListAsync(s => s.Status.ToUpper() == "REJECTED")).Count();
                 var userList = await _userManager.Users.ToListAsync();
                 var pendingSellerRequest = userList.Count(u => u.RequestSeller == "1" || u.RequestSeller == "3");
-
                 var allWithdraw = await _balance.ListAsync(b =>
                     b.Method.ToUpper() == "WITHDRAW" &&
                     b.Status.ToUpper() == "PROCESSING"
@@ -2030,7 +2031,8 @@ namespace Food_Haven.Web.Controllers
                 // Gom nhóm theo StoreID
                 var orderDetailsByStore = filteredOrderDetails
                     .Where(od => productTypeStoreMap.ContainsKey(od.ProductTypesID))
-                    .GroupBy(od => {
+                    .GroupBy(od =>
+                    {
                         var productId = productTypeStoreMap[od.ProductTypesID];
                         var product = allProducts.FirstOrDefault(p => p.ID == productId);
                         return product?.StoreID ?? Guid.Empty;
@@ -2306,7 +2308,7 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
             }
         }
-      [AllowAnonymous]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> RecentShops(string period = "today")
         {
@@ -2425,6 +2427,7 @@ namespace Food_Haven.Web.Controllers
             };
         }
         [HttpGet]
+
         public async Task<IActionResult> ViewStoreDetail(Guid id)
         {
             var model = await _storeService.GetStoreDetailAsync(id);
@@ -2433,6 +2436,55 @@ namespace Food_Haven.Web.Controllers
 
             return View(model);
         }
+
+        public async Task<IActionResult> RecipeDetail(Guid id)
+        {
+            var recipe = await _recipeService.GetAsyncById(id);
+            if (recipe == null) return NotFound();
+
+            var typeOfDish = await _typeOfDishService.GetAsyncById(recipe.TypeOfDishID);
+
+            // Các tag đã chọn (từ bảng liên kết)
+            var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
+                .ListAsync(rt => rt.RecipeID == recipe.ID, null, include => include.Include(x => x.IngredientTag)))
+                .ToList();
+
+            // Toàn bộ tag từ hệ thống
+            var allTags = (await _ingredienttag.ListAsync()).ToList();
+
+            var viewModel = new RecipeViewModels
+            {
+                ID = recipe.ID,
+                Title = recipe.Title,
+                ShortDescriptions = recipe.ShortDescriptions,
+                PreparationTime = recipe.PreparationTime,
+                CookTime = recipe.CookTime,
+                TotalTime = recipe.TotalTime,
+                DifficultyLevel = recipe.DifficultyLevel,
+                Servings = recipe.Servings,
+                CreatedDate = recipe.CreatedDate,
+                IsActive = recipe.IsActive,
+                CateID = recipe.CateID,
+                ThumbnailImage = recipe.ThumbnailImage,
+                TypeOfDishName = typeOfDish?.Name ?? "Unknown",
+                TypeOfDishID = recipe.TypeOfDishID,
+                CookingStep = recipe.CookingStep,
+                Ingredient = recipe.Ingredient,
+                // ⚠️ CHỈNH SỬA Ở ĐÂY
+                IngredientTags = allTags, // tất cả tag
+                SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(), // chỉ ID đã chọn
+
+                typeOfDishes = (await _typeOfDishService.ListAsync()).ToList(),
+                Categories = (await _categoryService.ListAsync()).ToList(),
+            };
+
+            return View("RecipeDetail", viewModel);
+        }
+
+
+
+
+
 
     }
 

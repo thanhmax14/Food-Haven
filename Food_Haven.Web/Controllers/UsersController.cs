@@ -1496,6 +1496,7 @@ namespace Food_Haven.Web.Controllers
                     IngredientTags = selectedTags.Select(x => x.IngredientTag).ToList(),
                     SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(),
                     status = item.status,
+                    RejectNote = item.RejectNote
                 });
             }
 
