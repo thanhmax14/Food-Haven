@@ -28,6 +28,8 @@
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+            <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
 
 </head>
 
@@ -41,27 +43,15 @@
         </div>
         <div class="page-content pt-50">
             <div class="container">
-                @* <div class="archive-header-2 text-center">
-                    <h1 class="display-2 mb-50">Stores List</h1>
-                    <div class="row">
-                        <div class="col-lg-5 mx-auto">
-                            <div class="sidebar-widget-2 widget_search mb-50">
-                                <div class="search-form">
-                                    <form asp-controller="Home" asp-action="GetAllStore" method="get">
-                                        <input name="searchName" placeholder="Search product by name" />
-                                        <button type="submit"><i class="fi-rs-search"></i></button>
-                                    </form>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div> *@
+                 <div class="archive-header-2 text-center">
+                    <h1 class="display-2 mb-10">Followed Stores</h1>
+                    
+                </div> 
                 <div class="row mb-50">
-                    <div class="col-12 col-lg-8 mx-auto">
+                    @* <div class="col-12 col-lg-8 mx-auto">
                         <div class="shop-product-fillter">
                         </div>
-                    </div>
+                    </div> *@
                 </div>
 <div id="store-container" class="row vendor-grid">
                     @if (Model.Any())
