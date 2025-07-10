@@ -157,27 +157,68 @@ $(document).ready(function () {
   });
 
   // Thêm vào giỏ
-  $(document).on("click", "#btnAddToCart", function () {
-    var variantId = $("#selectedVariantId").val();
-    if (!variantId) {
-      new Notify({
-        status: "error",
-        title: "Warning!",
-        text: "Please choose option before adding to cart.",
-        effect: "fade",
-        speed: 300,
-        showIcon: true,
-        showCloseButton: true,
-        autoclose: true,
-        autotimeout: 3000,
-        position: "right top",
-      });
-      return;
-    }
+  // Thêm vào giỏ (có kiểm tra hợp lệ)
+$(document).on("click", "#btnAddToCart", function () {
+  var variantId = $("#selectedVariantId").val();
+  if (!variantId) {
+    new Notify({
+      status: "error",
+      title: "Chưa chọn biến thể!",
+      text: "Vui lòng chọn biến thể trước khi thêm vào giỏ.",
+      effect: "fade",
+      speed: 300,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      position: "right top",
+    });
+    return;
+  }
 
-    var quantity = parseInt($(".qty-val").val()) || 1;
-    AddToCart(variantId, quantity);
-  });
+  // ✅ Tìm input số lượng nằm gần nút được nhấn
+  var $container = $(this).closest(".product-detail, .product-area, .container, .product-box"); // tùy class bạn dùng
+  var $qtyInput = $container.find(".qty-val");
+
+  var quantity = parseInt($qtyInput.val());
+  var maxStock = parseInt($qtyInput.data("max")) || 999;
+
+  if (isNaN(quantity) || quantity < 1) {
+    new Notify({
+      status: "error",
+      title: "Số lượng không hợp lệ!",
+      text: "Vui lòng nhập số lượng hợp lệ (tối thiểu 1).",
+      effect: "fade",
+      speed: 300,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      position: "right top",
+    });
+    return;
+  }
+
+  if (quantity > maxStock) {
+    new Notify({
+      status: "error",
+      title: "Vượt quá tồn kho!",
+      text: "Bạn chỉ có thể đặt tối đa " + maxStock + " sản phẩm.",
+      effect: "fade",
+      speed: 300,
+      showIcon: true,
+      showCloseButton: true,
+      autoclose: true,
+      autotimeout: 3000,
+      position: "right top",
+    });
+    return;
+  }
+
+  // Gửi đúng số lượng người dùng nhập
+  AddToCart(variantId, quantity);
+});
+
 
   // AJAX thêm giỏ hàng
   window.AddToCart = function (variantId, quantity) {
