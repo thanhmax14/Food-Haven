@@ -165,14 +165,16 @@ namespace Repository.Products
             };
         }
 
-        public async Task UpdateProductAsync(ProductUpdateViewModel model, string webRootPath)
+        public async Task<(bool Success, string? ErrorMessage)> UpdateProductAsync(ProductUpdateViewModel model, string webRootPath)
         {
             var product = await _context.Products
                 .Include(p => p.ProductImages)
                 .FirstOrDefaultAsync(p => p.ID == model.ProductID);
 
-            if (product == null) return;
+            if (product == null)
+                return (false, "Product not found.");
 
+            // Cập nhật thông tin sản phẩm
             product.Name = model.Name;
             product.ShortDescription = model.ShortDescription;
             product.LongDescription = model.LongDescription;
@@ -181,35 +183,38 @@ namespace Repository.Products
             product.IsOnSale = model.IsOnSale;
             product.CategoryID = model.CateID;
 
-            // XÓA ảnh được chọn
+            // === XÓA ẢNH ĐƯỢC CHỌN ===
             if (model.RemoveImageUrls?.Any() == true)
             {
-                var imagesToRemove = product.ProductImages
+                var toRemove = product.ProductImages
                     .Where(i => model.RemoveImageUrls.Contains(i.ImageUrl))
                     .ToList();
 
-                foreach (var img in imagesToRemove)
+                foreach (var img in toRemove)
                 {
                     var path = Path.Combine(webRootPath, "uploads", Path.GetFileName(img.ImageUrl));
                     if (File.Exists(path)) File.Delete(path);
                 }
 
-                _context.ProductImages.RemoveRange(imagesToRemove);
+                _context.ProductImages.RemoveRange(toRemove);
                 await _context.SaveChangesAsync();
             }
 
-            // XỬ LÝ ẢNH CHÍNH
+            // === XỬ LÝ ẢNH CHÍNH ===
+            bool mainHandled = false;
+
             if (model.MainImage != null)
             {
-                string fileName = Guid.NewGuid() + Path.GetExtension(model.MainImage.FileName);
-                string filePath = Path.Combine(webRootPath, "uploads", fileName);
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.MainImage.FileName);
+                var filePath = Path.Combine(webRootPath, "uploads", fileName);
+                var imageUrl = "/uploads/" + fileName;
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await model.MainImage.CopyToAsync(stream);
                 }
 
-                // Xóa ảnh chính cũ
+                // Xoá ảnh chính cũ
                 var oldMain = product.ProductImages.FirstOrDefault(i => i.IsMain);
                 if (oldMain != null)
                 {
@@ -218,18 +223,27 @@ namespace Repository.Products
                     _context.ProductImages.Remove(oldMain);
                 }
 
+                // Thêm ảnh chính mới
                 _context.ProductImages.Add(new Models.ProductImage
                 {
                     ProductID = product.ID,
-                    ImageUrl = "/uploads/" + fileName,
+                    ImageUrl = imageUrl,
                     IsMain = true
                 });
+
+                mainHandled = true;
             }
             else if (!string.IsNullOrEmpty(model.ExistingMainImage))
             {
                 bool exists = product.ProductImages.Any(p => p.ImageUrl == model.ExistingMainImage && p.IsMain);
                 if (!exists)
                 {
+                    // Xóa ảnh chính cũ (nếu có)
+                    var oldMain = product.ProductImages.FirstOrDefault(i => i.IsMain);
+                    if (oldMain != null)
+                        _context.ProductImages.Remove(oldMain);
+
+                    // Gắn lại ảnh chính
                     _context.ProductImages.Add(new Models.ProductImage
                     {
                         ProductID = product.ID,
@@ -237,16 +251,27 @@ namespace Repository.Products
                         IsMain = true
                     });
                 }
+
+                mainHandled = true;
             }
 
-            // XỬ LÝ ẢNH PHỤ
-            var gallerySlots = 4 - product.ProductImages.Count(i => !i.IsMain);
+            // Xác minh có ảnh chính
+            if (!mainHandled || !product.ProductImages.Any(i => i.IsMain))
+                return (false, "Ảnh chính không được để trống.");
+
+            await _context.SaveChangesAsync();
+
+            // === XỬ LÝ ẢNH PHỤ ===
+            var currentSubImages = product.ProductImages.Where(i => !i.IsMain).ToList();
+            int slotsLeft = 4 - currentSubImages.Count;
+
             if (model.GalleryImages?.Any() == true)
             {
-                foreach (var file in model.GalleryImages.Take(gallerySlots))
+                foreach (var file in model.GalleryImages.Take(slotsLeft))
                 {
-                    string fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                    string filePath = Path.Combine(webRootPath, "uploads", fileName);
+                    var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(webRootPath, "uploads", fileName);
+                    var imageUrl = "/uploads/" + fileName;
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -256,14 +281,36 @@ namespace Repository.Products
                     _context.ProductImages.Add(new Models.ProductImage
                     {
                         ProductID = product.ID,
-                        ImageUrl = "/uploads/" + fileName,
+                        ImageUrl = imageUrl,
                         IsMain = false
                     });
                 }
+
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
+            // Kiểm tra sau khi cập nhật
+            var subImages = await _context.ProductImages
+                .Where(p => p.ProductID == product.ID && !p.IsMain)
+                .ToListAsync();
+
+            if (subImages.Count < 1)
+                return (false, "Phải có ít nhất một ảnh phụ (gallery).");
+
+            // Đảm bảo ảnh chính không nằm trong ảnh phụ
+            var mainImageUrl = product.ProductImages.FirstOrDefault(i => i.IsMain)?.ImageUrl;
+            var duplicateSubs = product.ProductImages.Where(p => !p.IsMain && p.ImageUrl == mainImageUrl).ToList();
+            if (duplicateSubs.Any())
+            {
+                _context.ProductImages.RemoveRange(duplicateSubs);
+                await _context.SaveChangesAsync();
+            }
+
+            return (true, null);
         }
+
+
+
 
         public async Task<ProductHideShowViewModel> GetByIdAsync(Guid id)
         {

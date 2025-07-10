@@ -250,5 +250,29 @@ namespace Repository.StoreDetails
         {
             return await _context.StoreDetails.FirstOrDefaultAsync(s => s.UserID == userId);
         }
+        public async Task<ViewStoreDetailViewModel> GetStoreDetailWithOwnerAsync(Guid storeId)
+        {
+            var result = await (from s in _context.StoreDetails
+                                join u in _context.Users on s.UserID equals u.Id
+                                where s.ID == storeId
+                                select new ViewStoreDetailViewModel
+                                {
+                                    ID = s.ID,
+                                    StoreName = s.Name,
+                                    StoreOwner = u.FirstName + " " + u.LastName,
+                                    CreatedDate = s.CreatedDate,
+                                    ModifiedDate = s.ModifiedDate,
+                                    ShortDescriptions = s.ShortDescriptions,
+                                    LongDescriptions = s.LongDescriptions,
+                                    Address = s.Address,
+                                    Phone = s.Phone,
+                                    ImageUrl = s.ImageUrl,
+                                    Status = s.Status,
+                                    IsActive = s.IsActive,
+                                    RejectNote = s.RejectNote
+                                }).FirstOrDefaultAsync();
+
+            return result!;
+        }
     }
 }

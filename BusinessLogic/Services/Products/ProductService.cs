@@ -239,7 +239,5 @@ namespace BusinessLogic.Services.Products
                 .ThenInclude(sd => sd.AppUser)
                 .FirstOrDefaultAsync(p => p.ID == id);
         }
-
-
     }
 }

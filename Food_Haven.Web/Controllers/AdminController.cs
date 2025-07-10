@@ -2424,6 +2424,15 @@ namespace Food_Haven.Web.Controllers
                 _ => now.Date
             };
         }
+        [HttpGet]
+        public async Task<IActionResult> ViewStoreDetail(Guid id)
+        {
+            var model = await _storeService.GetStoreDetailAsync(id);
+            if (model == null)
+                return NotFound();
+
+            return View(model);
+        }
 
     }
 

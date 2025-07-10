@@ -549,7 +549,13 @@
                             const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
                             const existingCount = parseInt(existingGalleryCountInput.value) || 0;
                             const totalImages = (existingCount - removedCount) + selectedGalleryFiles.length;
-                            galleryInput.disabled = totalImages >= 4;
+                            if (totalImages > 4) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Image limit exceeded!',
+                                    text: 'Only 4 gallery images allowed.'
+                                });
+                            }
                         }
 
                         if (mainInput && mainPreview) {
@@ -645,6 +651,42 @@
                         };
 
                         updateGalleryInputState();
+                    });
+                </script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const form = document.querySelector('form[method="post"]');
+                        const mainInput = document.getElementById('product-image-input');
+                        const mainPreview = document.getElementById('product-img');
+                        const existingGalleryCountInput = document.getElementById('existingGalleryCount');
+                        const removedImagesContainer = document.getElementById('removedImagesContainer');
+                        const galleryInput = document.getElementById('galleryImageInput');
+
+                        form.addEventListener('submit', function (e) {
+                            const hasMainImage = mainInput.files.length > 0 || (mainPreview && mainPreview.src && !mainPreview.src.includes("placeholder"));
+                            if (!hasMainImage) {
+                                e.preventDefault();
+                                Swal.fire({ icon: 'error', title: 'Missing Main Image', text: 'Please select a main product image!' });
+                                return;
+                            }
+
+                            const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
+                            const existingCount = parseInt(existingGalleryCountInput.value) || 0;
+                            const addedCount = galleryInput.files.length;
+
+                            const finalGalleryCount = (existingCount - removedCount) + addedCount;
+
+                            if (finalGalleryCount < 1) {
+                                e.preventDefault();
+                                Swal.fire({ icon: 'error', title: 'Need More Images', text: 'At least one gallery image is required!' });
+                                return;
+                            }
+
+                            if (finalGalleryCount > 4) {
+                                e.preventDefault();
+                                Swal.fire({ icon: 'error', title: 'Too Many Images', text: 'Only 4 gallery images are allowed.' });
+                            }
+                        });
                     });
                 </script>
 

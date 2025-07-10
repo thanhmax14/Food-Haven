@@ -594,8 +594,7 @@ namespace Food_Haven.Web.Controllers
                 model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
                 model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
 
-                var categories = await _productService.GetActiveCategoriesAsync();
-                model.Categories = categories.Select(c => new SelectListItem
+                model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
                 {
                     Value = c.ID.ToString(),
                     Text = c.Name
@@ -605,23 +604,30 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
-            var webRootPath = _webHostEnvironment.WebRootPath;
-            await _productService.UpdateProductAsync(model, webRootPath);
+            try
+            {
+                var webRootPath = _webHostEnvironment.WebRootPath;
+                await _productService.UpdateProductAsync(model, webRootPath);
+                ViewBag.UpdateSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                ViewBag.UpdateSuccess = false;
+            }
 
             model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
             model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
-
             model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
                 Text = c.Name
             }).ToList();
 
-            ViewBag.UpdateSuccess = true;
             ViewBag.StoreID = model.StoreID;
-
             return View(model);
         }
+
 
         [HttpPost]
         [Route("Seller/ToggleStatus")]

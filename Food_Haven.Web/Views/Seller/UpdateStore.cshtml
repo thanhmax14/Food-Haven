@@ -267,7 +267,7 @@
                                             <input type="hidden" asp-for="ID" />
 
                                             <div class="row">
-                                                <div class="col-md-12">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Name" class="form-label">Store Name</label>
                                                         <input asp-for="Name" class="form-control" disabled />
@@ -303,7 +303,7 @@
                                                     <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Address" class="form-label">Address</label>
                                                         <input asp-for="Address" class="form-control" disabled />
@@ -370,7 +370,7 @@
                                             <input type="hidden" asp-for="ID" />
 
                                             <div class="row">
-                                                <div class="col-md-12">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Name" class="form-label">Store Name</label>
                                                         <input asp-for="Name" class="form-control" />
@@ -406,7 +406,7 @@
                                                     <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                                 </div>
 
-                                                <div class="col-md-12">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Address" class="form-label">Address</label>
                                                         <input asp-for="Address" class="form-control" />
@@ -504,6 +504,31 @@
                                 text: '@ViewBag.Success',
                                 showConfirmButton: false,
                                 timer: 2000, // tự động đóng sau 2 giây
+                                    });
+                        </text>
+                    }
+                </script>
+                <script>
+                    @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
+                    {
+                        <text>
+                                Swal.fire({
+                                    icon: 'success',
+                                title: 'Product Updated!',
+                                text: 'Your product has been successfully updated.',
+                                timer: 2000,
+                                showConfirmButton: false
+                                    });
+                        </text>
+                    }
+
+                    @if (ViewBag.UpdateError != null)
+                    {
+                        <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Update Failed',
+                                text: '@ViewBag.UpdateError'
                                     });
                         </text>
                     }
