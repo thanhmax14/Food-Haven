@@ -672,8 +672,8 @@
 
                     <!-- Submit Buttons -->
                     <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Update Recipe</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-sm btn-success">Update Recipe</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </form>
@@ -1209,11 +1209,11 @@
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
  <script>
-    function toggleRecipeActive(id, isActive) {
+      function toggleRecipeActive(id, isActive) {
         const newStatus = !isActive;
         const modalElement = document.getElementById(`toggleActiveModal-${id}`);
 
-        // Đảm bảo modal luôn tồn tại
+        // Ensure the modal exists
         let modal = bootstrap.Modal.getInstance(modalElement);
         if (!modal) {
             modal = new bootstrap.Modal(modalElement);
@@ -1228,10 +1228,10 @@
             },
             success: function (res) {
                 if (res.success) {
-                    // Notify thành công
+                    // Success notification
                     new Notify({
                         status: 'success',
-                        title: 'Thành Công',
+                        title: 'Success',
                         text: res.message,
                         effect: 'fade',
                         speed: 300,
@@ -1242,14 +1242,14 @@
                         position: 'right top'
                     });
 
-                    // Đóng modal sau khi cập nhật
+                    // Close modal after update
                     modal.hide();
 
-                    // Cập nhật nội dung trong modal
+                    // Update modal content
                     $(`#modal-status-text-${id}`).text(newStatus ? 'hide' : 'show');
                     $(`#modal-title-${id}`).text(`Confirm ${newStatus ? 'Hide' : 'Show'}`);
 
-                    // Cập nhật nút bên ngoài
+                    // Update outside toggle button
                     const btn = $(`#toggle-btn-${id}`);
                     btn.removeClass('btn-success btn-secondary')
                         .addClass(newStatus ? 'btn-success' : 'btn-secondary');
@@ -1258,18 +1258,18 @@
                         .addClass(newStatus ? 'bi-eye-fill' : 'bi-eye-slash-fill');
                     btn.find('.button-label').text(newStatus ? 'Hide' : 'Show');
 
-                    // Cập nhật nút confirm trong modal
+                    // Update confirm button inside modal
                     const confirmBtn = $(`#confirm-btn-${id}`);
                     confirmBtn.removeClass('btn-success btn-danger')
                         .addClass(newStatus ? 'btn-danger' : 'btn-success');
 
-                    // Cập nhật lại onclick
+                    // Update onclick handler
                     confirmBtn.attr('onclick', `toggleRecipeActive('${id}', ${newStatus})`);
                 } else {
                     new Notify({
                         status: 'error',
-                        title: 'Lỗi',
-                        text: res.message || 'Cập nhật thất bại!',
+                        title: 'Error',
+                        text: res.message || 'Update failed!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -1284,8 +1284,8 @@
             error: function () {
                 new Notify({
                     status: 'error',
-                    title: 'Lỗi',
-                    text: 'Lỗi khi gửi yêu cầu!',
+                    title: 'Error',
+                    text: 'Failed to send request!',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,
