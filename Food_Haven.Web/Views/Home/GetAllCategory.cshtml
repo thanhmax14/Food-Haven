@@ -68,7 +68,7 @@
                         {
 
                             <div class="col-lg-6 col-md-6 col-12 col-sm-6">
-                                <div class="vendor-wrap style-2 mb-40">
+                                <div class="vendor-wrap style-2 mb-40 d-flex flex-column h-100">
 
                                     <div class="vendor-img-action-wrap">
                                         <div class="vendor-img">
@@ -76,35 +76,37 @@
                                                 <img class="default-img" src="@item.Img" alt="" />
                                             </a>
                                         </div>
-                                       
                                     </div>
+
                                     <div class="vendor-content-wrap">
                                         <div class="mb-30">
                                             <div class="product-category">
                                                 <span class="text-muted">@(item.CreatedDate?.ToString("dd/MM/yyyy") ?? "N/A")</span>
                                             </div>
 
-                                            <h4><a asp-action="GetAllProductOfCategory" asp-controller="Home" asp-route-id="@item.ID">@item.Name</a></h4>
+                                            <h4>
+                                                <a asp-action="GetAllProductOfCategory" asp-controller="Home" asp-route-id="@item.ID">
+                                                    @item.Name
+                                                </a>
+                                            </h4>
                                             <div class="product-rate-cover">
                                                 <div class="product-rate d-inline-block">
                                                     <div class="product-rating" style="width: 90%"></div>
                                                 </div>
                                                 <span class="font-small ml-5 text-muted"> (4.0)</span>
                                             </div>
-                                            <div class="vendor-info d-flex justify-content-between align-items-end mt-30">
-                                              
-
-                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="vendor-content-wrap mt-170">
+                                    <div class="vendor-content-wrap mt-auto d-flex justify-content-end">
                                         <a asp-action="GetAllProductOfCategory" asp-controller="Home" asp-route-id="@item.ID" class="btn btn-xs">
                                             Details <i class="fi-rs-arrow-small-right"></i>
                                         </a>
                                     </div>
+
                                 </div>
                             </div>
+
 
                         }
                     }
