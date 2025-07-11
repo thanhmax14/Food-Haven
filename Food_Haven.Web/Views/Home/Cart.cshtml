@@ -365,7 +365,7 @@
                     <div class="cart-action d-flex justify-content-between">
                         <a class="btn"><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a>
                         <a class="btn mr-10 mb-sm-15" data-bs-toggle="modal" data-bs-target="#voucherShopeeModal">
-                            <i class="fi-rs-refresh mr-10"></i>Update Cart
+                            <i class="fi-rs-refresh mr-10"></i>Voucher
                         </a>
                     </div>
 
@@ -384,19 +384,16 @@
 
                                 <!-- Header -->
                                 <div class="modal-header">
-                                    <h5 class="modal-title fw-bold">Chọn Shopee Voucher</h5>
+                                    <h5 class="modal-title fw-bold">Select Foods  Voucher Voucher</h5>
                                     <a href="#" id="helpLink" class="text-muted small" data-bs-toggle="popover"
-                                       data-bs-trigger="focus" data-bs-html="true" title="Hỗ Trợ" data-bs-content='
-                                        <strong>Cách Sử Dụng Voucher</strong><br>
-                                        Để áp dụng mã Shopee voucher, bạn hãy chọn nút "Lưu" để lấy voucher.<br><br>
-                                        <strong>Cách Tìm Voucher</strong><br>
-                                        Bạn có thể tìm thấy Shopee Voucher xuyên suốt trang shopee.vn và ứng dụng.
-                                        '>
-                                        Hỗ Trợ <i class="bi bi-question-circle"></i>
-                                    </a>
-
-
-
+                                       data-bs-trigger="focus" data-bs-html="true" title="Support" data-bs-content='
+                    <strong>How to Use Vouchers</strong><br>
+                    To apply a Foods  Voucher voucher code, please select the "Save" button to get the voucher.<br><br>
+                    <strong>How to Find Vouchers</strong><br>
+                    You can find Foods  Voucher Vouchers throughout the Foods  Voucher.vn website and the app.
+                    '>
+                    Support <i class="bi bi-question-circle"></i>
+                </a>
                                 </div>
 
                                 <!-- Body -->
@@ -404,34 +401,34 @@
 
                                     <!-- Search -->
                                     <div class="input-group my-3">
-                                        <span class="input-group-text">Mã Voucher</span>
+                                        <span class="input-group-text">Voucher Code</span>
                                         <input id="voucherSearchInput" type="text" class="form-control"
-                                               placeholder="Nhập mã...">
-                                       
-                                        <button id="applyVoucherCode" class="btn btn-outline-primary">ÁP DỤNG</button>
-                                      
+                                               placeholder="Enter code...">
+
+                                        <button id="applyVoucherCode" class="btn btn-outline-primary">APPLY</button>
+
                                     </div>
                                     <span id="voucherSearchError" class="text-danger small ms-1"></span>
 
-                                    <!-- Tab chọn loại voucher -->
+                                    <!-- Voucher type tab -->
                                     <ul class="nav nav-pills mb-3" id="voucherTab" role="tablist">
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link active" data-type="all" type="button">
-                                                Tất cả
-                                                Voucher
+                                                All
+                                                Vouchers
                                             </button>
                                         </li>
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link" data-type="store" type="button">
-                                                Voucher của Cửa
-                                                Hàng
+                                                Store
+                                                Vouchers
                                             </button>
                                         </li>
                                     </ul>
 
                                     <!-- Scrollable Voucher List only -->
                                     <div id="voucherListContainer">
-                                        <!-- AJAX sẽ render ở đây -->
+                                        <!-- AJAX renders here -->
                                     </div>
 
                                 </div>
@@ -439,10 +436,10 @@
                                 <!-- Footer -->
                                 <div class="modal-footer justify-content-between">
                                     <div class="small" id="selectedVoucherInfo">
-                                        Chưa chọn voucher nào
+                                        No voucher selected
                                     </div>
                                     <div>
-                                        <button class="btn btn-secondary" data-bs-dismiss="modal">TRỞ LẠI</button>
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">BACK</button>
                                         <button class="btn btn-danger" id="confirmVoucherBtn">OK</button>
                                     </div>
                                 </div>
@@ -450,241 +447,32 @@
                             </div>
                         </div>
                     </div>
+
                     <script>
                         document.addEventListener('DOMContentLoaded', function () {
                             const helpLink = document.getElementById('helpLink');
                             new bootstrap.Popover(helpLink);
                         });
                     </script>
-                    <script>
-                        let loadedVouchers = [];
-                        let selectedVoucherCode = null;
-
-                        function renderVoucherList(vouchers) {
-                            const container = document.getElementById("voucherListContainer");
-                            container.innerHTML = "";
-
-                            vouchers.forEach(v => {
-                                const disabledClass = v.disabled ? "bg-light text-muted" : "";
-                                const disabledAttr = v.disabled ? "disabled" : "";
-                                const conditionNote = v.disabled ? `<div class="text-danger small mt-1">Không thể sử dụng voucher này.</div>` : "";
-                                const textClass = v.disabled ? "text-muted" : "text-dark";
-                                const mutedClass = v.disabled ? "text-muted" : "text-dark";
-                                const maxDiscountNote = v.maxDiscountAmount ? `<div class="${mutedClass} small">Giảm tối đa: ${v.maxDiscountAmount}</div>` : "";
-                                const checkedAttr = v.code === selectedVoucherCode ? "checked" : "";
-
-                                const item = document.createElement("div");
-                                item.className = `voucher-item position-relative border rounded-3 d-flex p-3 mb-3 shadow-sm ${disabledClass}`;
-                                item.innerHTML = `
-                                        <div class="voucher-left text-center pe-3">
-                                            <div class="${v.disabled ? 'bg-secondary' : 'bg-danger'} text-white p-3 rounded-start">
-                                                <i class="bi bi-bag-fill fs-4 d-block"></i>
-                                                <div class="small mt-1">SHOPEE</div>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-bold ${textClass}">${v.title} <span class="text-primary">(${v.code})</span></div>
-                                            ${maxDiscountNote}
-                                            <div class="${mutedClass} small">Đơn Tối Thiểu ${v.minOrder}</div>
-                                            <div class="${mutedClass} small mt-1">HSD: ${v.expire}
-                                                <a href="#" class="ms-2 text-decoration-underline text-primary voucher-condition-link" data-code="${v.code}" data-bs-toggle="modal" data-bs-target="#voucherConditionModal">Điều Kiện</a>
-                                                ${conditionNote}
-                                            </div>
-                                        </div>
-                                        <div class="position-absolute top-0 end-0 p-2">
-                                            <span class="badge ${v.disabled ? 'bg-secondary' : 'bg-danger'} rounded-pill">x ${v.count}</span>
-                                            <div class="form-check mt-2">
-                                                <input class="form-check-input" type="radio" name="voucherOption" value="${v.code}" ${disabledAttr} ${checkedAttr}>
-                                            </div>
-                                        </div>
-                                    `;
-                                container.appendChild(item);
-                            });
-                        }
-
-                        function applySelectedVoucher() {
-                            const selected = document.querySelector('input[name="voucherOption"]:checked');
-                            if (selected && !selected.disabled) {
-                                const code = selected.value;
-                                selectedVoucherCode = code;
-                                const infoBox = document.getElementById("selectedVoucherInfo");
-                                if (infoBox) {
-                                    infoBox.innerHTML = `1 Voucher đã được chọn <span class="text-danger">${code}</span>`;
-                                }
-
-                                const rawSubtotal = document.getElementById("subtotal-amount")?.innerText || "₫0";
-                                const currentSubtotal = parseInt(rawSubtotal.replace(/[^\d]/g, '')) || 0;
-
-                                fetch("/voucher/calculate-discount", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ code: code, orderTotal: currentSubtotal })
-                                })
-                                    .then(res => {
-                                        if (!res.ok) throw new Error("Voucher không áp dụng.");
-                                        return res.json();
-                                    })
-                                    .then(data => {
-                                        const discount = Number(data.discountAmount);
-                                        const subtotal = Number(data.orderTotalAfterDiscount) + discount;
-                                        updateCartTotal(subtotal, discount, data.code, data.discountType);
-                                    })
-                                    .catch(err => {
-                                        console.error("Lỗi khi gọi API tính giảm giá:", err);
-                                        alert("Không thể áp dụng voucher: " + err.message);
-                                    });
-
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('voucherShopeeModal'));
-                                if (modal) modal.hide();
-                            } else {
-                                alert("Vui lòng chọn một mã giảm giá hợp lệ.");
-                            }
-                        }
-
-                        function updateCartTotal(originalSubtotal, discount, code, discountType) {
-                            if (typeof originalSubtotal !== "number" || typeof discount !== "number") {
-                                console.error("Dữ liệu không hợp lệ từ API:", { originalSubtotal, discount });
-                                return;
-                            }
-
-                            const discountedTotal = originalSubtotal - discount;
-                            const formattedDiscount = discountType === "Percent"
-                                ? `-${discount}%`
-                                : `-₫${discount.toLocaleString()}`;
-
-                            document.getElementById("subtotal-amount").innerText = `₫${originalSubtotal.toLocaleString()}`;
-                            document.getElementById("discount-amount").innerText = formattedDiscount;
-                            document.getElementById("codevocher").innerText = `${code}`;
-                            document.getElementById("cart-total").innerText = `₫${discountedTotal.toLocaleString()}`;
-                            document.getElementById("discount-row").style.display = discount > 0 ? "" : "none";
-                            document.getElementById("codevocher-row").style.display = discount > 0 ? "" : "none";
-                        }
-
-                        function handleConditionModal(code) {
-                            const v = loadedVouchers.find(x => x.code === code);
-                            const modalBody = document.querySelector("#voucherConditionModal .modal-body");
-                            if (!v) {
-                                modalBody.innerHTML = `<div class="text-danger">Không tìm thấy thông tin voucher.</div>`;
-                                return;
-                            }
-                            modalBody.innerHTML = `
-                                    <p><strong>Mã:</strong> ${v.code}</p>
-                                    <p><strong>Đơn tối thiểu:</strong> ${v.minOrder}</p>
-                                    ${v.maxDiscountAmount ? `<p><strong>Giảm tối đa:</strong> ${v.maxDiscountAmount}</p>` : ""}
-                                    <p><strong>HSD:</strong> ${v.expire}</p>
-                                    <p><strong>Loại:</strong> ${v.isStoreVoucher ? "Voucher cửa hàng" : "Voucher toàn sàn (admin)"}</p>
-                                `;
-                        }
-
-                        function attachVoucherEvents() {
-                            document.querySelectorAll('#voucherTab .nav-link').forEach(btn => {
-                                btn.addEventListener("click", function () {
-                                    document.querySelectorAll('#voucherTab .nav-link').forEach(b => b.classList.remove('active'));
-                                    this.classList.add('active');
-                                    const type = this.getAttribute("data-type");
-                                    const filtered = type === "store"
-                                        ? loadedVouchers.filter(v => v.isStoreVoucher)
-                                        : loadedVouchers;
-                                    renderVoucherList(filtered);
-                                });
-                            });
-
-                            document.addEventListener("click", function (e) {
-                                const item = e.target.closest(".voucher-item");
-                                if (item && !item.classList.contains("text-muted")) {
-                                    const radio = item.querySelector('input[type="radio"]');
-                                    if (radio && !radio.disabled) {
-                                        radio.checked = true;
-                                        selectedVoucherCode = radio.value;
-                                        const infoBox = document.getElementById("selectedVoucherInfo");
-                                        if (infoBox) {
-                                            infoBox.innerHTML = `1 Voucher đã được chọn <span class="text-danger">${selectedVoucherCode}</span>`;
-                                        }
-                                    }
-                                }
-
-                                const link = e.target.closest(".voucher-condition-link");
-                                if (link) {
-                                    const code = link.getAttribute("data-code");
-                                    handleConditionModal(code);
-                                }
-                            });
-
-                            document.getElementById("confirmVoucherBtn").addEventListener("click", applySelectedVoucher);
-
-                            document.getElementById("applyVoucherCode").addEventListener("click", async function () {
-                                const input = document.getElementById("voucherSearchInput").value.trim();
-                                const errorBox = document.getElementById("voucherSearchError");
-                                errorBox.innerText = "";
-
-                                if (!input) {
-                                    errorBox.innerText = "Vui lòng nhập mã voucher.";
-                                    return;
-                                }
-
-                                try {
-                                    const res = await fetch(`/voucher/search?code=${encodeURIComponent(input)}`);
-                                    if (!res.ok) {
-                                        const err = await res.json();
-                                        errorBox.innerText = err.message || "Không tìm thấy voucher.";
-                                        return;
-                                    }
-
-                                    const foundVoucher = await res.json();
-                                    renderVoucherList([foundVoucher]);
-                                } catch (err) {
-                                    console.error("Lỗi tìm kiếm voucher:", err);
-                                    errorBox.innerText = "Đã xảy ra lỗi khi tìm voucher.";
-                                }
-                            });
-                        }
-
-                        async function loadVouchers() {
-                            try {
-                                const res = await fetch("/voucher/get-all");
-                                if (!res.ok) throw new Error("Không thể tải voucher.");
-                                loadedVouchers = await res.json();
-                                renderVoucherList(loadedVouchers);
-                            } catch (err) {
-                                document.getElementById("voucherListContainer").innerHTML = `<div class="text-danger">Lỗi khi tải voucher.</div>`;
-                            }
-                        }
-
-                        document.getElementById("voucherShopeeModal").addEventListener("show.bs.modal", async function () {
-                            await loadVouchers();
-                        });
-
-                        document.addEventListener("DOMContentLoaded", function () {
-                            const helpLink = document.getElementById('helpLink');
-                            if (helpLink) new bootstrap.Popover(helpLink);
-                            attachVoucherEvents();
-                        });
-                    </script>
-
-
-
-
-
-
-
+                 
                     <div class="modal fade" id="voucherConditionModal" tabindex="-1" aria-labelledby="voucherConditionModalLabel"
                          aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content rounded-3">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="voucherConditionModalLabel">Điều Kiện Voucher</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                    <h5 class="modal-title" id="voucherConditionModalLabel">Voucher Conditions</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p><strong>Áp dụng cho đơn tối thiểu:</strong> ₫200.000</p>
-                                    <p><strong>Giảm tối đa:</strong> ₫50.000</p>
-                                    <p><strong>Chỉ áp dụng cho sản phẩm thuộc shop XYZ</strong></p>
-                                    <p class="text-muted small">Hạn sử dụng: 01/06/2025 - 15/06/2025</p>
+                                    <p><strong>Applicable for minimum order:</strong> ₫200,000</p>
+                                    <p><strong>Maximum discount:</strong> ₫50,000</p>
+                                    <p><strong>Only applicable for products from shop XYZ</strong></p>
+                                    <p class="text-muted small">Validity period: 01/06/2025 - 15/06/2025</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                 
+
                 </div>
                 @{
     decimal total = 0; // 🔹 Biến lưu tổng giá trị
@@ -706,40 +494,41 @@
                                 
                                      <tbody>
 
-                                        <tr>
-                                            <td class="cart_total_label">
-                                                <h6 class="text-muted">Tạm tính</h6>
-                                            </td>
-                                            <td class="cart_total_amount">
-                                                <h5 class="text-end" id="subtotal-amount">@total.ToString("₫#,##0")</h5>
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">Subtotal</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h5 class="text-end" id="subtotal-amount">@total.ToString("₫#,##0")</h5>
+                                        </td>
+                                    </tr>
 
-                                        <tr id="codevocher-row" style="display: none;">
-                                            <td class="cart_total_label">
-                                                <h6 class="text-muted">Giảm giá voucher</h6>
-                                            </td>
-                                            <td class="cart_total_amount">
-                                                <h5 class="text-danger text-end" id="codevocher">-₫0</h5>
-                                            </td>
-                                        </tr>  
-                                        <tr id="discount-row" style="display: none;">
-                                            <td class="cart_total_label">
-                                                <h6 class="text-muted">Số Tiền Giam</h6>
-                                            </td>
-                                            <td class="cart_total_amount">
-                                                <h5 class="text-danger text-end" id="discount-amount">-₫0</h5>
-                                            </td>
-                                        </tr>
+                                    <tr id="codevocher-row" style="display: none;">
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">Voucher Discount</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h5 class="text-danger text-end" id="codevocher">-₫0</h5>
+                                        </td>
+                                    </tr>
+                                    <tr id="discount-row" style="display: none;">
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">Discount Amount</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h5 class="text-danger text-end" id="discount-amount">-₫0</h5>
+                                        </td>
+                                    </tr>
 
-                                        <tr>
-                                            <td class="cart_total_label">
-                                                <h6 class="text-muted">Tổng cộng</h6>
-                                            </td>
-                                            <td class="cart_total_amount">
-                                                <h4 class="text-brand text-end" id="cart-total">@total.ToString("₫#,##0")</h4>
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td class="cart_total_label">
+                                            <h6 class="text-muted">Total</h6>
+                                        </td>
+                                        <td class="cart_total_amount">
+                                            <h4 class="text-brand text-end" id="cart-total">@total.ToString("₫#,##0")</h4>
+                                        </td>
+                                    </tr>
+
 
                                  @*    <tr>
                                         <td scope="col" colspan="2">
@@ -1413,8 +1202,8 @@ if (newQty < 1) {
             if (selectedProducts.length === 0) {
                 new Notify({
                     status: 'error',
-                    title: 'Thất Bại',
-                    text: 'Vui lòng chọn it nhất 1 sản phẩm.',
+                    title: 'Failed',
+                    text: 'Please select at least one product.',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,
@@ -1425,6 +1214,7 @@ if (newQty < 1) {
                 });
                 return;
             }
+
             function isValidGuid(str) {
                 return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
             }
@@ -1450,8 +1240,8 @@ if (newQty < 1) {
 
                     if (response.success) {
                         Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Bạn sẽ được chuyển hướng đến trang thanh toán...',
+                            title: 'Success!',
+                            text: 'You will be redirected to the payment page...',
                             icon: 'success',
                             confirmButtonText: 'OK'
                         }).then((result) => {
@@ -1462,8 +1252,8 @@ if (newQty < 1) {
                     } else {
                         new Notify({
                             status: 'error',
-                            title: 'Thất Bại',
-                            text: response.msg || 'Gửi thất bại!',
+                            title: 'Failed',
+                            text: response.msg || 'Sending failed!',
                             effect: 'fade',
                             speed: 300,
                             showIcon: true,
@@ -1475,12 +1265,13 @@ if (newQty < 1) {
                     }
 
 
+
                 },
                 error: function () {
                     new Notify({
                         status: 'error',
-                        title: 'Thất Bại',
-                        text:  'Đã xảy ra lỗi vui lòng thử lại!',
+                        title: 'Failed',
+                        text: 'An error occurred, please try again!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -1489,6 +1280,7 @@ if (newQty < 1) {
                         autotimeout: 3000,
                         position: 'right top'
                     });
+
                 }
             });
         });
@@ -1641,3 +1433,236 @@ if (newQty < 1) {
 </body>
 
 </html>
+<script>
+    let loadedVouchers = [];
+    let selectedVoucherCode = null;
+
+    function renderVoucherList(vouchers) {
+        const container = document.getElementById("voucherListContainer");
+        container.innerHTML = "";
+
+        vouchers.forEach(v => {
+            const disabledClass = v.disabled ? "bg-light text-muted" : "";
+            const disabledAttr = v.disabled ? "disabled" : "";
+            const conditionNote = v.disabled ? `<div class="text-danger small mt-1">This voucher cannot be used.</div>` : "";
+            const textClass = v.disabled ? "text-muted" : "text-dark";
+            const mutedClass = v.disabled ? "text-muted" : "text-dark";
+            const maxDiscountNote = v.maxDiscountAmount ? `<div class="${mutedClass} small">Maximum discount: ${v.maxDiscountAmount}</div>` : "";
+            const checkedAttr = v.code === selectedVoucherCode ? "checked" : "";
+
+            const item = document.createElement("div");
+            item.className = `voucher-item position-relative border rounded-3 d-flex p-3 mb-3 shadow-sm ${disabledClass}`;
+            item.innerHTML = `
+                                            <div class="voucher-left text-center pe-3">
+                                                <div class="${v.disabled ? 'bg-secondary' : 'bg-danger'} text-white p-3 rounded-start">
+                                                    <i class="bi bi-bag-fill fs-4 d-block"></i>
+                                                    <div class="small mt-1">Foods  Voucher</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold ${textClass}">${v.title} <span class="text-primary">(${v.code})</span></div>
+                                                ${maxDiscountNote}
+                                                <div class="${mutedClass} small">Minimum order ${v.minOrder}</div>
+                                                <div class="${mutedClass} small mt-1">Expires: ${v.expire}
+                                                    <a href="#" class="ms-2 text-decoration-underline text-primary voucher-condition-link" data-code="${v.code}" data-bs-toggle="modal" data-bs-target="#voucherConditionModal">Conditions</a>
+                                                    ${conditionNote}
+                                                </div>
+                                            </div>
+                                            <div class="position-absolute top-0 end-0 p-2">
+                                                <span class="badge ${v.disabled ? 'bg-secondary' : 'bg-danger'} rounded-pill">x ${v.count}</span>
+                                                <div class="form-check mt-2">
+                                                    <input class="form-check-input" type="radio" name="voucherOption" value="${v.code}" ${disabledAttr} ${checkedAttr}>
+                                                </div>
+                                            </div>
+                                        `;
+            container.appendChild(item);
+        });
+    }
+
+    function applySelectedVoucher() {
+        const selected = document.querySelector('input[name="voucherOption"]:checked');
+        if (selected && !selected.disabled) {
+            const code = selected.value;
+            selectedVoucherCode = code;
+            const infoBox = document.getElementById("selectedVoucherInfo");
+            if (infoBox) {
+                infoBox.innerHTML = `1 Voucher selected <span class="text-danger">${code}</span>`;
+            }
+
+            const rawSubtotal = document.getElementById("subtotal-amount")?.innerText || "₫0";
+            const currentSubtotal = parseInt(rawSubtotal.replace(/[^\d]/g, '')) || 0;
+
+            fetch("/voucher/calculate-discount", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: code, orderTotal: currentSubtotal })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("Voucher cannot be applied.");
+                    return res.json();
+                })
+                .then(data => {
+                    const discount = Number(data.discountAmount);
+                    const subtotal = Number(data.orderTotalAfterDiscount) + discount;
+                    updateCartTotal(subtotal, discount, data.code, data.discountType);
+                })
+                .catch(err => {
+                    console.error("Error calling discount API:", err);
+                    alert("Cannot apply voucher: " + err.message);
+                });
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('voucherShopeeModal'));
+            if (modal) modal.hide();
+        } else {
+            alert("Please select a valid discount code.");
+        }
+    }
+
+    function updateCartTotal(originalSubtotal, discount, code, discountType) {
+        if (typeof originalSubtotal !== "number" || typeof discount !== "number") {
+            console.error("Invalid data from API:", { originalSubtotal, discount });
+            return;
+        }
+
+        const discountedTotal = originalSubtotal - discount;
+        const formattedDiscount = discountType === "Percent"
+            ? `-${discount}%`
+            : `-₫${discount.toLocaleString()}`;
+
+        document.getElementById("subtotal-amount").innerText = `₫${originalSubtotal.toLocaleString()}`;
+        document.getElementById("discount-amount").innerText = formattedDiscount;
+        document.getElementById("codevocher").innerText = `${code}`;
+        document.getElementById("cart-total").innerText = `₫${discountedTotal.toLocaleString()}`;
+        document.getElementById("discount-row").style.display = discount > 0 ? "" : "none";
+        document.getElementById("codevocher-row").style.display = discount > 0 ? "" : "none";
+    }
+
+    function handleConditionModal(code) {
+        const v = loadedVouchers.find(x => x.code === code);
+        const modalBody = document.querySelector("#voucherConditionModal .modal-body");
+        if (!v) {
+            modalBody.innerHTML = `<div class="text-danger">Voucher information not found.</div>`;
+            return;
+        }
+        modalBody.innerHTML = `
+                                        <p><strong>Code:</strong> ${v.code}</p>
+                                        <p><strong>Minimum order:</strong> ${v.minOrder}</p>
+                                        ${v.maxDiscountAmount ? `<p><strong>Maximum discount:</strong> ${v.maxDiscountAmount}</p>` : ""}
+                                        <p><strong>Expires:</strong> ${v.expire}</p>
+                                        <p><strong>Type:</strong> ${v.isStoreVoucher ? "Store voucher" : "Platform-wide voucher (admin)"}</p>
+                                    `;
+    }
+
+    function attachVoucherEvents() {
+        document.querySelectorAll('#voucherTab .nav-link').forEach(btn => {
+            btn.addEventListener("click", function () {
+                document.querySelectorAll('#voucherTab .nav-link').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const type = this.getAttribute("data-type");
+                const filtered = type === "store"
+                    ? loadedVouchers.filter(v => v.isStoreVoucher)
+                    : loadedVouchers;
+                renderVoucherList(filtered);
+            });
+        });
+
+        document.addEventListener("click", function (e) {
+            const item = e.target.closest(".voucher-item");
+            if (item && !item.classList.contains("text-muted")) {
+                const radio = item.querySelector('input[type="radio"]');
+                if (radio && !radio.disabled) {
+                    radio.checked = true;
+                    selectedVoucherCode = radio.value;
+                    const infoBox = document.getElementById("selectedVoucherInfo");
+                    if (infoBox) {
+                        infoBox.innerHTML = `1 Voucher selected <span class="text-danger">${selectedVoucherCode}</span>`;
+                    }
+                }
+            }
+
+            const link = e.target.closest(".voucher-condition-link");
+            if (link) {
+                const code = link.getAttribute("data-code");
+                handleConditionModal(code);
+            }
+        });
+
+        document.getElementById("confirmVoucherBtn").addEventListener("click", applySelectedVoucher);
+
+        document.getElementById("applyVoucherCode").addEventListener("click", async function () {
+            const input = document.getElementById("voucherSearchInput").value.trim();
+            const errorBox = document.getElementById("voucherSearchError");
+            errorBox.innerText = "";
+
+            if (!input) {
+                errorBox.innerText = "Please enter a voucher code.";
+                return;
+            }
+
+            try {
+                const res = await fetch(`/voucher/search?code=${encodeURIComponent(input)}`);
+                if (!res.ok) {
+                    const err = await res.json();
+                    errorBox.innerText = err.message || "Voucher not found.";
+                    return;
+                }
+
+                const foundVoucher = await res.json();
+                renderVoucherList([foundVoucher]);
+            } catch (err) {
+                console.error("Error searching voucher:", err);
+                errorBox.innerText = "An error occurred while searching for voucher.";
+            }
+        });
+    }
+    async function loadVouchers(productId) {
+        try {
+            const res = await fetch(`/voucher/get-all?productId=${encodeURIComponent(productId)}`);
+            if (!res.ok) throw new Error("Cannot load vouchers.");
+            loadedVouchers = await res.json();
+            renderVoucherList(loadedVouchers);
+        } catch (err) {
+            document.getElementById("voucherListContainer").innerHTML = `<div class="text-danger">Error loading vouchers.</div>`;
+        }
+    }
+
+    function isValidGuid(str) {
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+    }
+
+    document.getElementById("voucherShopeeModal").addEventListener("show.bs.modal", async function () {
+        var selectedProducts = [];
+
+        $("input.form-check-input:checked").each(function () {
+            selectedProducts.push($(this).val());
+        });
+
+        // Lọc ra productId hợp lệ đầu tiên
+        const selectedProductId = selectedProducts.find(id => isValidGuid(id));
+
+        if (!selectedProductId) {
+            new Notify({
+                status: 'error',
+                title: 'Failed',
+                text: 'Please select at least one valid product.',
+                effect: 'fade',
+                speed: 300,
+                showIcon: true,
+                showCloseButton: true,
+                autoclose: true,
+                autotimeout: 3000,
+                position: 'right top'
+            });
+            return;
+        }
+
+        await loadVouchers(selectedProductId);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const helpLink = document.getElementById('helpLink');
+        if (helpLink) new bootstrap.Popover(helpLink);
+        attachVoucherEvents();
+    });
+
+</script>

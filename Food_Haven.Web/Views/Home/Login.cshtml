@@ -619,7 +619,7 @@
 
 <script type="text/javascript">
     $("#btnLogin").on("click", function () {
-        $('#btnLogin').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...').prop('disabled', true);
+        $('#btnLogin').html('<i class="fa fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
         var username = $("#username").val();
         var password = $("#password").val();
         var ReturnUrl = $("#ReturnUrl").val();
@@ -646,17 +646,17 @@
                     setTimeout("location.href = '" + response.redirectUrl + "';", 100);
                 } else if (response.status == 'verify') {
                     Swal.fire({
-                        title: "Nhập mã xác minh 2 bước",
+                        title: "Enter two-step verification code",
                         input: "text",
                         inputAttributes: {
                             autocapitalize: "off"
                         },
                         showCancelButton: true,
-                        confirmButtonText: "Xác nhận",
+                        confirmButtonText: "Confirm",
                         showLoaderOnConfirm: true,
                         preConfirm: async (otp) => {
                             if (!otp) {
-                                Swal.showValidationMessage("Vui lòng nhập mã xác minh.");
+                                Swal.showValidationMessage("Please enter the verification code.");
                             }
                             return otp;
                         },
@@ -685,15 +685,21 @@
                                         });
                                         setTimeout("location.href = '" + response.redirectUrl + "';", 100);
                                     } else {
-                                        Swal.fire('Thất bại', response.msg, 'error');
+                                        Swal.fire(
+                                            'Failed',
+                                            response.msg,
+                                            'error'
+                                        );
+
                                     }
                                 },
                                 error: function () {
                                     cuteToast({
                                         type: "error",
-                                        message: 'Không thể xử lý',
+                                        message: 'Cannot process',
                                         timer: 5000
                                     });
+
                                 }
                             });
                         }
@@ -709,20 +715,22 @@
                     });
                 } else {
                     Swal.fire(
-                        'Thất bại',
+                        'Failed',
                         response.msg,
                         'error'
                     );
+
                 }
-                $('#btnLogin').html('Đăng Nhập').prop('disabled', false);
+                $('#btnLogin').html('Login').prop('disabled', false);
             },
             error: function () {
                 cuteToast({
                     type: "error",
-                    message: 'Không thể xử lý',
+                    message: 'Cannot process',
                     timer: 5000
                 });
-                $('#btnLogin').html('Đăng Nhập').prop('disabled', false);
+
+                $('#btnLogin').html('Login').prop('disabled', false);
             }
         });
     });

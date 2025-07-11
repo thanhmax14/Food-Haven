@@ -433,13 +433,14 @@
                                                 sort: true,
                                                 search: true,
                                                 language: {
-                                                    search: { placeholder: "Tìm kiếm..." },
+                                                    search: { placeholder: "" },
                                                     pagination: {
-                                                        previous: "Trước",
-                                                        next: "Sau",
-                                                        showing: "Hiển thị",
-                                                        results: () => "khiếu nại"
+                                                        previous: "Previous",
+                                                        next: "Next",
+                                                        showing: "Showing",
+                                                        results: () => "complaints"
                                                     },
+
                                                     noRecordsFound: "Không có dữ liệu."
                                                 }
                                             }).render(target);

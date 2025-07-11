@@ -517,12 +517,13 @@
 
         if (!checkbox.checked) {
             Swal.fire(
-                'Thất bại',
-                "Vui lòng đồng ý điều khoản và chính sách để tiếp tục",
+                'Failed',
+                "Please agree to the terms and policies to continue",
                 'error'
             );
             return;
         }
+
 
         $('#btnForgotPassword button[type="submit"]').html('<i class="fa fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
 
@@ -567,9 +568,10 @@
             error: function () {
                 cuteToast({
                     type: "error",
-                    message: 'Không thể xử lý',
+                    message: 'Cannot process',
                     timer: 5000
                 });
+
 
                 $('#btnForgotPassword button[type="submit"]').html('Reset password').prop('disabled', false);
             }

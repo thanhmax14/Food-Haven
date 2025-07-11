@@ -445,17 +445,18 @@
                                                 search: true,
                                                 language: {
                                                     search: {
-                                                        placeholder: 'Tìm kiếm đơn hàng...'
+                                                        placeholder: ''
                                                     },
                                                     pagination: {
-                                                        previous: 'Trước',
-                                                        next: 'Sau',
-                                                        showing: 'Hiển thị',
-                                                        results: () => 'đơn hàng'
+                                                        previous: 'Previous',
+                                                        next: 'Next',
+                                                        showing: 'Showing',
+                                                        results: () => 'orders'
                                                     },
-                                                    loading: 'Đang tải...',
-                                                    noRecordsFound: 'Không có đơn hàng nào.'
+                                                    loading: 'Loading...',
+                                                    noRecordsFound: 'No orders found.'
                                                 }
+
                                             }).render(document.getElementById(elementId));
                                         }
 
@@ -485,26 +486,7 @@
                                     fetchOrders();
                                 });
                             </script>
-                            <style>
-                                /* Màu số phân trang là đen */
-                                .gridjs .gridjs-pages button {
-                                    color: #000 !important;
-                                }
-
-                                /* Đậm hơn khi đang chọn */
-                                .gridjs .gridjs-pages .gridjs-currentPage {
-                                    font-weight: bold;
-                                    text-decoration: underline;
-                                }
-
-                                /* Tùy chọn nút nhỏ */
-                                .gridjs .btn-sm {
-                                    padding: 0.25rem 0.5rem;
-                                    font-size: 0.75rem;
-                                    border-radius: 4px;
-                                }
-                            </style>
-
+                          
 
 
 
@@ -599,6 +581,40 @@
 
     <!-- App js -->
     <script src="~/assetsAdmin/js/app.js"></script>
+    <style>
+        /* Màu số phân trang là đen */
+        .gridjs .gridjs-pages button {
+            color: #000 !important;
+        }
+
+        /* Đậm hơn khi đang chọn */
+        .gridjs .gridjs-pages .gridjs-currentPage {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Tùy chọn nút nhỏ */
+        .gridjs .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+/* 
+        input.gridjs-input {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-color: #fff !important;
+            border: 1px solid #d2d6dc !important;
+            border-radius: 5px !important;
+            font-size: 14px !important;
+            line-height: 1.45 !important;
+            outline: none !important;
+            padding: 0 0 32.4px 14px !important;
+        } */
+
+
+    </style>
 
 </body>
 

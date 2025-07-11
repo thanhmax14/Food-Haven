@@ -221,18 +221,17 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password, bool? rememberMe, string ReturnUrl = null)
         {
-
             if (string.IsNullOrWhiteSpace(username))
             {
-                return Json(new { status = "error", msg = "Tên Người Dùng Không Được Để Trống" });
+                return Json(new { status = "error", msg = "Username cannot be empty" });
             }
             if (string.IsNullOrEmpty(password))
             {
-                return Json(new { status = "error", msg = "Mật Khẩu Không Được Để Trống" });
+                return Json(new { status = "error", msg = "Password cannot be empty" });
             }
             if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl) && ReturnUrl != Url.Action("Login", "Home")
-            && ReturnUrl != Url.Action("Register", "Home") && ReturnUrl != Url.Action("Forgot", "Home")
-            && ReturnUrl != Url.Action("ResetPassword", "Home")
+                && ReturnUrl != Url.Action("Register", "Home") && ReturnUrl != Url.Action("Forgot", "Home")
+                && ReturnUrl != Url.Action("ResetPassword", "Home")
             )
             {
                 ViewData["ReturnUrl"] = ReturnUrl;
@@ -244,19 +243,18 @@ namespace Food_Haven.Web.Controllers
             // Xử lý ReturnUrl tương tự GET
             try
             {
-
                 var user = await _userManager.FindByNameAsync(username) ?? await _userManager.FindByEmailAsync(username);
                 if (user == null)
                 {
-                    return Json(new { status = "error", msg = "Tài khoản không tồn tại" });
+                    return Json(new { status = "error", msg = "Account does not exist" });
                 }
                 if (user.IsBannedByAdmin)
                 {
-                    return Json(new { status = "error", msg = "Tài khoản của bạn đã bị khóa bởi quản trị viên." });
+                    return Json(new { status = "error", msg = "Your account has been locked by the administrator." });
                 }
                 if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
-                    return Json(new { status = "error", msg = "Bạn phải xác thực email trước khi đăng nhập." });
+                    return Json(new { status = "error", msg = "You must verify your email before logging in." });
                 }
                 var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
                 if (!isPasswordValid)
@@ -266,11 +264,11 @@ namespace Food_Haven.Web.Controllers
 
                     if (await _userManager.IsLockedOutAsync(user))
                     {
-                        return Json(new { status = "error", msg = "Tài khoản của bạn đã bị khóa do quá nhiều lần đăng nhập thất bại." });
+                        return Json(new { status = "error", msg = "Your account has been locked due to too many failed login attempts." });
                     }
                     else
                     {
-                        return Json(new { status = "error", msg = $"Sai mật khẩu! Bạn còn {5 - failedAttempts} lần thử." });
+                        return Json(new { status = "error", msg = $"Incorrect password! You have {5 - failedAttempts} attempts left." });
                     }
                 }
 
@@ -278,30 +276,29 @@ namespace Food_Haven.Web.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, password, rememberMe ?? false, lockoutOnFailure: true);
                 if (result.IsLockedOut)
                 {
-                    return Json(new { status = "error", msg = "Tài khoản của bạn đã bị khóa." });
+                    return Json(new { status = "error", msg = "Your account has been locked." });
                 }
                 var isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
                 if (isTwoFactorEnabled)
                 {
                     var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Authenticator");
-                    return Json(new { status = "verify", msg = "Nhập mã xác minh từ ứng dụng xác thực.", token = token });
+                    return Json(new { status = "verify", msg = "Enter the verification code from your authenticator app.", token = token });
                 }
                 if (result.Succeeded)
                 {
                     return Ok(new
                     {
                         status = "success",
-                        msg = "Đăng nhập thành công",
+                        msg = "Login successful",
                         redirectUrl = ReturnUrl
-
                     });
                 }
             }
             catch (Exception e)
             {
-                return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+                return Json(new { status = "error", msg = "Unknown error, please try again." });
             }
-            return Unauthorized(new { status = "error", msg = "Thông tin đăng nhập không chính xác!" });
+            return Unauthorized(new { status = "error", msg = "Incorrect login information!" });
         }
 
         [HttpGet]
@@ -353,7 +350,8 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { status = "error", msg = "" + ModelState["repassword"].Errors[0].ErrorMessage });
                 }
 
-                return Json(new { status = "error", msg = "Dữ liệu không hợp lệ" });
+                return Json(new { status = "error", msg = "Invalid data" });
+
             }
 
             if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl) && model.ReturnUrl != Url.Action("Login", "Home")
@@ -373,12 +371,12 @@ namespace Food_Haven.Web.Controllers
                 var existingUser = await _userManager.FindByNameAsync(model.Username);
                 if (existingUser != null)
                 {
-                    return Json(new { status = "error", msg = "Tên người dùng đã tồn tại. Vui lòng chọn tên khác." });
+                    return Json(new { status = "error", msg = "Username already exists. Please choose a different username." });
                 }
                 var existingEmail = await _userManager.FindByEmailAsync(model.Email);
                 if (existingEmail != null)
                 {
-                    return Json(new { status = "error", msg = "Email đã được đăng ký. Vui lòng sử dụng email khác." });
+                    return Json(new { status = "error", msg = "Email has already been registered. Please use a different email." });
                 }
                 var user = new AppUser
                 {
@@ -396,18 +394,18 @@ namespace Food_Haven.Web.Controllers
                         await _emailSender.SendEmailAsync(user.Email, "Email Verification",
                             $"{TemplateSendmail.TemplateVerifyLinkCode(model.Username, confirmationLink)}");
 
-                        return Json(new { status = "success", msg = "Đăng kí thành công vui lòng xác nhận email." });
+                        return Json(new { status = "success", msg = "Registration successful, please confirm your email." });
                     }
-                    return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng liên hệ quản trị." });
-
+                    return Json(new { status = "error", msg = "Unknown error, please contact the administrator." });
                 }
                 var firstResultError = result.Errors.FirstOrDefault()?.Description;
-                return Json(new { status = "error", msg = firstResultError ?? "Đăng ký thất bại." });
+                return Json(new { status = "error", msg = firstResultError ?? "Registration failed." });
             }
             catch (Exception e)
             {
-                return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+                return Json(new { status = "error", msg = "Unknown error, please try again." });
             }
+
         }
 
 
@@ -486,7 +484,7 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (userId == null || token == null)
-                return Json(new { success = false, message = "Yêu cầu không hợp lệ." });
+                return Json(new { success = false, message = "Invalid request." });
             try
             {
                 userId = EncryptData.Decrypt(Uri.UnescapeDataString(userId), "Xinchao123@");
@@ -494,46 +492,44 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception)
             {
-                return Json(new { success = false, message = "Yêu cầu không hợp lệ." });
+                return Json(new { success = false, message = "Invalid request." });
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                return Json(new { success = false, message = "Không tìm thấy người dùng." });
+                return Json(new { success = false, message = "User not found." });
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
-                return Json(new { success = true, message = "Xác nhận email thành công!" });
+                return Json(new { success = true, message = "Email confirmed successfully!" });
 
-            return Json(new { success = false, message = "Liên kết đã hết hạn hoặc không hợp lệ." });
+            return Json(new { success = false, message = "The link has expired or is invalid." });
         }
 
         [HttpPost]
         public async Task<IActionResult> ResendConfirmationEmail(string username)
         {
-
             try
             {
                 var user = await _userManager.FindByNameAsync(username) ?? await _userManager.FindByEmailAsync(username);
                 if (user == null)
                 {
-                    return BadRequest(new { status = "error", msg = "Tài khoản không tồn tại." });
+                    return BadRequest(new { status = "error", msg = "Account does not exist." });
                 }
                 if (await _userManager.IsEmailConfirmedAsync(user))
                 {
-                    return BadRequest(new { status = "error", msg = "Email đã được xác nhận." });
+                    return BadRequest(new { status = "error", msg = "Email has already been confirmed." });
                 }
                 var token = EncryptData.Encrypt(await _userManager.GenerateEmailConfirmationTokenAsync(user), "Xinchao123@");
                 var confirmationLink = Url.Action("Index", "Home", new { userId = Uri.EscapeDataString(EncryptData.Encrypt(user.Id, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
                 await _emailSender.SendEmailAsync(user.Email, "Email Verification",
                     $"{TemplateSendmail.TemplateVerifyLinkCode(user.UserName, confirmationLink)}");
 
-                return Json(new { status = "success", msg = "Một email xác nhận mới đã được gửi." });
+                return Json(new { status = "success", msg = "A new confirmation email has been sent." });
             }
             catch (Exception ex)
             {
-
-                return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+                return Json(new { status = "error", msg = "Unknown error, please try again." });
             }
         }
 
@@ -904,29 +900,28 @@ namespace Food_Haven.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(email))
             {
-                return Json(new { status = "error", msg = "Email không hợp lệ" });
+                return Json(new { status = "error", msg = "Invalid email" });
             }
             try
             {
-
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
-                    return Json(new { status = "error", msg = "Email không tồn tại trong hệ thống." });
+                    return Json(new { status = "error", msg = "Email does not exist in the system." });
                 }
                 var token = EncryptData.Encrypt(await _userManager.GeneratePasswordResetTokenAsync(user), "Xinchao123@");
                 var confirmationLink = Url.Action("ResetPassword", "Home", new { email = Uri.EscapeDataString(EncryptData.Encrypt(user.Email, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
                 await _emailSender.SendEmailAsync(user.Email, "Request forgot password",
                     $"{TemplateSendmail.TemplateResetPassword(confirmationLink)}");
-                return Json(new { status = "success", msg = "Đăng kí thành công vui lòng xác nhận email." });
-
+                return Json(new { status = "success", msg = "A password reset email has been sent. Please check your email." });
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return Json(new { status = "error", msg = "Lỗi không xác định, vui lòng thử lại." });
+                return Json(new { status = "error", msg = "Unknown error, please try again." });
             }
         }
+
 
         [HttpGet]
         public IActionResult ResetPassword(string token, string email)
@@ -958,24 +953,24 @@ namespace Food_Haven.Web.Controllers
             var user = await _userManager.FindByEmailAsync(EncryptData.Decrypt(Uri.UnescapeDataString(model.Email), "Xinchao123@"));
             if (user == null)
             {
-                return Json(new { status = "error", msg = "Email không tồn tại trong hệ thống." });
+                return Json(new { status = "error", msg = "Email does not exist in the system." });
             }
 
             var result = await _userManager.ResetPasswordAsync(user, EncryptData.Decrypt(Uri.UnescapeDataString(model.Token), "Xinchao123@"), model.Password);
             if (result.Succeeded)
             {
-                return Json(new { status = "success", msg = "Mật khẩu đã được thay đổi thành công." });
+                return Json(new { status = "success", msg = "Password has been changed successfully." });
             }
 
             var firstResultError = result.Errors.FirstOrDefault()?.Description;
             if (firstResultError == "Invalid token.")
             {
-                firstResultError = "Link cập nhật mật khẩu đã hết hạn!!";
+                firstResultError = "The password reset link has expired!";
             }
 
-            return Json(new { status = "error", msg = firstResultError ?? "Cập nhật mật khẩu thất bại." });
-
+            return Json(new { status = "error", msg = firstResultError ?? "Password update failed." });
         }
+
         public async Task<IActionResult> Cart()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -1277,16 +1272,16 @@ namespace Food_Haven.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return Json(new { notAuth = true, message = "Bạn phải đăng nhập thể thực hiện hành động này!" });
+                return Json(new { notAuth = true, message = "You must be logged in to perform this action!" });
             }
             var check = await this._product.FindAsync(x => x.ID == id);
             if (check == null)
             {
-                return Json(new { success = false, message = "Product không tồn tại!!" });
+                return Json(new { success = false, message = "Product does not exist!" });
             }
             else if (await this._wishlist.FindAsync(x => x.ProductID == id && x.UserID == user.Id) != null)
             {
-                return Json(new { success = false, message = $"{check.Name} đã tồn tại trong danh sách yêu thích.!" });
+                return Json(new { success = false, message = $"{check.Name} already exists in your wishlist!" });
             }
             else
             {
@@ -1300,11 +1295,11 @@ namespace Food_Haven.Web.Controllers
                 {
                     await this._wishlist.AddAsync(tem);
                     await this._wishlist.SaveChangesAsync();
-                    return Json(new { success = true, message = $"Thêm thành công!" });
+                    return Json(new { success = true, message = "Added successfully!" });
                 }
                 catch
                 {
-                    return Json(new { success = false, message = "Thêm thất bại!" });
+                    return Json(new { success = false, message = "Add failed!" });
                 }
             }
         }
@@ -1312,39 +1307,38 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-
         public async Task<IActionResult> RemoveWish(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return Json(new { notAuth = true, message = "Bạn phải đăng nhập thể thực hiện hành động này!" });
+                return Json(new { notAuth = true, message = "You must be logged in to perform this action!" });
             }
             var check = await this._product.FindAsync(x => x.ID == id);
             if (check == null)
             {
-                return Json(new { success = false, message = "Product không tồn tại!!" });
+                return Json(new { success = false, message = "Product does not exist!" });
             }
             var wshlict = await this._wishlist.FindAsync(x => x.ProductID == id && x.UserID == user.Id);
             if (wshlict == null)
             {
-                return Json(new { success = false, message = $"{check.Name} không tồn tại trong danh sách yêu thích.!" });
+                return Json(new { success = false, message = $"{check.Name} does not exist in your wishlist!" });
             }
             else
             {
-
                 try
                 {
                     await this._wishlist.DeleteAsync(wshlict);
                     await this._wishlist.SaveChangesAsync();
-                    return Json(new { success = true, message = $"Xoa thành công!" });
+                    return Json(new { success = true, message = "Deleted successfully!" });
                 }
                 catch
                 {
-                    return Json(new { success = false, message = "Xoa thất bại!" });
+                    return Json(new { success = false, message = "Delete failed!" });
                 }
             }
         }
+
 
         public async Task<IActionResult> Wishlist()
         {
@@ -1415,11 +1409,12 @@ namespace Food_Haven.Web.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return Json(new ErroMess { msg = "Bạn phải đăng nhập thể thực hiện hành động này!" });
+                return Json(new ErroMess { msg = "You must be logged in to perform this action!" });
             }
             var balance = await this._balance.GetBalance(user.Id);
             return Json(new ErroMess { success = true, msg = $"{balance}" });
         }
+
         [HttpGet]
         public async Task<IActionResult> SearchCategoryList()
         {
@@ -1497,35 +1492,65 @@ namespace Food_Haven.Web.Controllers
             });
         }
         [HttpGet("voucher/get-all")]
-        public IActionResult GetAllVouchers()
+        public async Task<IActionResult> GetAllVouchers(Guid productId)
         {
-            var data = _voucher.GetAll().Select(v => new
+            // Lấy biến thể sản phẩm theo ID
+            var productVariant = await _productvarian.FindAsync(u => u.ID == productId);
+            if (productVariant == null)
+                return NotFound(new { message = "Product variant not found" });
+
+            // Lấy sản phẩm cha của biến thể
+            var product = await _product.FindAsync(p => p.ID == productVariant.ProductID);
+            if (product == null)
+                return NotFound(new { message = "Product not found" });
+
+            var storeId = product.StoreID;
+
+            var now = DateTime.Now;
+
+            // Lấy voucher: voucher toàn sàn (IsGlobal == true) hoặc voucher thuộc store,
+            // loại bỏ voucher có Code bắt đầu bằng "Warranty" (không phân biệt hoa thường),
+            // và chỉ lấy voucher active
+            var vouchers = _voucher.GetAll()
+     .Where(v => v.IsGlobal || (!v.IsGlobal && v.StoreID == storeId))
+     .ToList()  // Lấy về client
+     .Where(v => !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase));
+
+
+            var data = vouchers.Select(v => new
             {
                 id = v.ID,
                 code = v.Code,
-                title = v.DiscountType == "Percent" ? $"Giảm {v.DiscountAmount}%" : $"Giảm ₫{v.DiscountAmount:n0}",
-                minOrder = $"₫{v.MinOrderValue:n0}",
-                expire = v.ExpirationDate.ToString("dd.MM.yyyy"),
+                title = v.DiscountType == "Percent"
+                    ? $"Discount {v.DiscountAmount}%"
+                    : $"Discount ₫{v.DiscountAmount:n0}",
+                minOrder = $"Min order: ₫{v.MinOrderValue:n0}",
+                expire = v.ExpirationDate.ToString("MM/dd/yyyy"),
                 count = v.MaxUsage - v.CurrentUsage,
-                disabled = !v.IsActive || v.ExpirationDate < DateTime.Now,
+                disabled = v.ExpirationDate < now || (v.MaxUsage - v.CurrentUsage) <= 0,
                 isStoreVoucher = !v.IsGlobal,
-                maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"₫{v.MaxDiscountAmount.Value:n0}" : null
+                maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"Max discount: ₫{v.MaxDiscountAmount.Value:n0}" : null
             }).ToList();
 
             return Json(data);
         }
+
+
+
+
+
         [HttpPost("voucher/calculate-discount")]
         public IActionResult CalculateDiscount([FromBody] DiscountRequest request)
         {
             if (string.IsNullOrEmpty(request.Code) || request.OrderTotal <= 0)
-                return BadRequest(new { message = "Dữ liệu không hợp lệ" });
+                return BadRequest(new { message = "Invalid data" });
 
             var v = _voucher.GetAll().FirstOrDefault(x => x.Code == request.Code && x.IsActive);
             if (v == null)
-                return NotFound(new { message = "Voucher không hợp lệ" });
+                return NotFound(new { message = "Invalid voucher" });
 
             if (request.OrderTotal < v.MinOrderValue)
-                return BadRequest(new { message = "Không đủ điều kiện áp dụng" });
+                return BadRequest(new { message = "Order does not meet the minimum requirement" });
 
             decimal discount = v.DiscountType == "Percent"
                 ? request.OrderTotal * v.DiscountAmount / 100
@@ -1540,15 +1565,16 @@ namespace Food_Haven.Web.Controllers
             {
                 discountAmount = discount,
                 orderTotalAfterDiscount = finalAmount,
-                discountType = v.DiscountType, // "Percent" hoặc "Fixed"
+                discountType = v.DiscountType, // "Percent" or "Fixed"
                 code = v.Code
             });
         }
+
         [HttpGet("voucher/search")]
         public async Task<IActionResult> SearchVoucher(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
-                return BadRequest(new { message = "Thiếu mã voucher." });
+                return BadRequest(new { message = "Voucher code is required." });
 
             var result = await _voucher.ListAsync(
                 filter: x => x.Code.ToLower() == code.ToLower()
@@ -1559,18 +1585,18 @@ namespace Food_Haven.Web.Controllers
                 id = v.ID,
                 code = v.Code,
                 title = v.DiscountType == "Percent"
-                    ? $"Giảm {v.DiscountAmount}%"
-                    : $"Giảm ₫{v.DiscountAmount:n0}",
-                minOrder = $"₫{v.MinOrderValue:n0}",
-                expire = v.ExpirationDate.ToString("dd.MM.yyyy"),
+                    ? $"Discount {v.DiscountAmount}%"
+                    : $"Discount ₫{v.DiscountAmount:n0}",
+                minOrder = $"Min order: ₫{v.MinOrderValue:n0}",
+                expire = v.ExpirationDate.ToString("MM.dd.yyyy"), // Anh-Mỹ, chỉnh lại nếu muốn dd.MM.yyyy
                 count = v.MaxUsage - v.CurrentUsage,
                 disabled = !v.IsActive || v.ExpirationDate < DateTime.Now,
                 isStoreVoucher = !v.IsGlobal,
-                maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"₫{v.MaxDiscountAmount.Value:n0}" : null
+                maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"Max discount: ₫{v.MaxDiscountAmount.Value:n0}" : null
             }).FirstOrDefault();
 
             if (v == null)
-                return NotFound(new { message = "Không tìm thấy voucher." });
+                return NotFound(new { message = "Voucher not found." });
 
             return Json(v);
         }
