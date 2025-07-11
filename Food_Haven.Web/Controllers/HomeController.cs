@@ -779,8 +779,8 @@ namespace Food_Haven.Web.Controllers
             {
                 ID = productDetail.ID,
                 Name = productDetail.Name,
-                StoreName = store.Name ?? "Không rõ",
-                Owner = user?.UserName ?? store?.UserID ?? "Không rõ",
+                StoreName = store.Name ?? "Hollow",
+                Owner = user?.UserName ?? store?.UserID ?? "Hollow",
                 StoreID = productDetail.StoreID,
                 UserID = store.UserID, // ✅ Gán thêm dòng này
                 ShortDescription = productDetail.ShortDescription,
