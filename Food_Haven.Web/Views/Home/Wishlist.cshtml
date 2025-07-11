@@ -277,7 +277,7 @@
                                                 <span class="stock-status in-stock mb-0"> In Stock </span>
                                             </td>
                                             <td class="text-right" data-title="Cart">
-                                                <button class="btn btn-sm">Add to cart</button>
+                                                <a href="/Home/ProductDetail/@item.ProductID" class="btn btn-sm">View Product Details</a>
                                             </td>
                                             <td class="action text-center" data-title="Remove">
                                                 <a class="text-body" onclick="Remove('@item.ProductID')"><i class="fi-rs-trash"></i></a>
@@ -544,13 +544,12 @@
 
         if (true) {
             Swal.fire({
-                title: "Bạn có chắc chắn?",
-                text: "Bạn muốn xóa khỏi danh sách yêu thích?",
+                title: "Are you sure?",
+                text: "Do you want to remove this from your wishlist?",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: "Có, xóa!",
-                cancelButtonText: "Hủy"
-            }).then((result) => {
+                confirmButtonText: "Yes, remove!",
+                cancelButtonText: "Cancel".then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: "/Home/RemoveWish",
@@ -560,11 +559,32 @@
                             "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
                         },
                         success: function (response) {
-                            if (response.success) {
+                                if (response.success) {
+                                    new Notify({
+                                        status: 'success',
+                                        title: 'Success!',
+                                        text: response.message || 'Sent successfully!',
+                                        effect: 'fade',
+                                        speed: 300,
+                                        showIcon: true,
+                                        showCloseButton: true,
+                                        autoclose: true,
+                                        autotimeout: 3000,
+                                        position: 'right top'
+                                    });
+                                    icon.remove();
+                                } else if (response.notAuth) {
+                                    Swal.fire('Failed', response.message, 'error');
+                                } else {
+                                    Swal.fire('Failed', response.message, 'error');
+                                }
+
+                        },
+                        error: function () {
                                 new Notify({
-                                    status: 'success',
-                                    title: 'Thành công!',
-                                    text: response.message || 'Gửi thành công!',
+                                    status: 'error',
+                                    title: 'Failed',
+                                    text: response.message || 'Sending failed!',
                                     effect: 'fade',
                                     speed: 300,
                                     showIcon: true,
@@ -573,26 +593,7 @@
                                     autotimeout: 3000,
                                     position: 'right top'
                                 });
-                                icon.remove();
-                            } else if (response.notAuth) {
-                                Swal.fire('Thất bại', response.message, 'error');
-                            } else {
-                                Swal.fire('Thất bại', response.message, 'error');
-                            }
-                        },
-                        error: function () {
-                            new Notify({
-                                status: 'error',
-                                title: 'Thất Bại',
-                                text: response.message || 'Gửi thất bại!',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
+
                         }
                     });
                 }

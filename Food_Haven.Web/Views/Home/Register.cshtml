@@ -548,14 +548,15 @@
 
         if (!checkbox.checked) {
             Swal.fire(
-                'Thất bại',
-                "Vui lòng đồng ý điều khoản và chính sách sẽ tiếp tục",
+                'Failed',
+                "Please agree to the terms and policies to continue",
                 'error'
             );
             return 0;
         }
 
-        $('#btnRegister').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...').prop('disabled', true);
+
+        $('#btnRegister').html('<i class="fa fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
 
         $.ajax({
             url: "@Url.Action("Register", "Home")",
@@ -581,20 +582,22 @@
                     });
                 } else {
                     Swal.fire(
-                        'Thất bại',
+                        'Failed',
                         response.msg,
                         'error'
                     );
+
                 }
-                $('#btnRegister').html('Đăng Ký').prop('disabled', false);
+                $('#btnRegister').html('Register').prop('disabled', false);
             },
             error: function () {
                 cuteToast({
                     type: "error",
-                    message: 'Không thể xử lý',
+                    message: 'Cannot process',
                     timer: 5000
                 });
-                $('#btnRegister').html('Đăng Ký').prop('disabled', false);
+
+                $('#btnRegister').html('Register').prop('disabled', false);
             }
         });
     });

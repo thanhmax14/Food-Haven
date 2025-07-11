@@ -807,7 +807,8 @@ namespace Food_Haven.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new ErroMess { msg = "Bạn chưa đăng nhập!!" });
+                return Json(new ErroMess { msg = "You are not logged in!" });
+
 
             var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
             if (getStore == null)
@@ -970,16 +971,18 @@ namespace Food_Haven.Web.Controllers
         {
 
             if (string.IsNullOrWhiteSpace(id + ""))
-                return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
+                return Json(new { success = false, message = "Invalid order ID." });
+
 
             try
             {
                 var order = await _order.FindAsync(o => o.ID == id);
                 if (order == null)
-                    return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+                    return Json(new { success = false, message = "Order not found." });
 
-                if (!string.Equals(order.Status, "Pending", StringComparison.OrdinalIgnoreCase) || string.Equals(order.Status, "Preparing In Kitchen", StringComparison.OrdinalIgnoreCase))
-                    return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng đang chờ xử lý và Preparing In Kitchens." });
+                if (!string.Equals(order.Status, "Pending", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(order.Status, "Preparing In Kitchen", StringComparison.OrdinalIgnoreCase))
+                    return Json(new { success = false, message = "Only orders with status Pending and Preparing In Kitchen can be cancelled." });
 
                 var orderDetails = await _orderDetail.ListAsync(d => d.OrderID == order.ID);
                 if (orderDetails == null || !orderDetails.Any())
@@ -1033,14 +1036,16 @@ namespace Food_Haven.Web.Controllers
                 await _order.SaveChangesAsync();
                 await _balance.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Đơn hàng đã được hủy thành công." });
+                return Json(new { success = true, message = "Order has been cancelled successfully." });
+
             }
             catch (Exception ex)
             {
                 return Json(new
                 {
                     success = false,
-                    message = "Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại hoặc liên hệ admin.",
+                    message = "An error occurred while processing your request. Please try again or contact admin.",
+
                     /*   error = ex.Message // ❗ chỉ nên show ra trong môi trường dev*/
                 });
             }
@@ -1053,17 +1058,19 @@ namespace Food_Haven.Web.Controllers
                 var order = await _order.FindAsync(o => o.ID == id);
                 if (order == null)
                 {
-                    return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+                    return Json(new { success = false, message = "Order not found." });
                 }
 
                 // Trạng thái hủy sẽ không xử lý ở đây
                 if (status == "CANCELLED BY USER" || status == "CANCELLED BY SHOP")
                 {
-                    return Json(new { success = false, message = "Trạng thái hủy không được xử lý tại đây." });
+                    return Json(new { success = false, message = "Cancellation status cannot be processed here." });
+
                 }
                 var orderDetails = await _orderDetail.ListAsync(d => d.OrderID == order.ID);
                 if (orderDetails == null || !orderDetails.Any())
-                    return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+                    return Json(new { success = false, message = "There are no products in this order." });
+
 
                 foreach (var item in orderDetails)
                 {
@@ -1087,12 +1094,13 @@ namespace Food_Haven.Web.Controllers
                 await _orderDetail.SaveChangesAsync();
                 await _order.SaveChangesAsync();
 
-                return Json(new { success = true, message = $"Cập nhật trạng thái đơn hàng thành công: {status}" });
+                return Json(new { success = true, message = $"Order status updated successfully: {status}" });
             }
             catch (Exception)
             {
-                return Json(new { success = false, message = "Lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại sau." });
+                return Json(new { success = false, message = "An error occurred while updating the status. Please try again later." });
             }
+
         }
 
         public async Task<IActionResult> Managercomplant()
@@ -1170,7 +1178,8 @@ namespace Food_Haven.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new ErroMess { msg = "Bạn chưa đăng nhập!!" });
+                return Json(new ErroMess { msg = "You are not logged in!" });
+
             var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
             if (getStore == null)
                 return Json("Store not found");
@@ -1245,17 +1254,17 @@ namespace Food_Haven.Web.Controllers
             string mess = "";
             if (id == Guid.Empty || string.IsNullOrWhiteSpace(action) || string.IsNullOrWhiteSpace(note))
             {
-                return Json(new { success = false, message = "Thông tin gửi lên không hợp lệ." });
+                return Json(new { success = false, message = "Invalid submission information." });
             }
 
             var complaint = await this._complaintService.FindAsync(c => c.ID == id);
             if (complaint == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy khiếu nại." });
+                return Json(new { success = false, message = "Complaint not found." });
             }
             if (complaint.Status.ToLower() == "Refund".ToLower())
             {
-                return Json(new { success = false, message = "Khiếu nại này đã được xử lý hoàn tiền." });
+                return Json(new { success = false, message = "This complaint has already been refunded." });
             }
 
             switch (action.ToLower())
@@ -1269,11 +1278,12 @@ namespace Food_Haven.Web.Controllers
                     try
                     {
                         var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
-                        if (orderDetails == null)
-                            return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
-                        var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
-                        if (order == null)
-                            return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+                      if (orderDetails == null)
+    return Json(new { success = false, message = "There are no products in this order." });
+var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
+if (order == null)
+    return Json(new { success = false, message = "Order not found." });
+
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
                         await _orderDetail.UpdateAsync(orderDetails);
@@ -1310,15 +1320,17 @@ namespace Food_Haven.Web.Controllers
                         await _balance.SaveChangesAsync();
 
 
-                        mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
+                        mess = "The order has been refunded and cancelled successfully.";
+
                     }
                     catch (Exception)
                     {
                         return Json(new
                         {
                             success = false,
-                            message = "Đã xảy ra lỗi khi xử lý hoàn tiền. Vui lòng thử lại hoặc liên hệ quản trị viên."
+                            message = "An error occurred while processing the refund. Please try again or contact the administrator."
                         });
+
                     }
                     break;
 
@@ -1330,23 +1342,25 @@ namespace Food_Haven.Web.Controllers
                         {
                             var ortrack = RandomCode.GenerateUniqueCode();
                             complaint.Status = "Warranty";
-                            complaint.Reply = $"[BẢO HÀNH] Order Tracking ={ortrack}\n{note}";
+                            complaint.Reply = $"[WARRANTY] Order Tracking = {ortrack}\n{note}";
 
                             var orderDetail = await _orderDetail.FindAsync(x => x.ID == complaint.OrderDetailID);
                             if (orderDetail == null)
-                                throw new Exception("Không tìm thấy chi tiết đơn hàng cần bảo hành.");
+                                throw new Exception("Order detail for warranty not found.");
 
                             var product = await _variantService.FindAsync(p => p.ID == orderDetail.ProductTypesID);
                             if (product == null || !product.IsActive)
-                                throw new Exception("Sản phẩm không tồn tại hoặc đã ngưng hoạt động.");
+                                throw new Exception("Product does not exist or is inactive.");
 
                             if (orderDetail.Quantity > product.Stock)
-                                throw new Exception("Số lượng bảo hành vượt quá tồn kho.");
+                                throw new Exception("Warranty quantity exceeds available stock.");
 
                             var originalOrder = await _order.FindAsync(x => x.ID == orderDetail.OrderID);
                             if (originalOrder == null)
-                                throw new Exception("Không tìm thấy đơn hàng gốc.");
+                                throw new Exception("Original order not found.");
+
                             var voucherCode = $"Warranty-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+
                             var voucher = new Voucher
                             {
                                 ID = Guid.NewGuid(),
@@ -1358,7 +1372,7 @@ namespace Food_Haven.Web.Controllers
                                 MaxUsage = 1,
                                 CurrentUsage = 0,
                                 MinOrderValue = 0,
-                                IsActive = true,
+                                IsActive = false,
                                 CreatedDate = DateTime.Now
                             };
                             await _voucher.AddAsync(voucher);
@@ -1379,8 +1393,8 @@ namespace Food_Haven.Web.Controllers
                                 Quantity = orderDetail.Quantity,
                                 OrderCode = voucherCode,
                                 VoucherID = voucher.ID,
-                                DeliveryAddress = originalOrder.DeliveryAddress ?? "Bảo hành tự động",
-                                Note = "Đơn bảo hành tự động",
+                                DeliveryAddress = originalOrder.DeliveryAddress ?? "Automatic warranty",
+                                Note = "Automatic warranty order",
                                 Description = $"Pending-{DateTime.Now}"
                             };
 
@@ -1429,19 +1443,21 @@ namespace Food_Haven.Web.Controllers
                         complaint.Reply = $"[Product Warranty] - {note}";
                         complaint.ReplyDate = DateTime.Now;
                         if (!result)
-                            return Json(new { success = false, msg = "Thao tác không thành công." });
-                        mess = "Đơn bảo hành miễn phí thành công!";
+                            return Json(new { success = false, msg = "Operation failed." });
+                        mess = "Free warranty order created successfully!";
                     }
                     catch (Exception ex)
                     {
-                        return Json(new { success = false, msg = "Lỗi khi xử lý bảo hành: " + ex.Message });
+                        return Json(new { success = false, msg = "Error processing warranty: " + ex.Message });
                     }
+
                     break;
 
 
                 case "dispute":
                     complaint.Status = "Report to Admin";
-                    complaint.Reply = $"[TRANH CHẤP] {note}";
+                    complaint.Reply = $"[DISPUTE] {note}";
+
                     complaint.IsReportAdmin = true;
                     complaint.AdminReportStatus = "Pending";
 
@@ -1449,7 +1465,8 @@ namespace Food_Haven.Web.Controllers
                     break;
 
                 default:
-                    return Json(new { success = false, message = "Loại hành động không hợp lệ." });
+                    return Json(new { success = false, message = "Invalid action type." });
+
             }
 
             complaint.ReplyDate = DateTime.Now;
@@ -1463,19 +1480,27 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+                return Json(new { success = false, message = "Error saving data: " + ex.Message });
             }
+
         }
         public async Task<IActionResult> ManagerVoucher()
         {
             return View();
         }
         [HttpGet]
-        public IActionResult GetAllVoucher()
+        public async Task<IActionResult> GetAllVoucher()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { error = "You are not logged in!" });
+
+            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+            if (store == null)
+                return Json(new { error = "Store not found." });
             try
             {
-                var data = _voucher.GetAll().Select(v => new
+                var data = _voucher.GetAll().Where(u => u.StoreID == store.ID).Select(v => new
                 {
                     id = v.ID,
                     code = v.Code,
@@ -1532,6 +1557,13 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateVoucher([FromBody] VoucherViewModel v)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { error = "You are not logged in!" });
+
+            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+            if (store == null)
+                return Json(new { error = "Store not found." });
             var errors = new Dictionary<string, string>();
 
             if (string.IsNullOrWhiteSpace(v.Code))
@@ -1578,7 +1610,7 @@ namespace Food_Haven.Web.Controllers
                 var entity = new Voucher
                 {
                     ID = Guid.NewGuid(),
-                    Code = v.Code,
+                    Code = v.Code.ToUpper(),
                     DiscountAmount = v.DiscountAmount,
                     DiscountType = v.DiscountType,
                     StartDate = startDate,
@@ -1588,7 +1620,7 @@ namespace Food_Haven.Web.Controllers
                     CurrentUsage = v.CurrentUsage,
                     MinOrderValue = v.MinOrderValue,
                     IsActive = v.IsActive,
-                    CreatedDate = DateTime.Now
+                    CreatedDate = DateTime.Now,StoreID=store.ID
                 };
 
                 await _voucher.AddAsync(entity);
@@ -1742,7 +1774,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình ngày", message = ex.Message });
+                return StatusCode(500, new { error = "Error retrieving date configuration", message = ex.Message });
+
             }
         }
 
@@ -1753,30 +1786,30 @@ namespace Food_Haven.Web.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return Json(new { error = "Bạn chưa đăng nhập!!" });
+                    return Json(new { error = "You are not logged in!" });
 
                 var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
                 if (store == null)
-                    return Json(new { error = "Không tìm thấy cửa hàng." });
+                    return Json(new { error = "Store not found." });
 
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any())
-                    return Json(new { error = "Không có sản phẩm." });
+                    return Json(new { error = "No products found." });
 
                 var productIds = products.Select(p => p.ID).ToList();
                 var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
                 if (!variants.Any())
-                    return Json(new { error = "Không có biến thể sản phẩm." });
+                    return Json(new { error = "No product variants found." });
 
                 var variantIds = variants.Select(v => v.ID).ToList();
                 var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
                 if (!orderDetails.Any())
-                    return Json(new { error = "Không có chi tiết đơn hàng." });
+                    return Json(new { error = "No order details found." });
 
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
                 var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
                 if (!orders.Any())
-                    return Json(new { error = "Không có đơn hàng." });
+                    return Json(new { error = "No orders found." });
 
                 var minDate = orders.Min(o => o.CreatedDate).Date;
                 var maxDate = orders.Max(o => o.CreatedDate).Date;
@@ -1794,7 +1827,7 @@ namespace Food_Haven.Web.Controllers
                 if (toDate > maxDate) toDate = maxDate;
 
                 if (fromDate > toDate)
-                    return BadRequest(new { error = "Ngày bắt đầu không thể lớn hơn ngày kết thúc" });
+                    return BadRequest(new { error = "Start date cannot be greater than end date." });
 
                 var daysDiff = (int)(toDate - fromDate).TotalDays + 1;
 
@@ -1844,7 +1877,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
+                return StatusCode(500, new { error = "Server error while processing data", message = ex.Message });
+
             }
         }
         [HttpGet]
@@ -1880,7 +1914,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình tháng", message = ex.Message });
+                return StatusCode(500, new { error = "Error retrieving month configuration", message = ex.Message });
+
             }
         }
 
@@ -1895,25 +1930,26 @@ namespace Food_Haven.Web.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return Json(new { error = "Bạn chưa đăng nhập!!" });
+                    return Json(new { error = "You are not logged in!" });
                 var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
                 if (store == null)
-                    return Json(new { error = "Không tìm thấy cửa hàng." });
+                    return Json(new { error = "Store not found." });
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any())
-                    return Json(new { error = "Không có sản phẩm." });
+                    return Json(new { error = "No products found." });
                 var productIds = products.Select(p => p.ID).ToList();
                 var variants = await _variantService.ListAsync(v => productIds.Contains(v.ProductID));
                 if (!variants.Any())
-                    return Json(new { error = "Không có biến thể sản phẩm." });
+                    return Json(new { error = "No product variants found." });
                 var variantIds = variants.Select(v => v.ID).ToList();
                 var orderDetails = await _orderDetail.ListAsync(od => variantIds.Contains(od.ProductTypesID));
                 if (!orderDetails.Any())
-                    return Json(new { error = "Không có chi tiết đơn hàng." });
+                    return Json(new { error = "No order details found." });
                 var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
                 var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
                 if (!orders.Any())
-                    return Json(new { error = "Không có đơn hàng." });
+                    return Json(new { error = "No orders found." });
+
                 var confirmedStatuses = new[] { "CONFIRMED" };
                 var cancelledStatuses = new[] { "CANCELLED BY USER", "CANCELLED BY SHOP" };
                 int year = int.Parse(month.Split('-')[0]);
@@ -1973,7 +2009,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
+                return StatusCode(500, new { error = "Server error while processing data", message = ex.Message });
+
             }
         }
     
@@ -1984,10 +2021,11 @@ namespace Food_Haven.Web.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return Json(new { error = "Bạn chưa đăng nhập!" });
+                    return Json(new { error = "You are not logged in!" });
                 var store = await _storedetail.FindAsync(u => u.UserID == user.Id);
                 if (store == null)
-                    return Json(new { error = "Không tìm thấy cửa hàng!" });
+                    return Json(new { error = "Store not found!" });
+
                 var products = await _product.ListAsync(p => p.StoreID == store.ID);
                 if (!products.Any())
                     return Json(new List<object>());
@@ -2096,10 +2134,11 @@ namespace Food_Haven.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new { error = "Bạn chưa đăng nhập!" });
+                return Json(new { error = "You are not logged in!" });
             var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
             if (getStore == null)
-                return Json(new { error = "Không tìm thấy cửa hàng!" });
+                return Json(new { error = "Store not found!" });
+
             var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
             if (!products.Any())
                 return Json(new List<object>());
@@ -2223,11 +2262,10 @@ namespace Food_Haven.Web.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return Json(new { success = false, msg = "Bạn chưa đăng nhập!!" });
-
+                    return Json(new { error = "You are not logged in!" });
                 var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
                 if (getStore == null)
-                    return Json(new { success = false, msg = "Store not found" });
+                    return Json(new { error = "Store not found!" });
 
                 var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
                 if (!products.Any())
@@ -2314,7 +2352,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+
             }
         }
         [HttpGet]
@@ -2324,10 +2363,11 @@ namespace Food_Haven.Web.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return Json(new { success = false, msg = "Bạn chưa đăng nhập!!" });
+                    return Json(new { error = "You are not logged in!" });
                 var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
                 if (getStore == null)
-                    return Json(new { success = false, msg = "Store not found" });
+                    return Json(new { error = "Store not found!" });
+
                 var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
                 if (!products.Any())
                     return Json(new { success = true, data = new List<object>() });
@@ -2382,7 +2422,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+
             }
         }
 

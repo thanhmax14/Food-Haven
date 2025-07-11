@@ -2206,12 +2206,12 @@
 
             if (icon.classList.contains("text-danger")) {
                 Swal.fire({
-                    title: "Bạn có chắc chắn?",
-                    text: "Bạn muốn xóa khỏi danh sách yêu thích?",
+                    title: "Are you sure?",
+                    text: "Do you want to remove this from your wishlist?",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Có, xóa!",
-                    cancelButtonText: "Hủy"
+                    confirmButtonText: "Yes, remove!",
+                    cancelButtonText: "Cancel"
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -2225,8 +2225,8 @@
                                 if (response.success) {
                                     new Notify({
                                         status: 'success',
-                                        title: 'Thành công!',
-                                        text: response.message || 'Gửi thành công!',
+                                        title: 'Success!',
+                                        text: response.message || 'Sent successfully!',
                                         effect: 'fade',
                                         speed: 300,
                                         showIcon: true,
@@ -2238,11 +2238,11 @@
                                     icon.classList.remove("text-danger");
                                     actionBtn.setAttribute("aria-label", "Add To Wishlist");
                                 } else {
-                                    Swal.fire('Thất bại', response.message, 'error');
+                                    Swal.fire('Error', response.message, 'error');
                                 }
                             },
                             error: function () {
-                                alert("Lỗi xảy ra khi xóa khỏi wishlist.");
+                                Swal.fire('Error', 'An error occurred while removing from the wishlist.', 'error');
                             }
                         });
                     }
@@ -2259,8 +2259,8 @@
                         if (response.success) {
                             new Notify({
                                 status: 'success',
-                                title: 'Thành công!',
-                                text: response.message || 'Gửi thành công!',
+                                title: 'Success!',
+                                text: response.message || 'Sent successfully!',
                                 effect: 'fade',
                                 speed: 300,
                                 showIcon: true,
@@ -2273,11 +2273,12 @@
                             icon.classList.add("text-danger");
                             actionBtn.setAttribute("aria-label", "Remove wishlist");
                         } else {
-                            Swal.fire('Thất bại', response.message, 'error');
+                            Swal.fire('Error', response.message, 'error');
                         }
                     },
                     error: function () {
-                        alert("Lỗi xảy ra khi thêm vào wishlist.");
+                       
+                        Swal.fire('Error', 'An error occurred while adding to the wishlist.', 'error');
                     }
                 });
             }

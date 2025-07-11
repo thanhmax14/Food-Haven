@@ -827,23 +827,22 @@ namespace Food_Haven.Web.Controllers
             string mess = "";
             if (id == Guid.Empty || string.IsNullOrWhiteSpace(action) || string.IsNullOrWhiteSpace(note))
             {
-                return Json(new { success = false, message = "Thông tin gửi lên không hợp lệ." });
+                return Json(new { success = false, message = "Invalid submission information." });
             }
 
             var complaint = await this._complaintService.FindAsync(c => c.ID == id);
             if (complaint == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy khiếu nại." });
+                return Json(new { success = false, message = "Complaint not found." });
             }
             if (complaint.Status.ToLower() == "Refund".ToLower())
             {
-                return Json(new { success = false, message = "Khiếu nại này đã được xử lý hoàn tiền." });
+                return Json(new { success = false, message = "This complaint has already been refunded." });
             }
 
             switch (action)
             {
                 case "Accept":
-
 
                     complaint.AdminReportStatus = $"Accept";
                     complaint.DateAdminReply = DateTime.Now;
@@ -851,15 +850,13 @@ namespace Food_Haven.Web.Controllers
 
                     try
                     {
-
-                        // Lấy danh sách chi tiết đơn hàng
+                        // Get order detail list
                         var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
                         if (orderDetails == null)
-                            return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
+                            return Json(new { success = false, message = "There are no products in this order." });
                         var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
                         if (order == null)
-                            return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
-
+                            return Json(new { success = false, message = "Order not found." });
 
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
@@ -881,30 +878,29 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                        /* // Cập nhật trạng thái đơn hàng
-                         order.Status = "Refunded";
-                         order.PaymentStatus = "Refunded";
-                         order.ModifiedDate = DateTime.UtcNow;
-                         order.Description = string.IsNullOrEmpty(order.Description)
-                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                         await _order.UpdateAsync(order);*/
+                        /* // Update order status
+                        order.Status = "Refunded";
+                        order.PaymentStatus = "Refunded";
+                        order.ModifiedDate = DateTime.UtcNow;
+                        order.Description = string.IsNullOrEmpty(order.Description)
+                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                        await _order.UpdateAsync(order);*/
 
-                        // Lưu thay đổi
+                        // Save changes
                         await _orderDetail.SaveChangesAsync();
 
                         //   await _order.SaveChangesAsync();
                         await _balance.SaveChangesAsync();
 
-
-                        mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
+                        mess = "The order has been refunded and cancelled successfully.";
                     }
                     catch (Exception)
                     {
                         return Json(new
                         {
                             success = false,
-                            message = "Đã xảy ra lỗi khi xử lý hoàn tiền. Vui lòng thử lại hoặc liên hệ quản trị viên."
+                            message = "An error occurred while processing the refund. Please try again or contact the administrator."
                         });
                     }
                     break;
@@ -913,13 +909,11 @@ namespace Food_Haven.Web.Controllers
                     complaint.AdminReportStatus = $"Reject";
                     complaint.DateAdminReply = DateTime.Now;
                     complaint.AdminReply = $"[Reject] - {note}";
-                    mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
+                    mess = "The order has been refunded and cancelled successfully.";
                     break;
                 default:
-                    return Json(new { success = false, message = "Loại hành động không hợp lệ." });
+                    return Json(new { success = false, message = "Invalid action type." });
             }
-
-
 
             try
             {
@@ -930,9 +924,10 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+                return Json(new { success = false, message = "Error saving data: " + ex.Message });
             }
         }
+
 
         public async Task<IActionResult> GetAllTypeOfDish()
         {
@@ -1664,7 +1659,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình ngày", message = ex.Message });
+                return StatusCode(500, new { error = "Error retrieving date configuration", message = ex.Message });
+
             }
         }
 
@@ -1714,7 +1710,8 @@ namespace Food_Haven.Web.Controllers
                     minStartDate = minDepositDate;
 
                 if (!minStartDate.HasValue)
-                    return Json(new { error = "Chưa phát sinh đơn hàng hoặc nạp tiền nào." });
+                    return Json(new { error = "No orders or deposits have been made yet." });
+
 
                 var minDate = minStartDate.Value;
 
@@ -1741,7 +1738,8 @@ namespace Food_Haven.Web.Controllers
                 if (toDate > maxDate) toDate = maxDate;
 
                 if (fromDate > toDate)
-                    return BadRequest(new { error = "Ngày bắt đầu không thể lớn hơn ngày kết thúc" });
+                    return BadRequest(new { error = "Start date cannot be greater than end date." });
+
 
                 var daysDiff = (int)(toDate - fromDate).TotalDays + 1;
 
@@ -1801,7 +1799,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
+                return StatusCode(500, new { error = "Server error while processing data", message = ex.Message });
+
             }
         }
 
@@ -1857,7 +1856,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình tháng", message = ex.Message });
+                return StatusCode(500, new { error = "Error retrieving month configuration", message = ex.Message });
+
             }
         }
 
@@ -1964,7 +1964,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
+                return StatusCode(500, new { error = "Server error while processing data", message = ex.Message });
+
             }
         }
 
@@ -2306,7 +2307,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+
             }
         }
         [AllowAnonymous]
@@ -2406,7 +2408,8 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+
             }
         }
 
