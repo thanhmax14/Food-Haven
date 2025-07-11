@@ -305,7 +305,7 @@
                     ,
                                         {
                         name: "Actions",
-                        width: "100px",
+                        width: "150px",
                         formatter: (_, row) => {
                             let status = row.cells[7].data; // Trạng thái Feedback (Active/Deactive)
                             let feedbackId = row.cells[0].data; // Lấy ID của Feedback
@@ -313,31 +313,23 @@
                             let url = `/Seller/ReplyFeedback/${feedbackId}`; // Tạo URL động
 
                             let actionText = status === "Active" ? "Hide" : "Show";
-                            let actionIcon = status === "Active" ? "ri-eye-off-fill" : "ri-eye-fill";
+                            let actionIcon = status === "Active" ? "btn btn-sm btn-danger" : "btn btn-sm btn-success";
 
                             let replyButton = reply !== "No reply" ? "" : `
-                                <li>
-                                    <a class="dropdown-item" target="_blank" href="${url}">
-                                        <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Reply
-                                    </a>
-                                </li>`;
 
+                                <a class="btn btn-sm btn-primary" target="_blank" href="${url}">Reply</a>
+                                `;
                             return gridjs.html(`
-                                <div class="dropdown">
-                                    <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ri-more-fill align-middle"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                    <div class="d-flex gap-2">
                                         ${replyButton}
-                                        <li>
-                                            <button class="dropdown-item toggle-feedback-btn"
+
+                                            <button class="toggle-feedback-btn ${actionIcon}"
                                                 data-feedbackid="${feedbackId}"
                                                 data-status="${status}">
-                                                <i class="${actionIcon} align-bottom me-2 text-muted"></i> ${actionText}
+                                                ${actionText}
                                             </button>
-                                        </li>
-                                    </ul>
-                                </div>
+                                    </div
                             `);
                         }
                     }
