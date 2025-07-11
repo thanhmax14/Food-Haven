@@ -780,37 +780,19 @@
                         </a>
                         <span class="post-by">By <a href="#">LaDonna Langwell</a></span>
                         <span class="post-on has-dot">@Model.CreatedDate.ToString("dd/MM/yyyy")</span>
-                        <span class="time-reading has-dot">8 mins read</span>
-                    </div>
-                    
-                    <div class="social-icons">
-                    <ul class="d-flex gap-2 align-items-center">
-    <li>
-        <button title="Save Recipe" style="all: unset; cursor: pointer;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
-            </svg>
-        </button>
-    </li>
-<li>
-    <button class="add-favorite @(Model.IsFavorite ? "heart-red" : "")"
-            data-recipe-id="@Model.ID"
-            title="Toggle Favorite"
-            style="all: unset; cursor: pointer;">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 
-                     2 12.28 2 8.5 2 5.42 4.42 3 7.5 
-                     3c1.74 0 3.41.81 4.5 2.09C13.09 
-                     3.81 14.76 3 16.5 3 19.58 3 22 
-                     5.42 22 8.5c0 3.78-3.4 6.86-8.55 
-                     11.54L12 21.35z" />
-        </svg>
-    </button>
-</li>
-
-
-</ul>
-
+                        <button class="add-favorite @(Model.IsFavorite ? "heart-red" : "")"
+                                data-recipe-id="@Model.ID"
+                                title="Toggle Favorite"
+                                style="all: unset; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 
+                                        2 12.28 2 8.5 2 5.42 4.42 3 7.5 
+                                        3c1.74 0 3.41.81 4.5 2.09C13.09 
+                                        3.81 14.76 3 16.5 3 19.58 3 22 
+                                        5.42 22 8.5c0 3.78-3.4 6.86-8.55 
+                                        11.54L12 21.35z" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -850,10 +832,10 @@
                                     <div class="single-content">
                                         <div class="row">
                                             <div class="col-xl-10 col-lg-12 m-auto">
-                                       <p><strong>Ingredient:</strong></p>
+                                       <h3><strong>Ingredient:</strong></h3>
 <p class="single-excerpt">@Html.Raw(Model.Ingredient)</p>
 
-<p><strong>CookingStep:</strong></p>
+<h3><strong>Cooking Step:</strong></h3>
 <p>@Html.Raw(Model.CookingStep)</p>
 
                                                       <!-- BẮT ĐẦU PHẦN THÔNG TIN CHI TIẾT -->
@@ -1023,11 +1005,12 @@
    <div class="single-comment justify-content-between d-flex mb-30">
         <div class="thumb text-center">
             <img src="~/assets/imgs/blog/author-2.png" alt="" />
-            <a href="#" class="font-heading text-brand">@item.UserID</a>
+            
         </div>
         <div class="desc">
             <div class="d-flex justify-content-between mb-10">
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center" style="gap: 20px;">
+                    <a href="#" class="font-heading text-brand">@item.UserID</a>
                     <span class="font-xs text-muted">@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
                 </div>
                <div class="product-rate d-inline-block">
@@ -1039,27 +1022,33 @@
             <p class="mb-10">
                 @item.Comment
                @if (string.IsNullOrEmpty(item.Reply) && User.Identity.Name == Model.RecipeOwnerUserName)
-{
-    <a href="#" class="reply" data-comment-id="@item.ID">Reply</a>
-}
+                {
+                    <a href="#" class="reply" data-comment-id="@item.ID">Reply</a>
+                }
             </p>
 
 @if (!string.IsNullOrEmpty(item.Reply))
 {
-    <div class="ml-60 mt-2 p-2 bg-light rounded border" id="reply-box-@item.ID">
+    <div class="single-comment justify-content-between d-flex mb-10">
+        <div class="thumb text-center">
+            <img src="~/assets/imgs/blog/author-2.png" alt="" />
+            
+        </div>
+    <div class="desc" id="reply-box-@item.ID">
         <p>
             <strong>@Model.RecipeOwnerUserName</strong>
-            <span class="badge-owner ms-1">
-                <i class="bi bi-patch-check-fill text-primary me-1"></i> Owner
-            </span>
+            <strong class="badge-owner ms-1">
+                <i class="bi bi-patch-check-fill text-primary me-1">(Owner)</i>
+            </strong>
         </p>
-        <strong id="reply-content-@item.ID">@item.Reply</strong>
+        <p id="reply-content-@item.ID">@item.Reply</p>
         <span class="font-xs text-muted">@item.ReplyDate?.ToString("dd/MM/yyyy HH:mm")</span>
 
         @if (User.Identity.Name == Model.RecipeOwnerUserName)
         {
             <a href="#" class="edit-reply" data-comment-id="@item.ID" data-reply="@item.Reply">Edit</a>
         }
+    </div>
     </div>
 }
 
@@ -1094,6 +1083,7 @@
     <button type="button" id="cancel-reply" class="btn btn-secondary btn-lg ms-2">Cancel</button>
 
     </form>
+    <br>
     </div>
 </div>
                                                         </div>
