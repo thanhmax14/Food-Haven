@@ -288,7 +288,9 @@
                      @foreach (var store in Model)
 {
     <div class="store-cart mb-5">
-        <h4 class="mb-3 text-primary">🛒Store: @store.StoreName</h4>
+<a asp-action="GetStoreDetail" asp-route-id="@store.StoreID" class="text-decoration-none">
+    <h4 class="mb-3 text-primary">🛒Store: @store.StoreName</h4>
+</a>
 
         <table class="table table-wishlist">
             <thead>
@@ -1071,14 +1073,39 @@
     function processQuantityChange(productTypeId, newQty, inputField, callback) {
         var stockQty = parseInt(inputField.attr("data-stock")) || 0;
 
-        // Kiểm tra số lượng hợp lệ
-        if (newQty < 1) {
-            newQty = 1;
-               alert("Minimum quantity is 1.");
-        } else if (newQty > stockQty) {
-            newQty = stockQty;
-    alert("Quantity exceeds available stock!");
-        }
+    // Kiểm tra số lượng hợp lệ
+// Validate quantity
+if (newQty < 1) {
+    newQty = 1;
+    new Notify({
+        status: 'error',
+        title: 'Failed',
+        text: 'Minimum quantity is 1.',
+        effect: 'fade',
+        speed: 300,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        position: 'right top'
+    });
+} else if (newQty > stockQty) {
+    newQty = stockQty;
+    new Notify({
+        status: 'error',
+        title: 'Failed',
+        text: 'Quantity exceeds available stock!',
+        effect: 'fade',
+        speed: 300,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        position: 'right top'
+    });
+}
+
+
 
         // Cập nhật hàng đợi
         quantityQueue[productTypeId] = { quantity: newQty, input: inputField, callback: callback };

@@ -1396,6 +1396,7 @@ namespace Food_Haven.Web.Controllers
                         ThumbnailImage = item.ThumbnailImage,
                         IsActive = item.IsActive,
                         status = item.status,
+                        ModifiedDate = item.ModifiedDate,
                         Username = username, // Gán Username từ Identity
                     };
                     list.Add(recipeViewModel);
