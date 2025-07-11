@@ -15,15 +15,40 @@
     <meta property="og:image" content="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
-    <!-- Favicon -->
+        <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
+
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+    <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
+    @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
+
+    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+    <!-- Plugins css -->
+    <link href="assets/libs/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
+    <!-- Layout config Js -->
+    <script src="assets/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.css">
+
     <style>
         .test p{
-            
             font-size: 19px;
-            
         }
  .heart-red svg path {
     fill: red !important;
@@ -725,14 +750,14 @@
                 </div>
             </div>
         </div> *@
-        <div class="page-content mb-50 test">
+        <div class="page-content test">
             <div class="container">
                
                 <div class="row">
                     <div class="col-xl-11 col-lg-12 m-auto">
                         <div class="row">
                             
-                                <div class="single-page pt-50 pr-30">
+                                <div class="single-page pt-50">
                                     <div class="single-header style-2">
                                         <div class="row">
                                             <div class="container">
@@ -954,7 +979,7 @@
     <i class="fa-regular fa-star" data-value="5"></i>
 </div>                
                                     <div class="row">
-                                                        <div class="col-lg-9 col-md-12">
+                                                        <div class="col-lg-10 col-md-12">
                                                             <form 
                                                                 id="commentForm">
                                                                    <input type="hidden" name="Rating" id="Rating" value="0" />
