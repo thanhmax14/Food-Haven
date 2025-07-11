@@ -32,10 +32,17 @@
 
 <body>
     @await Html.PartialAsync("_Header")
-
     <!--End header-->
     <main class="main pages mb-80">
-
+        @* <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a asp-action="Index" asp-controller="Home"><i class="fi-rs-home mr-5"></i>Home</a>
+                    <span></span> Pages 
+                    <span></span> Forgot Password
+                </div>
+            </div>
+        </div> *@
         <div class="page-content pt-50">
             <div class="container">
                 <div class="archive-header-2 text-center">
@@ -53,12 +60,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mb-50">
+                @* <div class="row mb-50">
                     <div class="col-12 col-lg-8 mx-auto">
                         <div class="shop-product-fillter">
                         </div>
                     </div>
-                </div>
+                </div> *@
                 <div class="row vendor-grid">
 
                     @if (Model.Any())

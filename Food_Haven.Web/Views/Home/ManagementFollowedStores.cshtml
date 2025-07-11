@@ -38,22 +38,21 @@
 
     <!--End header-->
     <main class="main pages mb-80">
-        <div class="page-header breadcrumb-wrap">
-
-        </div>
+        @* <div class="page-header breadcrumb-wrap">
+        </div> *@
         <div class="page-content pt-50">
             <div class="container">
                  <div class="archive-header-2 text-center">
-                    <h1 class="display-2 mb-10">Followed Stores</h1>
+                    <h1 class="display-2 mb-50">Followed Stores</h1>
                     
                 </div> 
-                <div class="row mb-50">
-                    @* <div class="col-12 col-lg-8 mx-auto">
+                @* <div class="row mb-50">
+                     <div class="col-12 col-lg-8 mx-auto">
                         <div class="shop-product-fillter">
                         </div>
-                    </div> *@
-                </div>
-<div id="store-container" class="row vendor-grid">
+                    </div> 
+                </div> *@
+                <div id="store-container" class="row vendor-grid">
                     @if (Model.Any())
                     {
                         foreach (var item in Model)

@@ -23,205 +23,23 @@
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
-            <!-- Icons Css -->
+    <!-- Icons Css -->
     <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
     @await Html.PartialAsync("_Header")
-    <div class="mobile-header-active mobile-header-wrapper-style">
-        <div class="mobile-header-wrapper-inner">
-            <div class="mobile-header-top">
-                <div class="mobile-header-logo">
-                    <a href="index.html"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
-                </div>
-                <div class="mobile-menu-close close-style-wrap close-style-position-inherit">
-                    <button class="close-style search-close">
-                        <i class="icon-top"></i>
-                        <i class="icon-bottom"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="mobile-header-content-area">
-                <div class="mobile-search search-style-3 mobile-header-border">
-                    <form action="#">
-                        <input type="text" placeholder="Search for items…" />
-                        <button type="submit"><i class="fi-rs-search"></i></button>
-                    </form>
-                </div>
-                <div class="mobile-menu-wrap mobile-header-border">
-                    <!-- mobile menu start -->
-                    <nav>
-                        <ul class="mobile-menu font-heading">
-                            <li class="menu-item-has-children">
-                                <a href="index.html">Home</a>
-                                <ul class="dropdown">
-                                    <li><a href="index.html">Home 1</a></li>
-                                    <li><a href="index-2.html">Home 2</a></li>
-                                    <li><a href="index-3.html">Home 3</a></li>
-                                    <li><a href="index-4.html">Home 4</a></li>
-                                    <li><a href="index-5.html">Home 5</a></li>
-                                    <li><a href="index-6.html">Home 6</a></li>
-                                </ul>
-                            </li>
-                            <li class="menu-item-has-children">
-                                <a href="shop-grid-right.html">shop</a>
-                                <ul class="dropdown">
-                                    <li><a href="shop-grid-right.html">Shop Grid – Right Sidebar</a></li>
-                                    <li><a href="shop-grid-left.html">Shop Grid – Left Sidebar</a></li>
-                                    <li><a href="shop-list-right.html">Shop List – Right Sidebar</a></li>
-                                    <li><a href="shop-list-left.html">Shop List – Left Sidebar</a></li>
-                                    <li><a href="shop-fullwidth.html">Shop - Wide</a></li>
-                                    <li class="menu-item-has-children">
-                                        <a href="#">Single Product</a>
-                                        <ul class="dropdown">
-                                            <li><a href="shop-product-right.html">Product – Right Sidebar</a></li>
-                                            <li><a href="shop-product-left.html">Product – Left Sidebar</a></li>
-                                            <li><a href="shop-product-full.html">Product – No sidebar</a></li>
-                                            <li><a href="shop-product-vendor.html">Product – Vendor Infor</a></li>
-                                        </ul>
-                                    </li>
-                                    <li><a href="shop-filter.html">Shop – Filter</a></li>
-                                    <li><a href="shop-wishlist.html">Shop – Wishlist</a></li>
-                                    <li><a href="shop-cart.html">Shop – Cart</a></li>
-                                    <li><a href="shop-checkout.html">Shop – Checkout</a></li>
-                                    <li><a href="shop-compare.html">Shop – Compare</a></li>
-                                    <li class="menu-item-has-children">
-                                        <a href="#">Shop Invoice</a>
-                                        <ul class="dropdown">
-                                            <li><a href="shop-invoice-1.html">Shop Invoice 1</a></li>
-                                            <li><a href="shop-invoice-2.html">Shop Invoice 2</a></li>
-                                            <li><a href="shop-invoice-3.html">Shop Invoice 3</a></li>
-                                            <li><a href="shop-invoice-4.html">Shop Invoice 4</a></li>
-                                            <li><a href="shop-invoice-5.html">Shop Invoice 5</a></li>
-                                            <li><a href="shop-invoice-6.html">Shop Invoice 6</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="menu-item-has-children">
-                                <a href="#">Vendors</a>
-                                <ul class="dropdown">
-                                    <li><a href="vendors-grid.html">Vendors Grid</a></li>
-                                    <li><a href="vendors-list.html">Vendors List</a></li>
-                                    <li><a href="vendor-details-1.html">Vendor Details 01</a></li>
-                                    <li><a href="vendor-details-2.html">Vendor Details 02</a></li>
-                                    <li><a href="vendor-dashboard.html">Vendor Dashboard</a></li>
-                                    <li><a href="vendor-guide.html">Vendor Guide</a></li>
-                                </ul>
-                            </li>
-                            <li class="menu-item-has-children">
-                                <a href="#">Mega menu</a>
-                                <ul class="dropdown">
-                                    <li class="menu-item-has-children">
-                                        <a href="#">Women's Fashion</a>
-                                        <ul class="dropdown">
-                                            <li><a href="shop-product-right.html">Dresses</a></li>
-                                            <li><a href="shop-product-right.html">Blouses & Shirts</a></li>
-                                            <li><a href="shop-product-right.html">Hoodies & Sweatshirts</a></li>
-                                            <li><a href="shop-product-right.html">Women's Sets</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="#">Men's Fashion</a>
-                                        <ul class="dropdown">
-                                            <li><a href="shop-product-right.html">Jackets</a></li>
-                                            <li><a href="shop-product-right.html">Casual Faux Leather</a></li>
-                                            <li><a href="shop-product-right.html">Genuine Leather</a></li>
-                                        </ul>
-                                    </li>
-                                    <li class="menu-item-has-children">
-                                        <a href="#">Technology</a>
-                                        <ul class="dropdown">
-                                            <li><a href="shop-product-right.html">Gaming Laptops</a></li>
-                                            <li><a href="shop-product-right.html">Ultraslim Laptops</a></li>
-                                            <li><a href="shop-product-right.html">Tablets</a></li>
-                                            <li><a href="shop-product-right.html">Laptop Accessories</a></li>
-                                            <li><a href="shop-product-right.html">Tablet Accessories</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="menu-item-has-children">
-                                <a href="blog-category-fullwidth.html">Blog</a>
-                                <ul class="dropdown">
-                                    <li><a href="blog-category-grid.html">Blog Category Grid</a></li>
-                                    <li><a href="blog-category-list.html">Blog Category List</a></li>
-                                    <li><a href="blog-category-big.html">Blog Category Big</a></li>
-                                    <li><a href="blog-category-fullwidth.html">Blog Category Wide</a></li>
-                                    <li class="menu-item-has-children">
-                                        <a href="#">Single Product Layout</a>
-                                        <ul class="dropdown">
-                                            <li><a href="blog-post-left.html">Left Sidebar</a></li>
-                                            <li><a href="blog-post-right.html">Right Sidebar</a></li>
-                                            <li><a href="blog-post-fullwidth.html">No Sidebar</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="menu-item-has-children">
-                                <a href="#">Pages</a>
-                                <ul class="dropdown">
-                                    <li><a href="page-about.html">About Us</a></li>
-                                    <li><a href="page-contact.html">Contact</a></li>
-                                    <li><a href="page-account.html">My Account</a></li>
-                                    <li><a href="page-login.html">Login</a></li>
-                                    <li><a href="page-register.html">Register</a></li>
-                                    <li><a href="page-forgot-password.html">Forgot password</a></li>
-                                    <li><a href="page-reset-password.html">Reset password</a></li>
-                                    <li><a href="page-purchase-guide.html">Purchase Guide</a></li>
-                                    <li><a href="page-privacy-policy.html">Privacy Policy</a></li>
-                                    <li><a href="page-terms.html">Terms of Service</a></li>
-                                    <li><a href="page-404.html">404 Page</a></li>
-                                </ul>
-                            </li>
-                            <li class="menu-item-has-children">
-                                <a href="#">Language</a>
-                                <ul class="dropdown">
-                                    <li><a href="#">English</a></li>
-                                    <li><a href="#">French</a></li>
-                                    <li><a href="#">German</a></li>
-                                    <li><a href="#">Spanish</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </nav>
-                    <!-- mobile menu end -->
-                </div>
-                <div class="mobile-header-info-wrap">
-                    <div class="single-mobile-header-info">
-                        <a href="page-contact.html"><i class="fi-rs-marker"></i> Our location </a>
-                    </div>
-                    <div class="single-mobile-header-info">
-                        <a href="page-login.html"><i class="fi-rs-user"></i>Log In / Sign Up </a>
-                    </div>
-                    <div class="single-mobile-header-info">
-                        <a href="#"><i class="fi-rs-headphones"></i>(+01) - 2345 - 6789 </a>
-                    </div>
-                </div>
-                <div class="mobile-social-icon mb-50">
-                    <h6 class="mb-15">Follow Us</h6>
-                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-facebook-white.svg" alt="" /></a>
-                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-twitter-white.svg" alt="" /></a>
-                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-instagram-white.svg" alt="" /></a>
-                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-pinterest-white.svg" alt="" /></a>
-                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-youtube-white.svg" alt="" /></a>
-                </div>
-                <div class="site-copyright">Copyright 2024 © Nest. All rights reserved. Powered by AliThemes.</div>
-            </div>
-        </div>
-    </div>
     <!--End header-->
     <main class="main pages">
-        <div class="page-header breadcrumb-wrap">
+        @* <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
                     <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                    <span></span> Pages <span></span> My Account
+                    <span></span> Home <span></span> My Account
                 </div>
             </div>
-        </div>
-        <div class="page-content pt-150 pb-150">
+        </div> *@
+        <div class="page-content pt-80 pb-100">
             <div class="container">
                 <div class="row">
                     <div class="col-xl-8 col-lg-10 col-md-12 m-auto">
@@ -240,21 +58,21 @@
                                                     here
                                                 </a>
                                             </p>
-                                           
+
                                         </div>
                                         <div class="heading_s1">
-                                         
+
                                             <p class="mb-30">
-                                                <button onclick="window.location.href='@Url.Action("LoginWithProdider", "Home", new { provider = "Google" })'"
-                                                        type="button"
-                                                        class="login-with-google-btn">
+                                                <button
+                                                    onclick="window.location.href='@Url.Action("LoginWithProdider", "Home", new { provider = "Google" })'"
+                                                    type="button" class="login-with-google-btn">
                                                     Sign in with Google
                                                 </button>
 
                                             </p>
 
                                         </div>
-                                     
+
                                         ﻿@{
 
                                             string returnUrl = ViewData["ReturnUrl"]?.ToString() ?? "/";
@@ -263,33 +81,32 @@
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" id="ReturnUrl" value="@returnUrl" />
                                             <div class="form-group">
-                                                <input type="text" id="username"
-                                                       placeholder="Username or Email *" />
+                                                <input type="text" id="username" placeholder="Username or Email *" />
                                             </div>
                                             <div class="form-group">
                                                 <input id="password" type="password" name="password"
-                                                       placeholder="Your password *" />
+                                                    placeholder="Your password *" />
                                             </div>
                                         </form>
-                                           
-                                            <div class="login_footer form-group mb-50">
-                                                <div class="chek-form">
-                                                    <div class="custome-checkbox">
-                                                        <input class="form-check-input" type="checkbox" name="checkbox"
-                                                           id="remembers_me"  />
-                                                        <label class="form-check-label"
-                                                           for="remembers_me"><span>Remember me</span></label>
-                                                    </div>
+
+                                        <div class="login_footer form-group mb-50">
+                                            <div class="chek-form">
+                                                <div class="custome-checkbox">
+                                                    <input class="form-check-input" type="checkbox" name="checkbox"
+                                                        id="remembers_me" />
+                                                    <label class="form-check-label" for="remembers_me"><span>Remember
+                                                            me</span></label>
                                                 </div>
-                                            <a asp-controller ="Home" asp-action="Forgot">Forgot password?</a>
                                             </div>
-                                            <div class="form-group">
-                                            <button type="button" id="btnLogin" class="btn btn-heading btn-block hover-up"
-                                                        name="login">
-                                                    Log in
-                                                </button>
-                                            </div>
-                                        
+                                            <a asp-controller="Home" asp-action="Forgot">Forgot password?</a>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" id="btnLogin"
+                                                class="btn btn-heading btn-block hover-up" name="login">
+                                                Log in
+                                            </button>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -309,38 +126,37 @@
             color: #757575;
             font-size: 14px;
             font-weight: 500;
-            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
             background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=);
             background-color: white;
             background-repeat: no-repeat;
             background-position: 12px 11px;
-            &:hover
 
-        {
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
-        }
+            &:hover {
+                box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25);
+            }
 
-        &:active {
-            background-color: #eeeeee;
-        }
+            &:active {
+                background-color: #eeeeee;
+            }
 
-        &:focus {
-            outline: none;
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25), 0 0 0 3px #c8dafc;
-        }
+            &:focus {
+                outline: none;
+                box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 2px 4px rgba(0, 0, 0, .25), 0 0 0 3px #c8dafc;
+            }
 
-        &:disabled {
-            filter: grayscale(100%);
-            background-color: #ebebeb;
-            box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
-            cursor: not-allowed;
-        }
+            &:disabled {
+                filter: grayscale(100%);
+                background-color: #ebebeb;
+                box-shadow: 0 -1px 0 rgba(0, 0, 0, .04), 0 1px 1px rgba(0, 0, 0, .25);
+                cursor: not-allowed;
+            }
 
         }
 
         body {
             text-align: center;
-           
+
         }
     </style>
     <footer class="main">
@@ -450,8 +266,7 @@
                         <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
                             <div class="logo mb-30">
                                 <a href="index.html" class="mb-15">
-                                    <img src="~/assets/imgs/theme/logo.svg"
-                                         alt="logo" />
+                                    <img src="~/assets/imgs/theme/logo.svg" alt="logo" />
                                 </a>
                                 <p class="font-lg text-heading">Awesome grocery store website template</p>
                             </div>
@@ -469,11 +284,11 @@
                                 </li>
                                 <li>
                                     <img src="~/assets/imgs/theme/icons/icon-email-2.svg"
-                                         alt="" /><strong>Email:</strong><span>sale@Nest.com</span>
+                                        alt="" /><strong>Email:</strong><span>sale@Nest.com</span>
                                 </li>
                                 <li>
                                     <img src="~/assets/imgs/theme/icons/icon-clock.svg"
-                                         alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span>
+                                        alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span>
                                 </li>
                             </ul>
                         </div>
@@ -531,12 +346,10 @@
                         <p class="wow fadeIn animated">From App Store or Google Play</p>
                         <div class="download-app">
                             <a href="#" class="hover-up mb-sm-2 mb-lg-0">
-                                <img class="active"
-                                     src="~/assets/imgs/theme/app-store.jpg" alt="" />
+                                <img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" />
                             </a>
                             <a href="#" class="hover-up mb-sm-2">
-                                <img src="~/assets/imgs/theme/google-play.jpg"
-                                     alt="" />
+                                <img src="~/assets/imgs/theme/google-play.jpg" alt="" />
                             </a>
                         </div>
                         <p class="mb-20">Secured Payment Gateways</p>
@@ -768,7 +581,7 @@
                 }).then((result) => {
                     // AJAX call to resend the verification email
                     $.ajax({
-                        url: '/Home/ResendConfirmationEmail', 
+                        url: '/Home/ResendConfirmationEmail',
                         type: 'POST',
                         data: {
                             username: username,

@@ -47,136 +47,43 @@
 
 <body>
     <!-- Quick view -->
-    <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
-                            <div class="detail-gallery">
-                                <span class="zoom-icon"><i class="fi-rs-search"></i></span>
-                                <!-- MAIN SLIDES -->
-                                <div class="product-image-slider">
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-2.jpg" alt="product image" />
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-1.jpg" alt="product image" />
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-3.jpg" alt="product image" />
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-4.jpg" alt="product image" />
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-5.jpg" alt="product image" />
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-6.jpg" alt="product image" />
-                                    </figure>
-                                    <figure class="border-radius-10">
-                                        <img src="~/assets/imgs/shop/product-16-7.jpg" alt="product image" />
-                                    </figure>
-                                </div>
-                                <!-- THUMBNAILS -->
-                                <div class="slider-nav-thumbnails">
-                                    <div><img src="~/assets/imgs/shop/thumbnail-3.jpg" alt="product image" /></div>
-                                    <div><img src="~/assets/imgs/shop/thumbnail-4.jpg" alt="product image" /></div>
-                                    <div><img src="~/assets/imgs/shop/thumbnail-5.jpg" alt="product image" /></div>
-                                    <div><img src="~/assets/imgs/shop/thumbnail-6.jpg" alt="product image" /></div>
-                                    <div><img src="~/assets/imgs/shop/thumbnail-7.jpg" alt="product image" /></div>
-                                    <div><img src="~/assets/imgs/shop/thumbnail-8.jpg" alt="product image" /></div>
-                                    <div><img src="~/assets/imgs/shop/thumbnail-9.jpg" alt="product image" /></div>
-                                </div>
-                            </div>
-                            <!-- End Gallery -->
-                        </div>
-                        <div class="col-md-6 col-sm-12 col-xs-12">
-                            <div class="detail-info pr-30 pl-30">
-                                <span class="stock-status out-stock"> Sale Off </span>
-                                <h3 class="title-detail">
-                                    <a href="shop-product-right.html" class="text-heading">
-                                        Seeds of
-                                        Change Organic Quinoa, Brown
-                                    </a>
-                                </h3>
-                                <div class="product-detail-rating">
-                                    <div class="product-rate-cover text-end">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (32 reviews)</span>
-                                    </div>
-                                </div>
-                                <div class="clearfix product-price-cover">
-                                    <div class="product-price primary-color float-left">
-                                        <span class="current-price text-brand">$38</span>
-                                        <span>
-                                            <span class="save-price font-md color3 ml-15">26% Off</span>
-                                            <span class="old-price font-md ml-15">$52</span>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="detail-extralink mb-30">
-                                    <div class="detail-qty border radius">
-                                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                        <span class="qty-val">1</span>
-                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                    </div>
-                                    <div class="product-extra-link2">
-                                        <button type="submit" class="button button-add-to-cart">
-                                            <i class="fi-rs-shopping-cart"></i>Add to cart
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="font-xs">
-                                    <ul>
-                                        <li class="mb-5">Vendor: <span class="text-brand">Nest</span></li>
-                                        <li class="mb-5">MFG:<span class="text-brand"> Jun 4.2024</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- Detail Info -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
     @await Html.PartialAsync("_Header")
-    <form method="post" asp-action="CreateRecipe" asp-controller="Users" enctype="multipart/form-data">
-        <div class="card-body">
-            <div class="live-preview">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Title" class="form-label"></label>
-                            <input asp-for="Title" class="form-control" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="Servings" class="form-label"></label>
-                            <input asp-for="Servings" class="form-control" />
-                            <span asp-validation-for="Servings" class="text-danger"></span>
-                        </div>
-                    </div>
+    <div class="page-content pt-30 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 m-auto">
+                    <h1 class="heading-2 mb-10">Create Recipe Form</h1>
+                    <form method="post" asp-action="CreateRecipe" asp-controller="Users" enctype="multipart/form-data">
+                        <div class="card-body">
+                            <div class="live-preview">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Title" class="form-label"></label>
+                                            <input asp-for="Title" class="form-control" />
+                                            <span asp-validation-for="Title" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label asp-for="Servings" class="form-label"></label>
+                                            <input asp-for="Servings" class="form-control" />
+                                            <span asp-validation-for="Servings" class="text-danger"></span>
+                                        </div>
+                                    </div>
 
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <label asp-for="ShortDescriptions" class="form-label"></label>
-                            <textarea asp-for="ShortDescriptions" class="form-control" rows="3"
-                                placeholder="Enter short description"></textarea>
-                            <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
-                        </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label asp-for="ShortDescriptions" class="form-label"></label>
+                                            <textarea asp-for="ShortDescriptions" class="form-control" rows="3"
+                                                placeholder="Enter short description"></textarea>
+                                            <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
+                                        </div>
 
-                    </div>
+                                    </div>
 
-                    @* <div class="col-md-6">
+                                    @* <div class="col-md-6">
                         <div class="mb-3">
                             <label for="emailidInput" class="form-label">Recipes Made It
                                 Count</label>
@@ -185,215 +92,229 @@
                         </div>
                     </div> *@
 
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <label for="ForminputState" class="form-label">Category</label>
-                            <select id="ForminputState" class="form-select" data-choices data-choices-sorting="true"
-                                name="CateID" required>
-                                <option value="" selected>Choose...</option>
-                                @foreach (var item in Model.Categories)
-                                {
-                                    <option value="@item.ID">@item.Name</option>
-                                }
-                            </select>
-                            <span class="text-danger" data-valmsg-for="CateID" data-valmsg-replace="true"></span>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="ForminputState" class="form-label">Category</label>
+                                            <select id="ForminputState" class="form-select" data-choices
+                                                data-choices-sorting="true" name="CateID" required>
+                                                <option value="" selected>Choose...</option>
+                                                @foreach (var item in Model.Categories)
+                                                {
+                                                    <option value="@item.ID">@item.Name</option>
+                                                }
+                                            </select>
+                                            <span class="text-danger" data-valmsg-for="CateID"
+                                                data-valmsg-replace="true"></span>
 
 
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <label for="ForminputState1" class="form-label">TypeOfDish</label>
-                            <select id="ForminputState1" class="form-select" data-choices data-choices-sorting="true"
-                                name="TypeOfDishID" required>
-                                <option value="" selected>Choose...</option>
-                                @foreach (var item in Model.typeOfDishes)
-                                {
-                                    <option value="@item.ID">@item.Name</option>
-                                }
-                            </select>
-                            <span class="text-danger" data-valmsg-for="TypeOfDishID" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="ForminputState1" class="form-label">TypeOfDish</label>
+                                            <select id="ForminputState1" class="form-select" data-choices
+                                                data-choices-sorting="true" name="TypeOfDishID" required>
+                                                <option value="" selected>Choose...</option>
+                                                @foreach (var item in Model.typeOfDishes)
+                                                {
+                                                    <option value="@item.ID">@item.Name</option>
+                                                }
+                                            </select>
+                                            <span class="text-danger" data-valmsg-for="TypeOfDishID"
+                                                data-valmsg-replace="true"></span>
 
 
-                        </div>
-                    </div>
+                                        </div>
+                                    </div>
 
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="ForminputState2" class="form-label">Difficulty
-                                Level</label>
-                            <select id="ForminputState2" class="form-select" data-choices data-choices-sorting="true"
-                                name="DifficultyLevel">
-                                <option selected>Choose...</option>
-                                <option value="Easy">Easy</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Hard">Hard</option>
-                            </select>
-                        </div>
-                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="ForminputState2" class="form-label">Difficulty
+                                                Level</label>
+                                            <select id="ForminputState2" class="form-select" data-choices
+                                                data-choices-sorting="true" name="DifficultyLevel">
+                                                <option selected>Choose...</option>
+                                                <option value="Easy">Easy</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="Hard">Hard</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                    <div class="col-6">
-                        <!-- Hidden input để gửi false nếu checkbox không được chọn -->
-                        <input type="hidden" name="IsActive" value="true" />
+                                    <div class="col-6">
+                                        <!-- Hidden input để gửi false nếu checkbox không được chọn -->
+                                        <input type="hidden" name="IsActive" value="true" />
 
-                        <!-- Checkbox sẽ ghi đè giá trị nếu được chọn -->
-                        <div class="form-check">
-                            <input asp-for="IsActive" class="form-check-input" type="checkbox" value="true" />
+                                        <!-- Checkbox sẽ ghi đè giá trị nếu được chọn -->
+                                        <div class="form-check">
+                                            <input asp-for="IsActive" class="form-check-input" type="checkbox"
+                                                value="true" />
 
-                            <label class="form-check-label" asp-for="IsActive">Is Active</label>
+                                            <label class="form-check-label" asp-for="IsActive">Is Active</label>
 
-                        </div>
-                    </div>
-
-
-                    <div class="row">
-                        <!-- Cột phải: Ingredient Tag -->
+                                        </div>
+                                    </div>
 
 
-                        <div class="col-md-6 mb-3 h-100 d-flex flex-column">
-                            <input class="search-input" type="text" placeholder="Search..." title="Search..."
-                                id="searchAll">
-                            <label for="IngredientTags" class="form-label">Ingredient Tag</label>
-                            <select id="IngredientTags" name="SelectedIngredientTags[]" class="form-select" multiple
-                                style="display:none;">
-                                @foreach (var item in Model.IngredientTags)
-                                {
-                                    <option value="@item.ID">@item.Name</option>
-                                }
+                                    <div class="row">
+                                        <!-- Cột phải: Ingredient Tag -->
 
-                            </select>
 
-                            <div class="multi-select-container">
-                                <div class="multi-select-column">
-                                    <div class="header">Available</div>
-                                    <div class="items-list" id="availableList"></div>
+                                        <div class="col-md-6 mb-3 h-100 d-flex flex-column">
+                                            <input class="search-input" type="text" placeholder="Search..."
+                                                title="Search..." id="searchAll">
+                                            <label for="IngredientTags" class="form-label">Ingredient Tag</label>
+                                            <select id="IngredientTags" name="SelectedIngredientTags[]"
+                                                class="form-select" multiple style="display:none;">
+                                                @foreach (var item in Model.IngredientTags)
+                                                {
+                                                    <option value="@item.ID">@item.Name</option>
+                                                }
+
+                                            </select>
+
+                                            <div class="multi-select-container">
+                                                <div class="multi-select-column">
+                                                    <div class="header">Available</div>
+                                                    <div class="items-list" id="availableList"></div>
+                                                </div>
+
+                                                <div class="multi-select-column">
+                                                    <div class="header">Selected</div>
+                                                    <div class="items-list" id="selectedList"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Cột trái: 3 time input -->
+                                        <div class="col-md-6">
+                                            <!-- Preparation Time -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Preparation Time</label>
+                                                <div class="d-flex gap-2 align-items-center">
+                                                    <input type="number" class="form-control" min="0"
+                                                        placeholder="Enter time" name="PreparationValue"
+                                                        style="width: 120px;" />
+                                                    <select class="form-select" name="PreparationUnit"
+                                                        style="width: 120px;">
+                                                        <option value="minutes">Minutes</option>
+                                                        <option value="hours">Hours</option>
+                                                        <option value="days">Days</option>
+                                                    </select>
+                                                    <span class="text-muted">or</span>
+                                                    <select class="form-select" name="PreparationQuick"
+                                                        style="width: 150px;">
+                                                        <option value="">Quick select</option>
+                                                        <option value="5">5 min</option>
+                                                        <option value="10">10 min</option>
+                                                        <option value="15">15 min</option>
+                                                        <option value="20">20 min</option>
+                                                        <option value="30">30 min</option>
+                                                        <option value="45">45 min</option>
+                                                        <option value="60">1 hour</option>
+                                                        <option value="120">2 hours</option>
+                                                        <option value="180">3 hours</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Cooking Time -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Cooking Time</label>
+                                                <div class="d-flex gap-2 align-items-center">
+                                                    <input type="number" class="form-control" min="0"
+                                                        placeholder="Enter time" name="CookingValue"
+                                                        style="width: 120px;" />
+                                                    <select class="form-select" name="CookingUnit"
+                                                        style="width: 120px;">
+                                                        <option value="minutes">Minutes</option>
+                                                        <option value="hours">Hours</option>
+                                                        <option value="days">Days</option>
+                                                    </select>
+                                                    <span class="text-muted">or</span>
+                                                    <select class="form-select" name="CookingQuick"
+                                                        style="width: 150px;">
+                                                        <option value="">Quick select</option>
+                                                        <option value="5">5 min</option>
+                                                        <option value="10">10 min</option>
+                                                        <option value="15">15 min</option>
+                                                        <option value="20">20 min</option>
+                                                        <option value="30">30 min</option>
+                                                        <option value="45">45 min</option>
+                                                        <option value="60">1 hour</option>
+                                                        <option value="120">2 hours</option>
+                                                        <option value="180">3 hours</option>
+                                                        <option value="240">4 hours</option>
+                                                    </select>
+                                                </div>
+
+
+
+                                                <!-- Total Time -->
+                                                <div class="mb-3">
+                                                    <label class="form-label">Total Time</label>
+                                                    <div class="form-control bg-light" id="displayTotalTime"
+                                                        style="height: auto;">
+                                                        0 minute
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div><!-- end inner row -->
+                                </div><!-- end live-preview -->
+                            </div><!-- end card-body -->
+                            <input type="hidden" name="PreparationTime" id="hiddenPrepTime">
+                            <input type="hidden" name="CookTime" id="hiddenCookTime">
+                            <input type="hidden" name="TotalTime" id="hiddenTotalTime">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Ingredient</h4>
+                                </div><!-- end card header -->
+
+                                <div class="card-body">
+                                    <div id="editor-Ingredient" class="snow-editor" style="height: 300px;">
+
+                                    </div> <!-- end Snow-editor-->
+                                </div><!-- end card-body -->
+                            </div><!-- end card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title mb-0">Cooking Step</h4>
                                 </div>
-
-                                <div class="multi-select-column">
-                                    <div class="header">Selected</div>
-                                    <div class="items-list" id="selectedList"></div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Cột trái: 3 time input -->
-                        <div class="col-md-6">
-                            <!-- Preparation Time -->
-                            <div class="mb-3">
-                                <label class="form-label">Preparation Time</label>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <input type="number" class="form-control" min="0" placeholder="Enter time"
-                                        name="PreparationValue" style="width: 120px;" />
-                                    <select class="form-select" name="PreparationUnit" style="width: 120px;">
-                                        <option value="minutes">Minutes</option>
-                                        <option value="hours">Hours</option>
-                                        <option value="days">Days</option>
-                                    </select>
-                                    <span class="text-muted">or</span>
-                                    <select class="form-select" name="PreparationQuick" style="width: 150px;">
-                                        <option value="">Quick select</option>
-                                        <option value="5">5 min</option>
-                                        <option value="10">10 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="20">20 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">1 hour</option>
-                                        <option value="120">2 hours</option>
-                                        <option value="180">3 hours</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Cooking Time -->
-                            <div class="mb-3">
-                                <label class="form-label">Cooking Time</label>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <input type="number" class="form-control" min="0" placeholder="Enter time"
-                                        name="CookingValue" style="width: 120px;" />
-                                    <select class="form-select" name="CookingUnit" style="width: 120px;">
-                                        <option value="minutes">Minutes</option>
-                                        <option value="hours">Hours</option>
-                                        <option value="days">Days</option>
-                                    </select>
-                                    <span class="text-muted">or</span>
-                                    <select class="form-select" name="CookingQuick" style="width: 150px;">
-                                        <option value="">Quick select</option>
-                                        <option value="5">5 min</option>
-                                        <option value="10">10 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="20">20 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">1 hour</option>
-                                        <option value="120">2 hours</option>
-                                        <option value="180">3 hours</option>
-                                        <option value="240">4 hours</option>
-                                    </select>
-                                </div>
-
-
-
-                                <!-- Total Time -->
-                                <div class="mb-3">
-                                    <label class="form-label">Total Time</label>
-                                    <div class="form-control bg-light" id="displayTotalTime" style="height: auto;">
-                                        0 minute
+                                <div class="card-body">
+                                    <div id="editor-CookingStep" class="snow-editor" style="height: 300px;">
+                                        <!-- Content here... -->
                                     </div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label asp-for="ThumbnailImage" class="form-label">Upload Thumbnail Image</label>
+                                <input asp-for="ThumbnailImage" class="form-control" type="file" accept="image/*"
+                                    onchange="resizeAndPreviewImage(event)" />
+                                <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+                            </div>
+
+                            <!-- Preview image -->
+                            <img id="product-img" src="#" alt="Preview"
+                                style="max-width: 100%; margin-top: 10px; display: none;" />
+
+
+
+
+
                         </div>
-                    </div><!-- end inner row -->
-                </div><!-- end live-preview -->
-            </div><!-- end card-body -->
-            <input type="hidden" name="PreparationTime" id="hiddenPrepTime">
-            <input type="hidden" name="CookTime" id="hiddenCookTime">
-            <input type="hidden" name="TotalTime" id="hiddenTotalTime">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Ingredient</h4>
-                </div><!-- end card header -->
+                        <input type="hidden" id="IngredientHidden" name="Ingredient" />
+                        <input type="hidden" id="CookingStepHidden" name="CookingStep" />
 
-                <div class="card-body">
-                    <div id="editor-Ingredient" class="snow-editor" style="height: 300px;">
-
-                    </div> <!-- end Snow-editor-->
-                </div><!-- end card-body -->
-            </div><!-- end card -->
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title mb-0">Cooking Step</h4>
-                </div>
-                <div class="card-body">
-                    <div id="editor-CookingStep" class="snow-editor" style="height: 300px;">
-                        <!-- Content here... -->
-                    </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-sm btn-success">Submit Recipe</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <div class="mb-3">
-                <label asp-for="ThumbnailImage" class="form-label">Upload Thumbnail Image</label>
-                <input asp-for="ThumbnailImage" class="form-control" type="file" accept="image/*"
-                    onchange="resizeAndPreviewImage(event)" />
-                <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
-            </div>
-
-            <!-- Preview image -->
-            <img id="product-img" src="#" alt="Preview" style="max-width: 100%; margin-top: 10px; display: none;" />
-
-
-
-
-
         </div>
-        <input type="hidden" id="IngredientHidden" name="Ingredient" />
-        <input type="hidden" id="CookingStepHidden" name="CookingStep" />
-
-        <div class="mt-3">
-            <button type="submit" class="btn btn-sm btn-success">Submit Recipe</button>
-        </div>
-    </form>
-
+    </div>
 
     <footer class="main">
         <section class="newsletter mb-15">

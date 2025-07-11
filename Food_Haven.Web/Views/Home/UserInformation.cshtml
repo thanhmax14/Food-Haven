@@ -73,20 +73,17 @@
 </head>
 
 <body>
-   
- 
-
     @await Html.PartialAsync("_Header")
     <!--End header-->
     <main class="main pages">
-        <div class="page-header breadcrumb-wrap">
+        @* <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
                     <a asp-controller="Home" asp-action="Index"></i>Home</a>
                     <span></span> Pages <span></span> My Account
                 </div>
             </div>
-        </div>
+        </div> *@
         <div class="page-content pt-50 pb-50">
             <div class="container">
                 <div class="row">
@@ -99,7 +96,6 @@
                                              alt="Profile image"
                                              class="rounded-circle mb-3"
                                              style="width: 100px; height: 100px; object-fit: cover;" />
-
                                         <h4>@Model.UserName</h4>
                                         <p>online/offline</p>
                                         <div class="d-flex gap-2 @(Model.HasStore && Model.StoreId != null ? "" : "justify-content-center")">
@@ -114,15 +110,11 @@
                                                     </button>
                                                 </form>
                                             }
-
                                             <button type="button" class="btn btn-fill-out submit font-weight-bold"
                                                     onclick="goToChat('@Model.UserId')" value="Submit">
                                                 Chat
                                             </button>
                                         </div>
-
-
-                                      
                                     </div>
                                 </div>
                             </div>
