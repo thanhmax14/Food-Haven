@@ -52,6 +52,7 @@ namespace Repository.ViewModels
         public Guid TypeOfDishID { get; set; }
         public Guid IngredientTagsID { get; set; }
         public string status { get; set; } = "";
+        public string ImageUrl { get; set; } 
 
         public List<TypeOfDish> typeOfDishes { get; set; } = new List<TypeOfDish>();
 

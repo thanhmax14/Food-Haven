@@ -1564,6 +1564,8 @@ namespace Food_Haven.Web.Controllers
                 IsFavorite = isFavorite,
                 ReviewCount = reviewRecipeCount,
                 AverageRating = averageRating,
+                ImageUrl = user.ImageUrl,
+                UserID = user?.Id,
             };
 
             return View(recipeViewModel);

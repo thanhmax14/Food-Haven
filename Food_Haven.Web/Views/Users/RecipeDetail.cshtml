@@ -41,22 +41,45 @@
         flex-wrap: wrap;
     }
 
-    .star {
-        width: 24px;
-        height: 24px;
-        fill: #ddd; /* Màu xám mặc định */
-        stroke: #ccc;
-        stroke-width: 1;
-        transition: fill 0.2s ease;
-    }
-    .star.filled {
-        fill: #ffd700; /* Màu vàng */
-        stroke: #ffcd00;
-    }
-    .star.half-filled {
-        fill: url(#halfGradient);
-        stroke: #ffcd00;
-    }
+   .rating-section i {
+    font-size: 1.2rem;
+    margin-right: 2px;
+}
+
+.full-star {
+    color: #ffa500; /* cam đậm */
+}
+
+.half-star {
+    color: #ffa500;
+}
+
+.empty-star {
+    color: #ccc; /* xám nhạt */
+}
+
+.review-count {
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+}
+.review-count:hover {
+    text-decoration: underline;
+}
+
+.avatar-img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+}
+
+.author-avatar {
+    display: inline-block;
+}
+
+
     </style>
 
 </head>
@@ -761,35 +784,27 @@
                 <h2 class="recipe-title">@Model.Title</h2>
                 
                 <!-- Rating Section -->
-               <div class="rating-section">
-<div class="stars" id="recipeStars">
-    <svg style="display: none;">
-        <defs>
-            <linearGradient id="halfGradient">
-                <stop offset="50%" stop-color="#ffd700"/>
-                <stop offset="50%" stop-color="#ddd"/>
-            </linearGradient>
-        </defs>
-    </svg>
-    <svg class="star" viewBox="0 0 24 24">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
-    <svg class="star" viewBox="0 0 24 24">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
-    <svg class="star" viewBox="0 0 24 24">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
-    <svg class="star" viewBox="0 0 24 24">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
-    <svg class="star" viewBox="0 0 24 24">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </svg>
+      <div class="rating-section d-flex align-items-center gap-2">
+    @for (int i = 1; i <= 5; i++)
+    {
+        if (Model.AverageRating >= i)
+        {
+            <i class="fa fa-star full-star"></i>
+        }
+        else if (Model.AverageRating >= i - 0.5)
+        {
+            <i class="fa fa-star-half-alt half-star"></i>
+        }
+        else
+        {
+            <i class="fa fa-star empty-star"></i>
+        }
+    }
+
+    <span class="badge bg-success rounded-pill px-2 py-1">@Model.AverageRating.ToString("0.0")</span>
+    <a href="#reviews" class="review-count ms-1">@Model.ReviewCount Reviews</a>
 </div>
-        <span class="rating-text" id="ratingText">@Model.AverageRating </span>
-        <a href="#reviews" class="review-count" id="reviewCount">@Model.ReviewCount Reviews</a>
-    </div>
+
 
                 <!-- Description -->
                 <p class="recipe-description">
@@ -800,22 +815,17 @@
                 <div class="single-header-meta">
                     <div class="entry-meta">
                         <a class="author-avatar" href="#">
-                            <img src="" alt="Author Avatar" />
-                        </a>
-                        <span class="post-by">By <a href="#">@Model.RecipeOwnerUserName</a></span>
+    <img src="@Model.ImageUrl" alt="Author Avatar" class="rounded-circle avatar-img" />
+</a>
+
+<span class="post-by">
+    By <a asp-action="UserInformation" asp-controller="Home" asp-route-id="@Model.UserID">
+        @Model.RecipeOwnerUserName
+    </a>
+</span>
+
                         <span class="post-on has-dot">@Model.CreatedDate.ToString("dd/MM/yyyy")</span>
-                    </div>
-                    
-                    <div class="social-icons">
-                    <ul class="d-flex gap-2 align-items-center">
-    <li>
-        <button title="Save Recipe" style="all: unset; cursor: pointer;"></button>
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
-            </svg>
-        </button>
-    </li>
-<li>
+   
     <button class="add-favorite @(Model.IsFavorite ? "heart-red" : "")"
             data-recipe-id="@Model.ID"
             title="Toggle Favorite"
@@ -829,10 +839,9 @@
                      11.54L12 21.35z" />
         </svg>
     </button>
-</li>
 
 
-</ul>
+
 
                     </div>
                 </div>
@@ -873,10 +882,10 @@
                                     <div class="single-content">
                                         <div class="row">
                                             <div class="col-xl-10 col-lg-12 m-auto">
-                                       <p><strong>Ingredient:</strong></p>
+                                       <h3><strong>Ingredient:</strong></h3>
 <p class="single-excerpt">@Html.Raw(Model.Ingredient)</p>
 
-<p><strong>CookingStep:</strong></p>
+<h3><strong>Cooking Step:</strong></h3>
 <p>@Html.Raw(Model.CookingStep)</p>
 
                                                       <!-- BẮT ĐẦU PHẦN THÔNG TIN CHI TIẾT -->
@@ -1046,11 +1055,12 @@
    <div class="single-comment justify-content-between d-flex mb-30">
         <div class="thumb text-center">
             <img src="~/assets/imgs/blog/author-2.png" alt="" />
-            <a href="#" class="font-heading text-brand">@item.UserID</a>
         </div>
         <div class="desc">
             <div class="d-flex justify-content-between mb-10">
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center" style="gap: 20px;">
+             <a href="#" class="font-heading text-brand">@item.UserID</a>
+
                     <span class="font-xs text-muted">@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
                 </div>
                <div class="product-rate d-inline-block">
@@ -1072,11 +1082,11 @@
     <div class="ml-60 mt-2 p-2 bg-light rounded border" id="reply-box-@item.ID">
         <p>
             <strong>@Model.RecipeOwnerUserName</strong>
-            <span class="badge-owner ms-1">
-                <i class="bi bi-patch-check-fill text-primary me-1"></i> Owner
-            </span>
+             <strong class="badge-owner ms-1">
+                <i class="bi bi-patch-check-fill text-primary me-1">(Owner)</i>
+            </strong>
         </p>
-        <strong id="reply-content-@item.ID">@item.Reply</strong>
+        <p id="reply-content-@item.ID">@item.Reply</p>
         <span class="font-xs text-muted">@item.ReplyDate?.ToString("dd/MM/yyyy HH:mm")</span>
 
         @if (User.Identity.Name == Model.RecipeOwnerUserName)
@@ -1961,97 +1971,99 @@ document.getElementById('Relycomment-form').addEventListener('submit', function 
 });
 </script>
 <script>
-    $(document).on('click', '.add-favorite', function () {
-        const recipeId = $(this).data('recipe-id');
-        const button = $(this);
+   $(document).on('click', '.add-favorite', function () {
+    const recipeId = $(this).data('recipe-id');
+    const button = $(this);
 
-        $.ajax({
-            url: '/Users/AddFavoriteRecipes',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ RecipeID: recipeId }),
-            success: function (res) {
-                if (res.success) {
-                    if (res.isFavorite) {
-                        button.addClass('heart-red');
+    // Nếu đã yêu thích → xác nhận bằng SweetAlert2
+    if (button.hasClass('heart-red')) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to remove this recipe from your favorites?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove it',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                toggleFavorite(recipeId, button);
+            }
+        });
+    } else {
+        // Nếu chưa yêu thích thì gọi luôn
+        toggleFavorite(recipeId, button);
+    }
+});
 
-                        new Notify({
-                            status: 'success',
-                            title: 'Favorited!',
-                            text: res.message || 'Recipe has been added to favorites.',
-                            position: 'right top',
-                            autoclose: true,
-                            autotimeout: 2000,
-                            showIcon: true
-                        });
+// Gọi API và xử lý
+function toggleFavorite(recipeId, button) {
+    $.ajax({
+        url: '/Users/AddFavoriteRecipes',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ RecipeID: recipeId }),
+        success: function (res) {
+            if (res.success) {
+                if (res.isFavorite) {
+                    button.addClass('heart-red');
 
-                    } else {
-                        button.removeClass('heart-red');
-
-                        new Notify({
-                            status: 'info',
-                            title: 'Removed!',
-                            text: res.message || 'Recipe has been removed from favorites.',
-                            position: 'right top',
-                            autoclose: true,
-                            autotimeout: 2000,
-                            showIcon: true
-                        });
-                    }
-                } else {
                     new Notify({
-                        status: 'error',
-                        title: 'Error!',
-                        text: res.message || 'An error occurred while processing your request.',
+                        status: 'success',
+                        title: 'Added to Favorites',
+                        text: res.message || 'The recipe has been added to your favorites.',
                         position: 'right top',
                         autoclose: true,
-                        autotimeout: 4000,
+                        autotimeout: 2000,
                         showIcon: true
                     });
+
+                } else {
+                    button.removeClass('heart-red');
+
+                  new Notify({
+    status: 'success',
+    title: 'Removed from Favorites',
+    text: res.message || 'The recipe has been removed from your favorites.',
+    position: 'right top',
+    autoclose: true,
+    autotimeout: 2000,
+    showIcon: true
+});
+
                 }
-            },
-            error: function () {
+            } else {
                 new Notify({
                     status: 'error',
-                    title: 'Connection Failed!',
-                    text: 'Unable to connect to the server.',
+                    title: 'Error',
+                    text: res.message || 'An error occurred while processing your request.',
                     position: 'right top',
                     autoclose: true,
                     autotimeout: 4000,
                     showIcon: true
                 });
             }
-        });
+        },
+        error: function () {
+            new Notify({
+                status: 'error',
+                title: 'Connection Failed',
+                text: 'Unable to connect to the server. Please try again.',
+                position: 'right top',
+                autoclose: true,
+                autotimeout: 4000,
+                showIcon: true
+            });
+        }
     });
+}
+
+
 </script>
 
 
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    function displayStars(rating) {
-        const validRating = isNaN(rating) || rating === null ? 0 : parseFloat(rating);
-        console.log('Processed Rating:', validRating); // Kiểm tra giá trị thực tế
-        const stars = document.querySelectorAll('.stars .star');
-        const roundedRating = Math.round(validRating * 2) / 2;
 
-        stars.forEach((star, index) => {
-            star.classList.remove('filled', 'half-filled');
-
-            if (index < Math.floor(roundedRating)) {
-                star.classList.add('filled');
-            } else if (index === Math.floor(roundedRating) && roundedRating % 1 !== 0) {
-                star.classList.add('half-filled');
-            }
-        });
-    }
-
-    // Gọi hàm với giá trị từ Model.AverageRating
-    const avgRating = @(Model.AverageRating != null ? Model.AverageRating.ToString("F1", System.Globalization.CultureInfo.InvariantCulture) : "0");
-    console.log('Model Average Rating:', avgRating); // Kiểm tra giá trị từ backend
-    displayStars(avgRating);
-});
-</script>
 
 
 </body>
