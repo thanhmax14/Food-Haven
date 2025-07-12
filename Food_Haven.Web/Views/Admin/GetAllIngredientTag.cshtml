@@ -308,7 +308,8 @@
                         var ingredientTags = @Html.Raw(Json.Serialize(Model));
 
                         if (!ingredientTags || ingredientTags.length === 0) {
-                            document.getElementById("table-ingredienttag").innerHTML = "<div class='alert alert-warning text-center'><p>No ingredient tags available.</p></div>";
+                            document.getElementById("table-ingredienttag").innerHTML =
+                                "<div class='alert alert-warning text-center'><p>No ingredient tags available.</p></div>";
                             return;
                         }
 
@@ -316,8 +317,16 @@
                             columns: [
                                 { name: "ID", hidden: true },
                                 { name: "Name", width: "250px" },
-                                { name: "Created Date", width: "150px", formatter: (cell) => formatDate(cell) },
-                                { name: "Modified Date", width: "150px", formatter: (cell) => formatDate(cell) },
+                                {
+                                    name: "Created Date",
+                                    width: "150px",
+                                    formatter: (cell) => formatDate(cell)
+                                },
+                                {
+                                    name: "Modified Date",
+                                    width: "150px",
+                                    formatter: (cell) => formatDate(cell)
+                                },
                                 {
                                     name: "Status",
                                     width: "120px",
@@ -329,55 +338,40 @@
                                 },
                                 {
                                     name: "Actions",
-                                    width: "150px",
+                                    width: "200px",
                                     formatter: (_, row) => {
                                         let id = row.cells[0].data;
-                                        let isActive = row.cells[5].data;
+                                        let isActive = row.cells[4].data;
 
-                                        let toggleButtonHtml = isActive
-                                            ? `<li>
-                                                    <button class="dropdown-item" onclick="ToggleIngredientTagStatus('${id}', false)">
-                                                        <i class="ri-eye-off-line text-danger align-bottom me-2"></i> Disable
-                                                    </button>
-                                               </li>`
-                                            : `<li>
-                                                    <button class="dropdown-item" onclick="ToggleIngredientTagStatus('${id}', true)">
-                                                        <i class="ri-eye-line text-success align-bottom me-2"></i> Enable
-                                                    </button>
-                                               </li>`;
+                                        let toggleText = isActive ? "Disable" : "Enable";
+                                        let toggleClass = isActive ? "btn btn-sm btn-danger" : "btn btn-sm btn-success";
+                                        let toggleIcon = isActive ? "ri-eye-off-line" : "ri-eye-line";
 
                                         return gridjs.html(`
-                                            <div class="dropdown">
-                                                <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ri-more-fill align-middle"></i>
+                                            <div class="d-flex gap-2">
+                                                <a class="btn btn-sm btn-primary" href="/Admin/UpdateIngredientTag/${id}">
+                                                    <i class="ri-pencil-fill align-bottom me-1"></i> Edit
+                                                </a>
+                                                <button class="${toggleClass}" onclick="ToggleIngredientTagStatus('${id}', ${!isActive})">
+                                                    <i class="${toggleIcon} align-bottom me-1"></i> ${toggleText}
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a class="dropdown-item edit-item-btn" href="/Admin/UpdateIngredientTag/${id}">
-                                                            <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                                        </a>
-                                                    </li>
-                                                    ${toggleButtonHtml}
-                                                </ul>
                                             </div>
                                         `);
                                     }
                                 }
                             ],
                             pagination: { enabled: true, limit: 10, summary: true },
-                                                sort: {
-                        multiColumn: false,
-                        compare: (a, b) => new Date(b.cells[2].data) - new Date(a.cells[2].data)
-                    }
-
+                            sort: {
+                                multiColumn: false,
+                                compare: (a, b) => new Date(b.cells[2].data) - new Date(a.cells[2].data)
+                            },
                             search: true,
                             data: ingredientTags.map(c => [
                                 c.id,
                                 c.name,
                                 c.createdDate,
                                 c.modifiedDate,
-                                c.isActive,
-                                c.isActive // truyền thêm isActive để xử lý toggle
+                                c.isActive // only once!
                             ])
                         }).render(document.getElementById("table-ingredienttag"));
                     });
@@ -388,7 +382,7 @@
                         return date.toLocaleDateString("en-GB");
                     }
 
-                    function ToggleToggleIngredientTagStatus(id, isActive) {
+                    function ToggleIngredientTagStatus(id, isActive) {
                         let actionText = isActive ? "enable" : "disable";
                         let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
 
@@ -429,6 +423,7 @@
                         });
                     }
                 </script>
+
 
                 <!-- end row -->
 
