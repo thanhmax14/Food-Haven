@@ -78,6 +78,12 @@
         color: white;
         border-color: #007bff;
     }
+
+    .note-text {
+    max-width: 50ch;         /* Giới hạn chiều ngang theo 40 ký tự */
+    word-wrap: break-word;   /* Tự động xuống hàng khi dài */
+    white-space: normal;     /* Cho phép xuống hàng */
+}
 </style>
 </head>
 
@@ -205,28 +211,33 @@
 
                                       <div class="d-flex flex-wrap gap-2 mb-2">
     <!-- Dòng 1 -->
-    <div class="d-flex flex-row gap-2 w-100">
-        <span class="post-on has-dot">@item.TypeOfDishName</span>
-        <span class="post-on has-dot">@item.DifficultyLevel</span>
-        <span class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
-    </div>
+    <!-- Dòng 1 -->
+<div class="d-flex flex-row gap-2 w-100">
+    <span class="post-on has-dot">@item.TypeOfDishName</span>
+    <span class="post-on has-dot">@item.DifficultyLevel</span>
+    <span class="post-on has-dot">@item.CreatedDate.ToString("dd/MM/yyyy")</span>
+</div>
 
-    <!-- Dòng 2 -->
-    <div class="d-flex flex-row gap-2 w-100">
-        <span class="hit-count has-dot">126k Views</span>
-        <span class="hit-count has-dot 
-    @(item.status?.ToLower() == "accept" ? "text-success" :
-      item.status?.ToLower() == "pending" ? "text-warning" :
-      item.status?.ToLower() == "reject" ? "text-danger" : "")">
-    @item.status
-    @if (item.status?.ToLower() == "reject" && !string.IsNullOrWhiteSpace(item.RejectNote))
-    {
-        <text> - Note: @item.RejectNote</text>
-    }
-</span>
+<!-- Dòng 2 -->
+<div class="d-flex flex-row gap-2 w-100">
+    <span class="hit-count has-dot">126k Views</span>
+    <span class="hit-count has-dot 
+        @(item.status?.ToLower() == "accept" ? "text-success" :
+          item.status?.ToLower() == "pending" ? "text-warning" :
+          item.status?.ToLower() == "reject" ? "text-danger" : "")">
+        @item.status
+    </span>
+</div>
 
-        <!-- Có thể thêm mục thứ 3 ở đây nếu muốn -->
+<!-- Dòng 3: Chỉ hiện nếu bị từ chối -->
+@if (item.status?.ToLower() == "reject" && !string.IsNullOrWhiteSpace(item.RejectNote))
+{
+    <div class="text-danger ms-2 note-text">
+        <strong>Note:</strong> @item.RejectNote
     </div>
+}
+
+
 </div>
 
                                             <a asp-action="RecipeDetail" asp-controller="Users" asp-route-id="@item.ID"
