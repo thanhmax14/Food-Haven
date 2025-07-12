@@ -33,6 +33,24 @@
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
 
+    <style>
+        .dropdown-item.edit-item-btn {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+            .dropdown-item.edit-item-btn:hover {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+                .dropdown-item.edit-item-btn:hover i {
+                    color: white;
+                }
+    </style>
+
 </head>
 
 <body>
@@ -309,7 +327,8 @@
                                 var typeOfDishes = @Html.Raw(Json.Serialize(Model));
 
                                 if (!typeOfDishes || typeOfDishes.length === 0) {
-                                    document.getElementById("table-typeofdish").innerHTML = "<div class='alert alert-warning text-center'><p>No types of dish available.</p></div>";
+                                    document.getElementById("table-typeofdish").innerHTML =
+                                        "<div class='alert alert-warning text-center'><p>No types of dish available.</p></div>";
                                     return;
                                 }
 
@@ -317,8 +336,16 @@
                                     columns: [
                                         { name: "ID", hidden: true },
                                         { name: "Name", width: "250px" },
-                                        { name: "Created Date", width: "150px", formatter: (cell) => formatDate(cell) },
-                                        { name: "Modified Date", width: "150px", formatter: (cell) => formatDate(cell) },
+                                        {
+                                            name: "Created Date",
+                                            width: "150px",
+                                            formatter: (cell) => formatDate(cell)
+                                        },
+                                        {
+                                            name: "Modified Date",
+                                            width: "150px",
+                                            formatter: (cell) => formatDate(cell)
+                                        },
                                         {
                                             name: "Status",
                                             width: "120px",
@@ -330,54 +357,41 @@
                                         },
                                         {
                                             name: "Actions",
-                                            width: "150px",
+                                            width: "200px",
                                             formatter: (_, row) => {
                                                 let id = row.cells[0].data;
-                                                let isActive = row.cells[5].data;
+                                                let isActive = row.cells[4].data;
 
-                                                let toggleButtonHtml = isActive
-                                                    ? `<li>
-                                                            <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', false)">
-                                                                <i class="ri-eye-off-line text-danger align-bottom me-2"></i> Disable
-                                                            </button>
-                                                       </li>`
-                                                    : `<li>
-                                                            <button class="dropdown-item" onclick="ToggletypeOfDishesIdTagStatus('${id}', true)">
-                                                                <i class="ri-eye-line text-success align-bottom me-2"></i> Enable
-                                                            </button>
-                                                       </li>`;
+                                                let toggleText = isActive ? "Disable" : "Enable";
+                                                let toggleClass = isActive ? "btn btn-sm btn-danger" : "btn btn-sm btn-success";
+                                                let toggleIcon = isActive ? "ri-eye-off-line" : "ri-eye-line";
+                                                let editUrl = `/Admin/UpdateTypeOfDish/${id}`;
 
                                                 return gridjs.html(`
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-fill align-middle"></i>
+                                                    <div class="d-flex gap-2">
+                                                        <a class="btn btn-sm btn-primary" href="${editUrl}">
+                                                            <i class="ri-pencil-fill align-bottom me-1"></i> Edit
+                                                        </a>
+                                                        <button class="${toggleClass}" onclick="ToggletypeOfDishesIdTagStatus('${id}', ${!isActive})">
+                                                            <i class="${toggleIcon} align-bottom me-1"></i> ${toggleText}
                                                         </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li>
-                                                                <a class="dropdown-item edit-item-btn" href="/Admin/UpdateTypeOfDish/${id}">
-                                                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
-                                                                </a>
-                                                            </li>
-                                                            ${toggleButtonHtml}
-                                                        </ul>
                                                     </div>
                                                 `);
                                             }
                                         }
                                     ],
                                     pagination: { enabled: true, limit: 10, summary: true },
-                                                                sort: {
-                                multiColumn: false,
-                                compare: (a, b) => new Date(b.cells[2].data) - new Date(a.cells[2].data)
-                            }
+                                    sort: {
+                                        multiColumn: false,
+                                        compare: (a, b) => new Date(b.cells[2].data) - new Date(a.cells[2].data)
+                                    },
                                     search: true,
                                     data: typeOfDishes.map(c => [
                                         c.id,
                                         c.name,
                                         c.createdDate,
                                         c.modifiedDate,
-                                        c.isActive,
-                                        c.isActive
+                                        c.isActive // ✔️ isActive ở đúng index = 4
                                     ])
                                 }).render(document.getElementById("table-typeofdish"));
                             });
@@ -427,6 +441,7 @@
                                 });
                             }
                         </script>
+
 
 
                 <!-- end row -->
