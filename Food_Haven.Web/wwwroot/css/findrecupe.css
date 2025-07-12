@@ -1,0 +1,80 @@
+﻿
+#available-ingredients {
+    background: #f9f9f9;
+    padding: 6px;
+}
+
+#results {
+    width: 100%;
+    min-height: 120px;
+}
+
+#btn-generate, #btn-clear {
+    min-width: 140px;
+    font-weight: bold;
+}
+
+.result-btns-row {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    #results {
+        min-height: 80px;
+    }
+
+    #btn-generate, #btn-clear {
+        min-width: 100px;
+    }
+}
+
+#search-ingredient {
+    max-width: 260px;
+    display: inline-block;
+}
+
+#customLoading {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    background: rgba(160,170,190,0.25);
+    align-items: center;
+    justify-content: center;
+    /* Để flex ở đây, nhưng không để display: flex ở HTML, chỉ dùng jQuery */
+}
+
+.selected-ing {
+    transition: background 0.18s, box-shadow 0.18s, border 0.18s;
+    border: 1.5px solid transparent;
+}
+
+    .selected-ing:hover {
+        background: #eaffea !important;
+        color: #111 !important;
+        box-shadow: 0 1px 6px #aee6a8;
+        border: 1.5px solid #4ede64;
+    }
+
+.modal-lg {
+    max-width: 900px !important;
+}
+
+#modalRecipeBody {
+    font-size: 1.17rem;
+    white-space: pre-line;
+    text-align: left;
+    font-family: 'Fira Mono', 'Consolas', monospace;
+    letter-spacing: 0.01em;
+    padding-left: 4px;
+}
+
+#selected-ingredients {
+    align-items: center;
+}
