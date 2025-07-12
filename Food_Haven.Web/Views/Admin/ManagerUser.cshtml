@@ -1197,38 +1197,39 @@
                                         {
                                             name: "IsBanByadmin",
                                             width: "180px",
-                                            formatter: (value) => value ? "❌ Disable" : "✔ Active"
+                                            formatter: (value) => value ? "Disable" : "Active"
                                         },
-                                        {
-                                            name: "Actions",
-                                            width: "150px",
-                                            formatter: (_, row) => {
-                                                let userEmail = row.cells[1].data; // Lấy Email của user
-                                                let isBanned = row.cells[5].data; // Giá trị IsBanByadmin
-                                                let actionButton = isBanned
-                                                    ? `<button class="dropdown-item toggle-ban-btn" data-useremail="${userEmail}" data-ban="false">
-                                                        <i class="ri-eye-fill align-bottom me-2 text-muted"></i> UnBan
-                                                       </button>`
-                                                    : `<button class="dropdown-item toggle-ban-btn" data-useremail="${userEmail}" data-ban="true">
-                                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Ban
-                                                       </button>`;
-                                                return gridjs.html(`
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-fill align-middle"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li>
-                                                                <button class="dropdown-item edit-user-btn" data-useremail="${userEmail}">
-                                                                    <i class="ri-edit-fill align-bottom me-2 text-muted"></i> Edit
-                                                                </button>
-                                                            </li>
-                                                            <li>${actionButton}</li>
-                                                        </ul>
-                                                    </div>
-                                                `);
-                                            }
-                                        }
+                                     {
+    name: "Actions",
+    width: "220px",
+    formatter: (_, row) => {
+        let userEmail = row.cells[1].data; // Email người dùng
+        let isBanned = row.cells[5].data;  // Trạng thái bị ban
+
+        // Nút Edit
+        let editButton = `
+            <button class="btn btn-sm btn-primary me-2 edit-user-btn" data-useremail="${userEmail}">
+                Edit
+            </button>`;
+
+        // Nút Ban/Unban
+        let banButton = isBanned
+            ? `<button class="btn btn-sm btn-success toggle-ban-btn" data-useremail="${userEmail}" data-ban="false">
+                    Unban
+               </button>`
+            : `<button class="btn btn-sm btn-danger toggle-ban-btn" data-useremail="${userEmail}" data-ban="true">
+                    Ban
+               </button>`;
+
+        return gridjs.html(`
+            <div class="d-flex flex-wrap gap-2">
+                ${editButton}
+                ${banButton}
+            </div>
+        `);
+    }
+}
+
                                     ],
                                     pagination: { enabled: true, limit: 10, summary: true },
                                     sort: true,

@@ -33,10 +33,9 @@
 
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
     <style>
-      .post-exerpt {
-    min-height: 60px;
-}
-
+        .post-exerpt {
+            min-height: 60px;
+        }
     </style>
 </head>
 
@@ -141,13 +140,15 @@
 
                                     <div class="entry-content-2 pl-50 d-flex flex-column h-100">
                                         <h3 class="post-title mb-20">
-                                            <a href="blog-post-right.html">@item.Title</a>
+
+                                            <a asp-controller="Users" asp-action="RecipeDetail"
+                                                asp-route-id="@item.ID">@item.Title</a>
                                         </h3>
 
                                         <p class="post-exerpt mb-40">
                                             @(!string.IsNullOrWhiteSpace(item.ShortDescriptions) ? item.ShortDescriptions :
                                                                                     "No description available.")
-                                    </p>
+                                        </p>
 
                                         <div class="entry-meta meta-1 font-xs color-grey mt-auto pb-10">
                                             <div class="d-flex flex-wrap gap-2 mb-2">
@@ -167,7 +168,7 @@
                                         </div>
                                     </div>
                                 </article>
-                                                        }
+                            }
                         </div>
 
                         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
