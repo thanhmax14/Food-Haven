@@ -1207,43 +1207,40 @@
                                                 return gridjs.html(statuses[value] || '<span class="badge bg-dark">Unknown</span>');
                                             }
                                         },
-                                        {
-                                            name: "Actions",
-                                            width: "200px",
-                                            formatter: (_, row) => {
-                                                let userEmail = row.cells[1].data;
-                                                let requestStatus = parseInt(row.cells[5].data);
+                                   {
+    name: "Actions",
+    width: "200px",
+    formatter: (_, row) => {
+        let userEmail = row.cells[1].data;
+        let requestStatus = parseInt(row.cells[5].data);
 
-                                                let actionButtons = "";
-                                                if (requestStatus === 1) {
-                                                    actionButtons = `
-                                                                <button class="dropdown-item accept-btn" data-useremail="${userEmail}" data-action="accept">
-                                                                    <i class="ri-check-fill align-bottom me-2 text-success"></i> Accept
-                                                                </button>
-                                                                <button class="dropdown-item reject-btn" data-useremail="${userEmail}" data-action="reject">
-                                                                    <i class="ri-close-fill align-bottom me-2 text-danger"></i> Reject
-                                                                </button>`;
-                                                } else if (requestStatus === 3) {
-                                                    actionButtons = `
-                                                                <button class="dropdown-item accept-btn" data-useremail="${userEmail}" data-action="accept">
-                                                                    <i class="ri-check-fill align-bottom me-2 text-success"></i> Accept
-                                                                </button>`;
-                                                }
+        let actionButtons = "";
 
-                                                if (actionButtons) {
-                                                    return gridjs.html(`
-                                                                <div class="dropdown">
-                                                                    <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        <i class="ri-more-fill align-middle"></i>
-                                                                    </button>
-                                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                                        ${actionButtons}
-                                                                    </ul>
-                                                                </div>`);
-                                                }
-                                                return "";
-                                            }
-                                        }
+        if (requestStatus === 1) {
+            actionButtons = `
+                <button class="btn btn-sm btn-success me-2 accept-btn" data-useremail="${userEmail}" data-action="accept">
+                    Accept
+                </button>
+                <button class="btn btn-sm btn-danger reject-btn" data-useremail="${userEmail}" data-action="reject">
+                    Reject
+                </button>
+            `;
+        } else if (requestStatus === 3) {
+            actionButtons = `
+                <button class="btn btn-sm btn-success accept-btn" data-useremail="${userEmail}" data-action="accept">
+                    Accept
+                </button>
+            `;
+        }
+
+        return gridjs.html(`
+            <div class="d-flex flex-wrap gap-2">
+                ${actionButtons}
+            </div>
+        `);
+    }
+}
+
                                     ],
                                     pagination: { enabled: true, limit: 10, summary: true },
                                     sort: true,

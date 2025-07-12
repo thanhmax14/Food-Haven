@@ -344,72 +344,72 @@
                     document.addEventListener("DOMContentLoaded", function () {
                         const recipeData = @Html.Raw(Json.Serialize(Model));
 
-                      // 👉 Lọc & sort trước theo ModifiedDate giảm dần (mới nhất lên trước)
-const table1Data = recipeData
-    .filter(r => {
-        const status = (r.status || r.Status || "").toLowerCase();
-        return status === "pending" || status === "reject";
-    })
-    .sort((a, b) => new Date(a.modifiedDate || a.ModifiedDate) - new Date(b.modifiedDate || b.ModifiedDate)); // ✅ Sort tăng dần
+                        // 👉 Lọc & sort trước theo ModifiedDate giảm dần (mới nhất lên trước)
+                        const table1Data = recipeData
+                            .filter(r => {
+                                const status = (r.status || r.Status || "").toLowerCase();
+                                return status === "pending" || status === "reject";
+                            })
+                            .sort((a, b) => new Date(a.modifiedDate || a.ModifiedDate) - new Date(b.modifiedDate || b.ModifiedDate)); // ✅ Sort tăng dần
 
-new gridjs.Grid({
-    columns: [
-        { name: "STT" },
-        { name: "ID", hidden: true },
-        { name: "Username" },
-        { name: "Title" },
-        { name: "TotalTime" },
-        {
-            name: "Thumbnail",
-            formatter: cell => gridjs.html(`<img src="${cell}" width="50" height="50">`)
-        },
-        {
-            name: "Status",
-            formatter: cell => {
-                const color = {
-                    pending: "bg-warning-subtle text-warning",
-                    approved: "bg-success-subtle text-success",
-                    rejected: "bg-danger-subtle text-danger"
-                }[(cell || "").toLowerCase()] || "bg-secondary-subtle text-secondary";
-                return gridjs.html(`<span class="badge ${color}">${cell}</span>`);
-            }
-        },
-        {
-            name: "IsActive",
-            formatter: cell => {
-                const isActive = cell === true || cell === "true";
-                return gridjs.html(
-                    `<span class="badge ${isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
+                        new gridjs.Grid({
+                            columns: [
+                                { name: "STT" },
+                                { name: "ID", hidden: true },
+                                { name: "Username" },
+                                { name: "Title" },
+                                { name: "TotalTime" },
+                                {
+                                    name: "Thumbnail",
+                                    formatter: cell => gridjs.html(`<img src="${cell}" width="50" height="50">`)
+                                },
+                                {
+                                    name: "Status",
+                                    formatter: cell => {
+                                        const color = {
+                                            pending: "bg-warning-subtle text-warning",
+                                            approved: "bg-success-subtle text-success",
+                                            rejected: "bg-danger-subtle text-danger"
+                                        }[(cell || "").toLowerCase()] || "bg-secondary-subtle text-secondary";
+                                        return gridjs.html(`<span class="badge ${color}">${cell}</span>`);
+                                    }
+                                },
+                                {
+                                    name: "IsActive",
+                                    formatter: cell => {
+                                        const isActive = cell === true || cell === "true";
+                                        return gridjs.html(
+                                            `<span class="badge ${isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
                         ${isActive ? 'Active' : 'Hidden'}
                     </span>`
-                );
-            }
-        },
-        { name: "ModifiedDate", hidden: true }, // ✅ Cột ẩn, nhưng vẫn sort dựa vào
-        {
-            name: "Action",
-            formatter: (_, row) => {
-                const id = row.cells[1].data;
-                const btn = `<a class="btn btn-sm btn-primary" href="http://localhost:5057/Admin/RecipeDetail?id=${id}">Details</a>`;
-                return gridjs.html(btn);
-            }
-        }
-    ],
-    data: table1Data.map((r, index) => [
-        index + 1,
-        r.ID || r.id,
-        r.username || r.Username,
-        r.title || r.Title,
-        r.totalTime || r.TotalTime,
-        r.thumbnailImage || r.ThumbnailImage,
-        r.status || r.Status,
-        r.isActive || r.IsActive,
-        r.modifiedDate || r.ModifiedDate, // ✅ Dữ liệu vẫn có
-    ]),
-    pagination: { enabled: true, limit: 10 },
-    search: true,
-    sort: true
-}).render(document.getElementById("table-manage"));
+                                        );
+                                    }
+                                },
+                                { name: "ModifiedDate", hidden: true }, // ✅ Cột ẩn, nhưng vẫn sort dựa vào
+                                {
+                                    name: "Action",
+                                    formatter: (_, row) => {
+                                        const id = row.cells[1].data;
+                                        const btn = `<a class="btn btn-sm btn-primary" href="http://localhost:5057/Admin/RecipeDetail?id=${id}">Details</a>`;
+                                        return gridjs.html(btn);
+                                    }
+                                }
+                            ],
+                            data: table1Data.map((r, index) => [
+                                index + 1,
+                                r.ID || r.id,
+                                r.username || r.Username,
+                                r.title || r.Title,
+                                r.totalTime || r.TotalTime,
+                                r.thumbnailImage || r.ThumbnailImage,
+                                r.status || r.Status,
+                                r.isActive || r.IsActive,
+                                r.modifiedDate || r.ModifiedDate, // ✅ Dữ liệu vẫn có
+                            ]),
+                            pagination: { enabled: true, limit: 10 },
+                            search: true,
+                            sort: true
+                        }).render(document.getElementById("table-manage"));
 
 
 
@@ -458,13 +458,15 @@ new gridjs.Grid({
                                     formatter: (_, row) => {
                                         const id = row.cells[1].data;
                                         const isActive = row.cells[7].data === true || row.cells[7].data === "true";
+
                                         return gridjs.html(
                                             isActive
-                                                ? `<button class="btn btn-sm btn-warning" onclick="toggleVisibility('${id}', 'Hide')">Hide</button>`
-                                                : `<button class="btn btn-sm btn-primary" onclick="toggleVisibility('${id}', 'Show')">Show</button>`
+                                                ? `<button class="btn btn-sm btn-danger" onclick="toggleVisibility('${id}', 'Hide')">Hide</button>`
+                                                : `<button class="btn btn-sm btn-success" onclick="toggleVisibility('${id}', 'Show')">Show</button>`
                                         );
                                     }
                                 }
+
                             ],
 
                             // ✅ Chỉ hiển thị các recipe có status === "accept"

@@ -19,53 +19,44 @@
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
+        <style>
+   .test p {
+        font-size: 19px;
+    }
+    
+    .heart-red svg path {
+        fill: red !important;
+    }
+    
+    .single-comment .desc {
+        word-wrap: break-word;
+        white-space: normal;
+        width: 100%;
+    }
 
-    <!-- SweetAlert2 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    .single-comment .user {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
 
-    <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
-    @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
-
-    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
-    <link rel="shortcut icon" href="assets/images/favicon.ico">
-    <!-- Plugins css -->
-    <link href="assets/libs/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
-    <!-- Layout config Js -->
-    <script src="assets/js/layout.js"></script>
-    <!-- Bootstrap Css -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
-    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
-    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
-    <!-- custom Css-->
-    <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
-    <link href="assets/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.css">
-
-    <style>
-        .test p{
-            font-size: 19px;
-        }
- .heart-red svg path {
-    fill: red !important;
-}
-        .single-comment .desc {
-    word-wrap: break-word;
-    white-space: normal;
-    width: 100%;
-}
-
-.single-comment .user {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start; /* Đảm bảo các thành phần canh đúng chiều dọc */
-    flex-wrap: wrap;         /* Cho phép xuống dòng khi chật */
-}
-
+    .star {
+        width: 24px;
+        height: 24px;
+        fill: #ddd; /* Màu xám mặc định */
+        stroke: #ccc;
+        stroke-width: 1;
+        transition: fill 0.2s ease;
+    }
+    .star.filled {
+        fill: #ffd700; /* Màu vàng */
+        stroke: #ffcd00;
+    }
+    .star.half-filled {
+        fill: url(#halfGradient);
+        stroke: #ffcd00;
+    }
     </style>
 
 </head>
@@ -770,27 +761,35 @@
                 <h2 class="recipe-title">@Model.Title</h2>
                 
                 <!-- Rating Section -->
-                <div class="rating-section">
-                    <div class="stars">
-                        <svg class="star" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                        <svg class="star" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                        <svg class="star" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                        <svg class="star" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                        <svg class="star" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                        </svg>
-                    </div>
-                    <span class="rating-text">5.0 (1)</span>
-                    <a href="#" class="review-count">1 Review</a>
-                </div>
+               <div class="rating-section">
+<div class="stars" id="recipeStars">
+    <svg style="display: none;">
+        <defs>
+            <linearGradient id="halfGradient">
+                <stop offset="50%" stop-color="#ffd700"/>
+                <stop offset="50%" stop-color="#ddd"/>
+            </linearGradient>
+        </defs>
+    </svg>
+    <svg class="star" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+    <svg class="star" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+    <svg class="star" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+    <svg class="star" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+    <svg class="star" viewBox="0 0 24 24">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    </svg>
+</div>
+        <span class="rating-text" id="ratingText">@Model.AverageRating </span>
+        <a href="#reviews" class="review-count" id="reviewCount">@Model.ReviewCount Reviews</a>
+    </div>
 
                 <!-- Description -->
                 <p class="recipe-description">
@@ -801,24 +800,39 @@
                 <div class="single-header-meta">
                     <div class="entry-meta">
                         <a class="author-avatar" href="#">
-                            <img src="https://via.placeholder.com/36x36/ff6b35/ffffff?text=LL" alt="Author Avatar" />
+                            <img src="" alt="Author Avatar" />
                         </a>
-                        <span class="post-by">By <a href="#">LaDonna Langwell</a></span>
+                        <span class="post-by">By <a href="#">@Model.RecipeOwnerUserName</a></span>
                         <span class="post-on has-dot">@Model.CreatedDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    
+                    <div class="social-icons">
+                    <ul class="d-flex gap-2 align-items-center">
+    <li>
+        <button title="Save Recipe" style="all: unset; cursor: pointer;"></button>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+            </svg>
+        </button>
+    </li>
+<li>
+    <button class="add-favorite @(Model.IsFavorite ? "heart-red" : "")"
+            data-recipe-id="@Model.ID"
+            title="Toggle Favorite"
+            style="all: unset; cursor: pointer;">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 
+                     2 12.28 2 8.5 2 5.42 4.42 3 7.5 
+                     3c1.74 0 3.41.81 4.5 2.09C13.09 
+                     3.81 14.76 3 16.5 3 19.58 3 22 
+                     5.42 22 8.5c0 3.78-3.4 6.86-8.55 
+                     11.54L12 21.35z" />
+        </svg>
+    </button>
+</li>
 
-                        <button class="add-favorite @(Model.IsFavorite ? "heart-red" : "")"
-                                data-recipe-id="@Model.ID"
-                                title="Toggle Favorite"
-                                style="all: unset; cursor: pointer;">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 
-                                        2 12.28 2 8.5 2 5.42 4.42 3 7.5 
-                                        3c1.74 0 3.41.81 4.5 2.09C13.09 
-                                        3.81 14.76 3 16.5 3 19.58 3 22 
-                                        5.42 22 8.5c0 3.78-3.4 6.86-8.55 
-                                        11.54L12 21.35z" />
-                            </svg>
-                        </button>
+
+</ul>
 
                     </div>
                 </div>
@@ -859,10 +873,10 @@
                                     <div class="single-content">
                                         <div class="row">
                                             <div class="col-xl-10 col-lg-12 m-auto">
-                                       <h3><strong>Ingredient:</strong></h3>
+                                       <p><strong>Ingredient:</strong></p>
 <p class="single-excerpt">@Html.Raw(Model.Ingredient)</p>
 
-<h3><strong>Cooking Step:</strong></h3>
+<p><strong>CookingStep:</strong></p>
 <p>@Html.Raw(Model.CookingStep)</p>
 
                                                       <!-- BẮT ĐẦU PHẦN THÔNG TIN CHI TIẾT -->
@@ -1032,12 +1046,11 @@
    <div class="single-comment justify-content-between d-flex mb-30">
         <div class="thumb text-center">
             <img src="~/assets/imgs/blog/author-2.png" alt="" />
-            
+            <a href="#" class="font-heading text-brand">@item.UserID</a>
         </div>
         <div class="desc">
             <div class="d-flex justify-content-between mb-10">
-                <div class="d-flex align-items-center" style="gap: 20px;">
-                    <a href="#" class="font-heading text-brand">@item.UserID</a>
+                <div class="d-flex align-items-center">
                     <span class="font-xs text-muted">@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
                 </div>
                <div class="product-rate d-inline-block">
@@ -1049,33 +1062,27 @@
             <p class="mb-10">
                 @item.Comment
                @if (string.IsNullOrEmpty(item.Reply) && User.Identity.Name == Model.RecipeOwnerUserName)
-                {
-                    <a href="#" class="reply" data-comment-id="@item.ID">Reply</a>
-                }
+{
+    <a href="#" class="reply" data-comment-id="@item.ID">Reply</a>
+}
             </p>
 
 @if (!string.IsNullOrEmpty(item.Reply))
 {
-    <div class="single-comment justify-content-between d-flex mb-10">
-        <div class="thumb text-center">
-            <img src="~/assets/imgs/blog/author-2.png" alt="" />
-            
-        </div>
-    <div class="desc" id="reply-box-@item.ID">
+    <div class="ml-60 mt-2 p-2 bg-light rounded border" id="reply-box-@item.ID">
         <p>
             <strong>@Model.RecipeOwnerUserName</strong>
-            <strong class="badge-owner ms-1">
-                <i class="bi bi-patch-check-fill text-primary me-1">(Owner)</i>
-            </strong>
+            <span class="badge-owner ms-1">
+                <i class="bi bi-patch-check-fill text-primary me-1"></i> Owner
+            </span>
         </p>
-        <p id="reply-content-@item.ID">@item.Reply</p>
+        <strong id="reply-content-@item.ID">@item.Reply</strong>
         <span class="font-xs text-muted">@item.ReplyDate?.ToString("dd/MM/yyyy HH:mm")</span>
 
         @if (User.Identity.Name == Model.RecipeOwnerUserName)
         {
             <a href="#" class="edit-reply" data-comment-id="@item.ID" data-reply="@item.Reply">Edit</a>
         }
-    </div>
     </div>
 }
 
@@ -1110,7 +1117,6 @@
     <button type="button" id="cancel-reply" class="btn btn-secondary btn-lg ms-2">Cancel</button>
 
     </form>
-    <br>
     </div>
 </div>
                                                         </div>
@@ -2021,7 +2027,31 @@ document.getElementById('Relycomment-form').addEventListener('submit', function 
 
 
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function displayStars(rating) {
+        const validRating = isNaN(rating) || rating === null ? 0 : parseFloat(rating);
+        console.log('Processed Rating:', validRating); // Kiểm tra giá trị thực tế
+        const stars = document.querySelectorAll('.stars .star');
+        const roundedRating = Math.round(validRating * 2) / 2;
 
+        stars.forEach((star, index) => {
+            star.classList.remove('filled', 'half-filled');
+
+            if (index < Math.floor(roundedRating)) {
+                star.classList.add('filled');
+            } else if (index === Math.floor(roundedRating) && roundedRating % 1 !== 0) {
+                star.classList.add('half-filled');
+            }
+        });
+    }
+
+    // Gọi hàm với giá trị từ Model.AverageRating
+    const avgRating = @(Model.AverageRating != null ? Model.AverageRating.ToString("F1", System.Globalization.CultureInfo.InvariantCulture) : "0");
+    console.log('Model Average Rating:', avgRating); // Kiểm tra giá trị từ backend
+    displayStars(avgRating);
+});
+</script>
 
 
 </body>

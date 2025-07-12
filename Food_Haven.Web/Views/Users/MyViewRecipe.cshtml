@@ -180,18 +180,21 @@
                                         </div> *@
                                     </div>
                                     <!-- Nút Edit phía trên bên phải -->
-                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
-                                        data-bs-target="#editRecipeModal-@item.ID"
-                                        style="position: absolute; top: 10px; right: 10px; z-index: 10;">
-                                        <i class="fi-rs-edit"></i> Edit
-                                    </button>
-                                    <button class="btn btn-sm @(item.IsActive ? "btn-success" : "btn-secondary")"
-                                        data-bs-toggle="modal" data-bs-target="#toggleActiveModal-@item.ID"
-                                        style="position: absolute; top: 10px; right: 90px; z-index: 10;"
-                                        id="toggle-btn-@item.ID">
-                                        <i class="bi @(item.IsActive ? "bi-eye-fill" : "bi-eye-slash-fill")"></i>
-                                        <span class="button-label">@(item.IsActive ? "Hide" : "Show")</span>
-                                    </button>
+                                  <button class="btn btn-sm btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#editRecipeModal-@item.ID"
+        style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+    Edit
+</button>
+
+                                 <button class="btn btn-sm @(item.IsActive ? "btn-danger" : "btn-success")"
+        data-bs-toggle="modal"
+        data-bs-target="#toggleActiveModal-@item.ID"
+        style="position: absolute; top: 10px; right: 90px; z-index: 10;"
+        id="toggle-btn-@item.ID">
+    @(item.IsActive ? "Hide" : "Show")
+</button>
+
 
                                     <div class="entry-content-2 pl-50">
                                         <h3 class="post-title mb-20">
@@ -565,7 +568,7 @@
                                 </div>
                             </div>
                             <div class="sidebar-widget-2 widget_create mb-50">
-                                <a asp-action="CreateRecipe" asp-controller="Users" class="btn btn-primary w-100">
+                                <a asp-action="CreateRecipe" asp-controller="Users" class=" btn btn-sm btn-success w-100">
                                 Create Recipe <i class="fi-rs-arrow-right ms-1"></i>
                             </a></div>
                         </div>

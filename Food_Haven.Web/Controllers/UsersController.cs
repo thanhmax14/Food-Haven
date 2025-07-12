@@ -1513,10 +1513,14 @@ namespace Food_Haven.Web.Controllers
             var reviews = await _recipeReviewService.ListAsync(x => x.RecipeID == id);
             var reviewViewModel = new List<RecipeReviewViewModel>();
             var recipeOwner = await _userManager.FindByIdAsync(recipe.UserID);
+            var reviewRecipe = await _recipeReviewService.ListAsync();
+            var reviewRecipeCount = (await _recipeReviewService.ListAsync(r => r.RecipeID == id)).Count();
+            double averageRating = reviews.Any() ? Math.Round(reviews.Average(r => r.Rating), 1) : 0;
 
             foreach (var r in reviews)
             {
                 var reviewer = await _userManager.FindByIdAsync(r.UserID);
+
                 reviewViewModel.Add(new RecipeReviewViewModel
                 {
                     ID = r.ID,
@@ -1557,8 +1561,9 @@ namespace Food_Haven.Web.Controllers
                 Email = user?.Email,
                 RecipeReviewViewModels = reviewViewModel,
                 RecipeOwnerUserName = recipeOwner?.UserName ?? "Ẩn danh",
-                IsFavorite = isFavorite // ✅ thêm vào ViewModel
-
+                IsFavorite = isFavorite,
+                ReviewCount = reviewRecipeCount,
+                AverageRating = averageRating,
             };
 
             return View(recipeViewModel);
