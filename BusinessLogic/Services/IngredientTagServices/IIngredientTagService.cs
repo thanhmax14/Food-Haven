@@ -28,8 +28,12 @@ namespace BusinessLogic.Services.IngredientTagServices
             Func<IQueryable<IngredientTag>, IOrderedQueryable<IngredientTag>> orderBy = null,
             Func<IQueryable<IngredientTag>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<IngredientTag, object>> includeProperties = null);
 
+       
+        Task<bool> ExistsAsync(string name);
 
         Task<bool> ToggleIngredientTagStatus(Guid categoryId, bool isActive);
+        Task<bool> ExistsAsync(string name, Guid excludeId);
+
 
 
     }

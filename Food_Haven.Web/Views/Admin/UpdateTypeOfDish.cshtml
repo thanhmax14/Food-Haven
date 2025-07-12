@@ -383,6 +383,35 @@
                     });
                 </script>
 
+                @section Scripts {
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const swalError = '@TempData["SwalError"]';
+                            const swalSuccess = '@TempData["SuccessMessage"]';
+
+                            if (swalError) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: swalError,
+                                    confirmButtonColor: '#d33'
+                                });
+                            }
+
+                            if (swalSuccess) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: swalSuccess,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    </script>
+                }
 
 
                 <footer class="footer">

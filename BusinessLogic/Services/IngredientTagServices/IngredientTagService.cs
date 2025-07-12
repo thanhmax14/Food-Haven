@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Models;
+using Models.DBContext;
 using NuGet.Protocol.Core.Types;
 using Repository.IngredientTagRepositorys;
 using System;
@@ -13,10 +15,12 @@ namespace BusinessLogic.Services.IngredientTagServices
     {
         private readonly IIngredientTagRepository _ingredientTagRepository;
         private readonly IngredientTagRepository _ingredientTagRepository1;
-        public IngredientTagService(IIngredientTagRepository ingredientTagRepository, IngredientTagRepository ingredientTagRepository1)
+        private readonly FoodHavenDbContext _context;
+        public IngredientTagService(IIngredientTagRepository ingredientTagRepository, IngredientTagRepository ingredientTagRepository1, FoodHavenDbContext context)
         {
             _ingredientTagRepository1 = ingredientTagRepository1;
             _ingredientTagRepository = ingredientTagRepository;
+            _context = context;
         }
         public IQueryable<IngredientTag> GetAll() => _ingredientTagRepository.GetAll();
 
@@ -53,6 +57,19 @@ namespace BusinessLogic.Services.IngredientTagServices
         {
             return await _ingredientTagRepository1.ToggleIngredientTagStatus(IngredientTagId, isActive);
         }
+        public async Task<bool> ExistsAsync(string name)
+        {
+            return await _context.IngredientTag
+                .AnyAsync(x => x.Name.ToLower() == name.Trim().ToLower());
+        }
+        public async Task<bool> ExistsAsync(string name, Guid excludeId)
+        {
+            return await _context.IngredientTag
+                .AnyAsync(x => x.Name.ToLower() == name.Trim().ToLower() && x.ID != excludeId);
+        }
+
+
+
 
     }
 }
