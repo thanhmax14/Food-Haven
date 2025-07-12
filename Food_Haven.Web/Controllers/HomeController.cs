@@ -79,10 +79,10 @@ namespace Food_Haven.Web.Controllers
         private readonly IRecipeService _recipeService;
         private readonly IStoreReportServices _storeReport;
         private readonly IStoreFollowersService _storeFollowersService;
-
+        private readonly RecipeSearchService _service;
 
         public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
-, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService)
+, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService, RecipeSearchService service)
 
         {
             _recipeService = recipeService;
@@ -107,6 +107,7 @@ namespace Food_Haven.Web.Controllers
             _voucher = voucherServices;
             _storeReport = storeReport;
             _storeFollowersService = storeFollowersService;
+            _service = service;
         }
 
         public async Task<IActionResult> Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
@@ -1795,6 +1796,31 @@ namespace Food_Haven.Web.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetAvailableIngredients()
+        {
+           
+            var ingredients = await Task.Run(() => _service.GetUniqueIngredients(100));
+            return Json(ingredients);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> FindRecipes(List<string> ingredients, int limit = 5)
+        {
+            if (ingredients == null || ingredients.Count == 0)
+            {
+                return BadRequest("You must enter at least 1 recipe");
+            }
+            var recipes = await Task.Run(() => _service.FindRecipesByIngredients(ingredients, limit));
+
+            return PartialView("_RecipeResults", recipes);
+        }
+
+        [HttpGet]
+        public IActionResult FindRecipes()
+        {
+            return View(); 
+        }
 
 
     }

@@ -160,7 +160,7 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
-
+builder.Services.AddSingleton<RecipeSearchService>(provider => new RecipeSearchService(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\dataset", "full_dataset.csv")));
 
 var app = builder.Build();
 

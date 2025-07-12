@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\Dataset\**" />
     <Compile Remove="wwwroot\microsoft\**" />
+    <Content Remove="Data\Dataset\**" />
     <Content Remove="wwwroot\microsoft\**" />
+    <EmbeddedResource Remove="Data\Dataset\**" />
     <EmbeddedResource Remove="wwwroot\microsoft\**" />
+    <None Remove="Data\Dataset\**" />
     <None Remove="wwwroot\microsoft\**" />
   </ItemGroup>
 
@@ -38,6 +42,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 <PackageReference Include="X.PagedList.Mvc.Core" Version="8.1.1" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+		<PackageReference Include="CsvHelper" Version="33.1.0" />
 
 	</ItemGroup>
 
