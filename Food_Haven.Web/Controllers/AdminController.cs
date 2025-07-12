@@ -963,19 +963,28 @@ namespace Food_Haven.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            // ❗ Kiểm tra tên trùng
+            if (await _typeOfDishService.ExistsAsync(model.Name))
+            {
+                TempData["SwalError"] = "The dish type name already exists.";
+                return View(model);
+            }
+
             var entity = new TypeOfDish
             {
                 ID = Guid.NewGuid(),
-                Name = model.Name,
+                Name = model.Name.Trim(),
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now // ✅ Ghi đúng thời điểm tạo
+                CreatedDate = DateTime.Now
             };
 
             await _typeOfDishService.AddAsync(entity);
             await _typeOfDishService.SaveChangesAsync();
 
-            return RedirectToAction("GetAllTypeOfDish");
+            TempData["SuccessMessage"] = "Dish type has been created successfully!";
+            return RedirectToAction("GetAllTypeOfDish"); // quay lại form trống
         }
+
 
 
         [HttpGet]
@@ -997,6 +1006,13 @@ namespace Food_Haven.Web.Controllers
 
             try
             {
+                // 🔍 Check duplicate name excluding current ID
+                if (await _typeOfDishService.ExistsAsync(model.Name, model.ID))
+                {
+                    TempData["SwalError"] = "The dish type name already exists.";
+                    return View(model);
+                }
+
                 var entity = await _typeOfDishService.GetAsyncById(model.ID);
                 if (entity == null)
                     return NotFound();
@@ -1008,15 +1024,16 @@ namespace Food_Haven.Web.Controllers
                 await _typeOfDishService.UpdateAsync(entity);
                 await _typeOfDishService.SaveChangesAsync();
 
-                ViewBag.RedirectWithSuccess = true;
-                return View(model); // Dùng lại view để trigger SweetAlert thành công
+                TempData["SuccessMessage"] = "Dish type has been updated successfully!";
+                return RedirectToAction("GetAllTypeOfDish", new { id = model.ID }); // reload form sau khi update
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
+                TempData["SwalError"] = ex.Message;
                 return View(model);
             }
         }
+
 
 
         [HttpPost]
@@ -1057,7 +1074,6 @@ namespace Food_Haven.Web.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateIngredientTag(IngredientTagViewModel model)
@@ -1065,19 +1081,32 @@ namespace Food_Haven.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            var exists = await _ingredienttag.ExistsAsync(model.Name);
+
+            if (await _ingredienttag.ExistsAsync(model.Name))
+            {
+                TempData["SwalError"] = "The ingredient tag name already exists.";
+                return View(model);
+            }
+
+
             var entity = new IngredientTag
             {
                 ID = Guid.NewGuid(),
-                Name = model.Name,
+                Name = model.Name.Trim(),
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now // ✅ Ghi đúng thời điểm tạo
+                CreatedDate = DateTime.Now
             };
 
             await _ingredienttag.AddAsync(entity);
             await _ingredienttag.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "Ingredient tag has been created successfully!";
             return RedirectToAction("GetAllIngredientTag");
         }
+
+
+
 
 
 
@@ -1100,6 +1129,13 @@ namespace Food_Haven.Web.Controllers
 
             try
             {
+                // ✅ Kiểm tra tên trùng (ngoại trừ chính nó)
+                if (await _ingredienttag.ExistsAsync(model.Name, model.ID))
+                {
+                    TempData["SwalError"] = "The ingredient tag name already exists.";
+                    return View(model);
+                }
+
                 var entity = await _ingredienttag.GetAsyncById(model.ID);
                 if (entity == null)
                     return NotFound();
@@ -1111,15 +1147,16 @@ namespace Food_Haven.Web.Controllers
                 await _ingredienttag.UpdateAsync(entity);
                 await _ingredienttag.SaveChangesAsync();
 
-                ViewBag.RedirectWithSuccess = true;
-                return View(model); // Không redirect, giữ lại để chạy SweetAlert trong view
+                TempData["SuccessMessage"] = "Ingredient tag has been updated successfully!";
+                return RedirectToAction("GetAllIngredientTag");
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
+                TempData["SwalError"] = ex.Message;
                 return View(model);
             }
         }
+
 
 
 

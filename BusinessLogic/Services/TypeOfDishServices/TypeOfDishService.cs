@@ -1,11 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using Models;
+using Models.DBContext;
+using Repository.TypeOfDishRepositoties;
+using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Models;
-using Repository.TypeOfDishRepositoties;
-using Repository.ViewModels;
 
 namespace BusinessLogic.Services.TypeOfDishServices
 {
@@ -13,11 +15,13 @@ namespace BusinessLogic.Services.TypeOfDishServices
     {
         private readonly ITypeOfDishRepository _typeOfDishRepository;
         private readonly TypeOfDishRepository _typeOfDishRepository1;
+        private readonly FoodHavenDbContext _context;
 
-        public TypeOfDishService(ITypeOfDishRepository typeOfDishRepository, TypeOfDishRepository typeOfDishRepository1)
+        public TypeOfDishService(ITypeOfDishRepository typeOfDishRepository, TypeOfDishRepository typeOfDishRepository1, FoodHavenDbContext context)
         {
             _typeOfDishRepository = typeOfDishRepository;
             _typeOfDishRepository1 = typeOfDishRepository1;
+            _context = context;
         }
 
         public IQueryable<TypeOfDish> GetAll() => _typeOfDishRepository.GetAll();
@@ -55,5 +59,17 @@ namespace BusinessLogic.Services.TypeOfDishServices
         {
             return await _typeOfDishRepository1.ToggletypeOfDishesIdTagStatus(categoryId, isActive);
         }
+        public async Task<bool> ExistsAsync(string name)
+        {
+            return await _context.TypeOfDish
+                .AnyAsync(x => x.Name.ToLower() == name.Trim().ToLower());
+        }
+        public async Task<bool> ExistsAsync(string name, Guid excludeId)
+        {
+            return await _context.TypeOfDish
+                .AnyAsync(x => x.Name.ToLower() == name.Trim().ToLower() && x.ID != excludeId);
+        }
+
+
     }
 }
