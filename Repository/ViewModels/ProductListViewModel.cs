@@ -29,4 +29,26 @@ namespace Repository.ViewModels
         public Guid StoreId { get; set; }
         public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
     }
+    public class ProductsViewModel1
+    {
+        public Guid ID { get; set; }
+        public string Name { get; set; }
+        public string StoreName { get; set; }
+        public string CategoryName { get; set; }
+        public Guid CateID { get; set; }
+        public decimal Price { get; set; }
+        public List<string> Img { get; set; } = new List<string>();  // Danh sách hình ảnh sản phẩm
+        public bool IsWishList { get; set; } = false;  // Trạng thái trong danh sách yêu thích
+        public Guid StoreId { get; set; }  // ID cửa hàng
+    }
+    public class CategoryViewModel1
+    {
+        public Guid ID { get; set; }
+        public string Name { get; set; }  // Tên danh mục
+        public string Description { get; set; }  // Mô tả (tuỳ chọn)
+        public int ProductCount { get; set; }  // Số lượng sản phẩm trong danh mục
+
+        // Bạn có thể thêm liên kết đến sản phẩm trong danh mục
+        public List<ProductsViewModel> Products { get; set; } = new List<ProductsViewModel>();
+    }
 }
