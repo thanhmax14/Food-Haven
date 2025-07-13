@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.Hash;
+using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
@@ -8,49 +9,48 @@ using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.ProductVariantVariants;
+using BusinessLogic.Services.ProductVariantVariants;
 using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.Reviews;
+using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.StoreFollowers;
+using BusinessLogic.Services.StoreReports;
+using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
+using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Models;
 using Food_Haven.Web.Services;
+using Food_Haven.Web.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Net.payOS;
 using Repository.ViewModels;
+using SixLabors.ImageSharp.Processing;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
-using Microsoft.EntityFrameworkCore;
-using Food_Haven.Web.Services;
-using BusinessLogic.Hash;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using BusinessLogic.Services.ProductVariantVariants;
-using BusinessLogic.Services.Reviews;
-using Microsoft.AspNetCore.SignalR;
-using Food_Haven.Web.Hubs;
-using BusinessLogic.Services.VoucherServices;
-using BusinessLogic.Services.StoreReports;
-using BusinessLogic.Services.StoreFollowers;
-using SixLabors.ImageSharp.Processing;
 
 
 
@@ -196,6 +196,7 @@ namespace Food_Haven.Web.Controllers
         }
 
 
+      
         [HttpGet]
         public IActionResult Login(string ReturnUrl = null)
         {
@@ -1821,8 +1822,155 @@ namespace Food_Haven.Web.Controllers
         {
             return View(); 
         }
+        public async Task<IActionResult> Index1()
+        {
+            var categories = await _categoryService.ListAsync(
+                filter: null,
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate),
+                includeProperties: q => q.Include(p => p.Recipes)
+                .Include(p => p.Products)
+            );
+            var products = await _product.ListAsync(
+                filter: null,
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate) ,includeProperties: q => q
+        .Include(p => p.Categories)       // Include Categories
+        .Include(p => p.StoreDetails)     // Include StoreDetails
+        .Include(p => p.ProductTypes)     // Include ProductTypes
+        .Include(p => p.ProductImages)    // Include ProductImages
+   );
+
+            var viewModel = new HomeViewModel
+            {
+                Categories = categories,
+                Products = products,
+                AllProducts = products,              
+            };
+
+            return View(viewModel);
+        }
+        [HttpPost]
+        public async Task<IActionResult> FilterProducts(decimal? minPrice, decimal? maxPrice)
+        {
+            IEnumerable<Product> products;
+
+            // Create filter expression based on price range
+            // Assuming price is stored in ProductTypes
+            Expression<Func<Product, bool>> priceFilter = null;
+
+            if (minPrice.HasValue && maxPrice.HasValue)
+            {
+                priceFilter = p => p.ProductTypes.Any(pt => pt.SellPrice >= minPrice.Value && pt.SellPrice <= maxPrice.Value);
+            }
+            else if (minPrice.HasValue)
+            {
+                priceFilter = p => p.ProductTypes.Any(pt => pt.SellPrice >= minPrice.Value);
+            }
+            else if (maxPrice.HasValue)
+            {
+                priceFilter = p => p.ProductTypes.Any(pt => pt.SellPrice <= maxPrice.Value);
+            }
+
+            // Get products with the same include properties as FilterByCategory
+            products = await _product.ListAsync(
+                filter: priceFilter,
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate),
+                includeProperties: q => q
+                    .Include(p => p.Categories)       // Include Categories
+                    .Include(p => p.StoreDetails)     // Include StoreDetails
+                    .Include(p => p.ProductTypes)     // Include ProductTypes
+                    .Include(p => p.ProductImages)    // Include ProductImages
+            );
+
+            return PartialView("_ProductGrid", products);
+        }
+        [HttpPost]
+        public async Task<IActionResult> FilterByCategory(string categoryType)
+        {
+            IEnumerable<Product> products;
+
+            // Ensure Categories are included in the query to avoid null issues
+            switch (categoryType.ToLower())
+            {
+                case "all":
+                    products = await _product.ListAsync(
+                        filter: null,
+                        orderBy: q => q.OrderByDescending(p => p.CreatedDate),
+                        includeProperties: q => q
+        .Include(p => p.Categories)       // Include Categories
+        .Include(p => p.StoreDetails)     // Include StoreDetails
+        .Include(p => p.ProductTypes)     // Include ProductTypes
+        .Include(p => p.ProductImages)    // Include ProductImages
+
+                    );
+                    break;
+                default:
+                    products = await _product.ListAsync(
+    filter: p => p.Categories.ID.ToString().ToLower().Contains(categoryType.ToLower()),
+    orderBy: q => q.OrderByDescending(p => p.CreatedDate),
+    includeProperties: q => q
+        .Include(p => p.Categories)       // Include Categories
+        .Include(p => p.StoreDetails)     // Include StoreDetails
+        .Include(p => p.ProductTypes)     // Include ProductTypes
+        .Include(p => p.ProductImages)    // Include ProductImages
+);
+
+
+                    break;
+            }
+
+            return PartialView("_ProductGrid", products);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetCategories()
+        {
+            var categories = await _categoryService.ListAsync(
+                filter: null,
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate),
+                includeProperties: q => q.Include(p => p.Recipes)
+            );
+
+            // Perform the count query asynchronously for each category using _product
+            var result = await Task.WhenAll(categories.Select(async c => new
+            {
+                id = c.ID,
+                name = c.Name,
+                count = await _product.GetAll().Where(p => p.CategoryID == c.ID).CountAsync() // Count using _product
+            }));
+
+            return Json(result);
+        }
 
 
     }
 
+    public class HomeViewModel
+    {
+        public IEnumerable<Categories> Categories { get; set; }
+        public IEnumerable<Product> Products { get; set; }
+        public IEnumerable<Product> AllProducts { get; set; }
+    }
+
+    public class ProductDetailViewModel
+    {
+        public Product Product { get; set; }
+        public IEnumerable<ProductImage> ProductImages { get; set; }
+        public IEnumerable<ProductTypes> ProductVariants { get; set; }
+        public IEnumerable<Review> Reviews { get; set; }
+    }
+
+    public class CategoryProductsViewModel
+    {
+        public Categories Category { get; set; }
+        public IEnumerable<Product> Products { get; set; }
+    }
+
+    public class StoreDetailViewModel
+    {
+        public StoreDetails Store { get; set; }
+        public IEnumerable<Product> Products { get; set; }
+    }
 }
+
+
