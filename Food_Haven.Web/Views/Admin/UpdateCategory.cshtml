@@ -2,7 +2,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -62,8 +62,8 @@
                         </div>
 
                         <button type="button"
-                                class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger material-shadow-none"
-                                id="topnav-hamburger-icon">
+                            class="btn btn-sm px-3 fs-16 header-item vertical-menu-btn topnav-hamburger material-shadow-none"
+                            id="topnav-hamburger-icon">
                             <span class="hamburger-icon">
                                 <span></span>
                                 <span></span>
@@ -77,18 +77,18 @@
                     <div class="d-flex align-items-center">
                         <div class="dropdown d-md-none topbar-head-dropdown header-item">
                             <button type="button"
-                                    class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle"
-                                    id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                                    aria-expanded="false">
+                                class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle"
+                                id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
                                 <i class="bx bx-search fs-22"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                                 aria-labelledby="page-header-search-dropdown">
+                                aria-labelledby="page-header-search-dropdown">
                                 <form class="p-3">
                                     <div class="form-group m-0">
                                         <div class="input-group">
                                             <input type="text" class="form-control" placeholder="Search ..."
-                                                   aria-label="Recipient's username">
+                                                aria-label="Recipient's username">
                                             <button class="btn btn-primary" type="submit">
                                                 <i class="mdi mdi-magnify"></i>
                                             </button>
@@ -99,16 +99,16 @@
                         </div>
                         <div class="ms-1 header-item d-none d-sm-flex">
                             <button type="button"
-                                    class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle light-dark-mode">
+                                class="btn btn-icon btn-topbar material-shadow-none btn-ghost-secondary rounded-circle light-dark-mode">
                                 <i class='bx bx-moon fs-22'></i>
                             </button>
                         </div>
                         <div class="dropdown ms-sm-3 header-item topbar-user">
                             <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="d-flex align-items-center">
                                     <img class="rounded-circle header-profile-user"
-                                         src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
+                                        src="assets/images/users/avatar-1.jpg" alt="Header Avatar">
                                     <span class="text-start ms-xl-2">
                                         <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">
                                             Anna
@@ -122,11 +122,13 @@
                                 <!-- item-->
                                 <h6 class="dropdown-header">Welcome Anna!</h6>
                                 <a class="dropdown-item" asp-controller="Users">
-                                    <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Profile</span>
+                                    <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> <span
+                                        class="align-middle">Profile</span>
                                 </a>
 
                                 <a class="dropdown-item" asp-controller="Home" asp-action="Logout">
-                                    <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span>
+                                    <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span
+                                        class="align-middle" data-key="t-logout">Logout</span>
                                 </a>
                             </div>
                         </div>
@@ -159,12 +161,12 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
 
-           <div id="scrollbar">
+            <div id="scrollbar">
                 <div class="container-fluid">
                     <div id="two-column-menu">
                     </div>
@@ -267,7 +269,8 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Store Details</h4>
 
                             <div class="page-title-right">
@@ -291,7 +294,8 @@
 
                             <div class="card-body">
                                 <div class="live-preview">
-                                    <form method="post" asp-action="UpdateCategory" asp-controller="Admin" enctype="multipart/form-data">
+                                    <form method="post" asp-action="UpdateCategory" asp-controller="Admin"
+                                        enctype="multipart/form-data">
                                         <input type="hidden" asp-for="ID" />
 
                                         <div class="row">
@@ -299,15 +303,19 @@
                                             <div class="col-md-12">
                                                 <div class="mb-3">
                                                     <label asp-for="Name" class="form-label">Category Name</label>
-                                                    <input asp-for="Name" class="form-control" required />
+                                                    <input asp-for="Name" class="form-control" required
+                                                        id="nameInput" />
                                                     <span asp-validation-for="Name" class="text-danger"></span>
+                                                    <!-- Client-side JS validation -->
+                                                    <span id="nameError" class="text-danger"></span>
                                                 </div>
                                             </div>
 
                                             <!-- Số thứ tự (Number) -->
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label asp-for="Number" class="form-label">Display Order (Number)</label>
+                                                    <label asp-for="Number" class="form-label">Display Order
+                                                        (Number)</label>
                                                     <input asp-for="Number" class="form-control" required />
                                                     <span asp-validation-for="Number" class="text-danger"></span>
                                                 </div>
@@ -317,7 +325,8 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label asp-for="Commission" class="form-label">Commission(%)</label>
-                                                    <input asp-for="Commission" class="form-control" type="number" step="0.1" required />
+                                                    <input asp-for="Commission" class="form-control" type="number"
+                                                        step="0.1" required />
                                                     <span asp-validation-for="Commission" class="text-danger"></span>
                                                 </div>
                                             </div>
@@ -326,15 +335,18 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label asp-for="CreatedDate" class="form-label">Created Date</label>
-                                                    <input asp-for="CreatedDate" class="form-control" readonly type="date" />
+                                                    <input asp-for="CreatedDate" class="form-control" readonly
+                                                        type="date" />
                                                 </div>
                                             </div>
 
                                             <!-- Ngày sửa đổi -->
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label asp-for="ModifiedDate" class="form-label">Modified Date</label>
-                                                    <input asp-for="ModifiedDate" class="form-control" readonly type="date" />
+                                                    <label asp-for="ModifiedDate" class="form-label">Modified
+                                                        Date</label>
+                                                    <input asp-for="ModifiedDate" class="form-control" readonly
+                                                        type="date" />
                                                 </div>
                                             </div>
 
@@ -345,7 +357,9 @@
                                                     <div>
                                                         @if (!string.IsNullOrEmpty(Model.Img))
                                                         {
-                                                            <img id="currentImage" src="/uploads/@Model.Img" alt="Category Image" class="img-fluid rounded" style="max-height: 200px;" />
+                                                            <img id="currentImage" src="/uploads/@Model.Img"
+                                                                alt="Category Image" class="img-fluid rounded"
+                                                                style="max-height: 200px;" />
                                                         }
                                                         else
                                                         {
@@ -354,28 +368,26 @@
                                                     </div>
 
                                                     <label class="form-label mt-2">Upload New Image</label>
-                                                    <input type="file" name="ImageFile" class="form-control" accept=".png, .jpeg, .jpg" id="imgInput">
+                                                    <input type="file" name="ImageFile" class="form-control"
+                                                        accept=".png, .jpeg, .jpg" id="imgInput">
                                                     <small class="text-muted">Supported formats: PNG, JPEG, JPG</small>
 
-                                                    @if (!string.IsNullOrEmpty(Model.Img))
-                                                    {
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Current Image</label>
-                                                            <br />
-                                                            <img src="~/uploads/@Model.Img" alt="Current Image" class="img-thumbnail" width="150" />
-                                                        </div>
-                                                    }
+
 
                                                     <!-- Ảnh Xem Trước -->
                                                     <div class="mt-2">
-                                                        <img id="previewImage" src="" class="img-thumbnail d-none" style="max-width: 200px; max-height: 150px;">
+                                                        <img id="previewImage" src="" class="img-thumbnail d-none"
+                                                            style="max-width: 200px; max-height: 150px;">
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="col-lg-12 text-end">
-                                                <a href="/Admin/ViewCategories" class="btn btn-secondary px-4">Back To Categories</a>
-                                                <button type="submit" class="btn btn-primary px-4">Update Category</button>
+                                                <a href="/Admin/ViewCategories"
+                                                    class="btn btn-sm btn-secondary px-3">Back To Categories</a>
+                                                <button type="submit" class="btn btn-sm btn-primary px-3"
+                                                    id="submitBtn">Update
+                                                    Category</button>
                                             </div>
                                         </div>
                                     </form>
@@ -439,6 +451,30 @@
                             };
 
                             reader.readAsDataURL(file);
+                        }
+                    });
+
+                    document.getElementById("nameInput").addEventListener("input", function () {
+                        let name = this.value.trim();
+                        let id = document.querySelector("input[name='ID']").value;
+                        let errorSpan = document.getElementById("nameError");
+                        let submitBtn = document.getElementById("submitBtn"); // luôn đúng button
+
+                        if (name && id) {
+                            fetch(`/Admin/CheckNameExistsForUpdate?name=${encodeURIComponent(name)}&id=${id}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.exists) {
+                                        errorSpan.innerText = "This category name already exists. Choose another!";
+                                        submitBtn.disabled = true;
+                                    } else {
+                                        errorSpan.innerText = "";
+                                        submitBtn.disabled = false;
+                                    }
+                                });
+                        } else {
+                            errorSpan.innerText = "";
+                            submitBtn.disabled = false;
                         }
                     });
                 </script>

@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLogic.Hash;
@@ -12,7 +12,6 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
-using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
 using BusinessLogic.Services.RecipeServices;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreReports;
@@ -29,7 +28,6 @@ using Repository.BalanceChange;
 using Repository.OrdeDetails;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-using X.PagedList;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -59,14 +57,14 @@ namespace Food_Haven.Web.Controllers
         private readonly IRecipeService _recipeService;
         private readonly IStoreReportServices _storeReport;
         private readonly IProductImageService _productImageService;
-        private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
+
 
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService,
             IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance,
             ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail,
             IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService,
             IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport,
-            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce)
+            IProductImageService productImageService)
 
         {
             _ingredienttag = ingredientTagService;
@@ -94,7 +92,6 @@ namespace Food_Haven.Web.Controllers
             _recipeService = recipeService;
             _storeReport = storeReport;
             _productImageService = productImageService;
-            _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
         }
 
         [HttpPost]
@@ -827,22 +824,23 @@ namespace Food_Haven.Web.Controllers
             string mess = "";
             if (id == Guid.Empty || string.IsNullOrWhiteSpace(action) || string.IsNullOrWhiteSpace(note))
             {
-                return Json(new { success = false, message = "Invalid submission information." });
+                return Json(new { success = false, message = "Thông tin gửi lên không hợp lệ." });
             }
 
             var complaint = await this._complaintService.FindAsync(c => c.ID == id);
             if (complaint == null)
             {
-                return Json(new { success = false, message = "Complaint not found." });
+                return Json(new { success = false, message = "Không tìm thấy khiếu nại." });
             }
             if (complaint.Status.ToLower() == "Refund".ToLower())
             {
-                return Json(new { success = false, message = "This complaint has already been refunded." });
+                return Json(new { success = false, message = "Khiếu nại này đã được xử lý hoàn tiền." });
             }
 
             switch (action)
             {
                 case "Accept":
+
 
                     complaint.AdminReportStatus = $"Accept";
                     complaint.DateAdminReply = DateTime.Now;
@@ -850,13 +848,15 @@ namespace Food_Haven.Web.Controllers
 
                     try
                     {
-                        // Get order detail list
+
+                        // Lấy danh sách chi tiết đơn hàng
                         var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
                         if (orderDetails == null)
-                            return Json(new { success = false, message = "There are no products in this order." });
+                            return Json(new { success = false, message = "Đơn hàng không có sản phẩm nào." });
                         var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
                         if (order == null)
-                            return Json(new { success = false, message = "Order not found." });
+                            return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+
 
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
@@ -878,29 +878,30 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                        /* // Update order status
-                        order.Status = "Refunded";
-                        order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.UtcNow;
-                        order.Description = string.IsNullOrEmpty(order.Description)
-                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                        await _order.UpdateAsync(order);*/
+                        /* // Cập nhật trạng thái đơn hàng
+                         order.Status = "Refunded";
+                         order.PaymentStatus = "Refunded";
+                         order.ModifiedDate = DateTime.UtcNow;
+                         order.Description = string.IsNullOrEmpty(order.Description)
+                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                         await _order.UpdateAsync(order);*/
 
-                        // Save changes
+                        // Lưu thay đổi
                         await _orderDetail.SaveChangesAsync();
 
                         //   await _order.SaveChangesAsync();
                         await _balance.SaveChangesAsync();
 
-                        mess = "The order has been refunded and cancelled successfully.";
+
+                        mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
                     }
                     catch (Exception)
                     {
                         return Json(new
                         {
                             success = false,
-                            message = "An error occurred while processing the refund. Please try again or contact the administrator."
+                            message = "Đã xảy ra lỗi khi xử lý hoàn tiền. Vui lòng thử lại hoặc liên hệ quản trị viên."
                         });
                     }
                     break;
@@ -909,11 +910,13 @@ namespace Food_Haven.Web.Controllers
                     complaint.AdminReportStatus = $"Reject";
                     complaint.DateAdminReply = DateTime.Now;
                     complaint.AdminReply = $"[Reject] - {note}";
-                    mess = "The order has been refunded and cancelled successfully.";
+                    mess = "Đơn hàng đã được hoàn tiền và hủy thành công.";
                     break;
                 default:
-                    return Json(new { success = false, message = "Invalid action type." });
+                    return Json(new { success = false, message = "Loại hành động không hợp lệ." });
             }
+
+
 
             try
             {
@@ -924,10 +927,9 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error saving data: " + ex.Message });
+                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
             }
         }
-
 
         public async Task<IActionResult> GetAllTypeOfDish()
         {
@@ -963,28 +965,19 @@ namespace Food_Haven.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // ❗ Kiểm tra tên trùng
-            if (await _typeOfDishService.ExistsAsync(model.Name))
-            {
-                TempData["SwalError"] = "The dish type name already exists.";
-                return View(model);
-            }
-
             var entity = new TypeOfDish
             {
                 ID = Guid.NewGuid(),
-                Name = model.Name.Trim(),
+                Name = model.Name,
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.Now // ✅ Ghi đúng thời điểm tạo
             };
 
             await _typeOfDishService.AddAsync(entity);
             await _typeOfDishService.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Dish type has been created successfully!";
-            return RedirectToAction("GetAllTypeOfDish"); // quay lại form trống
+            return RedirectToAction("GetAllTypeOfDish");
         }
-
 
 
         [HttpGet]
@@ -1006,13 +999,6 @@ namespace Food_Haven.Web.Controllers
 
             try
             {
-                // 🔍 Check duplicate name excluding current ID
-                if (await _typeOfDishService.ExistsAsync(model.Name, model.ID))
-                {
-                    TempData["SwalError"] = "The dish type name already exists.";
-                    return View(model);
-                }
-
                 var entity = await _typeOfDishService.GetAsyncById(model.ID);
                 if (entity == null)
                     return NotFound();
@@ -1024,16 +1010,15 @@ namespace Food_Haven.Web.Controllers
                 await _typeOfDishService.UpdateAsync(entity);
                 await _typeOfDishService.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Dish type has been updated successfully!";
-                return RedirectToAction("GetAllTypeOfDish", new { id = model.ID }); // reload form sau khi update
+                ViewBag.RedirectWithSuccess = true;
+                return View(model); // Dùng lại view để trigger SweetAlert thành công
             }
             catch (Exception ex)
             {
-                TempData["SwalError"] = ex.Message;
+                ModelState.AddModelError("", ex.Message);
                 return View(model);
             }
         }
-
 
 
         [HttpPost]
@@ -1074,6 +1059,7 @@ namespace Food_Haven.Web.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateIngredientTag(IngredientTagViewModel model)
@@ -1081,32 +1067,19 @@ namespace Food_Haven.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var exists = await _ingredienttag.ExistsAsync(model.Name);
-
-            if (await _ingredienttag.ExistsAsync(model.Name))
-            {
-                TempData["SwalError"] = "The ingredient tag name already exists.";
-                return View(model);
-            }
-
-
             var entity = new IngredientTag
             {
                 ID = Guid.NewGuid(),
-                Name = model.Name.Trim(),
+                Name = model.Name,
                 IsActive = model.IsActive,
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.Now // ✅ Ghi đúng thời điểm tạo
             };
 
             await _ingredienttag.AddAsync(entity);
             await _ingredienttag.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Ingredient tag has been created successfully!";
             return RedirectToAction("GetAllIngredientTag");
         }
-
-
-
 
 
 
@@ -1129,13 +1102,6 @@ namespace Food_Haven.Web.Controllers
 
             try
             {
-                // ✅ Kiểm tra tên trùng (ngoại trừ chính nó)
-                if (await _ingredienttag.ExistsAsync(model.Name, model.ID))
-                {
-                    TempData["SwalError"] = "The ingredient tag name already exists.";
-                    return View(model);
-                }
-
                 var entity = await _ingredienttag.GetAsyncById(model.ID);
                 if (entity == null)
                     return NotFound();
@@ -1147,16 +1113,15 @@ namespace Food_Haven.Web.Controllers
                 await _ingredienttag.UpdateAsync(entity);
                 await _ingredienttag.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Ingredient tag has been updated successfully!";
-                return RedirectToAction("GetAllIngredientTag");
+                ViewBag.RedirectWithSuccess = true;
+                return View(model); // Không redirect, giữ lại để chạy SweetAlert trong view
             }
             catch (Exception ex)
             {
-                TempData["SwalError"] = ex.Message;
+                ModelState.AddModelError("", ex.Message);
                 return View(model);
             }
         }
-
 
 
 
@@ -1428,7 +1393,6 @@ namespace Food_Haven.Web.Controllers
                         ThumbnailImage = item.ThumbnailImage,
                         IsActive = item.IsActive,
                         status = item.status,
-                        ModifiedDate = item.ModifiedDate,
                         Username = username, // Gán Username từ Identity
                     };
                     list.Add(recipeViewModel);
@@ -1481,7 +1445,7 @@ namespace Food_Haven.Web.Controllers
         }
 
         [HttpPost("Admin/UpdateRecipeStatus/{id}/{status}")]
-        public async Task<IActionResult> UpdateRecipeStatus(Guid id, string status, string rejectNote)
+        public async Task<IActionResult> UpdateRecipeStatus(Guid id, string status)
         {
             var admin = await _userManager.GetUserAsync(User);
             if (admin == null || !await _userManager.IsInRoleAsync(admin, "Admin"))
@@ -1493,6 +1457,7 @@ namespace Food_Haven.Web.Controllers
                 if (recipe == null)
                     return NotFound();
 
+                // Cập nhật trạng thái
                 if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
                 {
                     recipe.status = "Accept";
@@ -1500,7 +1465,6 @@ namespace Food_Haven.Web.Controllers
                 else if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
                 {
                     recipe.status = "Reject";
-                    recipe.RejectNote = rejectNote;
                 }
                 else
                 {
@@ -1522,7 +1486,6 @@ namespace Food_Haven.Web.Controllers
                 });
             }
         }
-
         public async Task<IActionResult> Chat()
         {
             return View();
@@ -1608,7 +1571,8 @@ namespace Food_Haven.Web.Controllers
                         });
                     }
                 }
-                return View("~/Views/Admin/ManagerUser.cshtml", list);
+                return View(list);
+
             }
             catch (Exception ex)
             {
@@ -1696,8 +1660,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error retrieving date configuration", message = ex.Message });
-
+                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình ngày", message = ex.Message });
             }
         }
 
@@ -1707,33 +1670,51 @@ namespace Food_Haven.Web.Controllers
         {
             try
             {
-                var pendingStoreOpen = (await _storedetail.ListAsync(s => s.Status.ToUpper() == "REJECTED")).Count();
+                // 1. Số cửa hàng đang chờ mở (Status == "Rejected")
+                var storeList = await _storedetail.ListAsync(s => s.Status.ToUpper() == "REJECTED");
+                var pendingstoreopen = storeList.Count();
+
+                // 2. Số user đang yêu cầu lên seller (RequestSeller == "1" || "3")
                 var userList = await _userManager.Users.ToListAsync();
-                var pendingSellerRequest = userList.Count(u => u.RequestSeller == "1" || u.RequestSeller == "3");
+                var sellerrequest = userList.Count(u => u.RequestSeller == "1" || u.RequestSeller == "3");
+
+
                 var allWithdraw = await _balance.ListAsync(b =>
                     b.Method.ToUpper() == "WITHDRAW" &&
                     b.Status.ToUpper() == "PROCESSING"
-                );
-                var pendingWithdrawal = allWithdraw.Count();
+                    );
+
+                // 4. Số khiếu nại đang chờ admin xử lý (all time)
                 var complaintList = await _complaintService.ListAsync(c =>
                     c.Status == "Report to Admin"
                     && c.IsReportAdmin == true
                     && c.AdminReportStatus == "Pending");
                 var totalcomplant = complaintList.Count();
-                var totalStore = (await _storedetail.ListAsync(s => s.Status.ToUpper() == "APPROVED")).Count();
-                var totalCustomer = userList.Count();
-                var totalRecipe = (await _recipeService.ListAsync(r => r.status.ToUpper() == "ACCEPT")).Count();
-                var pendingPublicRecipe = (await _recipeService.ListAsync(r => r.status.ToUpper() == "PENDING")).Count();
+
+                // --------- Logic thống kê theo khoảng ngày như cũ ---------
                 var orders = await _order.ListAsync(o => true);
-                var validStatuses = new[] { "CONFIRMED", "DELIVERING", "PREPARING IN KITCHEN", "PENDING" };
-                var validOrders = orders.Where(o => validStatuses.Contains(o.Status.ToUpper())).ToList();
+
+                var validStatuses = new[]
+                {
+            "CONFIRMED",
+            "DELIVERING",
+            "PREPARING IN KITCHEN",
+            "PENDING"
+        };
+
+                var validOrders = orders
+                    .Where(o => validStatuses.Contains(o.Status.ToUpper()))
+                    .ToList();
+
                 DateTime? minOrderDate = validOrders.Any()
                     ? validOrders.Min(o => o.CreatedDate).Date
                     : (DateTime?)null;
+
                 var depositChanges = await _balance.ListAsync(bc =>
                     bc.Method.ToUpper() == "DEPOSIT" &&
                     bc.Status.ToUpper() == "SUCCESS" &&
                     bc.StartTime.HasValue);
+
                 DateTime? minDepositDate = depositChanges.Any()
                     ? depositChanges.Min(bc => bc.StartTime.Value.Date)
                     : (DateTime?)null;
@@ -1747,8 +1728,7 @@ namespace Food_Haven.Web.Controllers
                     minStartDate = minDepositDate;
 
                 if (!minStartDate.HasValue)
-                    return Json(new { error = "No orders or deposits have been made yet." });
-
+                    return Json(new { error = "Chưa phát sinh đơn hàng hoặc nạp tiền nào." });
 
                 var minDate = minStartDate.Value;
 
@@ -1775,8 +1755,7 @@ namespace Food_Haven.Web.Controllers
                 if (toDate > maxDate) toDate = maxDate;
 
                 if (fromDate > toDate)
-                    return BadRequest(new { error = "Start date cannot be greater than end date." });
-
+                    return BadRequest(new { error = "Ngày bắt đầu không thể lớn hơn ngày kết thúc" });
 
                 var daysDiff = (int)(toDate - fromDate).TotalDays + 1;
 
@@ -1784,7 +1763,7 @@ namespace Food_Haven.Web.Controllers
                     .Where(o => o.CreatedDate.Date >= fromDate && o.CreatedDate.Date <= toDate)
                     .ToList();
 
-                var grossSales = ordersInRange.Sum(o => o.TotalPrice);
+                var totalEarnings = ordersInRange.Sum(o => o.TotalPrice);
 
                 var depositInRange = depositChanges
                     .Where(bc => bc.StartTime.Value.Date >= fromDate && bc.StartTime.Value.Date <= toDate)
@@ -1803,21 +1782,21 @@ namespace Food_Haven.Web.Controllers
                     u.JoinedDate.Value.Date >= minStartDate.Value &&
                     u.JoinedDate.Value.Date >= fromDate &&
                     u.JoinedDate.Value.Date <= toDate);
+                var pendingwithdraw = allWithdraw.Sum(bc => Math.Abs(bc.MoneyChange));
 
                 var result = new
                 {
-                    grossSales,                    
-                    commissionRevenue,             
-                    totalDeposit,                 
-                    totalCustomer,                
-                    totalStore,                    
-                    totalRecipe,                  
-                    pendingSellerRequest,          
-                    pendingStoreOpen,              
-                    pendingPublicRecipe,           
-                    pendingWithdrawal,            
+                    grossSales,
+                    commissionRevenue,
+                    totalDeposit,
+                    totalCustomer,
+                    totalStore,
+                    totalRecipe,
+                    pendingSellerRequest,
+                    pendingStoreOpen,
+                    pendingPublicRecipe,
+                    pendingWithdrawal,
                     newcustomer,
-                    totalcomplant,
                     period = new
                     {
                         from = fromDate.ToString("dd/MM/yyyy"),
@@ -1836,8 +1815,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Server error while processing data", message = ex.Message });
-
+                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
             }
         }
 
@@ -1893,8 +1871,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Error retrieving month configuration", message = ex.Message });
-
+                return StatusCode(500, new { error = "Lỗi khi lấy cấu hình tháng", message = ex.Message });
             }
         }
 
@@ -2001,8 +1978,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Server error while processing data", message = ex.Message });
-
+                return StatusCode(500, new { error = "Lỗi server khi xử lý dữ liệu", message = ex.Message });
             }
         }
 
@@ -2344,8 +2320,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
-
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
             }
         }
         [AllowAnonymous]
@@ -2445,8 +2420,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
-
+                return Json(new { success = false, msg = "Có lỗi xảy ra: " + ex.Message });
             }
         }
 
@@ -2467,62 +2441,42 @@ namespace Food_Haven.Web.Controllers
                 _ => now.Date
             };
         }
+
         [HttpGet]
-
-        public async Task<IActionResult> ViewStoreDetail(Guid id)
+        public async Task<JsonResult> CheckNameExists(string name)
         {
-            var model = await _storeService.GetStoreDetailAsync(id);
-            if (model == null)
-                return NotFound();
-
-            return View(model);
+            var list = await _categoryService.ListAsync(c => c.Name.ToLower() == name.Trim().ToLower());
+            bool exists = list.Any();
+            return Json(new { exists });
         }
 
-        public async Task<IActionResult> RecipeDetail(Guid id)
+        [HttpGet]
+        public async Task<JsonResult> CheckNameExistsForUpdate(string name, Guid id)
         {
-            var recipe = await _recipeService.GetAsyncById(id);
-            if (recipe == null) return NotFound();
+            var exists = (await _categoryService.ListAsync(
+                c => c.ID != id && c.Name.ToLower().Trim() == name.Trim().ToLower()
+            )).Any();
 
-            var typeOfDish = await _typeOfDishService.GetAsyncById(recipe.TypeOfDishID);
-
-            // Các tag đã chọn (từ bảng liên kết)
-            var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
-                .ListAsync(rt => rt.RecipeID == recipe.ID, null, include => include.Include(x => x.IngredientTag)))
-                .ToList();
-
-            // Toàn bộ tag từ hệ thống
-            var allTags = (await _ingredienttag.ListAsync()).ToList();
-
-            var viewModel = new RecipeViewModels
-            {
-                ID = recipe.ID,
-                Title = recipe.Title,
-                ShortDescriptions = recipe.ShortDescriptions,
-                PreparationTime = recipe.PreparationTime,
-                CookTime = recipe.CookTime,
-                TotalTime = recipe.TotalTime,
-                DifficultyLevel = recipe.DifficultyLevel,
-                Servings = recipe.Servings,
-                CreatedDate = recipe.CreatedDate,
-                IsActive = recipe.IsActive,
-                CateID = recipe.CateID,
-                ThumbnailImage = recipe.ThumbnailImage,
-                TypeOfDishName = typeOfDish?.Name ?? "Unknown",
-                TypeOfDishID = recipe.TypeOfDishID,
-                CookingStep = recipe.CookingStep,
-                Ingredient = recipe.Ingredient,
-                // ⚠️ CHỈNH SỬA Ở ĐÂY
-                IngredientTags = allTags, // tất cả tag
-                SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(), // chỉ ID đã chọn
-
-                typeOfDishes = (await _typeOfDishService.ListAsync()).ToList(),
-                Categories = (await _categoryService.ListAsync()).ToList(),
-            };
-
-            return View("RecipeDetail", viewModel);
+            return Json(new { exists });
         }
 
+        [HttpGet]
+        public async Task<JsonResult> CheckNameExists(string name)
+        {
+            var list = await _categoryService.ListAsync(c => c.Name.ToLower() == name.Trim().ToLower());
+            bool exists = list.Any();
+            return Json(new { exists });
+        }
 
+        [HttpGet]
+        public async Task<JsonResult> CheckNameExistsForUpdate(string name, Guid id)
+        {
+            var exists = (await _categoryService.ListAsync(
+                c => c.ID != id && c.Name.ToLower().Trim() == name.Trim().ToLower()
+            )).Any();
+
+            return Json(new { exists });
+        }
 
 
 

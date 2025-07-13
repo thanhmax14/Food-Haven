@@ -319,6 +319,7 @@
                         // Hiển thị bảng với Grid.js
                         new gridjs.Grid({
                             columns: [
+                                { name: "No.", width: "60px" },
                                 { name: "ID", hidden: true },
                                 { name: "Store Name", width: "200px" },
                                 { name: "User Name", width: "150px" },
@@ -344,37 +345,24 @@
                                 },
                                 {
                                     name: "Actions",
-                                    width: "100px",
+                                    width: "150px",
                                     formatter: (_, row) => {
-                                        let storeId = row._cells[0].data;
-                                        let isActive = row._cells[10].data; // Lấy chính xác trạng thái
+                                        let storeId = row.cells[1].data;
+                                        let isActive = row.cells[11].data;
 
-                                        // Nếu isActive = true (cửa hàng đang Active) thì hiển thị nút "Hide", ngược lại hiển thị "Show"
                                         let actionButton = isActive
-                                            ? `<a class="dropdown-item toggle-store-btn" data-id="${storeId}" data-active="true">
-                                        <i class="ri-eye-off-fill align-bottom me-2 text-muted"></i> Hide
-                                   </a>`
-                                            : `<a class="dropdown-item toggle-store-btn" data-id="${storeId}" data-active="false">
-                                        <i class="ri-eye-fill align-bottom me-2 text-muted"></i> Show
-                                   </a>`;
+                                            ? `<button class="btn btn-sm btn-danger toggle-store-btn" data-id="${storeId}" data-active="true">Hide</button>`
+                                            : `<button class="btn btn-sm btn-success toggle-store-btn" data-id="${storeId}" data-active="false">Show</button>`;
 
-                                        return gridjs.html(`
-                                <div class="dropdown">
-                                    <button class="btn btn-soft-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ri-more-fill align-middle"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>${actionButton}</li>
-                                    </ul>
-                                </div>
-                            `);
+                                        return gridjs.html(`<div class="d-flex gap-1">${actionButton}</div>`);
                                     }
                                 }
                             ],
                             pagination: { enabled: true, limit: 10 },
                             search: true,
                             sort: true,
-                            data: stores.map(store => [
+                            data: stores.map((store, index) => [
+                                index + 1, // STT (No.)
                                 store.id,
                                 store.name,
                                 store.userName,
@@ -388,6 +376,7 @@
                                 store.isActive
                             ])
                         }).render(tableStores);
+
 
                         // Format ngày (dd/MM/yyyy)
                         function formatDate(dateString) {
@@ -454,14 +443,20 @@
                                 });
                         }
 
-                        // Cập nhật UI sau khi cập nhật trạng thái Store
                         function updateUIAfterToggle(button, isActive) {
+                            // Cập nhật lại nút
                             button.dataset.active = isActive;
-                            button.innerHTML = isActive
-                                ? `<i class="ri-eye-off-fill align-bottom me-2 text-muted"></i> Hide`
-                                : `<i class="ri-eye-fill align-bottom me-2 text-muted"></i> Show`;
+                            button.classList.remove("btn-success", "btn-danger");
 
-                            // Cập nhật badge trạng thái (Active/Disabled)
+                            if (isActive) {
+                                button.classList.add("btn-danger");
+                                button.textContent = "Hide";
+                            } else {
+                                button.classList.add("btn-success");
+                                button.textContent = "Show";
+                            }
+
+                            // Cập nhật badge trạng thái
                             let statusBadge = button.closest("tr").querySelector(".status-badge");
                             if (statusBadge) {
                                 statusBadge.classList.remove("bg-success-subtle", "text-success", "bg-danger-subtle", "text-danger");
@@ -472,18 +467,6 @@
                                     statusBadge.classList.add("bg-danger-subtle", "text-danger");
                                     statusBadge.textContent = "Disabled";
                                 }
-                            }
-
-                            // Cập nhật lại nút Show/Hide trong dropdown
-                            let dropdownMenu = button.closest(".dropdown-menu");
-                            if (dropdownMenu) {
-                                dropdownMenu.innerHTML = isActive
-                                    ? `<li><a class="dropdown-item toggle-store-btn" data-id="${button.dataset.id}" data-active="true">
-                                                    <i class="ri-eye-off-fill align-bottom me-2 text-muted"></i> Hide
-                                               </a></li>`
-                                    : `<li><a class="dropdown-item toggle-store-btn" data-id="${button.dataset.id}" data-active="false">
-                                                    <i class="ri-eye-fill align-bottom me-2 text-muted"></i> Show
-                                               </a></li>`;
                             }
                         }
                     });
