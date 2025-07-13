@@ -1942,6 +1942,52 @@ namespace Food_Haven.Web.Controllers
             return Json(result);
         }
 
+        public async Task<IActionResult> ProductDetail1(Guid id)
+        {
+            var productDetail = await _product.FindAsync(x => x.ID == id && x.IsActive);           
+            var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID && s.IsActive);
+            var categories = await _categoryService.ListAsync(
+                 filter: null,
+                 orderBy: q => q.OrderByDescending(p => p.CreatedDate),
+                 includeProperties: q => q.Include(p => p.Recipes)
+                 .Include(p => p.Products)
+             );
+            if (store == null || productDetail == null)
+            {
+                return RedirectToAction("Error", "404");
+            }
+            var tem = new ProductDetails();
+            var product = await _product.ListAsync(p => p.ID == id,
+                includeProperties: p => p
+                    .Include(x => x.ProductImages)
+                    .Include(x => x.ProductTypes)
+                    .Include(x => x.Categories)
+                    .Include(x => x.StoreDetails));
+             if(product != null && product.Any())
+            {
+                var getProduct = product.FirstOrDefault();
+              
+                tem.ID = getProduct.ID;
+                tem.Name = getProduct.Name;
+                tem.ShortDescription = getProduct.ShortDescription;
+                tem.LongDescription = getProduct.LongDescription;
+                tem.CreatedDate = getProduct.CreatedDate;
+                tem.ModifiedDate = getProduct.ModifiedDate;
+                tem.IsActive = getProduct.IsActive;
+                tem.categories = getProduct.Categories;
+                tem.storeDetails = getProduct.StoreDetails;
+                tem.ProductImages = getProduct.ProductImages;
+                tem.ProductVariants = getProduct.ProductTypes;
+                tem.Allcate= categories;
+
+                tem.totalsell = 0;
+                tem.IsWishList = false; // Default value, can be updated later
+                tem.UserName = "thanhdeptrai";
+                tem.userID = "";
+
+            }
+                return View(tem);
+        }
 
     }
 
