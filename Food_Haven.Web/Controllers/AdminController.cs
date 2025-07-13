@@ -1786,13 +1786,16 @@ namespace Food_Haven.Web.Controllers
 
                 var result = new
                 {
-                    pendingstoreopen,
-                    sellerrequest,
-                    pendingwithdraw,
-                    totalcomplant,
-                    totalEarnings,
+                    grossSales,
                     commissionRevenue,
-                    totaldeposit = totalDeposit,
+                    totalDeposit,
+                    totalCustomer,
+                    totalStore,
+                    totalRecipe,
+                    pendingSellerRequest,
+                    pendingStoreOpen,
+                    pendingPublicRecipe,
+                    pendingWithdrawal,
                     newcustomer,
                     period = new
                     {
@@ -2456,6 +2459,26 @@ namespace Food_Haven.Web.Controllers
 
             return Json(new { exists });
         }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckNameExists(string name)
+        {
+            var list = await _categoryService.ListAsync(c => c.Name.ToLower() == name.Trim().ToLower());
+            bool exists = list.Any();
+            return Json(new { exists });
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> CheckNameExistsForUpdate(string name, Guid id)
+        {
+            var exists = (await _categoryService.ListAsync(
+                c => c.ID != id && c.Name.ToLower().Trim() == name.Trim().ToLower()
+            )).Any();
+
+            return Json(new { exists });
+        }
+
+
 
 
     }
