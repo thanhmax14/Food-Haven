@@ -61,6 +61,7 @@ namespace Repository.StoreDetails
         public async Task<List<StoreViewModel>> GetInactiveStoresAsync()
         {
             var stores = await _context.StoreDetails
+                .Where(s => (s.Status ?? "").ToLower() != "pending") // chỉ lấy các store có Status là "Pending" (không phân biệt hoa thường)
                 .Join(
                     _context.Users,
                     s => s.UserID,
