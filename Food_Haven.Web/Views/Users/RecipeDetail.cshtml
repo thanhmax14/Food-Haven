@@ -19,6 +19,21 @@
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
+
+    
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
+    @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
+
+    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+            <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+
+    
         <style>
    .test p {
         font-size: 19px;
@@ -1079,7 +1094,14 @@
 
 @if (!string.IsNullOrEmpty(item.Reply))
 {
-    <div class="ml-60 mt-2 p-2 bg-light rounded border" id="reply-box-@item.ID">
+    <div class="single-comment justify-content-between d-flex mb-10">
+        <div class="thumb text-center">
+            <img src="~/assets/imgs/blog/author-2.png" alt="" />
+            
+        </div>
+    <div class="desc" id="reply-box-@item.ID">
+
+    @* <div class="ml-60 mt-2 p-2 bg-light rounded border" id="reply-box-@item.ID"> *@
         <p>
             <strong>@Model.RecipeOwnerUserName</strong>
              <strong class="badge-owner ms-1">
@@ -1094,9 +1116,8 @@
             <a href="#" class="edit-reply" data-comment-id="@item.ID" data-reply="@item.Reply">Edit</a>
         }
     </div>
+     </div>
 }
-
-
         
     </div>
 </div>
@@ -1127,6 +1148,7 @@
     <button type="button" id="cancel-reply" class="btn btn-secondary btn-lg ms-2">Cancel</button>
 
     </form>
+    <br>
     </div>
 </div>
                                                         </div>
