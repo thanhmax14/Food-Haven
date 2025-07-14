@@ -33,8 +33,8 @@ namespace Models
         public ICollection<ProductImage> ProductImages { get; set; }
 
         public ICollection<Wishlist> Wishlists { get; set; }
+        public ICollection<Review> Reviews { get; set; }
 
-        
 
 
     }

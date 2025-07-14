@@ -19,10 +19,9 @@ namespace Repository.ViewModels
         public bool IsActive { get; set; } = false;
         public bool IsWishList { get; set; } = false;
         public int totalsell { get; set; } = 0;    
-        public string UserName { get; set; }
-        public string userID { get; set; } 
         public IEnumerable<Models.ProductImage> ProductImages { get; set; } = new List<Models.ProductImage>();
         public IEnumerable<ProductTypes> ProductVariants { get; set; } = new List<ProductTypes>();
+        public IEnumerable<Review> Review { get; set; } = new List<Review>();
         public Categories categories { get; set; } = new Categories();
         public Models.StoreDetails storeDetails { get; set; } = new Models.StoreDetails();
         public IEnumerable<Categories> Allcate { get; set; } = new List<Categories>();

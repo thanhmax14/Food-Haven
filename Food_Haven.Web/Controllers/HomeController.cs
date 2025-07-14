@@ -1836,8 +1836,8 @@ namespace Food_Haven.Web.Controllers
         .Include(p => p.Categories)       // Include Categories
         .Include(p => p.StoreDetails)     // Include StoreDetails
         .Include(p => p.ProductTypes)     // Include ProductTypes
-        .Include(p => p.ProductImages)    // Include ProductImages
-   );
+        .Include(p => p.ProductImages).Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
+        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
 
             var viewModel = new HomeViewModel
             {
@@ -1879,8 +1879,8 @@ namespace Food_Haven.Web.Controllers
                     .Include(p => p.StoreDetails)     // Include StoreDetails
                     .Include(p => p.ProductTypes)     // Include ProductTypes
                     .Include(p => p.ProductImages)    // Include ProductImages
-            );
-
+.Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
+        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
             return PartialView("_ProductGrid", products);
         }
         [HttpPost]
@@ -1899,9 +1899,9 @@ namespace Food_Haven.Web.Controllers
         .Include(p => p.Categories)       // Include Categories
         .Include(p => p.StoreDetails)     // Include StoreDetails
         .Include(p => p.ProductTypes)     // Include ProductTypes
-        .Include(p => p.ProductImages)    // Include ProductImages
-
-                    );
+        .Include(p => p.ProductImages)
+        .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
+        .Include(x => x.Reviews).ThenInclude(r => r.AppUser)); 
                     break;
                 default:
                     products = await _product.ListAsync(
@@ -1911,8 +1911,10 @@ namespace Food_Haven.Web.Controllers
         .Include(p => p.Categories)       // Include Categories
         .Include(p => p.StoreDetails)     // Include StoreDetails
         .Include(p => p.ProductTypes)     // Include ProductTypes
-        .Include(p => p.ProductImages)    // Include ProductImages
-);
+        .Include(p => p.ProductImages)
+        .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
+        .Include(x => x.Reviews).ThenInclude(r => r.AppUser)); 
+
 
 
                     break;
@@ -1957,13 +1959,17 @@ namespace Food_Haven.Web.Controllers
                 return RedirectToAction("Error", "404");
             }
             var tem = new ProductDetails();
-            var product = await _product.ListAsync(p => p.ID == id,
-                includeProperties: p => p
-                    .Include(x => x.ProductImages)
-                    .Include(x => x.ProductTypes)
-                    .Include(x => x.Categories)
-                    .Include(x => x.StoreDetails));
-             if(product != null && product.Any())
+            var product = await _product.ListAsync(
+            p => p.ID == id,
+            includeProperties: p => p
+           .Include(x => x.ProductImages)
+           .Include(x => x.ProductTypes)
+           .Include(x => x.Categories)
+           .Include(x => x.StoreDetails).ThenInclude(r => r.AppUser)
+           .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
+           .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
+
+            if (product != null && product.Any())
             {
                 var getProduct = product.FirstOrDefault();
               
@@ -1979,14 +1985,43 @@ namespace Food_Haven.Web.Controllers
                 tem.ProductImages = getProduct.ProductImages;
                 tem.ProductVariants = getProduct.ProductTypes;
                 tem.Allcate= categories;
+                tem.Review = getProduct.Reviews;
+                if (getProduct.Wishlists != null && getProduct.Wishlists.Any())
+                {
+                    tem.IsWishList = getProduct.Wishlists.Any(w => w.UserID == User.FindFirstValue(ClaimTypes.NameIdentifier));
+                }
+                else
+                {
+                    tem.IsWishList = false;
+                }
+                var list = await _productvarian.ListAsync(x => x.ProductID == getProduct.ID);
 
-                tem.totalsell = 0;
-                tem.IsWishList = false; // Default value, can be updated later
-                tem.UserName = "thanhdeptrai";
-                tem.userID = "";
+                int totalSold = 0;
+
+                if (list != null && list.Any())
+                {
+                    var orderDetails = await _orderDetail.ListAsync(
+                        x => x.ProductTypes.ProductID == getProduct.ID,
+                        includeProperties: q => q.Include(o => o.ProductTypes)
+                    );
+
+                   if (orderDetails != null && orderDetails.Any())
+                    {
+                        foreach (var item in orderDetails)
+                        {
+                            totalSold += item.Quantity;
+                        }
+                    }
+                }
+
+                tem.totalsell = totalSold;
+
+
+
+
 
             }
-                return View(tem);
+            return View(tem);
         }
 
     }
