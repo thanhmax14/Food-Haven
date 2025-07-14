@@ -24,7 +24,7 @@
 
 <body>
     <!-- Quick view -->
-    <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
+    @* <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -114,9 +114,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
     @await Html.PartialAsync("_Header")
-    <div class="mobile-header-active mobile-header-wrapper-style">
+    @* <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
                 <div class="mobile-header-logo">
@@ -297,13 +297,14 @@
                 <div class="site-copyright">Copyright 2024 © Nest. All rights reserved. Powered by AliThemes.</div>
             </div>
         </div>
-    </div>
+    </div> *@
     <!--End header-->
     <main class="main">
         <section class="home-slider position-relative mb-30">
             <div class="home-slide-cover">
                 <div class="hero-slider-1 style-4 dot-style-1 dot-style-1-position-1">
-                    <div class="single-hero-slider rectangle single-animation-wrap" style="background-image: url(~/assets/imgs/slider/slider-5.png)">
+                    <div class="single-hero-slider rectangle single-animation-wrap"
+                        style="background-image: url(~/assets/imgs/slider/slider-5.png)">
                         <div class="slider-content">
                             <h1 class="display-2 mb-40">
                                 Don’t miss<br />
@@ -316,7 +317,8 @@
                             </form>
                         </div>
                     </div>
-                    <div class="single-hero-slider rectangle single-animation-wrap" style="background-image: url(~/assets/imgs/slider/slider-6.png)">
+                    <div class="single-hero-slider rectangle single-animation-wrap"
+                        style="background-image: url(~/assets/imgs/slider/slider-6.png)">
                         <div class="slider-content">
                             <h1 class="display-2 mb-40">
                                 Fresh Vegetables<br />
@@ -342,19 +344,20 @@
                             <h3>Popular Products</h3>
                             <ul class="nav nav-tabs links" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab" data-bs-target="#tab-one"
-                                            type="button" role="tab" aria-controls="tab-one" aria-selected="true"
-                                            onclick="filterByCategory('all')">
+                                    <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab"
+                                        data-bs-target="#tab-one" type="button" role="tab" aria-controls="tab-one"
+                                        aria-selected="true" onclick="filterByCategory('all')">
                                         All
                                     </button>
                                 </li>
-                               
+
                                 @foreach (var category in Model.Categories.Take(6))
                                 {
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="nav-tab-@category.ID" data-bs-toggle="tab" data-bs-target="#tab-@category.ID"
-                                                type="button" role="tab" aria-controls="tab-@category.ID" aria-selected="false"
-                                                onclick="filterByCategory('@category.ID')">
+                                        <button class="nav-link" id="nav-tab-@category.ID" data-bs-toggle="tab"
+                                            data-bs-target="#tab-@category.ID" type="button" role="tab"
+                                            aria-controls="tab-@category.ID" aria-selected="false"
+                                            onclick="filterByCategory('@category.ID')">
                                             @category.Name
                                         </button>
                                     </li>
@@ -363,12 +366,13 @@
                         </div>
 
                         <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+                            <div class="tab-pane fade show active" id="tab-one" role="tabpanel"
+                                aria-labelledby="tab-one">
                                 <div class="row product-grid-4" id="product-container">
                                     @await Html.PartialAsync("_ProductGrid", Model.AllProducts)
                                 </div>
                             </div>
-                            
+
                         </div>
                     </section>
                 </div>
@@ -383,7 +387,8 @@
                                                         .Take(5)) // Take the top 5 categories with the most products
                             {
                                 <li>
-                                    <a href="/Home/GetAllProductOfCategory/@category.ID" onclick="filterBySpecificCategory('@category.ID')">
+                                    <a href="/Home/GetAllProductOfCategory/@category.ID"
+                                        onclick="filterBySpecificCategory('@category.ID')">
                                         <img src="~/assets/imgs/theme/icons/category-1.svg" alt="" />@category.Name
                                     </a>
                                     <span class="count">@(category.Products?.Count() ?? 0)</span>
@@ -393,33 +398,37 @@
 
                     </div>
 
-                    <div class="sidebar-widget price_range range mb-30">
+                    <div class="sidebar-widget range mb-30">
                         <h5 class="section-title style-1 mb-30">Fill by price</h5>
                         <div class="price-filter">
                             <div class="price-filter-inner">
                                 <div class="mb-20">
                                     <label for="minPrice">Min Price:</label>
-                                    <input type="number" id="minPrice" class="form-control" placeholder="0" min="0" step="0.01">
+                                    <input type="number" id="minPrice" class="form-control" placeholder="0" min="0"
+                                        step="0.01">
                                 </div>
                                 <div class="mb-20">
                                     <label for="maxPrice">Max Price:</label>
-                                    <input type="number" id="maxPrice" class="form-control" placeholder="1000" min="0" step="0.01">
+                                    <input type="number" id="maxPrice" class="form-control" placeholder="1000" min="0"
+                                        step="0.01">
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <div class="caption">From: <strong id="display-min-price" class="text-brand">$0</strong></div>
-                                    <div class="caption">To: <strong id="display-max-price" class="text-brand">$1000</strong></div>
+                                    <div class="caption">From: <strong id="display-min-price"
+                                            class="text-brand">$0</strong></div>
+                                    <div class="caption">To: <strong id="display-max-price"
+                                            class="text-brand">$1000</strong></div>
                                 </div>
                             </div>
                         </div>
                         <button onclick="applyPriceFilter()" class="btn btn-sm btn-default">
                             <i class="fi-rs-filter mr-5"></i> Filter
                         </button>
-                        <button onclick="clearFilters()" class="btn btn-sm btn-outline-secondary ml-2">
+                        <button onclick="clearFilters()" class="btn btn-sm btn-default ml-2">
                             <i class="fi-rs-refresh mr-5"></i> Clear
                         </button>
                     </div>
 
-                    <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                    @* <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
                         <img src="~/assets/imgs/banner/banner-11.png" alt="" />
                         <div class="banner-text">
                             <span>Organic</span>
@@ -429,7 +438,7 @@
                                 Juice
                             </h4>
                         </div>
-                    </div>
+                    </div> *@
                 </div>
             </div>
         </div>
@@ -444,7 +453,8 @@
                             <i class="fi-rs-angle-right"></i>
                         </a>
                     </div>
-                    <div class="slider-arrow slider-arrow-2 flex-right carausel-8-columns-arrow" id="carausel-8-columns-arrows"></div>
+                    <div class="slider-arrow slider-arrow-2 flex-right carausel-8-columns-arrow"
+                        id="carausel-8-columns-arrows"></div>
                 </div>
                 <div class="carausel-8-columns-cover position-relative">
                     <div class="carausel-8-columns" id="carausel-8-columns">
@@ -480,10 +490,10 @@
                     url: '@Url.Action("FilterByCategory", "Home")',
                     type: 'POST',
                     data: { categoryType: categoryType },
-                    success: function(data) {
+                    success: function (data) {
                         $('#product-container').html(data);
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error filtering products:', error);
                     }
                 });
@@ -498,7 +508,7 @@
                         minPrice: currentMinPrice,
                         maxPrice: currentMaxPrice
                     },
-                    success: function(data) {
+                    success: function (data) {
                         $('#product-container').html(data);
                         // Update active tab
                         $('.nav-link').removeClass('active');
@@ -506,7 +516,7 @@
                         $('.tab-pane').removeClass('show active');
                         $('#tab-one').addClass('show active');
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error filtering products:', error);
                     }
                 });
@@ -530,10 +540,10 @@
                         minPrice: minPrice,
                         maxPrice: maxPrice
                     },
-                    success: function(data) {
+                    success: function (data) {
                         $('#product-container').html(data);
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error filtering by price:', error);
                     }
                 });
@@ -560,8 +570,8 @@
             }
 
             // Update price display when inputs change
-            $(document).ready(function() {
-                $('#minPrice, #maxPrice').on('input', function() {
+            $(document).ready(function () {
+                $('#minPrice, #maxPrice').on('input', function () {
                     const minPrice = parseFloat($('#minPrice').val()) || 0;
                     const maxPrice = parseFloat($('#maxPrice').val()) || 1000;
 
@@ -583,7 +593,8 @@
                                     Stay home & get your daily <br />
                                     needs from our shop
                                 </h2>
-                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest Mart</span></p>
+                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest
+                                        Mart</span></p>
                                 <form class="form-subcriber d-flex">
                                     <input type="email" placeholder="Your emaill address" />
                                     <button class="btn" type="submit">Subscribe</button>
@@ -673,14 +684,20 @@
                     <div class="col">
                         <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
                             <div class="logo mb-30">
-                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
+                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg"
+                                        alt="logo" /></a>
                                 <p class="font-lg text-heading">Awesome grocery store website template</p>
                             </div>
                             <ul class="contact-infor">
-                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span></li>
-                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call Us:</strong><span>(+91) - 540-025-124553</span></li>
-                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg" alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
-                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg" alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address:
+                                    </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span>
+                                </li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call
+                                        Us:</strong><span>(+91) - 540-025-124553</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg"
+                                        alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg"
+                                        alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
                             </ul>
                         </div>
                     </div>
@@ -736,8 +753,10 @@
                         <h4 class="widget-title">Install App</h4>
                         <p class="wow fadeIn animated">From App Store or Google Play</p>
                         <div class="download-app">
-                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
-                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active"
+                                    src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg"
+                                    alt="" /></a>
                         </div>
                         <p class="mb-20">Secured Payment Gateways</p>
                         <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
@@ -751,7 +770,8 @@
                     <div class="footer-bottom"></div>
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
-                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce Template <br />All rights reserved</p>
+                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
+                        Template <br />All rights reserved</p>
                 </div>
                 <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
                     <div class="hotline d-lg-inline-flex mr-30">

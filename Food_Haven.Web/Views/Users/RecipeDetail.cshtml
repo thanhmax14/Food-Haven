@@ -1074,15 +1074,13 @@
         <div class="desc">
             <div class="d-flex justify-content-between mb-10">
                 <div class="d-flex align-items-center" style="gap: 20px;">
-             <a href="#" class="font-heading text-brand">@item.UserID</a>
-
+                    <a href="#" class="font-heading text-brand">@item.UserID</a>
                     <span class="font-xs text-muted">@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</span>
                 </div>
                <div class="product-rate d-inline-block">
-                <div class="product-rating" style="width: @(item.Rating * 20)%"></div>
-                    </div>
-
-            </div>
+                    <div class="product-rating" style="width: @(item.Rating * 20)%"></div>
+                </div>
+        </div>
 
             <p class="mb-10">
                 @item.Comment
