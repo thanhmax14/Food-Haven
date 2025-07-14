@@ -1078,16 +1078,23 @@
                                                                                    <img src="@(string.IsNullOrEmpty(review.AppUser.ImageUrl) 
                                                                                          ? Url.Content("~/assets/imgs/blog/author-2.png") 
                                                                                             : review.AppUser.ImageUrl)" alt="" />
-                                                                                            <a href="/Home/UserInformation/@review.UserID" class="font-heading text-brand">@review.AppUser.UserName</a>
+                                                                                            
                                                                                         </div>
                                                                                         <div class="desc">
                                                                                             <div class="d-flex justify-content-between mb-10">
-                                                                                                <div class="d-flex align-items-center">
-                                                                                    <span class="font-xs text-muted">@review.CommentDate.ToString("MMMM d, yyyy 'at' h:mm tt") </span>
+                                                                                                    
+                                                                                                <div class="d-flex align-items-center mr-10">
+                                                                                                    <a href="/Home/UserInformation/@review.UserID" class="font-heading text-brand mr-10 ">@review.AppUser.UserName</a>
+                                                                                                    <span class="font-xs text-muted ">@review.CommentDate.ToString("MMMM d, yyyy 'at' h:mm tt") </span>
                                                                                                 </div>
+                                                                                                
                                                                                                 <div class="product-rate d-inline-block">
-                                                                                    <div class="product-rating" style="width: @(review.Rating * 20)%"></div>
+                                                                                                    
+                                                                                                    <div class="product-rating" style="width: @(review.Rating * 20)%"></div>
                                                                                                 </div>
+                                                                                                @* <div class="product-rate d-inline-block">
+                                                                                                    
+                                                                                                </div> *@
                                                                                             </div>
                                                                                             <p class="mb-10">@review.Comment</p>
                                                                                         </div>
@@ -1100,10 +1107,13 @@
                                                                             <div class="user justify-content-between d-flex">
                                                                                 <div class="thumb text-center">
                                                                                             <img src="@(string.IsNullOrEmpty(Model.storeDetails.AppUser.ImageUrl) ? Url.Content("~/assets/imgs/blog/author-2.png") : Model.storeDetails.AppUser.ImageUrl)" alt="" />
-                                                                                            <a href="/Home/UserInformation/@Model.storeDetails.AppUser.Id" class="font-heading text-brand">@Model.storeDetails.AppUser.UserName</a>
+                                                                                            
                                                                                 </div>
                                                                                 <div class="desc">
                                                                                     <div class="d-flex justify-content-between mb-10">
+                                                                                        <div class="d-flex align-items-center">
+                                                                                                    <a href="/Home/UserInformation/@Model.storeDetails.AppUser.Id" class="font-heading text-brand">@Model.storeDetails.AppUser.UserName</a>
+                                                                                        </div>
                                                                                         <div class="d-flex align-items-center">
                                                                                                     <span class="font-xs text-muted">@review.ReplyDate?.ToString("MMMM d, yyyy 'at' h:mm tt") </span>
                                                                                         </div>
@@ -1427,7 +1437,7 @@
                                     </div>
                                 </div>
                             </div> *@
-                                <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                                @* <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
                                     <img src="~/assets/imgs/banner/banner-11.png" alt="" />
                                     <div class="banner-text">
                                         <span>Oganic</span>
@@ -1437,7 +1447,7 @@
                                             Juice
                                         </h4>
                                     </div>
-                                </div>
+                                </div> *@
                             </div>
                         </div>
                     </div>

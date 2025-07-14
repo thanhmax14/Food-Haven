@@ -7,89 +7,95 @@
 @foreach (var product in Model)
 {
     double averageRating = 5;
-    if(product.Reviews != null &&product.Reviews.Any())
+    if (product.Reviews != null && product.Reviews.Any())
     {
         var reviewList = product.Reviews ?? new List<Review>();
         var reviews = reviewList.Where(r => r.Rating >= 1 && r.Rating <= 5).ToList();
         int totalReviews = reviews.Count;
-         averageRating = totalReviews > 0 ? reviews.Average(r => r.Rating) : 0;
+        averageRating = totalReviews > 0 ? reviews.Average(r => r.Rating) : 0;
     }
     else
     {
         product.Reviews = new List<Review>();
-    } 
+    }
     <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-            <div class="product-cart-wrap">
-                <div class="product-img-action-wrap">
-                    <div class="product-img product-img-zoom">
-                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
-                            <img class="default-img" src="@(product.ProductImages?.FirstOrDefault()?.ImageUrl ?? "/assets/imgs/shop/product-5-1.jpg")" alt="@product.Name" />
+        <div class="product-cart-wrap">
+            <div class="product-img-action-wrap mb-10">
+                <div class="product-img product-img-zoom">
+                    <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                        <img class="default-img"
+                            src="@(product.ProductImages?.FirstOrDefault()?.ImageUrl ?? "/assets/imgs/shop/product-5-1.jpg")"
+                            alt="@product.Name" />
                         <img class="hover-img"
-                             src="@(product.ProductImages?.Skip(1).FirstOrDefault()?.ImageUrl
-                                      ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
-                                      ?? "/assets/imgs/shop/product-5-2.jpg")"
-                         alt="@product.Name" />
-                        </a>
-                    </div>
-                    <div class="product-action-1">
-@Html.AntiForgeryToken()
-                  
-                @if (product.Wishlists != null && product.Wishlists.Any())
-                    {
-                        var isInWishlist = product.Wishlists.Any(w => w.UserID == @User.FindFirst(ClaimTypes.NameIdentifier)?.Value); 
+                            src="@(product.ProductImages?.Skip(1).FirstOrDefault()?.ImageUrl
+                                                                                                                                             ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
+                                                                                                                                             ?? "/assets/imgs/shop/product-5-2.jpg")"
+                            alt="@product.Name" />
+                    </a>
+                </div>
+                <div class="product-action-1">
+                    @Html.AntiForgeryToken()
 
-                        <a aria-label="@(isInWishlist ? "Remove wishlist" : "Add To Wishlist")"
-                           class="action-btn"
-                           onclick="AddWishlist(this, '@product.ID')">
+                    @if (product.Wishlists != null && product.Wishlists.Any())
+                    {
+                        var isInWishlist = product.Wishlists.Any(w => w.UserID ==
+                        @User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                        <a aria-label="@(isInWishlist ? "Remove wishlist" : "Add To Wishlist")" class="action-btn"
+                            onclick="AddWishlist(this, '@product.ID')">
                             <i class="fi-rs-heart@(isInWishlist ? " text-danger" : "")"></i>
                         </a>
                     }
                     else
                     {
-                        <a aria-label="Add To Wishlist"
-                           class="action-btn"
-                           onclick="AddWishlist(this, '@product.ID')">
+                        <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@product.ID')">
                             <i class="fi-rs-heart"></i>
                         </a>
                     }
 
-                        @* <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal" data-bs-target="#quickViewModal" onclick="quickView('@product.ID')">
+                    @* <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal" data-bs-target="#quickViewModal" onclick="quickView('@product.ID')">
                             <i class="fi-rs-eye"></i>
                         </a> *@
-                    </div>
-                    @*  @if (product.DiscountPercentage > 0)
+                </div>
+                @*  @if (product.DiscountPercentage > 0)
                 {
                     <div class="product-badges product-badges-position product-badges-mrg">
                         <span class="best">-@product.DiscountPercentage%</span>
                     </div>
                 } *@
-                </div>
-                <div class="product-content-wrap">
-                    <div class="product-category">
+            </div>
+            <div class="product-content-wrap">
+                @* <div class="product-category">
                         <a href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
                             @product.Categories?.Name
                         </a>
-                    </div>
-                    <h2>
-                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
-                            @product.Name
-                        </a>
-                    </h2>
-                    <div class="product-rate-cover">
-                        <div class="product-rate d-inline-block">
+                    </div> *@
+                <h2>
+                    <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                        @product.Name
+                    </a>
+                </h2>
+                <div class="product-rate-cover">
+                    <div class="product-rate d-inline-block">
                         <div class="product-rating" style="width: @(averageRating * 20)%"></div>
-                        </div>
-                        <span class="font-small ml-5 text-muted">(@product.Reviews.Count())</span>
                     </div>
-                    <div>
-                        <span class="font-small text-muted">
-                            By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = product.StoreID })">
-                                @product.StoreDetails?.Name
-                            </a>
-                        </span>
-                    </div>
-                    <div class="product-card-bottom">
-                        <div class="product-price">
+                    <span class="font-small ml-5 text-muted">(@product.Reviews.Count())</span>
+                </div>
+                <div>
+                    <span class="font-small text-muted">
+                        By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = product.StoreID })">
+                            @product.StoreDetails?.Name
+                        </a>
+                    </span>
+                    <span class="font-small text-muted">
+                        Category: <a
+                            href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
+                            @product.Categories?.Name
+                        </a>
+                    </span>
+                </div>
+                <div class="product-card-bottom">
+                    <div class="product-price">
                         <span>
                             @(product.ProductTypes.OrderBy(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0) -
                             @(product.ProductTypes.OrderByDescending(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0)
@@ -98,21 +104,21 @@
 
 
 
-                        </div>
-
                     </div>
-                    <div class="product-card-bottom">
 
-                        <div class="add-cart">
-                            <a class="add" href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
-                                <i class="fi-rs-shopping-cart mr-5"></i>View Detail
-                            </a>
-                        </div>
+                </div>
+                <div class="product-card-bottom">
+
+                    <div class="add-cart">
+                        <a class="add" href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                            <i class="fi-rs-shopping-cart mr-5"></i>View Detail
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    
+    </div>
+
 }
 
 @if (!Model.Any())
@@ -125,46 +131,31 @@
     </div>
 }
 <script>
-        function AddToCart(productId) {
-            $.ajax({
-                url: "/Home/AddToCart",  // API to handle adding to cart
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ ProductID: productId, quantity: 1 }),
-                success: function (response) {
-                    if (response.success) {
-                        new Notify({
-                            status: 'success',
-                            title: 'Success!',
-                            text: response.message,
-                            effect: 'fade',
-                            speed: 300,
-                            showIcon: true,
-                            showCloseButton: true,
-                            autoclose: true,
-                            autotimeout: 3000,
-                            position: 'right top',
-                        });
-                    } else {
-                        new Notify({
-                            status: 'error',
-                            title: 'Error!',
-                            text: response.message,
-                            effect: 'fade',
-                            speed: 300,
-                            showIcon: true,
-                            showCloseButton: true,
-                            autoclose: true,
-                            autotimeout: 3000,
-                            position: 'right top',
-                        });
-                    }
-                },
-                error: function () {
+    function AddToCart(productId) {
+        $.ajax({
+            url: "/Home/AddToCart",  // API to handle adding to cart
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ ProductID: productId, quantity: 1 }),
+            success: function (response) {
+                if (response.success) {
+                    new Notify({
+                        status: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top',
+                    });
+                } else {
                     new Notify({
                         status: 'error',
-                        title: 'Server Error!',
-                        text: "An error occurred, please try again.",
+                        title: 'Error!',
+                        text: response.message,
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -174,107 +165,122 @@
                         position: 'right top',
                     });
                 }
-            });
-        }
-
-        function AddWishlist(el, id) {
-            var icon = el.querySelector("i");
-            const actionBtn = el;
-
-            if (icon.classList.contains("text-danger")) {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "Do you want to remove this from your wishlist?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, remove!",
-                    cancelButtonText: "Cancel"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "/Home/RemoveWish",
-                            type: "POST",
-                            data: { id: id },
-                            headers: {
-                                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Success!',
-                                        text: response.message || 'Sent successfully!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    icon.classList.remove("text-danger");
-                                    actionBtn.setAttribute("aria-label", "Add To Wishlist");
-                                } else {
-                                    Swal.fire('Error', response.message, 'error');
-                                }
-                            },
-                            error: function () {
-                                Swal.fire('Error', 'An error occurred while removing from the wishlist.', 'error');
-                            }
-                        });
-                    }
-                });
-            } else {
-                $.ajax({
-                    url: "/Home/AddWish",
-                    type: "POST",
-                    data: { id: id },
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            new Notify({
-                                status: 'success',
-                                title: 'Success!',
-                                text: response.message || 'Sent successfully!',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
-
-                            icon.classList.add("text-danger");
-                            actionBtn.setAttribute("aria-label", "Remove wishlist");
-                        } else {
-                            Swal.fire('Error', response.message, 'error');
-                        }
-                    },
-                    error: function () {
-                       
-                        Swal.fire('Error', 'An error occurred while adding to the wishlist.', 'error');
-                    }
+            },
+            error: function () {
+                new Notify({
+                    status: 'error',
+                    title: 'Server Error!',
+                    text: "An error occurred, please try again.",
+                    effect: 'fade',
+                    speed: 300,
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    position: 'right top',
                 });
             }
-        }
+        });
+    }
 
-    </script>
+    function AddWishlist(el, id) {
+        var icon = el.querySelector("i");
+        const actionBtn = el;
+
+        if (icon.classList.contains("text-danger")) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to remove this from your wishlist?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/Home/RemoveWish",
+                        type: "POST",
+                        data: { id: id },
+                        headers: {
+                            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                new Notify({
+                                    status: 'success',
+                                    title: 'Success!',
+                                    text: response.message || 'Sent successfully!',
+                                    effect: 'fade',
+                                    speed: 300,
+                                    showIcon: true,
+                                    showCloseButton: true,
+                                    autoclose: true,
+                                    autotimeout: 3000,
+                                    position: 'right top'
+                                });
+                                icon.classList.remove("text-danger");
+                                actionBtn.setAttribute("aria-label", "Add To Wishlist");
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'An error occurred while removing from the wishlist.', 'error');
+                        }
+                    });
+                }
+            });
+        } else {
+            $.ajax({
+                url: "/Home/AddWish",
+                type: "POST",
+                data: { id: id },
+                headers: {
+                    "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        new Notify({
+                            status: 'success',
+                            title: 'Success!',
+                            text: response.message || 'Sent successfully!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+
+                        icon.classList.add("text-danger");
+                        actionBtn.setAttribute("aria-label", "Remove wishlist");
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function () {
+
+                    Swal.fire('Error', 'An error occurred while adding to the wishlist.', 'error');
+                }
+            });
+        }
+    }
+
+</script>
 
 <script>
-   
+
 
     function quickView(productId) {
         $.ajax({
             url: '@Url.Action("QuickView", "Home")',
             type: 'GET',
             data: { id: productId },
-            success: function(data) {
+            success: function (data) {
                 $('#quickViewModal .modal-body').html(data);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error loading quick view:', error);
             }
         });
