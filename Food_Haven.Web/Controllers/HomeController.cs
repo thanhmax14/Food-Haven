@@ -1422,37 +1422,148 @@ namespace Food_Haven.Web.Controllers
 
         }
         [HttpGet]
-        public async Task<IActionResult> SearchProductList(string searchName)
+        public async Task<IActionResult> SearchProductList(string searchName = null)
         {
-            var list = await _product.ListAsync();
+            // 1. Lấy danh mục (chỉ danh mục active)
+            var categories = await _categoryService.ListAsync(
+                filter: c => c.IsActive,
+                orderBy: q => q.OrderByDescending(c => c.CreatedDate)
+            );
 
-            if (!string.IsNullOrEmpty(searchName))
+            // 2. Lấy tất cả sản phẩm IsActive = true
+            var allProducts = await _product.ListAsync(
+                filter: p => p.IsActive,
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate)
+            );
+            var products = allProducts.ToList();
+
+            // 3. Lấy danh sách product type active
+            var productIds = products.Select(p => p.ID).ToList();
+            var productTypes = await _productvarian.ListAsync(
+                pt => productIds.Contains(pt.ProductID) && pt.IsActive
+            );
+
+            // ⚠️ Loại bỏ product không có product type active
+            var validProductIds = productTypes.Select(pt => pt.ProductID).Distinct().ToHashSet();
+            products = products
+                .Where(p => validProductIds.Contains(p.ID))
+                .ToList();
+
+            // 4. Cập nhật lại ID sau khi lọc
+            productIds = products.Select(p => p.ID).ToList();
+            var categoryIds = products.Select(p => p.CategoryID).Distinct().ToList();
+            var storeIds = products.Select(p => p.StoreID).Distinct().ToList();
+
+            // 5. Truy vấn dữ liệu liên kết
+            var categoriesMap = (await _categoryService.ListAsync(
+                c => categoryIds.Contains(c.ID) && c.IsActive)
+            ).ToDictionary(c => c.ID);
+
+            var storeMap = (await _storeDetailService.ListAsync(
+                s => storeIds.Contains(s.ID))
+            ).ToDictionary(s => s.ID);
+
+            var images = await _productimg.ListAsync(img => productIds.Contains(img.ProductID));
+            var reviews = await _reviewService.ListAsync(r => productIds.Contains(r.ProductID));
+
+            var user = await _userManager.GetUserAsync(User);
+            var wishlists = user != null
+                ? await _wishlist.ListAsync(w => productIds.Contains(w.ProductID) && w.UserID == user.Id)
+                : new List<Wishlist>();
+
+            // 6. Gán dữ liệu phụ vào từng sản phẩm
+            foreach (var product in products)
             {
-                list = list.Where(x => x.Name != null && x.Name.ToLower().Contains(searchName.ToLower())).ToList();
+                product.Categories = categoriesMap.TryGetValue(product.CategoryID, out var cat) ? cat : null;
+                product.StoreDetails = storeMap.TryGetValue(product.StoreID, out var store) ? store : null;
+                product.ProductTypes = productTypes.Where(t => t.ProductID == product.ID).ToList();
+                product.ProductImages = images.Where(img => img.ProductID == product.ID).ToList();
+                product.Reviews = reviews.Where(r => r.ProductID == product.ID).ToList();
+                product.Wishlists = wishlists.Where(w => w.ProductID == product.ID).ToList();
             }
-            if (string.IsNullOrWhiteSpace(searchName))
+
+            // 7. Gán sản phẩm vào từng danh mục
+            foreach (var category in categories)
             {
-                // Redirect về trang gốc (ví dụ Index)
-                return RedirectToAction("Index", "Home");
+                category.Products = products
+                    .Where(p => p.CategoryID == category.ID)
+                    .ToList();
             }
 
-            var listProductViewModel = list.Select(x => new ProductsViewModel
+            var viewModel = new HomeViewModel
             {
-                ID = x.ID,
-                Name = x.Name,
-                CreatedDate = x.CreatedDate,
-                ModifiedDate = x.ModifiedDate,
-                ShortDescription = x.ShortDescription,
-                LongDescription = x.LongDescription,
-                IsActive = x.IsActive,
-                IsOnSale = x.IsOnSale,
-                StoreId = x.StoreID,
-            }).ToList();
+                Categories = categories,
+                Products = products
+            };
 
-            ViewData["SearchKeyword"] = searchName;
-            // Trả về view Index (trong thư mục /Views/Product nếu controller là ProductController)
-            return View("Index", listProductViewModel);
+            // 8. Xử lý tìm kiếm nếu có searchName
+            if (!string.IsNullOrWhiteSpace(searchName))
+            {
+                var searchTerms = searchName.ToLower().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var filtered = await _product.ListAsync(p =>
+                    !string.IsNullOrEmpty(p.Name) &&
+                    searchTerms.All(term => p.Name.ToLower().Contains(term))) ?? new List<Product>();
+
+                if (filtered.Any())
+                {
+                    // Lọc lại các sản phẩm chỉ có ProductVariant IsActive == true
+                    var filteredProductIds = filtered.Select(p => p.ID).ToList();
+
+                    // Lấy các product types của filtered (đã có ở trước: productTypes)
+                    var filteredProductTypes = productTypes
+                        .Where(pt => filteredProductIds.Contains(pt.ProductID) && pt.IsActive) // ✅ chỉ lấy variant active
+                        .ToList();
+
+                    // Lọc các sản phẩm thật sự có variant active
+                    var validFilteredProductIds = filteredProductTypes
+                        .Select(pt => pt.ProductID)
+                        .Distinct()
+                        .ToHashSet();
+
+                    var filteredProducts = filtered
+                        .Where(p => validFilteredProductIds.Contains(p.ID))
+                        .ToList();
+
+                    // Lọc lại images, reviews, wishlists theo filteredProductIds
+                    var filteredImages = images.Where(img => validFilteredProductIds.Contains(img.ProductID)).ToList();
+                    var filteredReviews = reviews.Where(r => validFilteredProductIds.Contains(r.ProductID)).ToList();
+                    var filteredWishlists = wishlists.Where(w => validFilteredProductIds.Contains(w.ProductID)).ToList();
+
+                    // Gán dữ liệu phụ
+                    foreach (var product in filteredProducts)
+                    {
+                        product.Categories = categoriesMap.TryGetValue(product.CategoryID, out var cat) ? cat : null;
+                        product.StoreDetails = storeMap.TryGetValue(product.StoreID, out var store) ? store : null;
+                        product.ProductTypes = filteredProductTypes.Where(t => t.ProductID == product.ID).ToList();
+                        product.ProductImages = filteredImages.Where(img => img.ProductID == product.ID).ToList();
+                        product.Reviews = filteredReviews.Where(r => r.ProductID == product.ID).ToList();
+                        product.Wishlists = filteredWishlists.Where(w => w.ProductID == product.ID).ToList();
+                    }
+
+                    viewModel.SearchResults = filteredProducts;
+                    ViewData["HasSearchResults"] = filteredProducts.Any();
+                }
+
+                else
+                {
+                    viewModel.SearchResults = new List<Product>();
+                    ViewData["HasSearchResults"] = false;
+                }
+            }
+            else
+            {
+                // Khi không có searchName, sử dụng toàn bộ products như Index1
+                   return RedirectToAction(nameof(Index1));
+
+            }
+
+            ViewData["SearchKeyword"] = searchName ?? "";
+
+            return View("Index1", viewModel);
         }
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetVariantPrice(Guid variantId)
         {
@@ -1876,7 +1987,9 @@ namespace Food_Haven.Web.Controllers
             {
                 Categories = categories,
                 Products = products,
+                SearchResults = products
             };
+            ViewData["HasSearchResults"] = products.Any(); // Gán để hỗ trợ điều kiện hiển thị trong view
 
             return View(viewModel);
         }
@@ -2137,6 +2250,9 @@ namespace Food_Haven.Web.Controllers
     {
         public IEnumerable<Categories> Categories { get; set; }
         public IEnumerable<Product> Products { get; set; }
+
+        public IEnumerable<Product> SearchResults { get; set; }
+
     }
 
     public class ProductDetailViewModel

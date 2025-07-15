@@ -364,29 +364,43 @@
                                     </button>
                                 </li>
 
-                                @foreach (var category in Model.Categories.Take(6))
-                                {
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="nav-tab-@category.ID" data-bs-toggle="tab"
-                                            data-bs-target="#tab-@category.ID" type="button" role="tab"
-                                            aria-controls="tab-@category.ID" aria-selected="false"
-                                            onclick="filterByCategory('@category.ID')">
-                                            @category.Name
-                                        </button>
-                                    </li>
-                                }
+                               @if (Model.Categories != null && Model.Categories.Any())
+{
+    @foreach (var category in Model.Categories.Take(6))
+    {
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="nav-tab-@category.ID" data-bs-toggle="tab"
+                    data-bs-target="#tab-@category.ID" type="button" role="tab"
+                    aria-controls="tab-@category.ID" aria-selected="false"
+                    onclick="filterByCategory('@category.ID')">
+                @category.Name
+            </button>
+        </li>
+    }
+}
+
                             </ul>
                         </div>
 
-                        <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade show active" id="tab-one" role="tabpanel"
-                                aria-labelledby="tab-one">
-                                <div class="row product-grid-4" id="product-container">
-                                    @await Html.PartialAsync("_ProductGrid", Model.Products)
-                                </div>
-                            </div>
-
-                        </div>
+            <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+        <div class="row product-grid-4" id="product-container">
+            @if (ViewData["HasSearchResults"] as bool? == true || (Model.SearchResults?.Any() ?? false))
+            {
+                @await Html.PartialAsync("_ProductGrid", Model.SearchResults)
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <h4>No products found</h4>
+                        <p>Try adjusting your filters or search criteria.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
                     </section>
                 </div>
 
