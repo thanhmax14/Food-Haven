@@ -1,4 +1,6 @@
-﻿using BusinessLogic.Hash;
+﻿using System.Linq.Expressions;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
@@ -8,10 +10,7 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
-using BusinessLogic.Services.ProductVariantVariants;
-using BusinessLogic.Services.ProductVariantVariants;
 using BusinessLogic.Services.RecipeServices;
-using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -19,38 +18,20 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
 using Food_Haven.Web.Hubs;
-using Food_Haven.Web.Hubs;
-using Food_Haven.Web.Models;
-using Food_Haven.Web.Services;
 using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Net.payOS;
 using Repository.ViewModels;
-using SixLabors.ImageSharp.Processing;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 
 
@@ -1609,7 +1590,7 @@ namespace Food_Haven.Web.Controllers
         {
             if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("Thiếu ID người dùng.");
+                return BadRequest("Missing user ID.");
             }
 
             try
@@ -1617,7 +1598,7 @@ namespace Food_Haven.Web.Controllers
                 var user = await _userManager.FindByIdAsync(id);
                 if (user == null)
                 {
-                    return NotFound("Không tìm thấy người dùng.");
+                    return NotFound("User not found.");
                 }
 
                 // Lấy StoreDetails của user
@@ -1663,9 +1644,9 @@ namespace Food_Haven.Web.Controllers
                     UserId = user.Id,
                     RegisterDate = user.JoinedDate,
                     UserName = user.UserName,
-                    ProductPurchased = $"{totalOrders} đơn hàng",
-                    NumberOfProducts = $"{totalProducts} sản phẩm",
-                    ProductsSold = $"{totalSold} sản phẩm",
+                    ProductPurchased = $"{totalOrders} Orders",
+                    NumberOfProducts = $"{totalProducts} Products",
+                    ProductsSold = $"{totalSold} Products",
                     ProfileImageUrl = user.ImageUrl,
                     TotalPosts = totalRecipes,
                     StoreId = store?.ID,
@@ -1677,7 +1658,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi server", error = ex.ToString() });
+                return StatusCode(500, new { message = "Sever error", error = ex.ToString() });
             }
         }
         [HttpGet]
