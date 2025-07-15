@@ -87,6 +87,7 @@
                             @product.StoreDetails?.Name
                         </a>
                     </span>
+                    <br />
                     <span class="font-small text-muted">
                         Category: <a
                             href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
@@ -267,22 +268,4 @@
         }
     }
 
-</script>
-
-<script>
-
-
-    function quickView(productId) {
-        $.ajax({
-            url: '@Url.Action("QuickView", "Home")',
-            type: 'GET',
-            data: { id: productId },
-            success: function (data) {
-                $('#quickViewModal .modal-body').html(data);
-            },
-            error: function (xhr, status, error) {
-                console.error('Error loading quick view:', error);
-            }
-        });
-    }
 </script>
