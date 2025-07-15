@@ -29,7 +29,7 @@ using BusinessLogic.Hash;
 
 namespace Food_Haven.Web.Controllers
 {
-    [Authorize (Roles = "Seller")]
+    [Authorize(Roles = "Seller")]
     public class SellerController : Controller
     {
         private readonly IReviewService _reviewService;
@@ -199,10 +199,15 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ReplyFeedback(ReivewViewModel model)
         {
-            if (model == null || string.IsNullOrWhiteSpace(model.Reply))
+            if (model == null)
             {
                 return Json(new { success = false, message = "Invalid data!" });
             }
+            if (!ModelState.IsValid)
+            {
+                return View("ReplyFeedback", model); // hoặc View(model) nếu đang trong view đúng tên
+            }
+
 
             try
             {
@@ -1278,11 +1283,11 @@ namespace Food_Haven.Web.Controllers
                     try
                     {
                         var orderDetails = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
-                      if (orderDetails == null)
-    return Json(new { success = false, message = "There are no products in this order." });
-var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
-if (order == null)
-    return Json(new { success = false, message = "Order not found." });
+                        if (orderDetails == null)
+                            return Json(new { success = false, message = "There are no products in this order." });
+                        var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
+                        if (order == null)
+                            return Json(new { success = false, message = "Order not found." });
 
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
@@ -1615,12 +1620,13 @@ if (order == null)
                     DiscountType = v.DiscountType,
                     StartDate = startDate,
                     ExpirationDate = expirationDate,
-                    MaxDiscountAmount =decimal.Parse(v.Scope),
+                    MaxDiscountAmount = decimal.Parse(v.Scope),
                     MaxUsage = v.MaxUsage,
                     CurrentUsage = v.CurrentUsage,
                     MinOrderValue = v.MinOrderValue,
                     IsActive = v.IsActive,
-                    CreatedDate = DateTime.Now,StoreID=store.ID
+                    CreatedDate = DateTime.Now,
+                    StoreID = store.ID
                 };
 
                 await _voucher.AddAsync(entity);
@@ -1725,14 +1731,14 @@ if (order == null)
             }
         }
 
-       public async Task<IActionResult> Chat()
+        public async Task<IActionResult> Chat()
         {
-             return View();
-        }     
+            return View();
+        }
         public async Task<IActionResult> Index()
         {
-             return View();
-        }    
+            return View();
+        }
         [HttpGet]
         public async Task<IActionResult> GetDateConfig()
         {
@@ -1764,7 +1770,7 @@ if (order == null)
                 if (!orders.Any()) return Json(fallbackConfig);
                 var minDateValue = orders.Min(o => o.CreatedDate).Date;
                 var maxDateValue = orders.Max(o => o.CreatedDate).Date;
-                int totalDays = (maxDateValue - minDateValue).Days + 1; 
+                int totalDays = (maxDateValue - minDateValue).Days + 1;
                 return Json(new
                 {
                     minDate = minDateValue.ToString("yyyy-MM-dd"),
@@ -1839,7 +1845,7 @@ if (order == null)
                 var successOrderIds = successOrders.Select(o => o.ID).ToList();
                 var successOrderDetails = orderDetails.Where(od => successOrderIds.Contains(od.OrderID)).ToList();
 
-            
+
                 var totalEarnings = successOrders.Sum(o => o.TotalPrice);
 
                 var today = DateTime.Now.Date;
@@ -2013,7 +2019,7 @@ if (order == null)
 
             }
         }
-    
+
         [HttpGet]
         public async Task<IActionResult> GetProducts(string period = "today", string search = "")
         {
@@ -2071,10 +2077,10 @@ if (order == null)
                             od.CreatedDate.Month == lastMonth.Month && od.CreatedDate.Year == lastMonth.Year);
                         break;
                     case "alltime":
-              
+
                         break;
                     default:
-                   
+
                         break;
                 }
                 var joinPT = productTypes.ToDictionary(pt => pt.ID, pt => pt.ProductID);
@@ -2247,7 +2253,7 @@ if (order == null)
                     phone = u?.PhoneNumber ?? "",
                     stock = c.OrderCount,
                     amount = c.TotalAmount,
-                    growth = totalAmountAll == 0 ? 0 : Math.Round(100m * c.TotalAmount / totalAmountAll, 2), 
+                    growth = totalAmountAll == 0 ? 0 : Math.Round(100m * c.TotalAmount / totalAmountAll, 2),
                     lastOrderDate = c.LastOrderDate.ToString("dd/MM/yyyy"),
                     image = u?.ImageUrl ?? "/assets/imgs/theme/icons/icon-user.svg",
                 };
@@ -2342,8 +2348,8 @@ if (order == null)
                     success = true,
                     data = new
                     {
-                        series = ordersArr,            
-                        percentages = roundedPercentages, 
+                        series = ordersArr,
+                        percentages = roundedPercentages,
                         labels = labels,
                         total = totalOrders
                     }
@@ -2409,11 +2415,11 @@ if (order == null)
                         id = order.OrderTracking,
                         customer = new
                         {
-                            name = displayName 
+                            name = displayName
                         },
                         quantity = orderDetailsForOrder.Sum(od => od.Quantity),
                         amount = order.TotalPrice,
-                        status = order.Status, 
+                        status = order.Status,
                         createdDate = order.CreatedDate
                     };
                 }).ToList();

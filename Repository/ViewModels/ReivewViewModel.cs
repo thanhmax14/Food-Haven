@@ -1,4 +1,6 @@
-﻿namespace Repository.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Repository.ViewModels
 {
     public class ReivewViewModel
     {
@@ -6,7 +8,7 @@
         public Guid ID { get; set; }
         public string? Comment { get; set; }
         public DateTime CommentDate { get; set; } = DateTime.Now;
-
+        [Required(ErrorMessage = "Reply cannot be empty")]
         public string? Reply { get; set; }
 
 
