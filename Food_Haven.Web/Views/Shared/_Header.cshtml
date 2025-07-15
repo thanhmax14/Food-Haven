@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Models
 @using Repository.ViewModels
+@using System.Security.Claims
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
@@ -63,13 +64,13 @@
                                </a> 
                                <a asp-action="FindRecipes" asp-controller="home"><span class="lable ml-0">Suggestions</span></a> 
                             </div> 
-                            <div class="header-action-icon-2"> 
-                                 <a href=""> 
+                            <div class="header-action-icon-2">
+                                <a onclick="goToChatOrver(@User.FindFirst(ClaimTypes.NameIdentifier)?.Value)">
                                     <img class="svgInject" alt="Nest" 
                                          src="~/assets/imgs/theme/icons/phone-call.svg" /> 
                                      @* <span class="pro-count blue">3</span>  *@
-                               </a> 
-                               <a asp-action="ChatList" asp-controller="Users"><span class="lable ml-0">Chat</span></a> 
+                               </a>
+                                <a onclick="goToChatOrver(@User.FindFirst(ClaimTypes.NameIdentifier)?.Value)"><span class="lable ml-0">Chat</span></a>
                             </div> 
                             <div class="header-action-icon-2">
                                 <a href="">
@@ -524,4 +525,29 @@
         </div>
     </div>
     </div>
+    <script>
+        function goToChatOrver(userId) {
+              fetch('/Home/GetCurrentUserRole')
+                  .then(response => {
+                      if (!response.ok) throw new Error("Không thể lấy vai trò");
+                      return response.json();
+                  })
+                  .then(data => {
+                      let redirectUrl = '/users/chatlist';
+                      if (data.role === "Admin") {
+                          redirectUrl = '/Admin/chat';
+                      } else if (data.role === "Seller") {
+                          redirectUrl = '/Seller/chat';
+                      }else if (data.role === "Guest") {
+                          redirectUrl = '/Home/Login';
+                      }
+
+                      window.location.href = redirectUrl;
+                  })
+                  .catch(error => {
+                      console.error("Lỗi khi lấy vai trò người dùng:", error);
+                      window.location.href = '/users';
+                  });
+          }
+    </script>
 </header>

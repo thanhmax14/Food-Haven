@@ -196,7 +196,7 @@ namespace Food_Haven.Web.Controllers
         }
 
 
-      
+
         [HttpGet]
         public IActionResult Login(string ReturnUrl = null)
         {
@@ -1800,7 +1800,7 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAvailableIngredients()
         {
-           
+
             var ingredients = await Task.Run(() => _service.GetUniqueIngredients(100));
             return Json(ingredients);
         }
@@ -1820,34 +1820,69 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public IActionResult FindRecipes()
         {
-            return View(); 
+            return View();
         }
         public async Task<IActionResult> Index1()
         {
+            // 1. Lấy danh mục
             var categories = await _categoryService.ListAsync(
-                filter: null,
-                orderBy: q => q.OrderByDescending(p => p.CreatedDate),
-                includeProperties: q => q.Include(p => p.Recipes)
-                .Include(p => p.Products)
+                orderBy: q => q.OrderByDescending(c => c.CreatedDate)
             );
-            var products = await _product.ListAsync(
-                filter: null,
-                orderBy: q => q.OrderByDescending(p => p.CreatedDate) ,includeProperties: q => q
-        .Include(p => p.Categories)       // Include Categories
-        .Include(p => p.StoreDetails)     // Include StoreDetails
-        .Include(p => p.ProductTypes)     // Include ProductTypes
-        .Include(p => p.ProductImages).Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
-        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
+            var allProducts = await _product.ListAsync(
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate)
+            );
 
+            var products = allProducts.ToList();
+            var productIds = products.Select(p => p.ID).ToList();
+            var categoryIds = products.Select(p => p.CategoryID).Distinct().ToList();
+            var storeIds = products.Select(p => p.StoreID).Distinct().ToList();
+
+            // 3. Truy vấn liên kết
+            var categoriesMap = (await _categoryService.ListAsync(c => categoryIds.Contains(c.ID)))
+                .ToDictionary(c => c.ID);
+
+            var storeMap = (await _storeDetailService.ListAsync(s => storeIds.Contains(s.ID)))
+                .ToDictionary(s => s.ID);
+
+            var productTypes = await _productvarian.ListAsync(pt => productIds.Contains(pt.ProductID));
+            var images = await _productimg.ListAsync(img => productIds.Contains(img.ProductID));
+            var reviews = await _reviewService.ListAsync(r => productIds.Contains(r.ProductID));
+
+            var user = await _userManager.GetUserAsync(User);
+            var wishlists = user != null
+                ? await _wishlist.ListAsync(w => productIds.Contains(w.ProductID) && w.UserID == user.Id)
+                : new List<Wishlist>();
+
+            // 4. Gán dữ liệu phụ vào từng sản phẩm
+            foreach (var product in products)
+            {
+                product.Categories = categoriesMap.TryGetValue(product.CategoryID, out var cat) ? cat : null;
+                product.StoreDetails = storeMap.TryGetValue(product.StoreID, out var store) ? store : null;
+                product.ProductTypes = productTypes.Where(t => t.ProductID == product.ID).ToList();
+                product.ProductImages = images.Where(img => img.ProductID == product.ID).ToList();
+                product.Reviews = reviews.Where(r => r.ProductID == product.ID).ToList();
+                product.Wishlists = wishlists.Where(w => w.ProductID == product.ID).ToList();
+            }
+
+            // ✅ 5. Gán danh sách Product vào từng Categories
+            foreach (var category in categories)
+            {
+                category.Products = products
+                    .Where(p => p.CategoryID == category.ID)
+                    .ToList();
+            }
+
+            // 6. Gửi về View
             var viewModel = new HomeViewModel
             {
                 Categories = categories,
-                Products = products,
-                AllProducts = products,              
+                Products = products
             };
 
             return View(viewModel);
         }
+
+
         [HttpPost]
         public async Task<IActionResult> FilterProducts(decimal? minPrice, decimal? maxPrice)
         {
@@ -1901,7 +1936,7 @@ namespace Food_Haven.Web.Controllers
         .Include(p => p.ProductTypes)     // Include ProductTypes
         .Include(p => p.ProductImages)
         .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
-        .Include(x => x.Reviews).ThenInclude(r => r.AppUser)); 
+        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
                     break;
                 default:
                     products = await _product.ListAsync(
@@ -1913,7 +1948,7 @@ namespace Food_Haven.Web.Controllers
         .Include(p => p.ProductTypes)     // Include ProductTypes
         .Include(p => p.ProductImages)
         .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
-        .Include(x => x.Reviews).ThenInclude(r => r.AppUser)); 
+        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
 
 
 
@@ -1946,91 +1981,73 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> ProductDetail1(Guid id)
         {
-            var productDetail = await _product.FindAsync(x => x.ID == id && x.IsActive);           
-            var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID && s.IsActive);
-            var categories = await _categoryService.ListAsync(
-                 filter: null,
-                 orderBy: q => q.OrderByDescending(p => p.CreatedDate),
-                 includeProperties: q => q.Include(p => p.Recipes)
-                 .Include(p => p.Products)
-             );
-            if (store == null || productDetail == null)
-            {
+            var productDetail = await _product.FindAsync(x => x.ID == id && x.IsActive);
+            if (productDetail == null)
                 return RedirectToAction("Error", "404");
-            }
-            var tem = new ProductDetails();
-            var product = await _product.ListAsync(
-            p => p.ID == id,
-            includeProperties: p => p
-           .Include(x => x.ProductImages)
-           .Include(x => x.ProductTypes)
-           .Include(x => x.Categories)
-           .Include(x => x.StoreDetails).ThenInclude(r => r.AppUser)
-           .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
-           .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
-
-            if (product != null && product.Any())
+            var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID && s.IsActive);
+            if (store == null)
+                return RedirectToAction("Error", "404");
+            store.AppUser = await _userManager.FindByIdAsync(store.UserID); // 👈 Load AppUser thủ công
+            var productCategory = await _categoryService.FindAsync(c => c.ID == productDetail.CategoryID);
+            var productImages = await _productimg.ListAsync(p => p.ProductID == id);
+            var productTypes = await _productvarian.ListAsync(p => p.ProductID == id);
+            var reviews = (await _reviewService.ListAsync(r => r.ProductID == id)).ToList();
+            foreach (var r in reviews)
             {
-                var getProduct = product.FirstOrDefault();
-              
-                tem.ID = getProduct.ID;
-                tem.Name = getProduct.Name;
-                tem.ShortDescription = getProduct.ShortDescription;
-                tem.LongDescription = getProduct.LongDescription;
-                tem.CreatedDate = getProduct.CreatedDate;
-                tem.ModifiedDate = getProduct.ModifiedDate;
-                tem.IsActive = getProduct.IsActive;
-                tem.categories = getProduct.Categories;
-                tem.storeDetails = getProduct.StoreDetails;
-                tem.ProductImages = getProduct.ProductImages;
-                tem.ProductVariants = getProduct.ProductTypes;
-                tem.Allcate= categories;
-                tem.Review = getProduct.Reviews;
-                if (getProduct.Wishlists != null && getProduct.Wishlists.Any())
-                {
-                    tem.IsWishList = getProduct.Wishlists.Any(w => w.UserID == User.FindFirstValue(ClaimTypes.NameIdentifier));
-                }
-                else
-                {
-                    tem.IsWishList = false;
-                }
-                var list = await _productvarian.ListAsync(x => x.ProductID == getProduct.ID);
-
-                int totalSold = 0;
-
-                if (list != null && list.Any())
-                {
-                    var orderDetails = await _orderDetail.ListAsync(
-                        x => x.ProductTypes.ProductID == getProduct.ID,
-                        includeProperties: q => q.Include(o => o.ProductTypes)
-                    );
-
-                   if (orderDetails != null && orderDetails.Any())
-                    {
-                        foreach (var item in orderDetails)
-                        {
-                            totalSold += item.Quantity;
-                        }
-                    }
-                }
-
-                tem.totalsell = totalSold;
-
-
-
-
-
+                r.AppUser = await _userManager.FindByIdAsync(r.UserID);
             }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var wishlists = !string.IsNullOrEmpty(userId)
+                ? await _wishlist.ListAsync(w => w.ProductID == id && w.UserID == userId)
+                : new List<Wishlist>();
+            int totalSold = 0;
+            var orderDetails = await _orderDetail.ListAsync(
+                x => x.ProductTypes.ProductID == id
+            );
+            if (orderDetails != null && orderDetails.Any())
+            {
+                totalSold = orderDetails.Sum(x => x.Quantity);
+            }
+            var categories = await _categoryService.ListAsync(
+                 orderBy: q => q.OrderByDescending(c => c.CreatedDate));
+            var allProducts = await _product.ListAsync(
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate)
+            );
+            foreach (var category in categories)
+            {
+                category.Products = allProducts
+                    .Where(p => p.CategoryID == category.ID)
+                    .ToList();
+            }
+
+            var tem = new ProductDetails
+            {
+                ID = productDetail.ID,
+                Name = productDetail.Name,
+                ShortDescription = productDetail.ShortDescription,
+                LongDescription = productDetail.LongDescription,
+                CreatedDate = productDetail.CreatedDate,
+                ModifiedDate = productDetail.ModifiedDate,
+                IsActive = productDetail.IsActive,
+
+                categories = productCategory,
+                storeDetails = store,
+
+                ProductImages = productImages.ToList(),
+                ProductVariants = productTypes.ToList(),
+                Review = reviews,
+                IsWishList = wishlists.Any(),
+                totalsell = totalSold,
+                Allcate = categories
+            };
+
             return View(tem);
         }
-
     }
-
-    public class HomeViewModel
+  public class HomeViewModel
     {
         public IEnumerable<Categories> Categories { get; set; }
         public IEnumerable<Product> Products { get; set; }
-        public IEnumerable<Product> AllProducts { get; set; }
     }
 
     public class ProductDetailViewModel
