@@ -28,8 +28,8 @@
                             alt="@product.Name" />
                         <img class="hover-img"
                             src="@(product.ProductImages?.Skip(1).FirstOrDefault()?.ImageUrl
-                                                                                                                                             ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
-                                                                                                                                             ?? "/assets/imgs/shop/product-5-2.jpg")"
+                                                                                                                                                                         ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
+                                                                                                                                                                         ?? "/assets/imgs/shop/product-5-2.jpg")"
                             alt="@product.Name" />
                     </a>
                 </div>
@@ -64,7 +64,7 @@
                     </div>
                 } *@
             </div>
-            <div class="product-content-wrap">       
+            <div class="product-content-wrap">
                 <h2>
                     <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
                         @product.Name
@@ -94,20 +94,30 @@
                     <div class="product-price">
                         <span>
                             @{
-                                var minPrice = product.ProductTypes.OrderBy(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
-                                var maxPrice = product.ProductTypes.OrderByDescending(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                                decimal minPrice = 0;
+                                decimal maxPrice = 0;
+
+                                if (product.ProductTypes != null && product.ProductTypes.Any())
+                                {
+                                    minPrice = product.ProductTypes.Min(pt => pt.SellPrice);
+                                    maxPrice = product.ProductTypes.Max(pt => pt.SellPrice);
+                                }
                             }
 
                             @if (minPrice == 0 && maxPrice == 0)
                             {
-                                <span>0</span>
+                                <span>0 đ</span>
+                            }
+                            else if (minPrice == maxPrice)
+                            {
+                                <span>@minPrice.ToString("N0") đ</span>
                             }
                             else
                             {
-                                <span>@minPrice - @maxPrice</span>
+                                <span>@minPrice.ToString("N0") đ - @maxPrice.ToString("N0") đ</span>
                             }
-
                         </span>
+
 
 
 
