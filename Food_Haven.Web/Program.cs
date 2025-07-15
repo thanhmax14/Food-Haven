@@ -185,7 +185,11 @@ app.UseExceptionHandler("/Error/404");
 
 */
 
-await SeedDataAsync(app);
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    await SeedDataAsync(app);
+}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 /*app.UseStaticFiles(new StaticFileOptions
@@ -211,6 +215,7 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
 static async Task SeedDataAsync(WebApplication app)
 {
     using (var scope = app.Services.CreateScope())
@@ -280,3 +285,4 @@ static async Task SeedDataAsync(WebApplication app)
         }
     }
 }
+public partial class Program { }
