@@ -1824,27 +1824,45 @@ namespace Food_Haven.Web.Controllers
         }
         public async Task<IActionResult> Index1()
         {
-            // 1. Lấy danh mục
+            // 1. Lấy danh mục (chỉ danh mục active)
             var categories = await _categoryService.ListAsync(
+                filter: c => c.IsActive,
                 orderBy: q => q.OrderByDescending(c => c.CreatedDate)
             );
+
+            // 2. Lấy tất cả sản phẩm IsActive = true
             var allProducts = await _product.ListAsync(
+                filter: p => p.IsActive,
                 orderBy: q => q.OrderByDescending(p => p.CreatedDate)
             );
-
             var products = allProducts.ToList();
+
+            // 3. Lấy danh sách product type active
             var productIds = products.Select(p => p.ID).ToList();
+            var productTypes = await _productvarian.ListAsync(
+                pt => productIds.Contains(pt.ProductID) && pt.IsActive
+            );
+
+            // ⚠️ Loại bỏ product không có product type active
+            var validProductIds = productTypes.Select(pt => pt.ProductID).Distinct().ToHashSet();
+            products = products
+                .Where(p => validProductIds.Contains(p.ID))
+                .ToList();
+
+            // 4. Cập nhật lại ID sau khi lọc
+            productIds = products.Select(p => p.ID).ToList();
             var categoryIds = products.Select(p => p.CategoryID).Distinct().ToList();
             var storeIds = products.Select(p => p.StoreID).Distinct().ToList();
 
-            // 3. Truy vấn liên kết
-            var categoriesMap = (await _categoryService.ListAsync(c => categoryIds.Contains(c.ID)))
-                .ToDictionary(c => c.ID);
+            // 5. Truy vấn dữ liệu liên kết
+            var categoriesMap = (await _categoryService.ListAsync(
+                c => categoryIds.Contains(c.ID) && c.IsActive)
+            ).ToDictionary(c => c.ID);
 
-            var storeMap = (await _storeDetailService.ListAsync(s => storeIds.Contains(s.ID)))
-                .ToDictionary(s => s.ID);
+            var storeMap = (await _storeDetailService.ListAsync(
+                s => storeIds.Contains(s.ID))
+            ).ToDictionary(s => s.ID);
 
-            var productTypes = await _productvarian.ListAsync(pt => productIds.Contains(pt.ProductID));
             var images = await _productimg.ListAsync(img => productIds.Contains(img.ProductID));
             var reviews = await _reviewService.ListAsync(r => productIds.Contains(r.ProductID));
 
@@ -1853,7 +1871,7 @@ namespace Food_Haven.Web.Controllers
                 ? await _wishlist.ListAsync(w => productIds.Contains(w.ProductID) && w.UserID == user.Id)
                 : new List<Wishlist>();
 
-            // 4. Gán dữ liệu phụ vào từng sản phẩm
+            // 6. Gán dữ liệu phụ vào từng sản phẩm
             foreach (var product in products)
             {
                 product.Categories = categoriesMap.TryGetValue(product.CategoryID, out var cat) ? cat : null;
@@ -1864,7 +1882,7 @@ namespace Food_Haven.Web.Controllers
                 product.Wishlists = wishlists.Where(w => w.ProductID == product.ID).ToList();
             }
 
-            // ✅ 5. Gán danh sách Product vào từng Categories
+            // 7. Gán sản phẩm vào từng danh mục (nếu danh mục tồn tại và active)
             foreach (var category in categories)
             {
                 category.Products = products
@@ -1872,11 +1890,11 @@ namespace Food_Haven.Web.Controllers
                     .ToList();
             }
 
-            // 6. Gửi về View
+            // 8. Gửi về view
             var viewModel = new HomeViewModel
             {
                 Categories = categories,
-                Products = products
+                Products = products,
             };
 
             return View(viewModel);
@@ -1921,42 +1939,82 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> FilterByCategory(string categoryType)
         {
-            IEnumerable<Product> products;
+            // 1. Lấy tất cả sản phẩm đang hoạt động
+            var allProducts = await _product.ListAsync(
+                filter: p => p.IsActive,
+                orderBy: q => q.OrderByDescending(p => p.CreatedDate)
+            );
 
-            // Ensure Categories are included in the query to avoid null issues
-            switch (categoryType.ToLower())
+            List<Product> filteredProducts;
+
+            // 2. Lọc theo loại danh mục (theo Guid hoặc theo tên)
+            if (categoryType.ToLower() == "all")
             {
-                case "all":
-                    products = await _product.ListAsync(
-                        filter: null,
-                        orderBy: q => q.OrderByDescending(p => p.CreatedDate),
-                        includeProperties: q => q
-        .Include(p => p.Categories)       // Include Categories
-        .Include(p => p.StoreDetails)     // Include StoreDetails
-        .Include(p => p.ProductTypes)     // Include ProductTypes
-        .Include(p => p.ProductImages)
-        .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
-        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
-                    break;
-                default:
-                    products = await _product.ListAsync(
-    filter: p => p.Categories.ID.ToString().ToLower().Contains(categoryType.ToLower()),
-    orderBy: q => q.OrderByDescending(p => p.CreatedDate),
-    includeProperties: q => q
-        .Include(p => p.Categories)       // Include Categories
-        .Include(p => p.StoreDetails)     // Include StoreDetails
-        .Include(p => p.ProductTypes)     // Include ProductTypes
-        .Include(p => p.ProductImages)
-        .Include(x => x.Wishlists).ThenInclude(r => r.AppUser)
-        .Include(x => x.Reviews).ThenInclude(r => r.AppUser));
+                filteredProducts = allProducts.ToList();
+            }
+            else
+            {
+                Guid categoryId;
+                if (Guid.TryParse(categoryType, out categoryId))
+                {
+                    filteredProducts = allProducts
+                        .Where(p => p.CategoryID == categoryId)
+                        .ToList();
+                }
+                else
+                {
+                    var category = (await _categoryService.ListAsync(
+                        c => c.Name.ToLower().Contains(categoryType.ToLower()) && c.IsActive
+                    )).FirstOrDefault();
 
-
-
-                    break;
+                    filteredProducts = category != null
+                        ? allProducts.Where(p => p.CategoryID == category.ID).ToList()
+                        : new List<Product>();
+                }
             }
 
-            return PartialView("_ProductGrid", products);
+            // 3. Lấy các ID liên quan
+            var productIds = filteredProducts.Select(p => p.ID).ToList();
+            var categoryIds = filteredProducts.Select(p => p.CategoryID).Distinct().ToList();
+            var storeIds = filteredProducts.Select(p => p.StoreID).Distinct().ToList();
+
+            // 4. Truy vấn dữ liệu phụ
+            var variants = await _productvarian.ListAsync(v => productIds.Contains(v.ProductID) && v.IsActive);
+            var validProductIds = variants.Select(v => v.ProductID).Distinct().ToHashSet();
+
+            // ⚠️ Loại bỏ product không có variant hoặc tất cả variant không active
+            filteredProducts = filteredProducts
+                .Where(p => validProductIds.Contains(p.ID))
+                .ToList();
+
+            productIds = filteredProducts.Select(p => p.ID).ToList(); // update lại productIds sau khi lọc
+            categoryIds = filteredProducts.Select(p => p.CategoryID).Distinct().ToList();
+            storeIds = filteredProducts.Select(p => p.StoreID).Distinct().ToList();
+
+            var images = await _productimg.ListAsync(i => productIds.Contains(i.ProductID));
+            var reviews = await _reviewService.ListAsync(r => productIds.Contains(r.ProductID));
+            var categories = await _categoryService.ListAsync(c => categoryIds.Contains(c.ID) && c.IsActive);
+            var stores = await _storeDetailService.ListAsync(s => storeIds.Contains(s.ID));
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var wishlists = !string.IsNullOrEmpty(userId)
+                ? await _wishlist.ListAsync(w => productIds.Contains(w.ProductID) && w.UserID == userId)
+                : new List<Wishlist>();
+
+            // 5. Gán dữ liệu phụ vào từng sản phẩm
+            foreach (var product in filteredProducts)
+            {
+                product.ProductImages = images.Where(i => i.ProductID == product.ID).ToList();
+                product.ProductTypes = variants.Where(v => v.ProductID == product.ID).ToList();
+                product.Reviews = reviews.Where(r => r.ProductID == product.ID).ToList();
+                product.Wishlists = wishlists.Where(w => w.ProductID == product.ID).ToList();
+                product.Categories = categories.FirstOrDefault(c => c.ID == product.CategoryID);
+                product.StoreDetails = stores.FirstOrDefault(s => s.ID == product.StoreID);
+            }
+
+            return PartialView("_ProductGrid", filteredProducts);
         }
+
 
 
         [HttpGet]
@@ -1984,40 +2042,89 @@ namespace Food_Haven.Web.Controllers
             var productDetail = await _product.FindAsync(x => x.ID == id && x.IsActive);
             if (productDetail == null)
                 return RedirectToAction("Error", "404");
+
             var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID && s.IsActive);
             if (store == null)
                 return RedirectToAction("Error", "404");
-            store.AppUser = await _userManager.FindByIdAsync(store.UserID); // 👈 Load AppUser thủ công
+            store.AppUser = await _userManager.FindByIdAsync(store.UserID);
+
             var productCategory = await _categoryService.FindAsync(c => c.ID == productDetail.CategoryID);
+
             var productImages = await _productimg.ListAsync(p => p.ProductID == id);
             var productTypes = await _productvarian.ListAsync(p => p.ProductID == id);
+
             var reviews = (await _reviewService.ListAsync(r => r.ProductID == id)).ToList();
             foreach (var r in reviews)
             {
                 r.AppUser = await _userManager.FindByIdAsync(r.UserID);
             }
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var wishlists = !string.IsNullOrEmpty(userId)
                 ? await _wishlist.ListAsync(w => w.ProductID == id && w.UserID == userId)
                 : new List<Wishlist>();
+
             int totalSold = 0;
-            var orderDetails = await _orderDetail.ListAsync(
-                x => x.ProductTypes.ProductID == id
-            );
+            var orderDetails = await _orderDetail.ListAsync(x => x.ProductTypes.ProductID == id);
             if (orderDetails != null && orderDetails.Any())
             {
                 totalSold = orderDetails.Sum(x => x.Quantity);
             }
+
             var categories = await _categoryService.ListAsync(
-                 orderBy: q => q.OrderByDescending(c => c.CreatedDate));
+                orderBy: q => q.OrderByDescending(c => c.CreatedDate));
+
             var allProducts = await _product.ListAsync(
+                filter: p => p.IsActive,
                 orderBy: q => q.OrderByDescending(p => p.CreatedDate)
             );
+
+            // Gán danh sách sản phẩm vào từng danh mục
             foreach (var category in categories)
             {
                 category.Products = allProducts
                     .Where(p => p.CategoryID == category.ID)
                     .ToList();
+            }
+
+            // Bước 1: Lọc danh sách sản phẩm cùng danh mục (IsActive = true và cùng Category)
+            var sameCategoryProducts = allProducts
+                .Where(p => p.IsActive && p.CategoryID == productDetail.CategoryID && p.ID != productDetail.ID)
+                .ToList();
+
+            // Bước 2: Lấy các ProductType đang hoạt động của các sản phẩm đó
+            var sameProductIds = sameCategoryProducts.Select(p => p.ID).ToList();
+            var activeVariants = await _productvarian.ListAsync(v => sameProductIds.Contains(v.ProductID) && v.IsActive);
+
+            // Bước 3: Loại bỏ các sản phẩm KHÔNG có bất kỳ variant nào đang hoạt động
+            var validProductIds = activeVariants.Select(v => v.ProductID).Distinct().ToHashSet();
+            sameCategoryProducts = sameCategoryProducts
+                .Where(p => validProductIds.Contains(p.ID))
+                .ToList();
+
+            // Bước 4: Chuẩn bị ID để truy vấn các dữ liệu phụ
+            sameProductIds = sameCategoryProducts.Select(p => p.ID).ToList();
+            var sameStoreIds = sameCategoryProducts.Select(p => p.StoreID).Distinct().ToList();
+            var sameCategoryIds = sameCategoryProducts.Select(p => p.CategoryID).Distinct().ToList();
+
+            // Bước 5: Lấy dữ liệu phụ
+            var sameImages = await _productimg.ListAsync(i => sameProductIds.Contains(i.ProductID));
+            var sameReviews = await _reviewService.ListAsync(r => sameProductIds.Contains(r.ProductID));
+            var sameWishlists = !string.IsNullOrEmpty(userId)
+                ? await _wishlist.ListAsync(w => sameProductIds.Contains(w.ProductID) && w.UserID == userId)
+                : new List<Wishlist>();
+            var sameStores = await _storeDetailService.ListAsync(s => sameStoreIds.Contains(s.ID));
+            var sameCategories = await _categoryService.ListAsync(c => sameCategoryIds.Contains(c.ID) && c.IsActive);
+
+            // Bước 6: Gán dữ liệu vào từng sản phẩm
+            foreach (var product in sameCategoryProducts)
+            {
+                product.ProductImages = sameImages.Where(i => i.ProductID == product.ID).ToList();
+                product.ProductTypes = activeVariants.Where(v => v.ProductID == product.ID).ToList();
+                product.Reviews = sameReviews.Where(r => r.ProductID == product.ID).ToList();
+                product.Wishlists = sameWishlists.Where(w => w.ProductID == product.ID).ToList();
+                product.StoreDetails = sameStores.FirstOrDefault(s => s.ID == product.StoreID);
+                product.Categories = sameCategories.FirstOrDefault(c => c.ID == product.CategoryID);
             }
 
             var tem = new ProductDetails
@@ -2032,19 +2139,20 @@ namespace Food_Haven.Web.Controllers
 
                 categories = productCategory,
                 storeDetails = store,
-
                 ProductImages = productImages.ToList(),
                 ProductVariants = productTypes.ToList(),
                 Review = reviews,
                 IsWishList = wishlists.Any(),
                 totalsell = totalSold,
-                Allcate = categories
+                Allcate = categories,
+                ProductBycate = sameCategoryProducts // 👈 Thêm sản phẩm cùng danh mục
             };
 
             return View(tem);
         }
+
     }
-  public class HomeViewModel
+    public class HomeViewModel
     {
         public IEnumerable<Categories> Categories { get; set; }
         public IEnumerable<Product> Products { get; set; }
