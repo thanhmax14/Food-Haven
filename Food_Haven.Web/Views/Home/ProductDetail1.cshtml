@@ -1,5 +1,6 @@
 ﻿@using Models
 @using Repository.ViewModels
+@using System.Security.Claims
 @model ProductDetails
 
 
@@ -642,242 +643,117 @@
                                     </div>
                                     <div class="col-12">
                                         <div class="row related-products">
-                                                <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                                    <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                                         data-wow-delay=".1s">
-                                                        <div class="product-img-action-wrap">
-                                                            <div class="product-img product-img-zoom">
-                                                                <a href="shop-product-right.html">
-                                                                    <img class="default-img" src="/assets/imgs/shop/product-5-1.jpg"
-                                                                         alt="" />
-                                                                    <img class="hover-img" src="/assets/imgs/shop/product-5-1.jpg" alt="" />
-                                                                </a>
-                                                            </div>
-                                                            <div class="product-action-1">
-                                                                <a aria-label="Add To Wishlist" class="action-btn"
-                                                                   href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                                <a aria-label="Compare" class="action-btn" href="shop-compare.html">
-                                                                    <i class="fi-rs-shuffle"></i>
-                                                                </a>
-                                                                <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                                   data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                                            </div>
-                                                            @* <div class="product-badges product-badges-position product-badges-mrg">
-                                                                <span class="hot">Hot</span>
-                                                            </div> *@
-                                                        </div>
-                                                        <div class="product-content-wrap">
-                                                            <div class="product-category">
-                                                                <a href="shop-grid-right.html">Snack</a>
-                                                            </div>
-                                                            <h2>
-                                                                <a href="shop-product-right.html">
-                                                                    Seeds of Change Organic Quinoa, Brown, &
-                                                                    Red Rice
-                                                                </a>
-                                                            </h2>
-                                                            <div class="product-rate-cover">
-                                                                <div class="product-rate d-inline-block">
-                                                                    <div class="product-rating" style="width: 90%"></div>
+
+                                                @if(Model.ProductBycate.Any()&& Model.ProductBycate != null)
+                                                {
+                                                    foreach(var product in Model.ProductBycate.Take(4))
+                                                    {
+                                                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                                            <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
+                                                                 data-wow-delay=".1s">
+                                                                <div class="product-img-action-wrap">
+                                                                    <div class="product-img product-img-zoom">
+                                                                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                                                                            <img class="default-img"
+                                                                                 src="@(product.ProductImages?.FirstOrDefault()?.ImageUrl ?? "/assets/imgs/shop/product-5-1.jpg")"
+                                                                                 alt="@product.Name" />
+                                                                            <img class="hover-img"
+                                                                                 src="@(product.ProductImages?.Skip(1).FirstOrDefault()?.ImageUrl
+                                                                                                                                             ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
+                                                                                                                                             ?? "/assets/imgs/shop/product-5-2.jpg")"
+                                                                                 alt="@product.Name" />
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="product-action-1">
+                                                                        @Html.AntiForgeryToken()
+
+                                                                        @if (product.Wishlists != null && product.Wishlists.Any())
+                                                                        {
+                                                                            var isInWishlist = product.Wishlists.Any(w => w.UserID ==
+                                                                            @User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                                                                            <a aria-label="@(isInWishlist ? "Remove wishlist" : "Add To Wishlist")" class="action-btn"
+                                                                               onclick="AddWishlist(this, '@product.ID')">
+                                                                                <i class="fi-rs-heart@(isInWishlist ? " text-danger" : "")"></i>
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@product.ID')">
+                                                                                <i class="fi-rs-heart"></i>
+                                                                            </a>
+                                                                        }
+                                                                    </div>
+                                                 
                                                                 </div>
-                                                                <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                                            </div>
-                                                            <div>
-                                                                <span class="font-small text-muted">
-                                                                    By <a href="vendor-details-1.html">NestFood</a>
-                                                                </span>
-                                                            </div>
-                                                            <div class="product-card-bottom">
-                                                                <div class="product-price">
-                                                                    <span>$28.85</span>
-                                                                    <span class="old-price">$32.8</span>
-                                                                </div>
-                                                                <div class="add-cart">
-                                                                    <a class="add" href="shop-cart.html">
-                                                                        <i class="fi-rs-shopping-cart mr-5"></i>Add
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                                    <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                                         data-wow-delay=".1s">
-                                                        <div class="product-img-action-wrap">
-                                                            <div class="product-img product-img-zoom">
-                                                                <a href="shop-product-right.html">
-                                                                    <img class="default-img" src="/assets/imgs/shop/product-5-1.jpg"
-                                                                         alt="" />
-                                                                    <img class="hover-img" src="/assets/imgs/shop/product-5-1.jpg" alt="" />
-                                                                </a>
-                                                            </div>
-                                                            <div class="product-action-1">
-                                                                <a aria-label="Add To Wishlist" class="action-btn"
-                                                                   href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                                <a aria-label="Compare" class="action-btn" href="shop-compare.html">
-                                                                    <i class="fi-rs-shuffle"></i>
-                                                                </a>
-                                                                <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                                   data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                                            </div>
-                                                            @* <div class="product-badges product-badges-position product-badges-mrg">
-                                                                <span class="hot">Hot</span>
-                                                            </div> *@
-                                                        </div>
-                                                        <div class="product-content-wrap">
-                                                            <div class="product-category">
-                                                                <a href="shop-grid-right.html">Snack</a>
-                                                            </div>
-                                                            <h2>
-                                                                <a href="shop-product-right.html">
-                                                                    Seeds of Change Organic Quinoa, Brown, &
-                                                                    Red Rice
-                                                                </a>
-                                                            </h2>
-                                                            <div class="product-rate-cover">
-                                                                <div class="product-rate d-inline-block">
-                                                                    <div class="product-rating" style="width: 90%"></div>
-                                                                </div>
-                                                                <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                                            </div>
-                                                            <div>
-                                                                <span class="font-small text-muted">
-                                                                    By <a href="vendor-details-1.html">NestFood</a>
-                                                                </span>
-                                                            </div>
-                                                            <div class="product-card-bottom">
-                                                                <div class="product-price">
-                                                                    <span>$28.85</span>
-                                                                    <span class="old-price">$32.8</span>
-                                                                </div>
-                                                                <div class="add-cart">
-                                                                    <a class="add" href="shop-cart.html">
-                                                                        <i class="fi-rs-shopping-cart mr-5"></i>Add
-                                                                    </a>
+                                                                <div class="product-content-wrap">
+                                                                    <div class="product-category">
+                                                                        <span class="font-small text-muted">
+                                                                            <a href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
+                                                                                @product.Categories?.Name
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                    <h2>
+                                                                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                                                                            @product.Name
+                                                                        </a>
+                                                                    </h2>
+                                                                    <div class="product-rate-cover">
+                                                                        <div class="product-rate d-inline-block">
+                                                                            <div class="product-rating" style="width: 90%"></div>
+                                                                        </div>
+                                                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="font-small text-muted">
+                                                                            By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = product.StoreID })">
+                                                                                @product.StoreDetails?.Name
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="product-card-bottom">
+                                                                        <div class="product-card-bottom">
+                                                                            <div class="product-price">
+                                                                                <span>
+                                                                                    @{
+                                                                                        var minPrice = product.ProductTypes.OrderBy(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                                                                                        var maxPrice = product.ProductTypes.OrderByDescending(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                                                                                    }
+
+                                                                                    @if (minPrice == 0 && maxPrice == 0)
+                                                                                    {
+                                                                                        <span>0</span>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span>@minPrice - @maxPrice</span>
+                                                                                    }
+
+                                                                                </span>
+
+
+
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                       <div class="product-card-bottom">
+
+                    <div class="add-cart">
+                        <a class="add" href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                            <i class="fi-rs-shopping-cart mr-5"></i>View Detail
+                        </a>
+                    </div>
+                </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                                    <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                                         data-wow-delay=".1s">
-                                                        <div class="product-img-action-wrap">
-                                                            <div class="product-img product-img-zoom">
-                                                                <a href="shop-product-right.html">
-                                                                    <img class="default-img" src="/assets/imgs/shop/product-5-1.jpg"
-                                                                         alt="" />
-                                                                    <img class="hover-img" src="/assets/imgs/shop/product-5-1.jpg" alt="" />
-                                                                </a>
-                                                            </div>
-                                                            <div class="product-action-1">
-                                                                <a aria-label="Add To Wishlist" class="action-btn"
-                                                                   href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                                <a aria-label="Compare" class="action-btn" href="shop-compare.html">
-                                                                    <i class="fi-rs-shuffle"></i>
-                                                                </a>
-                                                                <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                                   data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                                            </div>
-                                                            @* <div class="product-badges product-badges-position product-badges-mrg">
-                                                                <span class="hot">Hot</span>
-                                                            </div> *@
-                                                        </div>
-                                                        <div class="product-content-wrap">
-                                                            <div class="product-category">
-                                                                <a href="shop-grid-right.html">Snack</a>
-                                                            </div>
-                                                            <h2>
-                                                                <a href="shop-product-right.html">
-                                                                    Seeds of Change Organic Quinoa, Brown, &
-                                                                    Red Rice
-                                                                </a>
-                                                            </h2>
-                                                            <div class="product-rate-cover">
-                                                                <div class="product-rate d-inline-block">
-                                                                    <div class="product-rating" style="width: 90%"></div>
-                                                                </div>
-                                                                <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                                            </div>
-                                                            <div>
-                                                                <span class="font-small text-muted">
-                                                                    By <a href="vendor-details-1.html">NestFood</a>
-                                                                </span>
-                                                            </div>
-                                                            <div class="product-card-bottom">
-                                                                <div class="product-price">
-                                                                    <span>$28.85</span>
-                                                                    <span class="old-price">$32.8</span>
-                                                                </div>
-                                                                <div class="add-cart">
-                                                                    <a class="add" href="shop-cart.html">
-                                                                        <i class="fi-rs-shopping-cart mr-5"></i>Add
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-3 col-md-4 col-12 col-sm-6 d-lg-block d-none">
-                                                    <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                                         data-wow-delay=".1s">
-                                                        <div class="product-img-action-wrap">
-                                                            <div class="product-img product-img-zoom">
-                                                                <a href="shop-product-right.html">
-                                                                    <img class="default-img" src="/assets/imgs/shop/product-5-1.jpg"
-                                                                         alt="" />
-                                                                    <img class="hover-img" src="/assets/imgs/shop/product-5-1.jpg" alt="" />
-                                                                </a>
-                                                            </div>
-                                                            <div class="product-action-1">
-                                                                <a aria-label="Add To Wishlist" class="action-btn"
-                                                                   href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                                <a aria-label="Compare" class="action-btn" href="shop-compare.html">
-                                                                    <i class="fi-rs-shuffle"></i>
-                                                                </a>
-                                                                <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                                   data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                                            </div>
-                                                            @* <div class="product-badges product-badges-position product-badges-mrg">
-                                                                <span class="hot">Hot</span>
-                                                            </div> *@
-                                                        </div>
-                                                        <div class="product-content-wrap">
-                                                            <div class="product-category">
-                                                                <a href="shop-grid-right.html">Snack</a>
-                                                            </div>
-                                                            <h2>
-                                                                <a href="shop-product-right.html">
-                                                                    Seeds of Change Organic Quinoa, Brown, &
-                                                                    Red Rice
-                                                                </a>
-                                                            </h2>
-                                                            <div class="product-rate-cover">
-                                                                <div class="product-rate d-inline-block">
-                                                                    <div class="product-rating" style="width: 90%"></div>
-                                                                </div>
-                                                                <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                                            </div>
-                                                            <div>
-                                                                <span class="font-small text-muted">
-                                                                    By <a href="vendor-details-1.html">NestFood</a>
-                                                                </span>
-                                                            </div>
-                                                            <div class="product-card-bottom">
-                                                                <div class="product-price">
-                                                                    <span>$28.85</span>
-                                                                    <span class="old-price">$32.8</span>
-                                                                </div>
-                                                                <div class="add-cart">
-                                                                    <a class="add" href="shop-cart.html">
-                                                                        <i class="fi-rs-shopping-cart mr-5"></i>Add
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                    }
+                                                }
+                                              
+                                              
                                                </div>
                                     </div>
                                 </div>

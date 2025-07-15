@@ -64,12 +64,7 @@
                     </div>
                 } *@
             </div>
-            <div class="product-content-wrap">
-                @* <div class="product-category">
-                        <a href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
-                            @product.Categories?.Name
-                        </a>
-                    </div> *@
+            <div class="product-content-wrap">       
                 <h2>
                     <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
                         @product.Name
@@ -98,8 +93,20 @@
                 <div class="product-card-bottom">
                     <div class="product-price">
                         <span>
-                            @(product.ProductTypes.OrderBy(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0) -
-                            @(product.ProductTypes.OrderByDescending(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0)
+                            @{
+                                var minPrice = product.ProductTypes.OrderBy(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                                var maxPrice = product.ProductTypes.OrderByDescending(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                            }
+
+                            @if (minPrice == 0 && maxPrice == 0)
+                            {
+                                <span>0</span>
+                            }
+                            else
+                            {
+                                <span>@minPrice - @maxPrice</span>
+                            }
+
                         </span>
 
 

@@ -25,5 +25,6 @@ namespace Repository.ViewModels
         public Categories categories { get; set; } = new Categories();
         public Models.StoreDetails storeDetails { get; set; } = new Models.StoreDetails();
         public IEnumerable<Categories> Allcate { get; set; } = new List<Categories>();
+        public IEnumerable<Product> ProductBycate { get; set; } = new List<Product>();
     }
 }
