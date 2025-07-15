@@ -1,349 +1,534 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Food_Haven.Web;
-using Newtonsoft.Json;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+﻿using BusinessLogic.Services.BalanceChanges;
+using BusinessLogic.Services.Carts;
+using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.OrderDetailService;
+using BusinessLogic.Services.Orders;
+using BusinessLogic.Services.ProductImages;
+using BusinessLogic.Services.Products;
+using BusinessLogic.Services.ProductVariants;
+using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.Reviews;
+using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.StoreFollowers;
+using BusinessLogic.Services.StoreReports;
+using BusinessLogic.Services.VoucherServices;
+using BusinessLogic.Services.Wishlists;
+using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
-using Models.DBContext;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Models;
+using Moq;
+using Net.payOS;
+using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace Food_Haven.UnitTest.LoginTests
 {
-    [TestFixture]
-    public class LoginTests
+    public class HomeControllerLoginTests
     {
-        private WebApplicationFactory<Program> _factory;
-        private HttpClient _client;
+        private Mock<UserManager<AppUser>> _userManagerMock;
+        private Mock<SignInManager<AppUser>> _signInManagerMock;
+        private HomeController _controller;
 
         [SetUp]
         public void Setup()
         {
-            _factory = new WebApplicationFactory<Program>()
-                .WithWebHostBuilder(builder =>
-                {
-                    builder.ConfigureServices(services =>
-                    {
+            _userManagerMock = new Mock<UserManager<AppUser>>(
+             new Mock<IUserStore<AppUser>>().Object,
+              null, null, null, null, null, null, null, null);
 
-                        services.AddDbContext<FoodHavenDbContext>(options =>
-                        {
-                            options.UseInMemoryDatabase("TestFoodHavenDb");
-                        });
+            _signInManagerMock = new Mock<SignInManager<AppUser>>(
+                _userManagerMock.Object,
+                new Mock<IHttpContextAccessor>().Object,
+                new Mock<IUserClaimsPrincipalFactory<AppUser>>().Object,
+                null, null, null, null);
 
-                    });
-                });
+            var payOS = new PayOS("client-id", "api-key", "https://callback.url");
+            var orderDetailMock = new Mock<IOrderDetailService>();
+            var recipeServiceMock = new Mock<IRecipeService>();
+            var categoryServiceMock = new Mock<ICategoryService>();
+            var storeDetailServiceMock = new Mock<IStoreDetailService>();
+            var emailSenderMock = new Mock<IEmailSender>();
+            var cartMock = new Mock<ICartService>();
+            var wishlistMock = new Mock<IWishlistServices>();
+            var productServiceMock = new Mock<IProductService>();
+            var productImgServiceMock = new Mock<IProductImageService>();
+            var productVariantMock = new Mock<IProductVariantService>();
+            var reviewServiceMock = new Mock<IReviewService>();
+            var balanceChangeMock = new Mock<IBalanceChangeService>();
+            var ordersServiceMock = new Mock<IOrdersServices>();
+            var payOSMock = payOS;
+            var voucherMock = new Mock<IVoucherServices>();
+            var storeReportMock = new Mock<IStoreReportServices>();
+            var storeFollowersMock = new Mock<IStoreFollowersService>();
+            var recipeSearchMock = new RecipeSearchService("");
 
-            _client = _factory.CreateClient();
+            _controller = new HomeController(
+                _signInManagerMock.Object,
+                orderDetailMock.Object,
+                recipeServiceMock.Object,
+                _userManagerMock.Object,
+                categoryServiceMock.Object,
+                storeDetailServiceMock.Object,
+                emailSenderMock.Object,
+                cartMock.Object,
+                wishlistMock.Object,
+                productServiceMock.Object,
+                productImgServiceMock.Object,
+                productVariantMock.Object,
+                reviewServiceMock.Object,
+                balanceChangeMock.Object,
+                ordersServiceMock.Object,
+                payOSMock,
+                voucherMock.Object,
+                storeReportMock.Object,
+                storeFollowersMock.Object,
+                recipeSearchMock
+            );
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
         }
 
         [TearDown]
         public void TearDown()
         {
-            _client?.Dispose();
-            _factory?.Dispose();
+            _controller?.Dispose();
         }
-
-        // Test case 1: Valid credentials
-        [Test]
-        public async Task Login_WithValidCredentials_ShouldReturnSuccessJson()
-        {
-            // Arrange
-            await SeedTestUser("testuser@gmail.com", "Password123!", emailConfirmed: true);
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "testuser@gmail.com"),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("success"));
-            Assert.IsTrue(responseBody.Contains("Login successful"));
-        }
-
-        // Test case 2: Empty username
-        [Test]
-        public async Task Login_WithEmptyUsername_ShouldReturnError()
-        {
-            // Arrange
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", ""),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("Username cannot be empty"));
-        }
-
-        // Test case 3: Empty password
-        [Test]
-        public async Task Login_WithEmptyPassword_ShouldReturnError()
-        {
-            // Arrange
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "testuser@gmail.com"),
-                new KeyValuePair<string, string>("password", ""),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("Password cannot be empty"));
-        }
-
-        // Test case 4: Non-existent user
-        [Test]
-        public async Task Login_WithNonExistentUser_ShouldReturnError()
-        {
-            // Arrange
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "nonexistent@gmail.com"),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("Account does not exist"));
-        }
-
-        // Test case 5: Banned user
-        [Test]
-        public async Task Login_WithBannedUser_ShouldReturnError()
-        {
-            // Arrange
-            await SeedTestUser("banned@gmail.com", "Password123!", emailConfirmed: true, isBanned: true);
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "banned@gmail.com"),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("locked by the administrator"));
-        }
-
-        // Test case 6: Unconfirmed email
         [Test]
         public async Task Login_WithUnconfirmedEmail_ShouldReturnError()
         {
             // Arrange
-            await SeedTestUser("unconfirmed@gmail.com", "Password123!", emailConfirmed: false);
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "unconfirmed@gmail.com"),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("verify your email"));
-        }
-
-        // Test case 7: Wrong password
-        [Test]
-        public async Task Login_WithWrongPassword_ShouldReturnError()
-        {
-            // Arrange
-            await SeedTestUser("testuser@gmail.com", "Password123!", emailConfirmed: true);
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "testuser@gmail.com"),
-                new KeyValuePair<string, string>("password", "WrongPassword!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("Incorrect password"));
-        }
-
-        // Test case 8: Test with ReturnUrl
-        [Test]
-        public async Task Login_WithReturnUrl_ShouldReturnCorrectRedirectUrl()
-        {
-            // Arrange
-            await SeedTestUser("testuser@gmail.com", "Password123!", emailConfirmed: true);
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "testuser@gmail.com"),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false"),
-                new KeyValuePair<string, string>("ReturnUrl", "/Dashboard")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("success"));
-            Assert.IsTrue(responseBody.Contains("/Dashboard"));
-        }
-
-        // Test case 9: Test login with username instead of email
-        [Test]
-        public async Task Login_WithUsername_ShouldReturnSuccess()
-        {
-            // Arrange
-            await SeedTestUser("testuser@gmail.com", "Password123!", emailConfirmed: true, userName: "testuser");
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "testuser"),
-                new KeyValuePair<string, string>("password", "Password123!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("success"));
-        }
-
-        // Test case 10: Test multiple failed attempts
-        [Test]
-        public async Task Login_WithMultipleFailedAttempts_ShouldShowRemainingAttempts()
-        {
-            // Arrange
-            // await SeedTestUser("testuser@gmail.com", "Password123!", emailConfirmed: true);
-
-
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", "testuser@gmail.com"),
-                new KeyValuePair<string, string>("password", "WrongPassword!"),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
-
-            // Act
-            var response = await _client.PostAsync("/Home/Login", formData);
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(responseBody.Contains("error"));
-            Assert.IsTrue(responseBody.Contains("attempts left"));
-        }
-
-        // Test case 11: Test GET Login returns view
-        [Test]
-        public async Task Login_GET_ShouldReturnLoginView()
-        {
-            // Act
-            var response = await _client.GetAsync("/Home/Login");
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(response.Content.Headers.ContentType.MediaType.Contains("text/html"));
-        }
-
-        // Test case 12: Test GET Login with ReturnUrl sets ViewData
-        [Test]
-        public async Task Login_GET_WithReturnUrl_ShouldSetViewData()
-        {
-            // Act
-            var response = await _client.GetAsync("/Home/Login?ReturnUrl=/Dashboard");
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            // ViewData sẽ được set trong controller để view sử dụng
-        }
-
-        // Helper method để tạo test user
-        private async Task SeedTestUser(string email, string password, bool emailConfirmed = true, bool isBanned = false, string userName = null)
-        {
-            using var scope = _factory.Services.CreateScope();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            var context = scope.ServiceProvider.GetRequiredService<FoodHavenDbContext>();
-
-            // Đảm bảo database được tạo
-            await context.Database.EnsureCreatedAsync();
-
             var user = new AppUser
             {
-                UserName = userName ?? email,
-                Email = email,
-                EmailConfirmed = emailConfirmed,
-                IsBannedByAdmin = isBanned,
-
+                UserName = "unconfirmed@gmail.com",
+                Email = "unconfirmed@gmail.com",
+                EmailConfirmed = false
             };
 
-            var result = await userManager.CreateAsync(user, password);
-            if (!result.Succeeded)
-            {
-                throw new Exception($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-            }
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("unconfirmed@gmail.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(false);
+            var result = await _controller.Login("unconfirmed@gmail.com", "Password123!", false);
+            var jsonResult = result as JsonResult;
+            Assert.NotNull(jsonResult);
+            Console.WriteLine($"JsonResult.Value: {jsonResult.Value}");
+            Console.WriteLine($"JsonResult.Value.GetType(): {jsonResult.Value?.GetType()}");
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.NotNull(statusProp);
+            Assert.NotNull(msgProp);
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.IsTrue(msgProp.GetValue(data)?.ToString().Contains("verify your email"));
         }
 
-        // Helper method để login user (nếu cần cho setup test khác)
-        private async Task LoginUser(string email, string password)
+
+        [Test]
+        public async Task Login_WithEmptyUsername_ShouldReturnError()
         {
-            var formData = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("username", email),
-                new KeyValuePair<string, string>("password", password),
-                new KeyValuePair<string, string>("rememberMe", "false")
-            });
+            // Arrange
+            string username = "";
+            string password = "Password123!";
 
-            await _client.PostAsync("/Home/Login", formData);
+            // Act
+            var result = await _controller.Login(username, password, false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Username cannot be empty", msgProp.GetValue(data)?.ToString());
         }
+
+        [Test]
+        public async Task Login_WithEmptyPassword_ShouldReturnError()
+        {
+            // Arrange
+            string username = "testuser";
+            string password = "";
+
+            // Act
+            var result = await _controller.Login(username, password, false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Password cannot be empty", msgProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithNonExistentUser_ShouldReturnError()
+        {
+            // Arrange
+            string username = "nonexistent@example.com";
+            string password = "Password123!";
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(username))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync(username))
+                            .ReturnsAsync((AppUser)null);
+
+            // Act
+            var result = await _controller.Login(username, password, false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Account does not exist", msgProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithBannedUser_ShouldReturnError()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "banneduser@example.com",
+                Email = "banneduser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = true
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("banneduser@example.com"))
+                            .ReturnsAsync(user);
+
+            // Act
+            var result = await _controller.Login("banneduser@example.com", "Password123!", false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Your account has been locked by the administrator.", msgProp.GetValue(data)?.ToString());
+        }
+        [Test]
+        public async Task Login_WithIncorrectPassword_ShouldReturnError()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = false
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("testuser@example.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.CheckPasswordAsync(user, "WrongPassword"))
+                            .ReturnsAsync(false);
+            _userManagerMock.Setup(u => u.AccessFailedAsync(user))
+                            .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.GetAccessFailedCountAsync(user))
+                            .ReturnsAsync(1);
+            _userManagerMock.Setup(u => u.IsLockedOutAsync(user))
+                            .ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "WrongPassword", false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.IsTrue(msgProp.GetValue(data)?.ToString().Contains("Incorrect password"));
+            Assert.IsTrue(msgProp.GetValue(data)?.ToString().Contains("4 attempts left"));
+        }
+
+        [Test]
+        public async Task Login_WithTooManyFailedAttempts_ShouldReturnLockoutError()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = false
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("testuser@example.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.CheckPasswordAsync(user, "WrongPassword"))
+                            .ReturnsAsync(false);
+            _userManagerMock.Setup(u => u.AccessFailedAsync(user))
+                            .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.GetAccessFailedCountAsync(user))
+                            .ReturnsAsync(5);
+            _userManagerMock.Setup(u => u.IsLockedOutAsync(user))
+                            .ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "WrongPassword", false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Your account has been locked due to too many failed login attempts.", msgProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithTwoFactorEnabled_ShouldReturnVerifyStatus()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = false
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("testuser@example.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.CheckPasswordAsync(user, "Password123!"))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.ResetAccessFailedCountAsync(user))
+                            .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.GetTwoFactorEnabledAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.GenerateTwoFactorTokenAsync(user, "Authenticator"))
+                            .ReturnsAsync("123456");
+
+            _signInManagerMock.Setup(s => s.PasswordSignInAsync(user, "Password123!", false, true))
+                             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "Password123!", false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+            var tokenProp = data.GetType().GetProperty("token");
+
+            Assert.AreEqual("verify", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Enter the verification code from your authenticator app.", msgProp.GetValue(data)?.ToString());
+            Assert.AreEqual("123456", tokenProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithValidCredentials_ShouldReturnSuccess()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = false
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("testuser@example.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.CheckPasswordAsync(user, "Password123!"))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.ResetAccessFailedCountAsync(user))
+                            .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.GetTwoFactorEnabledAsync(user))
+                            .ReturnsAsync(false);
+
+            _signInManagerMock.Setup(s => s.PasswordSignInAsync(user, "Password123!", false, true))
+                             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "Password123!", false);
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+
+            var data = okResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+            var redirectUrlProp = data.GetType().GetProperty("redirectUrl");
+
+            Assert.AreEqual("success", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Login successful", msgProp.GetValue(data)?.ToString());
+            Assert.AreEqual("/", redirectUrlProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithSignInResultLockedOut_ShouldReturnError()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = false
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("testuser@example.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.CheckPasswordAsync(user, "Password123!"))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.ResetAccessFailedCountAsync(user))
+                            .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.GetTwoFactorEnabledAsync(user))
+                            .ReturnsAsync(false);
+
+            _signInManagerMock.Setup(s => s.PasswordSignInAsync(user, "Password123!", false, true))
+                             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.LockedOut);
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "Password123!", false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Your account has been locked.", msgProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithException_ShouldReturnUnknownError()
+        {
+            // Arrange
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ThrowsAsync(new Exception("Database error"));
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "Password123!", false);
+
+            // Assert
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            var data = jsonResult.Value;
+            var statusProp = data.GetType().GetProperty("status");
+            var msgProp = data.GetType().GetProperty("msg");
+
+            Assert.AreEqual("error", statusProp.GetValue(data)?.ToString());
+            Assert.AreEqual("Unknown error, please try again.", msgProp.GetValue(data)?.ToString());
+        }
+
+        [Test]
+        public async Task Login_WithCustomReturnUrl_ShouldSetCorrectRedirectUrl()
+        {
+            // Arrange
+            var user = new AppUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com",
+                EmailConfirmed = true,
+                IsBannedByAdmin = false
+            };
+
+            _userManagerMock.Setup(u => u.FindByNameAsync(It.IsAny<string>()))
+                            .ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(u => u.FindByEmailAsync("testuser@example.com"))
+                            .ReturnsAsync(user);
+            _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.CheckPasswordAsync(user, "Password123!"))
+                            .ReturnsAsync(true);
+            _userManagerMock.Setup(u => u.ResetAccessFailedCountAsync(user))
+                            .ReturnsAsync(IdentityResult.Success);
+            _userManagerMock.Setup(u => u.GetTwoFactorEnabledAsync(user))
+                            .ReturnsAsync(false);
+
+            _signInManagerMock.Setup(s => s.PasswordSignInAsync(user, "Password123!", false, true))
+                             .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+
+            // Mock URL helper
+            var urlHelperMock = new Mock<IUrlHelper>();
+            urlHelperMock.Setup(u => u.IsLocalUrl("/dashboard")).Returns(true);
+            urlHelperMock.Setup(u => u.Action("Login", "Home")).Returns("/Home/Login");
+            urlHelperMock.Setup(u => u.Action("Register", "Home")).Returns("/Home/Register");
+            urlHelperMock.Setup(u => u.Action("Forgot", "Home")).Returns("/Home/Forgot");
+            urlHelperMock.Setup(u => u.Action("ResetPassword", "Home")).Returns("/Home/ResetPassword");
+
+            _controller.Url = urlHelperMock.Object;
+
+            // Act
+            var result = await _controller.Login("testuser@example.com", "Password123!", false, "/dashboard");
+
+            // Assert
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+
+            var data = okResult.Value;
+            var redirectUrlProp = data.GetType().GetProperty("redirectUrl");
+
+            Assert.AreEqual("/dashboard", redirectUrlProp.GetValue(data)?.ToString());
+        }
+
     }
 }
