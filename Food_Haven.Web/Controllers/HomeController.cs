@@ -1332,10 +1332,10 @@ namespace Food_Haven.Web.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            var wshlict = await this._wishlist.ListAsync(x => x.UserID == user.Id, orderBy: q => q.OrderByDescending(s => s.CreateDate));
-            if (wshlict.Any())
+            var wishlist = await this._wishlist.ListAsync(x => x.UserID == user.Id, orderBy: q => q.OrderByDescending(s => s.CreateDate));
+            if (wishlist.Any())
             {
-                foreach (var item in wshlict)
+                foreach (var item in wishlist)
                 {
                     var getProduct = await this._product.FindAsync(p => p.ID == item.ProductID);
                     if (getProduct != null)
