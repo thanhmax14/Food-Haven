@@ -1302,8 +1302,8 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new { success = false, message = "Product does not exist!" });
             }
-            var wshlict = await this._wishlist.FindAsync(x => x.ProductID == id && x.UserID == user.Id);
-            if (wshlict == null)
+            var wishlist = await this._wishlist.FindAsync(x => x.ProductID == id && x.UserID == user.Id);
+            if (wishlist == null)
             {
                 return Json(new { success = false, message = $"{check.Name} does not exist in your wishlist!" });
             }
@@ -1311,7 +1311,7 @@ namespace Food_Haven.Web.Controllers
             {
                 try
                 {
-                    await this._wishlist.DeleteAsync(wshlict);
+                    await this._wishlist.DeleteAsync(wishlist);
                     await this._wishlist.SaveChangesAsync();
                     return Json(new { success = true, message = "Deleted successfully!" });
                 }
@@ -1553,7 +1553,7 @@ namespace Food_Haven.Web.Controllers
             else
             {
                 // Khi không có searchName, sử dụng toàn bộ products như Index1
-                   return RedirectToAction(nameof(Index1));
+                return RedirectToAction(nameof(Index1));
 
             }
 
