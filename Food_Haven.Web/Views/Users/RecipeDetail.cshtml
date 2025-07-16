@@ -1881,18 +1881,19 @@
                 });
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            new Notify({
-                status: 'error',
-                title: 'Connection Error!',
-                text: 'Unable to submit comment. Please try again later.',
-                position: 'right top',
-                autoclose: true,
-                autotimeout: 4000,
-                showIcon: true
-            });
-        });
+     .catch(error => {
+    console.error('Error:', error);
+    new Notify({
+        status: 'error',
+        title: 'Authentication Required!',
+        text: 'Please log in to submit a comment.',
+        position: 'right top',
+        autoclose: true,
+        autotimeout: 4000,
+        showIcon: true
+    });
+});
+
     });
 </script>
 <script>

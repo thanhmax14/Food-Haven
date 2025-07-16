@@ -14,6 +14,7 @@ namespace Repository.ViewModels
         public List<TypeOfDish> TypeOfDishes { get; set; }
         public List<IngredientTag> IngredientTags { get; set; } = new List<IngredientTag>();
         public List<Guid> SelectedIngredientTags { get; set; } = new List<Guid>();
+        public List<TypeOfDishViewModel> TypeOfDishForSidebar { get; set; }
 
 
     }
