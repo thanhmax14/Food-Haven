@@ -17,6 +17,8 @@ namespace Repository.ViewModels
         public bool IsActive { get; set; } = true;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ModifiedDate { get; set; }
+        public int RecipeCount { get; set; }
+
         public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
     }
 }

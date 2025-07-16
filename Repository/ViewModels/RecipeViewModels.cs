@@ -55,6 +55,7 @@ namespace Repository.ViewModels
         public string ImageUrl { get; set; } 
 
         public List<TypeOfDish> typeOfDishes { get; set; } = new List<TypeOfDish>();
+        public List<TypeOfDishViewModel> typeOfDishes1 { get; set; } = new List<TypeOfDishViewModel>();
 
         public List<IngredientTag> IngredientTags { get; set; } = new List<IngredientTag>();
         public List<Guid> SelectedIngredientTags { get; set; } = new List<Guid>();

@@ -1,7 +1,7 @@
 @using Repository.ViewModels
 @using X.PagedList.Mvc.Core
 @using X.PagedList
-@model IPagedList<RecipeViewModels>
+@model MyViewRecipePageViewModel
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -37,12 +37,35 @@
         .post-exerpt {
             min-height: 60px;
         }
+
+
+        .sort-by-dropdown {
+            max-height: 250px;
+            /* cho scroll dọc nếu cần */
+            overflow-y: auto;
+            width: 240px;
+            /* tăng chiều rộng tại đây */
+            white-space: nowrap;
+            /* tránh bị xuống dòng giữa chữ */
+            border: 1px solid #ddd;
+            padding: 8px;
+            background-color: #fff;
+            z-index: 1000;
+        }
+
+        .sort-by-dropdown ul li a.active {
+    background-color: #4CAF50;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-block;
+}
     </style>
 </head>
 
 <body>
     @await Html.PartialAsync("_Header")
-    <!--End header-->
+
     <main class="main">
         <div class="page-header mt-30 mb-75">
             <div class="container">
@@ -89,8 +112,8 @@
                                     View Recipe
                                 </h2>
                             </div>
-                            @* <div class="sort-by-product-area">
-                                <div class="sort-by-cover mr-10">
+                            <div class="sort-by-product-area">
+                                @* <div class="sort-by-cover mr-10">
                                     <div class="sort-by-product-wrap">
                                         <div class="sort-by">
                                             <span><i class="fi-rs-apps"></i>Show:</span>
@@ -108,7 +131,7 @@
                                             <li><a href="#">All</a></li>
                                         </ul>
                                     </div>
-                                </div>
+                                </div> *@
                                 <div class="sort-by-cover">
                                     <div class="sort-by-product-wrap">
                                         <div class="sort-by">
@@ -120,17 +143,24 @@
                                     </div>
                                     <div class="sort-by-dropdown">
                                         <ul>
-                                            <li><a class="active" href="#">Featured</a></li>
-                                            <li><a href="#">Newest</a></li>
-                                            <li><a href="#">Most comments</a></li>
-                                            <li><a href="#">Release Date</a></li>
+                                            @foreach (var item in Model.TypeOfDishForSidebar)
+                                            {
+                                                @* <li><a class="active" href="#">Featured</a></li> *@
+                                                <li>
+                                                    <a
+                                                        href="@Url.Action("SortTypeOfDish", "Users", new { pageNumber = 1, pageSize = 5, typeId = item.ID })">
+                                                        @item.Name
+                                                    </a>
+                                                </li>
+
+                                            }
                                         </ul>
                                     </div>
                                 </div>
-                            </div> *@
+                            </div>
                         </div>
                         <div class="loop-grid loop-list pr-30 mb-50">
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.Recipes)
                             {
                                 <article class="wow fadeIn animated hover-up mb-30 animated d-flex">
                                     <div class="post-thumb" style="background-image: url('@item.ThumbnailImage');">
@@ -174,8 +204,8 @@
 
                         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                             @Html.PagedListPager(
-                            Model,
-                            page => Url.Action("ViewRecipe", new { page }),
+                            Model.Recipes,
+                                                        page => Url.Action("ViewRecipe", new { page }),
                                                         new X.PagedList.Web.Common.PagedListRenderOptions
                                                         {
                                                             LiElementClasses = new[] { "page-item" },
@@ -185,6 +215,7 @@
                                                             LinkToPreviousPageFormat = "<i class='fi-rs-arrow-small-left'></i>",
                                                             LinkToNextPageFormat = "<i class='fi-rs-arrow-small-right'></i>"
                                                         })
+
                         </div>
 
 
@@ -203,7 +234,8 @@
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <div class="sidebar-widget-2 widget_search mb-50">
-                                    <a asp-action="MyViewRecipe" asp-controller="Users" class="btn btn-sm btn-primary w-100">
+                                    <a asp-action="MyViewRecipe" asp-controller="Users"
+                                        class="btn btn-sm btn-primary w-100">
                                         My View Recipe <i class="fi-rs-arrow-right ms-1"></i>
                                     </a>
                                 </div>
@@ -211,34 +243,18 @@
 
 
                             <div class="sidebar-widget widget-category-2 mb-50">
-                                <h5 class="section-title style-1 mb-30">Category</h5>
-                                <ul>
-                                    <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-1.svg" alt="" />Milks &
-                                            Dairies</a><span class="count">30</span>
-                                    </li>
-                                    <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-2.svg" alt="" />Clothing</a><span
-                                            class="count">35</span>
-                                    </li>
-                                    <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-3.svg" alt="" />Pet Foods
-                                        </a><span class="count">42</span>
-                                    </li>
-                                    <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-4.svg" alt="" />Baking
-                                            material</a><span class="count">68</span>
-                                    </li>
-                                    <li>
-                                        <a href="shop-grid-right.html"> <img
-                                                src="assets/imgs/theme/icons/category-5.svg" alt="" />Fresh
-                                            Fruit</a><span class="count">87</span>
-                                    </li>
-                                </ul>
+
+                                <h5 class="section-title style-1 mb-30">TypeOfDish</h5>
+                                @foreach (var item in Model.TypeOfDishForSidebar)
+                                {
+                                    <ul class="mb-10">
+                                        <li>
+                                            <a href=""> <img src="assets/imgs/theme/icons/category-1.svg"
+                                                    alt="" />@item.Name
+                                            </a><span class="count">@item.RecipeCount</span>
+                                        </li>
+                                    </ul>
+                                }
                             </div>
                             <!-- Product sidebar Widget -->
                             @* <div class="sidebar-widget product-sidebar mb-50 p-30 bg-grey border-radius-10">
