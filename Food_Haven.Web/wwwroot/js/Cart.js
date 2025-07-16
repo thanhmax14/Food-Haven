@@ -23,7 +23,7 @@ $(document).ready(function () {
       refreshCart();
     });
 
-  // Cập nhật tồn kho mỗi 30s
+  // Update stock display every 30s
   function updateStockDisplay() {
     var variantId = $("#selectedVariantId").val();
     if (!variantId) return;
@@ -44,28 +44,28 @@ $(document).ready(function () {
             });
             $("#price-display").text(formattedPrice);
           } else {
-            console.warn("Giá không hợp lệ:", data);
+            console.warn("Invalid price:", data);
             $("#price-display").text("0 đ");
           }
         } else {
-          console.warn("Dữ liệu stock không hợp lệ:", data);
+          console.warn("Invalid stock data:", data);
           $("#stock-display").text("0");
           $("#price-display").text("0 đ");
         }
       },
       error: function () {
-        console.error("Lỗi khi lấy thông tin từ server.");
+        console.error("Error fetching data from server.");
         $("#stock-display").text("0");
         $("#price-display").text("0 đ");
       },
     });
   }
 
-  // Sự kiện chọn variant - sửa selector thành .variant-button
+  // Variant selection - changed selector to .variant-button
   $(document).on("click", ".variant-button", function (e) {
     e.preventDefault();
 
-    console.log("Clicked variant button"); // Debug xem có bắt được sự kiện không
+    console.log("Clicked variant button");
 
     var variantId = $(this).data("variantid");
 
@@ -85,10 +85,10 @@ $(document).ready(function () {
       return;
     }
 
-    // Cập nhật ID đã chọn
+    // Update selected variant ID
     $("#selectedVariantId").val(variantId);
 
-    // Giao diện chọn active
+    // UI active selection
     $(".variant-button").removeClass("active");
     $(this).addClass("active");
 
@@ -156,71 +156,69 @@ $(document).ready(function () {
     });
   });
 
-  // Thêm vào giỏ
-  // Thêm vào giỏ (có kiểm tra hợp lệ)
-$(document).on("click", "#btnAddToCart", function () {
-  var variantId = $("#selectedVariantId").val();
-  if (!variantId) {
-    new Notify({
-      status: "error",
-      title: "Chưa chọn biến thể!",
-      text: "Vui lòng chọn biến thể trước khi thêm vào giỏ.",
-      effect: "fade",
-      speed: 300,
-      showIcon: true,
-      showCloseButton: true,
-      autoclose: true,
-      autotimeout: 3000,
-      position: "right top",
-    });
-    return;
-  }
+  // Add to cart (with validation)
+  $(document).on("click", "#btnAddToCart", function () {
+    var variantId = $("#selectedVariantId").val();
+    if (!variantId) {
+      new Notify({
+        status: "error",
+        title: "Variant not selected!",
+        text: "Please select a variant before adding to cart.",
+        effect: "fade",
+        speed: 300,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        position: "right top",
+      });
+      return;
+    }
 
-  // ✅ Tìm input số lượng nằm gần nút được nhấn
-  var $container = $(this).closest(".product-detail, .product-area, .container, .product-box"); // tùy class bạn dùng
-  var $qtyInput = $container.find(".qty-val");
+    // ✅ Find quantity input near the button
+    var $container = $(this).closest(".product-detail, .product-area, .container, .product-box");
+    var $qtyInput = $container.find(".qty-val");
 
-  var quantity = parseInt($qtyInput.val());
-  var maxStock = parseInt($qtyInput.data("max")) || 999;
+    var quantity = parseInt($qtyInput.val());
+    var maxStock = parseInt($qtyInput.data("max")) || 999;
 
-  if (isNaN(quantity) || quantity < 1) {
-    new Notify({
-      status: "error",
-      title: "Số lượng không hợp lệ!",
-      text: "Vui lòng nhập số lượng hợp lệ (tối thiểu 1).",
-      effect: "fade",
-      speed: 300,
-      showIcon: true,
-      showCloseButton: true,
-      autoclose: true,
-      autotimeout: 3000,
-      position: "right top",
-    });
-    return;
-  }
+    if (isNaN(quantity) || quantity < 1) {
+      new Notify({
+        status: "error",
+        title: "Invalid quantity!",
+        text: "Please enter a valid quantity (at least 1).",
+        effect: "fade",
+        speed: 300,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        position: "right top",
+      });
+      return;
+    }
 
-  if (quantity > maxStock) {
-    new Notify({
-      status: "error",
-      title: "Vượt quá tồn kho!",
-      text: "Bạn chỉ có thể đặt tối đa " + maxStock + " sản phẩm.",
-      effect: "fade",
-      speed: 300,
-      showIcon: true,
-      showCloseButton: true,
-      autoclose: true,
-      autotimeout: 3000,
-      position: "right top",
-    });
-    return;
-  }
+    if (quantity > maxStock) {
+      new Notify({
+        status: "error",
+        title: "Exceeded stock!",
+        text: "You can only order up to " + maxStock + " items.",
+        effect: "fade",
+        speed: 300,
+        showIcon: true,
+        showCloseButton: true,
+        autoclose: true,
+        autotimeout: 3000,
+        position: "right top",
+      });
+      return;
+    }
 
-  // Gửi đúng số lượng người dùng nhập
-  AddToCart(variantId, quantity);
-});
+    // Send correct quantity
+    AddToCart(variantId, quantity);
+  });
 
-
-  // AJAX thêm giỏ hàng
+  // AJAX add to cart
   window.AddToCart = function (variantId, quantity) {
     $.ajax({
       url: "/Home/AddToCart",
@@ -264,7 +262,7 @@ $(document).on("click", "#btnAddToCart", function () {
     });
   };
 
-  // Làm mới giỏ hàng
+  // Refresh cart
   function refreshCart() {
     console.log("Refreshing cart");
     if ($("#cart-container").length === 0) {
@@ -277,15 +275,14 @@ $(document).on("click", "#btnAddToCart", function () {
       type: "GET",
       cache: false,
       success: function (data) {
-        // console.log("CartPart loaded successfully:", data);
         $("#cart-container").html(data);
       },
       error: function (xhr, status, error) {
         console.error("CartPart error:", xhr.status, error);
         new Notify({
           status: "error",
-          title: "Lỗi!",
-          text: xhr.responseJSON?.message || "Không thể làm mới giỏ hàng.",
+          title: "Error!",
+          text: xhr.responseJSON?.message || "Could not refresh cart.",
           effect: "fade",
           speed: 300,
           showIcon: true,
@@ -297,16 +294,73 @@ $(document).on("click", "#btnAddToCart", function () {
       },
     });
   }
+
+  // If no variant selected, trigger the first one
   if (!$("#selectedVariantId").val()) {
     var $firstVariant = $(".variant-button").first();
     if ($firstVariant.length > 0) {
       $firstVariant.trigger("click");
     }
   }
-  // Dọn dẹp interval khi rời trang
+
+  // Clean up interval on page unload
   $(window).on("beforeunload", function () {
     if (window.stockInterval) {
       clearInterval(window.stockInterval);
     }
+  });
+
+$(document).on("click", ".qty-up, .qty-down", function (e) { 
+    e.preventDefault(); 
+ 
+    const $button = $(this); 
+    const productTypeId = $button.data("id"); 
+    if (!productTypeId) return; 
+ 
+    const $input = $("input.qty-val[data-id='" + productTypeId + "']"); 
+    if ($input.length === 0) return; 
+ 
+    // ✅ Đọc giá trị hiện tại TRƯỚC khi blur
+    const current = parseInt($input.val()) || 1; 
+    const max = parseInt($input.data("max")) || 999; 
+
+    const isIncrease = $button.hasClass("qty-up"); 
+    const newQty = isIncrease ? current + 1 : current - 1; 
+
+    console.log("Before: ", current); 
+
+    if (newQty < 1) { 
+      console.log("Reached min: 1"); 
+      return; 
+    } 
+    if (newQty > max) { 
+      console.log("Reached max: ", max); 
+      return; 
+    } 
+
+    // ✅ Set giá trị mới TRƯỚC khi blur
+    $input.val(newQty);
+    console.log("After: ", newQty); 
+
+    // ✅ Blur sau khi đã set giá trị
+    $input.blur(); 
+
+    // Log after 10s 
+    setTimeout(() => { 
+      console.log("✅ After 10 seconds: Current value is", $input.val()); 
+    }, 10000); 
+  }); 
+ 
+  // Only allow numbers 
+  $(document).on("input", ".qty-val", function () { 
+    this.value = this.value.replace(/[^0-9]/g, ""); 
+    console.log("User typed: ", this.value); 
+  }); 
+ 
+  // Press Enter to commit 
+  $(document).on("keydown", ".qty-val", function (e) { 
+    if (e.key === "Enter") { 
+      this.blur(); 
+    } 
   });
 });
