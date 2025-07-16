@@ -2256,7 +2256,7 @@ namespace Food_Haven.Web.Controllers
                   {
 
                   }
-                 var balance = await _balance.FindAsync(b => b.ID == InvoiceID && b.Display);
+                var balance = await _balance.FindAsync(b => b.ID == InvoiceID && b.Display);
                 var getUser = await _userManager.FindByIdAsync(balance.UserID);
                 if (balance != null && getUser!=null)
                 {
