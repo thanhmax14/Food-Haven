@@ -39,26 +39,21 @@
         }
 
 
-        .sort-by-dropdown {
-            max-height: 250px;
-            /* cho scroll dọc nếu cần */
-            overflow-y: auto;
-            width: 240px;
-            /* tăng chiều rộng tại đây */
-            white-space: nowrap;
-            /* tránh bị xuống dòng giữa chữ */
-            border: 1px solid #ddd;
-            padding: 8px;
-            background-color: #fff;
-            z-index: 1000;
-        }
+     .sort-by-dropdown ul li a {
+    position: static !important;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 5px 30px;
+    display: block;
+    color: #7E7E7E;
+}
 
-        .sort-by-dropdown ul li a.active {
+.sort-by-dropdown ul li a.active {
     background-color: #4CAF50;
     color: white;
     padding: 6px 12px;
     border-radius: 4px;
-    display: inline-block;
+    display: inline-block !important; /* Ghi đè display: block */
 }
     </style>
 </head>
@@ -138,21 +133,21 @@
                                             <span><i class="fi-rs-apps-sort"></i>Sort:</span>
                                         </div>
                                         <div class="sort-by-dropdown-wrap">
-                                            <span>Featured <i class="fi-rs-angle-small-down"></i></span>
+                                            <span>@(Model.TypeOfDishForSidebar.FirstOrDefault(t => t.ID ==
+                                                                                                ViewBag.TypeId)?.Name ?? "Featured") <i
+                                                    class="fi-rs-angle-small-down"></i></span>
                                         </div>
                                     </div>
                                     <div class="sort-by-dropdown">
                                         <ul>
                                             @foreach (var item in Model.TypeOfDishForSidebar)
                                             {
-                                                @* <li><a class="active" href="#">Featured</a></li> *@
                                                 <li>
-                                                    <a
+                                                    <a class="@(item.ID == ViewBag.TypeId ? "active" : "")"
                                                         href="@Url.Action("SortTypeOfDish", "Users", new { pageNumber = 1, pageSize = 5, typeId = item.ID })">
                                                         @item.Name
                                                     </a>
                                                 </li>
-
                                             }
                                         </ul>
                                     </div>

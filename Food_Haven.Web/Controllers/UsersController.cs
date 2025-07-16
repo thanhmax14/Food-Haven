@@ -409,9 +409,9 @@ namespace Food_Haven.Web.Controllers
                 {
                     var getListBalance = await this._balance.ListAsync(
                         u => u.Display && getUser.Id == u.UserID,
-                        orderBy: x => x.OrderByDescending(query => query.DueTime.HasValue) 
-                                         .ThenByDescending(query => query.DueTime)         
-                                         .ThenByDescending(query => query.StartTime)     
+                        orderBy: x => x.OrderByDescending(query => query.DueTime.HasValue)
+                                         .ThenByDescending(query => query.DueTime)
+                                         .ThenByDescending(query => query.StartTime)
                     );
 
                     if (getListBalance.Any())
@@ -2339,13 +2339,13 @@ namespace Food_Haven.Web.Controllers
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> SortTypeOfDish(int pageNumber, int pageSize, string sortOrder, Guid? typeId)
+        public async Task<IActionResult> SortTypeOfDish(int pageNumber = 1, int pageSize = 5, string sortOrder = "", Guid? typeId = null)
         {
             var allRecipes = (await _recipeService.ListAsync())
                 .Where(r => r.IsActive && r.status == "Accept")
                 .ToList();
 
-            // ✅ Nếu có truyền typeId => lọc theo loại
+            // Lọc theo typeId nếu có
             if (typeId.HasValue)
             {
                 allRecipes = allRecipes.Where(r => r.TypeOfDishID == typeId.Value).ToList();
@@ -2354,8 +2354,8 @@ namespace Food_Haven.Web.Controllers
             // Sắp xếp
             allRecipes = sortOrder?.ToLower() switch
             {
-                "typeaz" => allRecipes.OrderBy(r => r.TypeOfDish?.Name).ToList(),
-                "typeza" => allRecipes.OrderByDescending(r => r.TypeOfDish?.Name).ToList(),
+                "typeaz" => allRecipes.OrderBy(r => r.TypeOfDish?.Name ?? "").ToList(),
+                "typeza" => allRecipes.OrderByDescending(r => r.TypeOfDish?.Name ?? "").ToList(),
                 _ => allRecipes.OrderBy(r => r.ID).ToList()
             };
 
@@ -2365,7 +2365,11 @@ namespace Food_Haven.Web.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            var allTypeOfDishes = await _typeOfDishService.ListAsync();
+            // Nếu không có món ăn nào, hiển thị thông báo
+            if (!pagedRecipes.Any() && typeId.HasValue)
+            {
+                ViewBag.Message = "No recipes found for the selected type.";
+            }
 
             var recipeViewModels = pagedRecipes.Select(r => new RecipeViewModels
             {
@@ -2386,11 +2390,16 @@ namespace Food_Haven.Web.Controllers
                 Ingredient = r.Ingredient
             }).ToList();
 
-            var usedTypeOfDishCounts = allRecipes
+            // Tính số lượng món ăn cho mỗi loại dựa trên TẤT CẢ món ăn
+            var allActiveRecipes = (await _recipeService.ListAsync())
+                .Where(r => r.IsActive && r.status == "Accept")
+                .ToList();
+            var usedTypeOfDishCounts = allActiveRecipes
                 .GroupBy(r => r.TypeOfDishID)
                 .ToDictionary(g => g.Key, g => g.Count());
 
-            var filteredTypeOfDishes = allTypeOfDishes
+            // Lấy tất cả các loại món ăn có món ăn liên quan
+            var filteredTypeOfDishes = (await _typeOfDishService.ListAsync())
                 .Where(t => usedTypeOfDishCounts.ContainsKey(t.ID))
                 .Select(t => new TypeOfDishViewModel
                 {
@@ -2411,6 +2420,11 @@ namespace Food_Haven.Web.Controllers
                 TypeOfDishForSidebar = filteredTypeOfDishes
             };
 
+            // Lưu trạng thái typeId và sortOrder
+            ViewBag.TypeId = typeId;
+            ViewBag.SortOrder = sortOrder;
+
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
             return View("ViewRecipe", viewModel);
         }
 
