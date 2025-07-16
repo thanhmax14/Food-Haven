@@ -336,29 +336,57 @@
                                                 <div class="attr-detail attr-size mb-30">
                                                     <strong class="mr-10">Type: </strong>
                                                     <ul class="list-filter size-filter font-small">
-                                                        @if(Model.ProductVariants.Any())
-                                                        
-                                                        {
-                                                            @foreach (var variant in Model.ProductVariants.Select((variant, index) => new { variant, index }))
-                                                            {
-                                                                <li style="margin-top: 5px" class="@(variant.index == 0 ? "active" : "")">
-                                                                    <a href="#" data-variantid="@variant.variant.ID"
-                                                                       data-target="#price-@variant.variant.ID">@variant.variant.Name</a>
-                                                                </li>
-                                                            }
-                                                        }
-                                                       
-                                                    </ul>
+    @if (Model.ProductVariants?.Any(pv => pv.IsActive) ?? false)
+    {
+        var activeVariants = Model.ProductVariants
+            .Where(pv => pv.IsActive)
+            .Select((variant, index) => new { variant, index })
+            .ToList();
+
+        foreach (var variant in activeVariants)
+        {
+            <li style="margin-top: 5px" class="@(variant.index == 0 ? "active" : "")">
+                <a href="#" class="variant-button"
+                   data-variantid="@variant.variant.ID"
+                   data-target="#price-@variant.variant.ID">
+                    @variant.variant.Name
+                </a>
+            </li>
+        }
+    }
+</ul>
+
                                                 </div>
+                                                <input type="hidden" id="selectedVariantId" value="" />
+
                                                 <div class="detail-extralink mb-50">
-                                                    <div class="detail-qty border radius">
-                                                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                                        <input type="text" name="quantity" class="qty-val" value="1" min="1">
-                                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                                    </div>
+                                                  @{
+    var variant12 = Model.ProductVariants.FirstOrDefault();
+}
+@if (variant12 != null)
+{
+     <div class="detail-qty border radius">
+        <a href="#" class="qty-down" data-id="@variant12.ID">
+            <i class="fi-rs-angle-small-down"></i>
+        </a>
+
+        <input type="text"
+               class="qty-val"
+               value="1"
+               data-id="@variant12.ID"
+               data-max="@variant12.Stock"
+               name="quantity" />
+
+        <a href="#" class="qty-up" data-id="@variant12.ID">
+            <i class="fi-rs-angle-small-up"></i>
+        </a>
+    </div>
+}
+
                                                     <div class="product-extra-link2">
-                                                        <button type="submit" class="button button-add-to-cart"><i class="fi-rs-shopping-cart"></i>Add to cart</button>
-                                                        @Html.AntiForgeryToken()
+                                                        <button type="button" class="btn btn-success btn-lg" id="btnAddToCart">
+                                                            <i class="fi-rs-shopping-cart"></i> Add to cart
+                                                        </button>                                                        @Html.AntiForgeryToken()
                                                         @if (Model.IsWishList)
                                                         {
                                                             <a aria-label="@(Model.IsWishList ? "Remove wishlist" : "Add To Wishlist")" class="action-btn hover-up"
@@ -386,7 +414,7 @@
                                                         {
                                                             <li>
                                                                 Stock:
-                                                                <span class="in-stock text-brand ml-5">
+                                                                <span id="stock-display" class="in-stock text-brand ml-5">
                                                                     @if (Model.ProductVariants.First().Stock == 0)
                                                                     {
                                                                         @:out of stock
