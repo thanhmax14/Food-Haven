@@ -409,9 +409,9 @@ namespace Food_Haven.Web.Controllers
                 {
                     var getListBalance = await this._balance.ListAsync(
                         u => u.Display && getUser.Id == u.UserID,
-                        orderBy: x => x.OrderByDescending(query => query.DueTime.HasValue)  // Prioritize records with DueTime
-                                         .ThenByDescending(query => query.DueTime)         // Sort by DueTime descending
-                                         .ThenByDescending(query => query.StartTime)       // If DueTime = NULL, use StartTime
+                        orderBy: x => x.OrderByDescending(query => query.DueTime.HasValue) 
+                                         .ThenByDescending(query => query.DueTime)         
+                                         .ThenByDescending(query => query.StartTime)     
                     );
 
                     if (getListBalance.Any())
@@ -423,6 +423,8 @@ namespace Food_Haven.Web.Controllers
                             var getInvoce = RegexAll.ExtractPayosLink(item.Description);
                             if (getInvoce == null)
                                 getInvoce = item.Description;
+
+
                             list.Add(new BalanceListViewModels
                             {
                                 No = count,

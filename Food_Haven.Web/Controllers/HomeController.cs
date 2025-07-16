@@ -2135,11 +2135,11 @@ namespace Food_Haven.Web.Controllers
         {
             var productDetail = await _product.FindAsync(x => x.ID == id && x.IsActive);
             if (productDetail == null)
-                return RedirectToAction("Error", "404");
+                return RedirectToAction("NotFoundPage");
 
             var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID && s.IsActive);
             if (store == null)
-                return RedirectToAction("Error", "404");
+                return RedirectToAction("NotFoundPage");
             store.AppUser = await _userManager.FindByIdAsync(store.UserID);
 
             var productCategory = await _categoryService.FindAsync(c => c.ID == productDetail.CategoryID);
@@ -2244,7 +2244,56 @@ namespace Food_Haven.Web.Controllers
 
             return View(tem);
         }
+        [HttpGet]
+        public async Task<IActionResult> Invoice(string id)
+        {
+            var tem = new InvoiceViewModels();
 
+            if (Guid.TryParse(id, out var InvoiceID))
+            {
+                  var order = await _order.FindAsync(o => o.ID == InvoiceID && o.IsActive);
+                  if( order != null)
+                  {
+
+                  }
+                 var balance = await _balance.FindAsync(b => b.ID == InvoiceID && b.Display);
+                var getUser = await _userManager.FindByIdAsync(balance.UserID);
+                if (balance != null && getUser!=null)
+                {
+                    if (balance.Method == "Withdraw" || balance.Method == "Deposit")
+                    {
+                        tem.orderCoce = id;
+                        tem.invoiceDate = balance.StartTime;
+                        tem.DueDate = balance.DueTime;
+                        tem.NameUse = getUser.FirstName + " " + getUser.LastName;
+                        tem.paymentMethod = balance.Method;
+                        tem.status = balance.Status;
+                        tem.emailUser = getUser.Email;
+                        tem.phoneUser = getUser.PhoneNumber;
+                        tem.tax = 0;
+                        tem.AddressUse = getUser.Address;
+                        tem.itemList.Add(new ItemInvoice
+                        {
+                            amount = balance.MoneyChange,
+                            nameItem = balance.Method == "Withdraw"
+                        ? $"Withdraw to {getUser.UserName}"
+                       : balance.Method == "Deposit"
+                       ? $"Deposit to {getUser.UserName}"
+                       : "",
+                            quantity = 1,
+                            unitPrice = balance.MoneyChange
+
+                        });
+                        return View(tem);
+                    }                
+                }
+            }
+            else
+            {
+                return RedirectToAction("NotFoundPage");
+            }
+            return RedirectToAction("NotFoundPage");
+        }
     }
     public class HomeViewModel
     {
