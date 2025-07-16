@@ -527,19 +527,20 @@
                             $("#submitPayment").click(function () {
                                 var selectedOption = $("input[name='payment_option']:checked").val();
                                 if (!selectedOption) {
-                                    new Notify({
-                                        status: 'error',
-                                        title: 'Thất Bại',
-                                        text: 'Vui lòng chọn phương thức thanh toán!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    return;
+                                                           new Notify({
+                            status: 'error',
+                            title: 'Failed',
+                            text: 'Please select a payment method!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+                        return;
+
                                 }
 
                                 var token = $('input[name="__RequestVerificationToken"]').val();
@@ -554,7 +555,7 @@
                                     paymentOption: selectedOption
                                 };
 
-                                $("#submitPayment").html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...').prop('disabled', true);
+                                $("#submitPayment").html('<i class="fa fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
 
                                 $.ajax({
                                     url: url,
@@ -565,54 +566,56 @@
                                         if (response.haveUrl){
                                             window.location.href = response.redirectUrl;
                                         }else{
-                                            if (response.success) {
-                                                new Notify({
-                                                    status: 'success',
-                                                    title: 'Thành công!',
-                                                    text: response.msg || 'Gửi thành công!',
-                                                    effect: 'fade',
-                                                    speed: 300,
-                                                    showIcon: true,
-                                                    showCloseButton: true,
-                                                    autoclose: true,
-                                                    autotimeout: 3000,
-                                                    position: 'right top'
-                                                });
-                                                setTimeout(function () {
-                                                    window.location.href = "/Users#orders";
-                                                }, 3000); 
+                                                                   if (response.success) {
+                            new Notify({
+                                status: 'success',
+                                title: 'Success!',
+                                text: response.msg || 'Submitted successfully!',
+                                effect: 'fade',
+                                speed: 300,
+                                showIcon: true,
+                                showCloseButton: true,
+                                autoclose: true,
+                                autotimeout: 3000,
+                                position: 'right top'
+                            });
+                            setTimeout(function () {
+                                window.location.href = "/Users#orders";
+                            }, 3000);
 
-                                            } else {
-                                                new Notify({
-                                                    status: 'error',
-                                                    title: 'Thất Bại',
-                                                    text: response.msg || 'Gửi thất bại!',
-                                                    effect: 'fade',
-                                                    speed: 300,
-                                                    showIcon: true,
-                                                    showCloseButton: true,
-                                                    autoclose: true,
-                                                    autotimeout: 3000,
-                                                    position: 'right top'
-                                                });
-                                            }
+                        } else {
+                            new Notify({
+                                status: 'error',
+                                title: 'Failed',
+                                text: response.msg || 'Submission failed!',
+                                effect: 'fade',
+                                speed: 300,
+                                showIcon: true,
+                                showCloseButton: true,
+                                autoclose: true,
+                                autotimeout: 3000,
+                                position: 'right top'
+                            });
+                        }
+
                                         }
                                         
                                         $("#submitPayment").html('Place an Order').prop('disabled', false);
                                     },
                                     error: function (xhr) {
-                                        new Notify({
-                                            status: 'error',
-                                            title: 'Thất Bại',
-                                            text: 'Mua thất bại vui lòng liên hệ admin!!',
-                                            effect: 'fade',
-                                            speed: 300,
-                                            showIcon: true,
-                                            showCloseButton: true,
-                                            autoclose: true,
-                                            autotimeout: 3000,
-                                            position: 'right top'
-                                        });
+                                                               new Notify({
+                            status: 'error',
+                            title: 'Failed',
+                            text: 'Purchase failed, please contact the admin!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+
                                         $("#submitPayment").html('Place an Order').prop('disabled', false);
                                     }
                                 });

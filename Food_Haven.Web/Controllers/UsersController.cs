@@ -830,7 +830,8 @@ namespace Food_Haven.Web.Controllers
                                 Quantity = id.Value,
                                 ProductPrice = getQuatity.SellPrice,
                                 TotalPrice = getQuatity.SellPrice * id.Value,
-                                Status = "Pending"
+                                Status = "Pending",
+                                ProductTypeName = getQuatity.Name,
                             });
 
                         }
