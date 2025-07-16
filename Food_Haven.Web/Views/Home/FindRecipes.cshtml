@@ -16,12 +16,25 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
     <link href="~/css/findrecupe.css" rel="stylesheet" />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="~/assets/css/plugins/slider-range.css" />
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
+    @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
+
+    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
 </head>
 
 
 <body data-theme="default">
     @await Html.PartialAsync("_Header")
-    <div class="mobile-header-active mobile-header-wrapper-style">
+    @* <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
             <div class="mobile-header-top">
                 <div class="mobile-header-logo">
@@ -202,18 +215,18 @@
                 <div class="site-copyright">Copyright 2024 © Nest. All rights reserved. Powered by AliThemes.</div>
             </div>
         </div>
-    </div>
+    </div> *@
     <!--End header-->
     <main class="main pages">
-        <div class="page-header breadcrumb-wrap">
+        @* <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
                     <a href='/' rel='nofollow'><i class="fi-rs-home mr-5"></i>Home</a>
                     <span></span> FindRecipes
                 </div>
             </div>
-        </div>
-        <div class="page-content pt-50">
+        </div> *@
+        <div class="page-content pt-30">
             <div class="container">
                 <div class="row">
                     <div class="col-xl-10 col-lg-12 m-auto">
