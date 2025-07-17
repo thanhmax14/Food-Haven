@@ -44,5 +44,14 @@ namespace BusinessLogic.Hash
                 return null;
             }
         }
+        public static string? ExtractGuid(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return null;
+
+            var match = Regex.Match(input, @"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
+
+            return match.Success ? match.Value : null;
+        }
     }
 }

@@ -421,9 +421,22 @@ namespace Food_Haven.Web.Controllers
                         {
                             count++;
                             var getInvoce = RegexAll.ExtractPayosLink(item.Description);
-                            if (getInvoce == null)
+                            if (getInvoce != null)
                                 getInvoce = item.Description;
+                            else
+                            {
+                                var guidString = RegexAll.ExtractGuid(item.Description);
 
+                                if (Guid.TryParse(guidString, out Guid guid))
+                                {
+                                    getInvoce = "/home/Invoice/" + guid;
+                                }
+                                else
+                                {
+                                    getInvoce = "/home/Invoice/" + item.ID;
+                                }
+                            }
+                           
 
                             list.Add(new BalanceListViewModels
                             {
@@ -863,7 +876,8 @@ namespace Food_Haven.Web.Controllers
                             Display = true,
                             IsComplete = false,
                             CheckDone = true,
-                            StartTime = DateTime.Now
+                            StartTime = DateTime.Now,
+                            Description="Purchase order: " + orderID 
                         };
 
                         if (await _balance.CheckMoney(user.Id, totelPrice))

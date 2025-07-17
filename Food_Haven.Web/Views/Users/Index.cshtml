@@ -377,14 +377,14 @@
                                     <div class="modal fade" id="review_modal" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-xl modal-dialog-centered">
                                             <div class="modal-content p-4 fs-5">
-                                                <!-- Cỡ chữ lớn hơn -->
+                                                <!-- Larger font size -->
                                                 <form class="reviews-view__form">
                                                     <input type="hidden" id="product-id-field">
                                                     <input type="hidden" id="product-name-hidden">
 
-                                                    <h3 class="mb-3 fs-4">Đánh giá đơn hàng đã mua</h3>
-                                                    <span id="review_product_name"  class="badge bg-success mb-3 fs-6 py-2 px-3" >
-                                                      
+                                                    <h3 class="mb-3 fs-4">Review purchased order</h3>
+                                                    <span id="review_product_name" class="badge bg-success mb-3 fs-6 py-2 px-3">
+
                                                     </span>
 
                                                     <div class="wrap mb-4">
@@ -398,7 +398,7 @@
                                                     </div>
 
                                                     <div class="form-group mb-3">
-                                                        <label for="review-text" class="fs-5">Chia sẻ thêm thông tin</label>
+                                                        <label for="review-text" class="fs-5">Share more details</label>
                                                         <textarea class="form-control fs-5" id="review-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;"></textarea>
 
                                                         <script>
@@ -415,51 +415,53 @@
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm chuẩn chất lượng.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm khá tốt.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm ổn.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Hỗ trợ nhiệt tình.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm kém chất lượng.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Không hỗ trợ khách hàng.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Hàng không sử dụng được.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">High quality product.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Pretty good product.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Decent product.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Helpful customer support.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Poor quality product.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">No customer support.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Product is unusable.</span>
                                                     </div>
 
-                                                    <button type="button" class="btn btn-success w-100 mt-3 fs-5" onclick="doRating()">Gửi đánh giá</button>
+                                                    <button type="button" class="btn btn-success w-100 mt-3 fs-5" onclick="doRating()">Submit Review</button>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
+
+
                                     <div class="modal fade" id="complaint_modal" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-xl modal-dialog-centered">
                                             <div class="modal-content p-4">
                                                 <form id="complaint-form" enctype="multipart/form-data">
-                                                    <h3 class="mb-3">Gửi Khiếu Nại</h3>
+                                                    <h3 class="mb-3">Submit Complaint</h3>
                                                     <input type="hidden" id="order-detail-id">
 
                                                     <div class="mb-2">
-                                                        <label>Mã đơn hàng:</label>
+                                                        <label>Order Code:</label>
                                                         <span id="order-code" class="fw-bold text-primary">#...</span>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label>Sản phẩm khiếu nại:</label>
+                                                        <label>Complained Product:</label>
                                                         <span id="product-name" class="fw-bold text-danger">...</span>
                                                     </div>
 
-                                                    <!-- Upload ảnh -->
+                                                    <!-- Upload images -->
                                                     <div class="mb-3">
-                                                        <label for="complaint-image" class="form-label">Tải ảnh minh họa (tối đa 3 ảnh, mỗi ảnh ≤ 5MB)</label>
+                                                        <label for="complaint-image" class="form-label">Upload illustrative images (maximum 3 images, each ≤ 5MB)</label>
                                                         <input class="form-control" type="file" id="complaint-image" accept="image/*" multiple
                                                                onchange="handleComplaintImage(this)" onclick="clearImageError()">
                                                         <span id="image-error" class="error-message"></span>
                                                     </div>
 
-                                                    <!-- Preview ảnh -->
+                                                    <!-- Image preview -->
                                                     <div id="complaint-preview-wrapper"></div>
 
-                                                    <!-- Textarea mô tả -->
+                                                    <!-- Description textarea -->
                                                     <div class="form-group mb-1">
-                                                        <label for="complaint-text">Mô tả lỗi gặp phải</label>
-                                                        <textarea class="form-control fs-5" id="complaint-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;" placeholder="Mô tả chi tiết vấn đề..."
+                                                        <label for="complaint-text">Description of the issue encountered</label>
+                                                        <textarea class="form-control fs-5" id="complaint-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;" placeholder="Describe the issue in detail..."
                                                                   oninput="clearTextError();"></textarea>
                                                         <span id="text-error" class="error-message"></span>
 
@@ -477,12 +479,13 @@
                                                     </div>
 
                                                     <button type="button" id="btnSubmitComplaint" class="btn btn-danger w-100 mt-3" onclick="submitComplaint()">
-                                                        Gửi Khiếu Nại
+                                                        Submit Complaint
                                                     </button>
 
                                                 </form>
                                             </div>
                                         </div>
+
                                     </div>
 
                                     <script>
@@ -510,14 +513,16 @@
                                             errorSpan.textContent = '';
 
                                             if ((selectedImages.length + files.length) > 3) {
-                                                errorSpan.textContent = "Chỉ cho phép tối đa 3 ảnh.";
+                                                errorSpan.textContent = "A maximum of 3 images is allowed.";
+
                                                 input.value = "";
                                                 return;
                                             }
 
                                             for (const file of files) {
                                                 if (file.size > 5 * 1024 * 1024) {
-                                                    errorSpan.textContent = `Ảnh "${file.name}" vượt quá 5MB và bị loại.`;
+                                                    errorSpan.textContent = `The image "${file.name}" exceeds 5MB and has been rejected.`;
+
                                                     continue;
                                                 }
                                                 selectedImages.push(file);
@@ -567,20 +572,22 @@
                                             let hasError = false;
 
                                             if (!text) {
-                                                textError.textContent = "Vui lòng nhập mô tả khiếu nại.";
+                                                textError.textContent = "Please enter a complaint description.";
                                                 hasError = true;
                                             }
 
                                             if (selectedImages.length === 0) {
-                                                imageError.textContent = "Vui lòng chọn ít nhất 1 ảnh.";
+                                                imageError.textContent = "Please select at least one image.";
                                                 hasError = true;
                                             }
+
 
                                             if (hasError) return;
 
                                             // 🔄 Hiển thị loading
                                             submitBtn.disabled = true;
-                                            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+                                            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Submitting...';
+
 
                                             const formData = new FormData();
                                             formData.append("OrderDetailID", orderDetailId);
@@ -593,15 +600,14 @@
                                             })
                                                 .then(res => res.json())
                                                 .then(data => {
-                                                    // ✅ Khôi phục nút
                                                     submitBtn.disabled = false;
-                                                    submitBtn.innerHTML = 'Gửi Khiếu Nại';
+                                                    submitBtn.innerHTML = 'Submit Complaint';
 
                                                     if (data.success) {
                                                         new Notify({
                                                             status: 'success',
-                                                            title: 'Thành công!',
-                                                            text: data.message || 'Gửi thành công!',
+                                                            title: 'Success!',
+                                                            text: data.message || 'Submitted successfully!',
                                                             effect: 'fade',
                                                             speed: 300,
                                                             showIcon: true,
@@ -710,14 +716,15 @@
                                             const productName = document.getElementById("product-name-hidden").value;
 
                                             if (!rating) {
-                                                Swal.fire("Chưa chọn số sao!", "Vui lòng chọn số sao để đánh giá.", "warning");
+                                                Swal.fire("No rating selected!", "Please select a star rating before submitting.", "warning");
                                                 return;
                                             }
 
                                             if (!text) {
-                                                Swal.fire("Thiếu nội dung!", "Vui lòng chia sẻ nội dung đánh giá.", "warning");
+                                                Swal.fire("Review content missing!", "Please share your review content.", "warning");
                                                 return;
                                             }
+
 
                                             fetch("/Users/SubmitReview", {
                                                 method: "POST",
@@ -738,10 +745,13 @@
                                                         const modalInstance = bootstrap.Modal.getInstance(modalElement);
                                                         modalInstance?.hide();
 
-                                                        Swal.fire("Thành công!", data.message || "Cảm ơn bạn đã đánh giá.", "success")
+                                                        Swal.fire("Success!", data.message || "Thank you for your review.", "success");
+
                                                             .then(() => document.getElementById("orders-tab")?.click());
                                                     } else {
-                                                        Swal.fire("Lỗi!", data.message || "Không gửi được đánh giá.", "error");
+                                                      
+                                                        Swal.fire("Error!", data.message || "Unable to submit your review.", "error");
+
                                                     }
 
                                                 })
@@ -1008,18 +1018,20 @@
                                                                 const cancelAllBtn = document.createElement("button");
                                                                 cancelAllBtn.id = "cancel-entire-order-btn";
                                                                 cancelAllBtn.className = "btn btn-danger mt-3 float-end";
-                                                                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Hủy đơn hàng";
+                                                                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Cancel Order";
+
                                                                 cancelAllBtn.onclick = () => {
                                                                     Swal.fire({
-                                                                        title: "Xác nhận hủy đơn?",
-                                                                        text: "Toàn bộ đơn hàng này sẽ bị hủy!",
+                                                                        title: "Confirm order cancellation?",
+                                                                        text: "The entire order will be cancelled!",
                                                                         icon: "warning",
                                                                         showCancelButton: true,
-                                                                        confirmButtonText: "Hủy đơn",
-                                                                        cancelButtonText: "Không",
+                                                                        confirmButtonText: "Cancel Order",
+                                                                        cancelButtonText: "No",
                                                                         confirmButtonColor: "#d33",
                                                                         cancelButtonColor: "#6c757d"
-                                                                    }).then((result) => {
+                                                                    })
+                                                                        .then((result) => {
                                                                         if (result.isConfirmed) {
                                                                             fetch("/Users/CancelOrder", {
                                                                                 method: "POST",
@@ -1030,16 +1042,16 @@
                                                                                 body: JSON.stringify(orderId)
                                                                             })
                                                                                 .then(res => res.json())
-                                                                                .then(data => {
-                                                                                    if (data.success) {
-                                                                                        Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success")
-                                                                                            .then(() => document.getElementById("orders-tab")?.click());
-                                                                                    } else {
-                                                                                        Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
-                                                                                    }
-                                                                                })
-                                                                                .catch(() => Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error"));
-                                                                        }
+                                                                                    .then(data => {
+                                                                                        if (data.success) {
+                                                                                            Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success")
+                                                                                                .then(() => document.getElementById("orders-tab")?.click());
+                                                                                        } else {
+                                                                                            Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
+                                                                                        }
+                                                                                    })
+                                                                                    .catch(() => Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error"));
+
                                                                     });
                                                                 };
                                                                 detailsContainer.appendChild(cancelAllBtn);
@@ -1064,13 +1076,15 @@
                                                             detailsContainer.appendChild(backButton);
 
                                                         } else {
-                                                            alert("Không tìm thấy chi tiết đơn hàng.");
-                                                            console.log("Lỗi trả về:", data.message);
+                                                            alert("Order details not found.");
+                                                            console.log("Returned error:", data.message);
+
                                                         }
                                                     })
                                                     .catch(error => {
                                                         console.error("Fetch error:", error);
-                                                        alert("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
+                                                        alert("An error occurred while loading order details.");
+
                                                     });
                                             }
 
@@ -1081,47 +1095,47 @@
     });
 
 
-document.addEventListener("click", function (e) {
-    if (e.target.classList.contains("cancel-order")) {
-        const orderId = e.target.getAttribute("data-id");
+                                        document.addEventListener("click", function (e) {
+                                            if (e.target.classList.contains("cancel-order")) {
+                                                const orderId = e.target.getAttribute("data-id");
 
-        Swal.fire({
-            title: "Xác nhận hủy đơn?",
-            text: "Bạn sẽ không thể hoàn tác hành động này!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Hủy đơn",
-            cancelButtonText: "Không",
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#6c757d"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch("/Users/CancelOrder", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify(orderId)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success").then(() => {
-                            document.getElementById("orders-tab").click(); // Quay lại danh sách đơn
-                        });
-                    } else {
-                        Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
-                    }
-                })
-                .catch(error => {
-                    console.error("Cancel error:", error);
-                    Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error");
-                });
-            }
-        });
-    }
-});
+                                                Swal.fire({
+                                                    title: "Confirm cancellation?",
+                                                    text: "You won't be able to undo this action!",
+                                                    icon: "warning",
+                                                    showCancelButton: true,
+                                                    confirmButtonText: "Cancel Order",
+                                                    cancelButtonText: "No",
+                                                    confirmButtonColor: "#d33",
+                                                    cancelButtonColor: "#6c757d"
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        fetch("/Users/CancelOrder", {
+                                                            method: "POST",
+                                                            headers: {
+                                                                "Content-Type": "application/json",
+                                                                "Accept": "application/json"
+                                                            },
+                                                            body: JSON.stringify(orderId)
+                                                        })
+                                                            .then(res => res.json())
+                                                            .then(data => {
+                                                                if (data.success) {
+                                                                    Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success").then(() => {
+                                                                        document.getElementById("orders-tab").click(); // Back to order list
+                                                                    });
+                                                                } else {
+                                                                    Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
+                                                                }
+                                                            })
+                                                            .catch(error => {
+                                                                console.error("Cancel error:", error);
+                                                                Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error");
+                                                            });
+                                                    }
+                                                });
+                                            }
+                                        });
 
 
 
@@ -1294,11 +1308,12 @@ document.addEventListener("click", function (e) {
                                                 <div class="row mb-4">
                                                     <div class="col-md-12">
                                                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#depositModal">
-                                                            <i class="fas fa-wallet me-1"></i> Nạp Tiền
+                                                            <i class="fas fa-wallet me-1"></i> Deposit
                                                         </button>
                                                         <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#withdrawModal">
-                                                            <i class="fas fa-money-bill-wave me-1"></i> Rút Tiền
+                                                            <i class="fas fa-money-bill-wave me-1"></i> Withdraw
                                                         </button>
+
                                                     </div>
                                                 </div>
 
@@ -1309,60 +1324,67 @@ document.addEventListener("click", function (e) {
                                                         <div class="modal-dialog modal-dialog-centered">
                                                             <div class="modal-content shadow">
                                                                 <div class="modal-header bg-success text-white">
-                                                                    <h5 class="modal-title" id="depositModalLabel">Nạp Tiền</h5>
+                                                                    <h5 class="modal-title" id="depositModalLabel">Deposit Money</h5>
                                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                                 </div>
                                                                 <form>
                                                                     @Html.AntiForgeryToken()
                                                                     <div class="modal-body">
-                                                                        <label class="form-label">Số tiền nạp</label>
-                                                                        <input type="number" min="1000" step="1000" id="numOrder" class="form-control mb-3" placeholder="Nhập số tiền (VND)">
-                                                                        <label class="form-label">Hình thức thanh toán</label>
+                                                                        <label class="form-label">Deposit Amount</label>
+                                                                        <input type="number" min="1000" step="1000" id="numOrder" class="form-control mb-3" placeholder="Enter amount (VND)">
+                                                                        <label class="form-label">Payment Method</label>
                                                                         <div class="form-check">
                                                                             <input class="form-check-input" type="radio" name="paymentType" checked>
                                                                             <label class="form-check-label">Online payment</label>
                                                                         </div>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button id="btnDeposit" class="btn btn-success w-100">Nạp Tiền</button>
+                                                                        <button id="btnDeposit" class="btn btn-success w-100">Deposit</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                </div>
+
 
                                                     <!-- Rút tiền form -->
-                                                    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog modal-dialog-centered">
-                                                            <div class="modal-content shadow">
-                                                                <div class="modal-header bg-danger text-white">
-                                                                    <h5 class="modal-title" id="withdrawModalLabel">Rút Tiền</h5>
-                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                                </div>
-                                                                <form>
-                                                                    @Html.AntiForgeryToken()
-                                                                    <div class="modal-body">
-                                                                        <label class="form-label">Số tiền rút</label>
-                                                                        <input type="number" min="1000" step="1000" class="form-control mb-3" id="numOrderVut" placeholder="Nhập số tiền (VND)">
-                                                                        <label class="form-label">Phương thức rút</label>
-                                                                        <div class="form-check">
-                                                                            <input class="form-check-input" type="radio" name="withdrawType" checked>
-                                                                            <label class="form-check-label">Chuyển khoản ngân hàng</label>
-                                                                        </div>
-                                                                        <label class="form-label mt-3">Ngân Hàng</label>
-                                                                        <select class="form-control" id="bankSelect" style="width:100%"></select>
-                                                                        <label class="form-label mt-3">Tên tài khoản nhận</label>
-                                                                        <input type="text" class="form-control" id="nameAcc" placeholder="Tên chủ tài khoản">
-                                                                        <label class="form-label mt-3">Số tài khoản</label>
-                                                                        <input type="text" class="form-control" id="umaccou" placeholder="Số tài khoản">
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button id="btnWithdraw" class="btn btn-danger w-100">Rút Tiền</button>
-                                                                    </div>
-                                                                </form>
+                                                <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                        <div class="modal-content shadow">
+                                                            <div class="modal-header bg-danger text-white">
+                                                                <h5 class="modal-title" id="withdrawModalLabel">Withdraw Money</h5>
+                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                             </div>
+                                                            <form>
+                                                                @Html.AntiForgeryToken()
+                                                                <div class="modal-body">
+                                                                    <label class="form-label">Withdrawal Amount</label>
+                                                                    <input type="number" min="1000" step="1000" class="form-control mb-3" id="numOrderVut" placeholder="Enter amount (VND)">
+
+                                                                    <label class="form-label">Withdrawal Method</label>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="radio" name="withdrawType" checked>
+                                                                        <label class="form-check-label">Bank Transfer</label>
+                                                                    </div>
+
+                                                                    <label class="form-label mt-3">Bank</label>
+                                                                    <select class="form-control" id="bankSelect" style="width:100%"></select>
+
+                                                                    <label class="form-label mt-3">Account Holder Name</label>
+                                                                    <input type="text" class="form-control" id="nameAcc" placeholder="Account holder name">
+
+                                                                    <label class="form-label mt-3">Account Number</label>
+                                                                    <input type="text" class="form-control" id="umaccou" placeholder="Account number">
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button id="btnWithdraw" class="btn btn-danger w-100">Withdraw</button>
+                                                                </div>
+                                                            </form>
                                                         </div>
                                                     </div>
+                                                </div>
+
 
 
                                                 </div>
@@ -2222,12 +2244,13 @@ document.addEventListener("click", function (e) {
                 });
 
                 $('#btnDeposit').html('Add Payment').prop('disabled', false);
-            }, 100); 
+            }, 100);
             return;
         }
 
-        $('#btnDeposit').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnDeposit').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
+
 
         $.ajax({
             url: "@Url.Action("AddBalance", "Users")",
@@ -2240,8 +2263,8 @@ document.addEventListener("click", function (e) {
             success: function (response) {
                 if (response.success) {
                     Swal.fire({
-                        title: 'Thành công!',
-                        text: 'Bạn sẽ được chuyển hướng đến trang thanh toán...',
+                        title: 'Success!',
+                        text: 'You will be redirected to the payment page...',
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then((result) => {
@@ -2250,11 +2273,12 @@ document.addEventListener("click", function (e) {
                         }
                     });
 
+
                 } else {
                     new Notify({
                         status: 'error',
-                        title: 'Thất Bại',
-                        text: response.msg || 'Gửi thất bại!',
+                        title: 'Failed',
+                        text: response.msg || 'Submission failed!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -2263,14 +2287,15 @@ document.addEventListener("click", function (e) {
                         autotimeout: 3000,
                         position: 'right top'
                     });
+
                 }
                 $('#btnDeposit').html('Add Payment').prop('disabled', false);
             },
             error: function () {
                 new Notify({
                     status: 'error',
-                    title: 'Thất Bại',
-                    text: response.msg || 'Gửi thất bại!',
+                    title: 'Failed',
+                    text: response.msg || 'Submission failed!',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,
@@ -2279,6 +2304,7 @@ document.addEventListener("click", function (e) {
                     autotimeout: 3000,
                     position: 'right top'
                 });
+
                 $('#btnDeposit').html('Add Payment').prop('disabled', false);
             }
         });
@@ -2287,33 +2313,36 @@ document.addEventListener("click", function (e) {
 
 <script type="text/javascript">
     $("#btnWithdraw").on("click", function () {
-        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
+
         var checkbox = parseInt($("#numOrderVut").val(), 10);
         var token = $("input[name='__RequestVerificationToken']").val();
 
         if (isNaN(checkbox) || checkbox < 50000) {
             setTimeout(() => {
-            new Notify({
-                status: 'error',
-                title: 'Thất Bại',
-                text: 'Số tiền rút tối thiểu là 50,000 Vnd',
-                effect: 'fade',
-                speed: 300,
-                showIcon: true,
-                showCloseButton: true,
-                autoclose: true,
-                autotimeout: 3000,
-                position: 'right top'
-            });
+                new Notify({
+                    status: 'error',
+                    title: 'Failed',
+                    text: 'The minimum withdrawal amount is 50,000 VND',
+                    effect: 'fade',
+                    speed: 300,
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    position: 'right top'
+                });
+
             $('#btnWithdraw').html('Withdraw').prop('disabled', false);
         }, 100);
     return;
 
         }
 
-        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
+
 
         $.ajax({
             url: "@Url.Action("Withdraw", "Users")",
@@ -2323,15 +2352,15 @@ document.addEventListener("click", function (e) {
                 number: $("#numOrderVut").val(),
                 nameAcc: $("#nameAcc").val(),
                 numAccount: $("#umaccou").val(),
-                code: $("#code").val(),
+                code: $("#bankSelect").val(),
                 __RequestVerificationToken: token
             },
             success: function (response) {
                 if (response.success) {
                     new Notify({
                         status: 'success',
-                        title: 'Thành công!',
-                        text: response.msg || 'Gửi thành công!',
+                        title: 'Success!',
+                        text: response.msg || 'Sent successfully!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -2341,11 +2370,12 @@ document.addEventListener("click", function (e) {
                         position: 'right top'
                     });
 
+
                 } else {
                     new Notify({
                         status: 'error',
-                        title: 'Thất Bại',
-                        text: response.msg || 'Gửi thất bại!',
+                        title: 'Failed',
+                        text: response.msg || 'Submission failed!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -2354,15 +2384,17 @@ document.addEventListener("click", function (e) {
                         autotimeout: 3000,
                         position: 'right top'
                     });
+
                 }
                 $('#btnWithdraw').html('Withdraw').prop('disabled', false);
             },
             error: function () {
                 Swal.fire(
-                    'Thất bại',
-                    "Đã xảy ra lỗi",
+                    'Failed',
+                    'An error occurred',
                     'error'
                 );
+
                 $('#btnWithdraw').html('Withdraw').prop('disabled', false);
             }
         });
