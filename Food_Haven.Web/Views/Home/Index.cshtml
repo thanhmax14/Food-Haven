@@ -1,4 +1,6 @@
-﻿@model List<Repository.ViewModels.ProductsViewModel>;
+﻿@using Food_Haven.Web.Controllers
+@model HomeViewModel
+
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 
@@ -12,11 +14,14 @@
     <meta property="og:type" content="" />
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="~/assets/css/plugins/slider-range.css" />
+
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
-    
+
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- SweetAlert2 JS -->
@@ -26,13 +31,103 @@
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
-            <!-- Icons Css -->
+    <!-- Icons Css -->
     <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
-
 </head>
 
 <body>
     <!-- Quick view -->
+    @* <div class="modal fade custom-modal" id="quickViewModal" tabindex="-1" aria-labelledby="quickViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
+                            <div class="detail-gallery">
+                                <span class="zoom-icon"><i class="fi-rs-search"></i></span>
+                                <!-- MAIN SLIDES -->
+                                <div class="product-image-slider">
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-2.jpg" alt="product image" />
+                                    </figure>
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-1.jpg" alt="product image" />
+                                    </figure>
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-3.jpg" alt="product image" />
+                                    </figure>
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-4.jpg" alt="product image" />
+                                    </figure>
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-5.jpg" alt="product image" />
+                                    </figure>
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-6.jpg" alt="product image" />
+                                    </figure>
+                                    <figure class="border-radius-10">
+                                        <img src="~/assets/imgs/shop/product-16-7.jpg" alt="product image" />
+                                    </figure>
+                                </div>
+                                <!-- THUMBNAILS -->
+                                <div class="slider-nav-thumbnails">
+                                    <div><img src="~/assets/imgs/shop/thumbnail-3.jpg" alt="product image" /></div>
+                                    <div><img src="~/assets/imgs/shop/thumbnail-4.jpg" alt="product image" /></div>
+                                    <div><img src="~/assets/imgs/shop/thumbnail-5.jpg" alt="product image" /></div>
+                                    <div><img src="~/assets/imgs/shop/thumbnail-6.jpg" alt="product image" /></div>
+                                    <div><img src="~/assets/imgs/shop/thumbnail-7.jpg" alt="product image" /></div>
+                                    <div><img src="~/assets/imgs/shop/thumbnail-8.jpg" alt="product image" /></div>
+                                    <div><img src="~/assets/imgs/shop/thumbnail-9.jpg" alt="product image" /></div>
+                                </div>
+                            </div>
+                            <!-- End Gallery -->
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <div class="detail-info pr-30 pl-30">
+                                <span class="stock-status out-stock"> Sale Off </span>
+                                <h3 class="title-detail"><a href="shop-product-right.html" class="text-heading">Seeds of Change Organic Quinoa, Brown</a></h3>
+                                <div class="product-detail-rating">
+                                    <div class="product-rate-cover text-end">
+                                        <div class="product-rate d-inline-block">
+                                            <div class="product-rating" style="width: 90%"></div>
+                                        </div>
+                                        <span class="font-small ml-5 text-muted"> (32 reviews)</span>
+                                    </div>
+                                </div>
+                                <div class="clearfix product-price-cover">
+                                    <div class="product-price primary-color float-left">
+                                        <span class="current-price text-brand">$38</span>
+                                        <span>
+                                            <span class="save-price font-md color3 ml-15">26% Off</span>
+                                            <span class="old-price font-md ml-15">$52</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="detail-extralink mb-30">
+                                    <div class="detail-qty border radius">
+                                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                        <span class="qty-val">1</span>
+                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                    </div>
+                                    <div class="product-extra-link2">
+                                        <button type="submit" class="button button-add-to-cart"><i class="fi-rs-shopping-cart"></i>Add to cart</button>
+                                    </div>
+                                </div>
+                                <div class="font-xs">
+                                    <ul>
+                                        <li class="mb-5">Vendor: <span class="text-brand">Nest</span></li>
+                                        <li class="mb-5">MFG:<span class="text-brand"> Jun 4.2024</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Detail Info -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> *@
     @await Html.PartialAsync("_Header")
     @* <div class="mobile-header-active mobile-header-wrapper-style">
         <div class="mobile-header-wrapper-inner">
@@ -218,1588 +313,301 @@
     </div> *@
     <!--End header-->
     <main class="main">
-        <section class="home-slider style-2 position-relative mb-50">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xl-8 col-lg-12">
-                        <div class="home-slide-cover">
-                            <div class="hero-slider-1 style-4 dot-style-1 dot-style-1-position-1">
-                                <div class="single-hero-slider single-animation-wrap"
-                                     style="background-image: url(~/assets/imgs/slider/slider-3.png)">
-                                    <div class="slider-content">
-                                        <h1 class="display-2 mb-40">
-                                            Pure Coffe<br />
-                                            Big discount
-                                        </h1>
-                                        <p class="mb-65">Save up to 50% off on your first order</p>
-                                        <form class="form-subcriber d-flex">
-                                            <input type="email" placeholder="Your emaill address" />
-                                            <button class="btn" type="submit">Subscribe</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="single-hero-slider single-animation-wrap"
-                                     style="background-image: url(~/assets/imgs/slider/slider-4.png)">
-                                    <div class="slider-content">
-                                        <h1 class="display-2 mb-40">
-                                            Snacks box<br />
-                                            daily save
-                                        </h1>
-                                        <p class="mb-65">Sign up for the daily newsletter</p>
-                                        <form class="form-subcriber d-flex">
-                                            <input type="email" placeholder="Your emaill address" />
-                                            <button class="btn" type="submit">Subscribe</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slider-arrow hero-slider-1-arrow"></div>
+        <section class="home-slider position-relative mb-30">
+            <div class="home-slide-cover">
+                <div class="hero-slider-1 style-4 dot-style-1 dot-style-1-position-1">
+                    <div class="single-hero-slider rectangle single-animation-wrap"
+                        style="background-image: url(/assets/imgs/slider/slider-5.png)">
+                        <div class="slider-content">
+                            <h1 class="display-2 mb-40">
+                                Don’t miss<br />
+                                amazing deals
+                            </h1>
+                            <p class="mb-65">Sign up for the daily newsletter</p>
+                            <form class="form-subcriber d-flex">
+                                <input type="email" placeholder="Your emaill address" />
+                                <button class="btn" type="submit">Subscribe</button>
+                            </form>
                         </div>
                     </div>
-                    <div class="col-lg-4 d-none d-xl-block">
-                        <div class="banner-img style-3 animated animated">
-                            <div class="banner-text mt-50">
-                                <h2 class="mb-50">
-                                    Delivered <br />
-                                    to
-                                    <span class="text-brand">
-                                        your<br />
-                                        home
-                                    </span>
-                                </h2>
-                                <a href="shop-grid-right.html" class="btn btn-xs">
-                                    Shop Now <i class="fi-rs-arrow-small-right"></i>
-                                </a>
-                            </div>
+                    <div class="single-hero-slider rectangle single-animation-wrap"
+                        style="background-image: url(/assets/imgs/slider/slider-6.png)">
+                        <div class="slider-content">
+                            <h1 class="display-2 mb-40">
+                                Fresh Vegetables<br />
+                                Big discount
+                            </h1>
+                            <p class="mb-65">Save up to 50% off on your first order</p>
+                            <form class="form-subcriber d-flex">
+                                <input type="email" placeholder="Your emaill address" />
+                                <button class="btn" type="submit">Subscribe</button>
+                            </form>
                         </div>
                     </div>
                 </div>
+                <div class="slider-arrow hero-slider-1-arrow"></div>
             </div>
         </section>
-        <!--End hero slider-->
-        <section class="banners mb-25">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="banner-img">
-                            <img src="~/assets/imgs/banner/banner-1.png" alt="" />
-                            <div class="banner-text">
-                                <h4>
-                                    Everyday Fresh & <br />Clean with Our<br />
-                                    Products
-                                </h4>
-                                <a href="" class="btn btn-xs">
-                                    Shop Now <i class="fi-rs-arrow-small-right"></i>
-                                </a>
+        <!--End hero-->
+        <div class="container mb-30">
+            <div class="row">
+                <div class="col-lg-4-5">
+                    <section class="product-tabs section-padding position-relative">
+                        <div class="section-title style-2">
+                            <h3>Popular Products</h3>
+                            <ul class="nav nav-tabs links" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab"
+                                        data-bs-target="#tab-one" type="button" role="tab" aria-controls="tab-one"
+                                        aria-selected="true" onclick="filterByCategory('all')">
+                                        All
+                                    </button>
+                                </li>
+
+                               @if (Model.Categories != null && Model.Categories.Any())
+{
+    @foreach (var category in Model.Categories.Take(6))
+    {
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="nav-tab-@category.ID" data-bs-toggle="tab"
+                    data-bs-target="#tab-@category.ID" type="button" role="tab"
+                    aria-controls="tab-@category.ID" aria-selected="false"
+                    onclick="filterByCategory('@category.ID')">
+                @category.Name
+            </button>
+        </li>
+    }
+}
+
+                            </ul>
+                        </div>
+
+            <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+        <div class="row product-grid-4" id="product-container">
+            @if (ViewData["HasSearchResults"] as bool? == true || (Model.SearchResults?.Any() ?? false))
+            {
+                @await Html.PartialAsync("_ProductGrid", Model.SearchResults)
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <h4>No products found</h4>
+                        <p>Try adjusting your filters or search criteria.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+                    </section>
+                </div>
+
+                <div class="col-lg-1-5 primary-sidebar sticky-sidebar pt-30">
+                    <div class="sidebar-widget widget-category-2 mb-30">
+                        <h5 class="section-title style-1 mb-30">Category</h5>
+                        <ul>
+                            @foreach (var category in Model.Categories
+                                                        .Where(c => c.Products != null && c.Products.Any()) // Filter categories with products
+                                                        .OrderByDescending(c => c.Products.Count) // Sort by the number of products (optional)
+                                                        .Take(5)) // Take the top 5 categories with the most products
+                            {
+                                <li>
+                                    <a href="/Home/GetAllProductOfCategory/@category.ID"
+                                        onclick="filterBySpecificCategory('@category.ID')">
+                                        <img src="~/assets/imgs/theme/icons/category-1.svg" alt="" />@category.Name
+                                    </a>
+                                    <span class="count">@(category.Products?.Count() ?? 0)</span>
+                                </li>
+                            }
+                        </ul>
+
+                    </div>
+
+                    <div class="sidebar-widget range mb-30">
+                        <h5 class="section-title style-1 mb-30">Fill by price</h5>
+                        <div class="price-filter">
+                            <div class="price-filter-inner">
+                                <div class="mb-20">
+                                    <label for="minPrice">Min Price:</label>
+                                    <input type="number" id="minPrice" class="form-control" placeholder="0" min="0"
+                                        step="0.01">
+                                </div>
+                                <div class="mb-20">
+                                    <label for="maxPrice">Max Price:</label>
+                                    <input type="number" id="maxPrice" class="form-control" placeholder="1000" min="0"
+                                        step="0.01">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div class="caption">From: <strong id="display-min-price"
+                                            class="text-brand">$0</strong></div>
+                                    <div class="caption">To: <strong id="display-max-price"
+                                            class="text-brand">$1000</strong></div>
+                                </div>
                             </div>
                         </div>
+                        <button onclick="applyPriceFilter()" class="btn btn-sm btn-default">
+                            <i class="fi-rs-filter mr-5"></i> Filter
+                        </button>
+                        <button onclick="clearFilters()" class="btn btn-sm btn-default ml-2">
+                            <i class="fi-rs-refresh mr-5"></i> Clear
+                        </button>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="banner-img">
-                            <img src="~/assets/imgs/banner/banner-2.png" alt="" />
-                            <div class="banner-text">
-                                <h4>
-                                    Make your Breakfast<br />
-                                    Healthy and Easy
-                                </h4>
-                                <a href="" class="btn btn-xs">
-                                    Shop Now <i class="fi-rs-arrow-small-right"></i>
-                                </a>
-                            </div>
+
+                    @* <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                        <img src="~/assets/imgs/banner/banner-11.png" alt="" />
+                        <div class="banner-text">
+                            <span>Organic</span>
+                            <h4>
+                                Save 17% <br />
+                                on <span class="text-brand">Organic</span><br />
+                                Juice
+                            </h4>
                         </div>
-                    </div>
-                    <div class="col-lg-4 d-md-none d-lg-flex">
-                        <div class="banner-img mb-sm-0">
-                            <img src="~/assets/imgs/banner/banner-3.png" alt="" />
-                            <div class="banner-text">
-                                <h4>The best Organic <br />Products Online</h4>
-                                <a href="" class="btn btn-xs">
-                                    Shop Now <i class="fi-rs-arrow-small-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    </div> *@
                 </div>
             </div>
-        </section>
-        <!--End banners-->
-        <section class="product-tabs section-padding position-relative">
+        </div>
+
+        <section class="popular-categories section-padding">
             <div class="container">
-                <div class="section-title style-2">
-                    <h3>All Products</h3>
-
+                <div class="section-title">
+                    <div class="title">
+                        <h3>Shop by Categories</h3>
+                        <a class="show-all" href="/Home/GetAllCategory">
+                            All Categories
+                            <i class="fi-rs-angle-right"></i>
+                        </a>
+                    </div>
+                    <div class="slider-arrow slider-arrow-2 flex-right carausel-8-columns-arrow"
+                        id="carausel-8-columns-arrows"></div>
                 </div>
-                <!--End nav-tabs-->
-                <div class="row product-grid">
-
-                   @if (Model.Any())
-                    {
-                        @Html.AntiForgeryToken()
-                        foreach (var item in Model)
+                <div class="carausel-8-columns-cover position-relative">
+                    <div class="carausel-8-columns" id="carausel-8-columns">
+                        @foreach (var category in Model.Categories)
                         {
-                            <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-                                <div class="product-cart-wrap mb-30">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@item.ID">
-                                                @if (item.Img != null && item.Img.Count > 0)
-                                                {
-                                                    <img class="default-img" src="@item.Img.FirstOrDefault()" alt="Default Image" />
-
-                                                    @if (item.Img.Count > 1)
-                                                    {
-                                                        <img class="hover-img" src="@item.Img.Skip(1).FirstOrDefault()" alt="Hover Image" />
-                                                    }
-                                                }
-
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="@(item.IsWishList ? "Remove wishlist" : "Add To Wishlist")"
-                                               class="action-btn"
-                                               onclick="AddWishlist(this, '@item.ID')">
-                                                <i class="fi-rs-heart @(item.IsWishList ? " text-danger" : "")"></i>
-                                            </a>
-
-                                            <a aria-label="Compare" class="action-btn" href="">
-                                                <i class="fi-rs-shuffle"></i>
-                                            </a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                               data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="">@item.CategoryName</a>
-                                        </div>
-                                        <h2><a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@item.ID">@item.Name</a></h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 90%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                        <div>
-                                           
-                                                By <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@item.StoreId">@item.StoreName</a>
-                                            
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                @if (item.Price == 0)
-                                                {
-                                                    <span class="out-of-stock">Out of Stock</span>
-                                                }
-                                                else
-                                                {
-                                                    <span>@item.Price</span>
-                                                    <span class="old-price">@item.Price</span>
-                                                }
-                                            </div>
-                                         @*    @if (item.Price > 0)
-                                            {
-                                                <div class="add-cart">
-                                                    <a class="add" href="javascript:void(0);" onclick="AddToCart('@item.ID')">
-                                                        <i class="fi-rs-shopping-cart mr-5"></i>Add
-                                                    </a>
-                                                </div>
-                                            } *@
-                                        </div>
-
-
-                                    </div>
-                                </div>
+                            <div class="card-1">
+                                <figure class="img-hover-scale overflow-hidden">
+                                    <a href="@Url.Action("GetAllProductOfCategory", "Home", new { category.ID })">
+                                        <img src="~/assets/imgs/theme/icons/category-1.svg" alt="" />
+                                    </a>
+                                </figure>
+                                <h6>
+                                    <a href="@Url.Action("GetAllProductOfCategory", "Home", new { category.ID })">
+                                        @category.Name
+                                    </a>
+                                </h6>
                             </div>
-
                         }
-                    } 
-                    <!--end product card-->
-                    <!--end product card-->
-                    <!--end product card-->
-                    <!--end product card-->
-                    <!--end product card-->
-                    <!--end product card-->
-                    <!--end product card-->
-                    <!--end product card-->
+                    </div>
                 </div>
-                <!--End product-grid-4-->
-            </div>
-            <!--En tab one-->
-            <!--end product card-->
-            <!--end product card-->
-            <!--end product card-->
-            </div>
-            <!--End product-grid-4-->
-            </div>
-            <!--En tab seven-->
-            </div>
-            <!--End tab-content-->
             </div>
         </section>
-        <!--Products Tabs-->
-        @* <section class="section-padding pb-5"> *@
-        @*     <div class="container"> *@
-        @*         <div class="section-title"> *@
-        @*             <h3 class="">Daily Best Sells</h3> *@
-        @*             <ul class="nav nav-tabs links" id="myTab-2" role="tablist"> *@
-        @*                 <li class="nav-item" role="presentation"> *@
-        @*                     <button class="nav-link active" id="nav-tab-one-1" data-bs-toggle="tab" *@
-        @*                         data-bs-target="#tab-one-1" type="button" role="tab" aria-controls="tab-one" *@
-        @*                         aria-selected="true">Featured</button> *@
-        @*                 </li> *@
-        @*                 <li class="nav-item" role="presentation"> *@
-        @*                     <button class="nav-link" id="nav-tab-two-1" data-bs-toggle="tab" data-bs-target="#tab-two-1" *@
-        @*                         type="button" role="tab" aria-controls="tab-two" aria-selected="false">Popular</button> *@
-        @*                 </li> *@
-        @*                 <li class="nav-item" role="presentation"> *@
-        @*                     <button class="nav-link" id="nav-tab-three-1" data-bs-toggle="tab" *@
-        @*                         data-bs-target="#tab-three-1" type="button" role="tab" aria-controls="tab-three" *@
-        @*                         aria-selected="false">New added</button> *@
-        @*                 </li> *@
-        @*             </ul> *@
-        @*         </div> *@
-        @*         <div class="row"> *@
-        @*             <div class="col-lg-3 d-none d-lg-flex"> *@
-        @*                 <div class="banner-img style-2"> *@
-        @*                     <div class="banner-text"> *@
-        @*                         <h2 class="mb-100">Bring nature into your home</h2> *@
-        @*                         <a href="shop-grid-right.html" class="btn btn-xs">Shop Now <i *@
-        @*                                 class="fi-rs-arrow-small-right"></i></a> *@
-        @*                     </div> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-lg-9 col-md-12"> *@
-        @*                 <div class="tab-content" id="myTabContent-1"> *@
-        @*                     <div class="tab-pane fade show active" id="tab-one-1" role="tabpanel" *@
-        @*                         aria-labelledby="tab-one-1"> *@
-        @*                         <div class="carausel-4-columns-cover arrow-center position-relative"> *@
-        @*                             <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" *@
-        @*                                 id="carausel-4-columns-arrows"></div> *@
-        @*                             <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns"> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-1-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-1-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="hot">Save 15%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Seeds of Change Organic Quinoa, *@
-        @*                                                 Brown</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-5-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-5-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="new">Save 35%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">All Natural Italian-Style Chicken *@
-        @*                                                 Meatballs</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-2-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-2-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="sale">Sale</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Angie’s Boomchickapop Sweet and *@
-        @*                                                 womnies</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-3-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-3-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="best">Best sale</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Foster Farms Takeout Crispy *@
-        @*                                                 Classic </a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-4-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-4-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="hot">Save 15%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Blue Diamond Almonds Lightly *@
-        @*                                                 Salted</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                     <!--End tab-pane--> *@
-        @*                     <div class="tab-pane fade" id="tab-two-1" role="tabpanel" aria-labelledby="tab-two-1"> *@
-        @*                         <div class="carausel-4-columns-cover arrow-center position-relative"> *@
-        @*                             <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" *@
-        @*                                 id="carausel-4-columns-2-arrows"></div> *@
-        @*                             <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns-2"> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-10-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-10-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="hot">Save 15%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Canada Dry Ginger Ale – 2 L *@
-        @*                                                 Bottle</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-15-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-15-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="new">Save 35%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Encore Seafoods Stuffed *@
-        @*                                                 Alaskan</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-12-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-12-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="sale">Sale</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Gorton’s Beer Battered Fish </a> *@
-        @*                                         </h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-13-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-13-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="best">Best sale</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Haagen-Dazs Caramel Cone Ice</a> *@
-        @*                                         </h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-14-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-14-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="hot">Save 15%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Italian-Style Chicken Meatball</a> *@
-        @*                                         </h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                     <div class="tab-pane fade" id="tab-three-1" role="tabpanel" aria-labelledby="tab-three-1"> *@
-        @*                         <div class="carausel-4-columns-cover arrow-center position-relative"> *@
-        @*                             <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" *@
-        @*                                 id="carausel-4-columns-3-arrows"></div> *@
-        @*                             <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns-3"> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-7-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-7-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="hot">Save 15%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Perdue Simply Smart Organics *@
-        @*                                                 Gluten Free</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-8-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-8-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="new">Save 35%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Seeds of Change Organic Quinoa</a> *@
-        @*                                         </h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-9-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-9-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="sale">Sale</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Signature Wood-Fired Mushroom</a> *@
-        @*                                         </h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-13-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-13-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="best">Best sale</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Simply Lemonade with Raspberry *@
-        @*                                                 Juice</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                                 <div class="product-cart-wrap"> *@
-        @*                                     <div class="product-img-action-wrap"> *@
-        @*                                         <div class="product-img product-img-zoom"> *@
-        @*                                             <a href="shop-product-right.html"> *@
-        @*                                                 <img class="default-img" src="~/assets/imgs/shop/product-14-1.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                                 <img class="hover-img" src="~/assets/imgs/shop/product-14-2.jpg" *@
-        @*                                                     alt="" /> *@
-        @*                                             </a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-action-1"> *@
-        @*                                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-        @*                                                 data-bs-toggle="modal" data-bs-target="#quickViewModal"> <i *@
-        @*                                                     class="fi-rs-eye"></i></a> *@
-        @*                                             <a aria-label="Add To Wishlist" class="action-btn small hover-up" *@
-        @*                                                 href="shop-wishlist.html"><i class="fi-rs-heart"></i></a> *@
-        @*                                             <a aria-label="Compare" class="action-btn small hover-up" *@
-        @*                                                 href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-        @*                                             <span class="hot">Save 15%</span> *@
-        @*                                         </div> *@
-        @*                                     </div> *@
-        @*                                     <div class="product-content-wrap"> *@
-        @*                                         <div class="product-category"> *@
-        @*                                             <a href="shop-grid-right.html">Hodo Foods</a> *@
-        @*                                         </div> *@
-        @*                                         <h2><a href="shop-product-right.html">Organic Quinoa, Brown, & Red *@
-        @*                                                 Rice</a></h2> *@
-        @*                                         <div class="product-rate d-inline-block"> *@
-        @*                                             <div class="product-rating" style="width: 80%"></div> *@
-        @*                                         </div> *@
-        @*                                         <div class="product-price mt-10"> *@
-        @*                                             <span>$238.85 </span> *@
-        @*                                             <span class="old-price">$245.8</span> *@
-        @*                                         </div> *@
-        @*                                         <div class="sold mt-15 mb-15"> *@
-        @*                                             <div class="progress mb-5"> *@
-        @*                                                 <div class="progress-bar" role="progressbar" style="width: 50%" *@
-        @*                                                     aria-valuemin="0" aria-valuemax="100"></div> *@
-        @*                                             </div> *@
-        @*                                             <span class="font-xs text-heading"> Sold: 90/120</span> *@
-        @*                                         </div> *@
-        @*                                         <a href="shop-cart.html" class="btn w-100 hover-up"><i *@
-        @*                                                 class="fi-rs-shopping-cart mr-5"></i>Add To Cart</a> *@
-        @*                                     </div> *@
-        @*                                 </div> *@
-        @*                                 <!--End product Wrap--> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                 </div> *@
-        @*                 <!--End tab-content--> *@
-        @*             </div> *@
-        @*             <!--End Col-lg-9--> *@
-        @*         </div> *@
-        @*     </div> *@
-        @* </section> *@
-        <!--End Best Sales-->
-        @* <section class="section-padding pb-5"> *@
-        @*     <div class="container"> *@
-        @*         <div class="section-title"> *@
-        @*             <h3 class="">Deals Of The Day</h3> *@
-        @*             <a class="show-all" href="shop-grid-right.html"> *@
-        @*                 All Deals *@
-        @*                 <i class="fi-rs-angle-right"></i> *@
-        @*             </a> *@
-        @*         </div> *@
-        @*         <div class="row"> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6"> *@
-        @*                 <div class="product-cart-wrap style-2"> *@
-        @*                     <div class="product-img-action-wrap"> *@
-        @*                         <div class="product-img"> *@
-        @*                             <a href="shop-product-right.html"> *@
-        @*                                 <img src="~/assets/imgs/banner/banner-5.png" alt="" /> *@
-        @*                             </a> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                     <div class="product-content-wrap"> *@
-        @*                         <div class="deals-countdown-wrap"> *@
-        @*                             <div class="deals-countdown" data-countdown="2025/03/25 00:00:00"></div> *@
-        @*                         </div> *@
-        @*                         <div class="deals-content"> *@
-        @*                             <h2><a href="shop-product-right.html">Seeds of Change Organic Quinoa, Brown, & Red *@
-        @*                                     Rice</a></h2> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div> *@
-        @*                                 <span class="font-small text-muted">By <a *@
-        @*                                         href="vendor-details-1.html">NestFood</a></span> *@
-        @*                             </div> *@
-        @*                             <div class="product-card-bottom"> *@
-        @*                                 <div class="product-price"> *@
-        @*                                     <span>$32.85</span> *@
-        @*                                     <span class="old-price">$33.8</span> *@
-        @*                                 </div> *@
-        @*                                 <div class="add-cart"> *@
-        @*                                     <a class="add" href="shop-cart.html"><i *@
-        @*                                             class="fi-rs-shopping-cart mr-5"></i>Add </a> *@
-        @*                                 </div> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6"> *@
-        @*                 <div class="product-cart-wrap style-2"> *@
-        @*                     <div class="product-img-action-wrap"> *@
-        @*                         <div class="product-img"> *@
-        @*                             <a href="shop-product-right.html"> *@
-        @*                                 <img src="~/assets/imgs/banner/banner-6.png" alt="" /> *@
-        @*                             </a> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                     <div class="product-content-wrap"> *@
-        @*                         <div class="deals-countdown-wrap"> *@
-        @*                             <div class="deals-countdown" data-countdown="2026/04/25 00:00:00"></div> *@
-        @*                         </div> *@
-        @*                         <div class="deals-content"> *@
-        @*                             <h2><a href="shop-product-right.html">Perdue Simply Smart Organics Gluten Free</a> *@
-        @*                             </h2> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div> *@
-        @*                                 <span class="font-small text-muted">By <a href="vendor-details-1.html">Old El *@
-        @*                                         Paso</a></span> *@
-        @*                             </div> *@
-        @*                             <div class="product-card-bottom"> *@
-        @*                                 <div class="product-price"> *@
-        @*                                     <span>$24.85</span> *@
-        @*                                     <span class="old-price">$26.8</span> *@
-        @*                                 </div> *@
-        @*                                 <div class="add-cart"> *@
-        @*                                     <a class="add" href="shop-cart.html"><i *@
-        @*                                             class="fi-rs-shopping-cart mr-5"></i>Add </a> *@
-        @*                                 </div> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6 d-none d-lg-block"> *@
-        @*                 <div class="product-cart-wrap style-2"> *@
-        @*                     <div class="product-img-action-wrap"> *@
-        @*                         <div class="product-img"> *@
-        @*                             <a href="shop-product-right.html"> *@
-        @*                                 <img src="~/assets/imgs/banner/banner-7.png" alt="" /> *@
-        @*                             </a> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                     <div class="product-content-wrap"> *@
-        @*                         <div class="deals-countdown-wrap"> *@
-        @*                             <div class="deals-countdown" data-countdown="2027/03/25 00:00:00"></div> *@
-        @*                         </div> *@
-        @*                         <div class="deals-content"> *@
-        @*                             <h2><a href="shop-product-right.html">Signature Wood-Fired Mushroom and *@
-        @*                                     Caramelized</a></h2> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 80%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (3.0)</span> *@
-        @*                             </div> *@
-        @*                             <div> *@
-        @*                                 <span class="font-small text-muted">By <a *@
-        @*                                         href="vendor-details-1.html">Progresso</a></span> *@
-        @*                             </div> *@
-        @*                             <div class="product-card-bottom"> *@
-        @*                                 <div class="product-price"> *@
-        @*                                     <span>$12.85</span> *@
-        @*                                     <span class="old-price">$13.8</span> *@
-        @*                                 </div> *@
-        @*                                 <div class="add-cart"> *@
-        @*                                     <a class="add" href="shop-cart.html"><i *@
-        @*                                             class="fi-rs-shopping-cart mr-5"></i>Add </a> *@
-        @*                                 </div> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6 d-none d-xl-block"> *@
-        @*                 <div class="product-cart-wrap style-2"> *@
-        @*                     <div class="product-img-action-wrap"> *@
-        @*                         <div class="product-img"> *@
-        @*                             <a href="shop-product-right.html"> *@
-        @*                                 <img src="~/assets/imgs/banner/banner-8.png" alt="" /> *@
-        @*                             </a> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                     <div class="product-content-wrap"> *@
-        @*                         <div class="deals-countdown-wrap"> *@
-        @*                             <div class="deals-countdown" data-countdown="2025/02/25 00:00:00"></div> *@
-        @*                         </div> *@
-        @*                         <div class="deals-content"> *@
-        @*                             <h2><a href="shop-product-right.html">Simply Lemonade with Raspberry Juice</a></h2> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 80%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (3.0)</span> *@
-        @*                             </div> *@
-        @*                             <div> *@
-        @*                                 <span class="font-small text-muted">By <a *@
-        @*                                         href="vendor-details-1.html">Yoplait</a></span> *@
-        @*                             </div> *@
-        @*                             <div class="product-card-bottom"> *@
-        @*                                 <div class="product-price"> *@
-        @*                                     <span>$15.85</span> *@
-        @*                                     <span class="old-price">$16.8</span> *@
-        @*                                 </div> *@
-        @*                                 <div class="add-cart"> *@
-        @*                                     <a class="add" href="shop-cart.html"><i *@
-        @*                                             class="fi-rs-shopping-cart mr-5"></i>Add </a> *@
-        @*                                 </div> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </div> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*         </div> *@
-        @*     </div> *@
-        @* </section> *@
-        <!--End Deals-->
-        @* <section class="section-padding mb-30"> *@
-        @*     <div class="container"> *@
-        @*         <div class="row"> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0"> *@
-        @*                 <h4 class="section-title style-1 mb-30 animated animated">Top Selling</h4> *@
-        @*                 <div class="product-list-small animated animated"> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-1.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Nestle Original Coffee-Mate Coffee Creamer</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-2.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Nestle Original Coffee-Mate Coffee Creamer</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-3.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Nestle Original Coffee-Mate Coffee Creamer</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6 mb-md-0"> *@
-        @*                 <h4 class="section-title style-1 mb-30 animated animated">Trending Products</h4> *@
-        @*                 <div class="product-list-small animated animated"> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-4.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Organic Cage-Free Grade A Large Brown Eggs</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-5.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Seeds of Change Organic Quinoa, Brown, & Red *@
-        @*                                     Rice</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-6.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Naturally Flavored Cinnamon Vanilla Light *@
-        @*                                     Roast Coffee</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 d-none d-lg-block"> *@
-        @*                 <h4 class="section-title style-1 mb-30 animated animated">Recently added</h4> *@
-        @*                 <div class="product-list-small animated animated"> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-7.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Pepperidge Farm Farmhouse Hearty White *@
-        @*                                     Bread</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-8.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Organic Frozen Triple Berry Blend</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-9.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Oroweat Country Buttermilk Bread</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*             <div class="col-xl-3 col-lg-4 col-md-6 mb-sm-5 mb-md-0 d-none d-xl-block"> *@
-        @*                 <h4 class="section-title style-1 mb-30 animated animated">Top Rated</h4> *@
-        @*                 <div class="product-list-small animated animated"> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-10.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Foster Farms Takeout Crispy Classic Buffalo *@
-        @*                                     Wings</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-11.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">Angie’s Boomchickapop Sweet & Salty Kettle *@
-        @*                                     Corn</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                     <article class="row align-items-center hover-up"> *@
-        @*                         <figure class="col-md-4 mb-0"> *@
-        @*                             <a href="shop-product-right.html"><img src="~/assets/imgs/shop/thumbnail-12.jpg" *@
-        @*                                     alt="" /></a> *@
-        @*                         </figure> *@
-        @*                         <div class="col-md-8 mb-0"> *@
-        @*                             <h6> *@
-        @*                                 <a href="shop-product-right.html">All Natural Italian-Style Chicken *@
-        @*                                     Meatballs</a> *@
-        @*                             </h6> *@
-        @*                             <div class="product-rate-cover"> *@
-        @*                                 <div class="product-rate d-inline-block"> *@
-        @*                                     <div class="product-rating" style="width: 90%"></div> *@
-        @*                                 </div> *@
-        @*                                 <span class="font-small ml-5 text-muted"> (4.0)</span> *@
-        @*                             </div> *@
-        @*                             <div class="product-price"> *@
-        @*                                 <span>$32.85</span> *@
-        @*                                 <span class="old-price">$33.8</span> *@
-        @*                             </div> *@
-        @*                         </div> *@
-        @*                     </article> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*         </div> *@
-        @*     </div> *@
-        @* </section> *@
-        <!--End 4 columns-->
-        @* <section class="popular-categories section-padding"> *@
-        @*     <div class="container"> *@
-        @*         <div class="section-title"> *@
-        @*             <div class="title"> *@
-        @*                 <h3>Shop by Categories</h3> *@
-        @*                 <a class="show-all" href="shop-grid-right.html"> *@
-        @*                     All Categories *@
-        @*                     <i class="fi-rs-angle-right"></i> *@
-        @*                 </a> *@
-        @*             </div> *@
-        @*             <div class="slider-arrow slider-arrow-2 flex-right carausel-8-columns-arrow" *@
-        @*                 id="carausel-8-columns-arrows"></div> *@
-        @*         </div> *@
-        @*         <div class="carausel-8-columns-cover position-relative"> *@
-        @*             <div class="carausel-8-columns" id="carausel-8-columns"> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-1.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Milks and <br />Dairies</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-2.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Wines & <br /> *@
-        @*                             Alcohol</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-3.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Clothing & <br />Beauty</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-4.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Pet Foods <br />& Toy</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-5.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Packaged <br />fast food</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-6.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Baking <br />material</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-7.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Vegetables <br />& tubers</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-8.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Fresh <br />Seafood</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-9.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6> *@
-        @*                         <a href="shop-grid-right.html">Noodles <br />Rice</a> *@
-        @*                     </h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-10.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6><a href="shop-grid-right.html">Fastfood</a></h6> *@
-        @*                 </div> *@
-        @*                 <div class="card-1"> *@
-        @*                     <figure class="img-hover-scale overflow-hidden"> *@
-        @*                         <a href="shop-grid-right.html"><img src="~/assets/imgs/theme/icons/category-11.svg" *@
-        @*                                 alt="" /></a> *@
-        @*                     </figure> *@
-        @*                     <h6><a href="shop-grid-right.html">Ice cream</a></h6> *@
-        @*                 </div> *@
-        @*             </div> *@
-        @*         </div> *@
-        @*     </div> *@
-        @* </section> *@
-        <!--End category slider-->
+
+        <script>
+            let currentCategoryFilter = 'all';
+            let currentMinPrice = null;
+            let currentMaxPrice = null;
+
+            function filterByCategory(categoryType) {
+                currentCategoryFilter = categoryType;
+
+                $.ajax({
+                    url: '@Url.Action("FilterByCategory", "Home")',
+                    type: 'POST',
+                    data: { categoryType: categoryType },
+                    success: function (data) {
+                        $('#product-container').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error filtering products:', error);
+                    }
+                });
+            }
+
+            function filterBySpecificCategory(categoryId) {
+                $.ajax({
+                    url: '@Url.Action("FilterProducts", "Home")',
+                    type: 'POST',
+                    data: {
+                        categoryId: categoryId,
+                        minPrice: currentMinPrice,
+                        maxPrice: currentMaxPrice
+                    },
+                    success: function (data) {
+                        $('#product-container').html(data);
+                        // Update active tab
+                        $('.nav-link').removeClass('active');
+                        $('#nav-tab-one').addClass('active');
+                        $('.tab-pane').removeClass('show active');
+                        $('#tab-one').addClass('show active');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error filtering products:', error);
+                    }
+                });
+            }
+
+            function applyPriceFilter() {
+                const minPrice = parseFloat($('#minPrice').val()) || null;
+                const maxPrice = parseFloat($('#maxPrice').val()) || null;
+
+                currentMinPrice = minPrice;
+                currentMaxPrice = maxPrice;
+
+                // Update display
+                $('#display-min-price').text('$' + (minPrice || 0));
+                $('#display-max-price').text('$' + (maxPrice || 1000));
+
+                $.ajax({
+                    url: '@Url.Action("FilterProducts", "Home")',
+                    type: 'POST',
+                    data: {
+                        minPrice: minPrice,
+                        maxPrice: maxPrice
+                    },
+                    success: function (data) {
+                        $('#product-container').html(data);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error filtering by price:', error);
+                    }
+                });
+            }
+
+            function clearFilters() {
+                currentMinPrice = null;
+                currentMaxPrice = null;
+                currentCategoryFilter = 'all';
+
+                $('#minPrice').val('');
+                $('#maxPrice').val('');
+                $('#display-min-price').text('$0');
+                $('#display-max-price').text('$1000');
+
+                // Reset to all products
+                filterByCategory('all');
+
+                // Reset active tab
+                $('.nav-link').removeClass('active');
+                $('#nav-tab-one').addClass('active');
+                $('.tab-pane').removeClass('show active');
+                $('#tab-one').addClass('show active');
+            }
+
+            // Update price display when inputs change
+            $(document).ready(function () {
+                $('#minPrice, #maxPrice').on('input', function () {
+                    const minPrice = parseFloat($('#minPrice').val()) || 0;
+                    const maxPrice = parseFloat($('#maxPrice').val()) || 1000;
+
+                    $('#display-min-price').text('$' + minPrice);
+                    $('#display-max-price').text('$' + maxPrice);
+                });
+            });
+        </script>
+
     </main>
     <footer class="main">
         <section class="newsletter mb-15">
@@ -1812,11 +620,8 @@
                                     Stay home & get your daily <br />
                                     needs from our shop
                                 </h2>
-                                <p class="mb-45">
-                                    Start You'r Daily Shopping with <span class="text-brand">
-                                        Food Haven
-                                    </span>
-                                </p>
+                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest
+                                        Mart</span></p>
                                 <form class="form-subcriber d-flex">
                                     <input type="email" placeholder="Your emaill address" />
                                     <button class="btn" type="submit">Subscribe</button>
@@ -1906,32 +711,20 @@
                     <div class="col">
                         <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
                             <div class="logo mb-30">
-                                <a href="" class="mb-15">
-                                    <img src="~/assets/imgs/theme/logo.svg"
-                                         alt="logo" />
-                                </a>
+                                <a href="index.html" class="mb-15"><img src="~/assets/imgs/theme/logo.svg"
+                                        alt="logo" /></a>
                                 <p class="font-lg text-heading">Awesome grocery store website template</p>
                             </div>
                             <ul class="contact-infor">
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>
-                                        Address:
+                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address:
                                     </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span>
                                 </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>
-                                        Call
-                                        Us:
-                                    </strong><span>(+91) - 540-025-124553</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-email-2.svg"
-                                         alt="" /><strong>Email:</strong><span>sale@Nest.com</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-clock.svg"
-                                         alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span>
-                                </li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call
+                                        Us:</strong><span>(+91) - 540-025-124553</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg"
+                                        alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg"
+                                        alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
                             </ul>
                         </div>
                     </div>
@@ -1987,14 +780,10 @@
                         <h4 class="widget-title">Install App</h4>
                         <p class="wow fadeIn animated">From App Store or Google Play</p>
                         <div class="download-app">
-                            <a href="#" class="hover-up mb-sm-2 mb-lg-0">
-                                <img class="active"
-                                     src="~/assets/imgs/theme/app-store.jpg" alt="" />
-                            </a>
-                            <a href="#" class="hover-up mb-sm-2">
-                                <img src="~/assets/imgs/theme/google-play.jpg"
-                                     alt="" />
-                            </a>
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active"
+                                    src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg"
+                                    alt="" /></a>
                         </div>
                         <p class="mb-20">Secured Payment Gateways</p>
                         <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
@@ -2008,10 +797,8 @@
                     <div class="footer-bottom"></div>
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
-                    <p class="font-sm mb-0">
-                        &copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
-                        Template <br />All rights reserved
-                    </p>
+                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
+                        Template <br />All rights reserved</p>
                 </div>
                 <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
                     <div class="hotline d-lg-inline-flex mr-30">
@@ -2047,149 +834,6 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script>
-        function AddToCart(productId) {
-            $.ajax({
-                url: "/Home/AddToCart",  // API to handle adding to cart
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({ ProductID: productId, quantity: 1 }),
-                success: function (response) {
-                    if (response.success) {
-                        new Notify({
-                            status: 'success',
-                            title: 'Success!',
-                            text: response.message,
-                            effect: 'fade',
-                            speed: 300,
-                            showIcon: true,
-                            showCloseButton: true,
-                            autoclose: true,
-                            autotimeout: 3000,
-                            position: 'right top',
-                        });
-                    } else {
-                        new Notify({
-                            status: 'error',
-                            title: 'Error!',
-                            text: response.message,
-                            effect: 'fade',
-                            speed: 300,
-                            showIcon: true,
-                            showCloseButton: true,
-                            autoclose: true,
-                            autotimeout: 3000,
-                            position: 'right top',
-                        });
-                    }
-                },
-                error: function () {
-                    new Notify({
-                        status: 'error',
-                        title: 'Server Error!',
-                        text: "An error occurred, please try again.",
-                        effect: 'fade',
-                        speed: 300,
-                        showIcon: true,
-                        showCloseButton: true,
-                        autoclose: true,
-                        autotimeout: 3000,
-                        position: 'right top',
-                    });
-                }
-            });
-        }
-
-        function AddWishlist(el, id) {
-            var icon = el.querySelector("i");
-            const actionBtn = el;
-
-            if (icon.classList.contains("text-danger")) {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "Do you want to remove this from your wishlist?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, remove!",
-                    cancelButtonText: "Cancel"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "/Home/RemoveWish",
-                            type: "POST",
-                            data: { id: id },
-                            headers: {
-                                "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Success!',
-                                        text: response.message || 'Sent successfully!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    icon.classList.remove("text-danger");
-                                    actionBtn.setAttribute("aria-label", "Add To Wishlist");
-                                } else {
-                                    Swal.fire('Error', response.message, 'error');
-                                }
-                            },
-                            error: function () {
-                                Swal.fire('Error', 'An error occurred while removing from the wishlist.', 'error');
-                            }
-                        });
-                    }
-                });
-            } else {
-                $.ajax({
-                    url: "/Home/AddWish",
-                    type: "POST",
-                    data: { id: id },
-                    headers: {
-                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            new Notify({
-                                status: 'success',
-                                title: 'Success!',
-                                text: response.message || 'Sent successfully!',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
-
-                            icon.classList.add("text-danger");
-                            actionBtn.setAttribute("aria-label", "Remove wishlist");
-                        } else {
-                            Swal.fire('Error', response.message, 'error');
-                        }
-                    },
-                    error: function () {
-                       
-                        Swal.fire('Error', 'An error occurred while adding to the wishlist.', 'error');
-                    }
-                });
-            }
-        }
-
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/notify-js@3/notify.min.js"></script>
-
-
     <!-- Vendor JS-->
     <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
@@ -2198,6 +842,7 @@
     <script src="~/assets/js/plugins/slick.js"></script>
     <script src="~/assets/js/plugins/jquery.syotimer.min.js"></script>
     <script src="~/assets/js/plugins/wow.js"></script>
+    <script src="~/assets/js/plugins/slider-range.js"></script>
     <script src="~/assets/js/plugins/perfect-scrollbar.js"></script>
     <script src="~/assets/js/plugins/magnific-popup.js"></script>
     <script src="~/assets/js/plugins/select2.min.js"></script>

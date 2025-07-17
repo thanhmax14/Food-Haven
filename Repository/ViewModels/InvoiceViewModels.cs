@@ -16,8 +16,9 @@ namespace Repository.ViewModels
         public string?  NameUse { get; set; }
         public string? AddressUse { get; set; }
         public string? phoneUser { get; set; }
+        public string? UrlRdr { get; set; }
         public string? emailUser { get; set; }
-        public decimal? tax { get; set; } = 0;
+        public decimal? subtotal { get; set; } = 0;
         public decimal? discountVocher { get; set; }
         public string? vocherName { get; set; }
         public List<ItemInvoice> itemList { get; set; } = new List<ItemInvoice>();

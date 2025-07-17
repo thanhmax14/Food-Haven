@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Models;
 using Net.payOS;
 using Repository.ViewModels;
@@ -91,93 +92,7 @@ namespace Food_Haven.Web.Controllers
             _service = service;
         }
 
-        public async Task<IActionResult> Index(string searchName, decimal? minPrice = null, decimal? maxPrice = null, int filterCount = 0)
-        {
-            try
-            {
-                // Bắt đầu với truy vấn gốc từ service
-                var query = _product.GetAll().Where(p => p.IsActive);
-                var price = _productvarian.GetAll();
-
-                // Lọc theo tên sản phẩm
-                if (!string.IsNullOrEmpty(searchName))
-                {
-                    query = query.Where(p => p.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase));
-                }
-
-                // Lọc theo giá
-                if (minPrice.HasValue || maxPrice.HasValue)
-                {
-                    decimal min = minPrice ?? 0;
-                    decimal max = maxPrice ?? decimal.MaxValue;
-                    price = price.Where(p => p.SellPrice >= min && p.SellPrice <= max);
-                    filterCount++;
-                }
-
-                // Thực thi truy vấn và chuyển sang ViewModel nếu cần
-                var list = query.Select(p => new ProductsViewModel
-                {
-                    ID = p.ID,
-                    Name = p.Name,
-                    LongDescription = p.LongDescription,
-                    StoreName = p.StoreDetails.Name,
-                    StoreId = p.StoreDetails.ID,
-
-                    // Lấy giá từ biến thể đầu tiên (nếu có)
-                    Price = p.ProductTypes
-              .OrderBy(v => v.SellPrice) // hoặc FirstOrDefault nếu chỉ cần 1
-              .Select(v => v.SellPrice)
-              .FirstOrDefault(),
-
-                    // Lấy danh sách ảnh (ví dụ chuỗi URL hoặc danh sách)
-                    Img = p.ProductImages
-                      .Select(img => img.ImageUrl)
-                      .ToList()
-                }).ToList();
-
-
-                // Gán ViewBag
-                ViewBag.MinPrice = minPrice ?? 0;
-                ViewBag.MaxPrice = maxPrice ?? 2000;
-                ViewBag.FilterCount = filterCount;
-
-
-                var user = await _userManager.GetUserAsync(User);
-                if (user != null)
-                {
-                    if (list.Any())
-                    {
-                        foreach (var item in list)
-                        {
-
-                            var checkWish = await _wishlist.FindAsync(u => u.UserID == user.Id && u.ProductID == item.ID);
-                            if (checkWish != null)
-                            {
-                                item.IsWishList = true;
-                            }
-
-                        }
-                    }
-                }
-
-
-                return View(list);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Lỗi trong ListProducts: {ex.Message}\n{ex.StackTrace}");
-
-                ViewBag.MinPrice = minPrice ?? 0;
-                ViewBag.MaxPrice = maxPrice ?? 2000;
-                ViewBag.FilterCount = filterCount;
-                ViewBag.ErrorMessage = "An error occurred while loading the product list.";
-
-                return View(new List<ProductsViewModel>());
-            }
-        }
-
-
-
+    
         [HttpGet]
         public IActionResult Login(string ReturnUrl = null)
         {
@@ -734,77 +649,7 @@ namespace Food_Haven.Web.Controllers
             return View(storeVM);
         }
 
-        public async Task<IActionResult> ProductDetail(Guid id)
-        {
-
-            // 1. Lấy sản phẩm + cửa hàng
-            var productDetail = await _product.FindAsync(x => x.ID == id);
-            if (productDetail == null)
-                return NotFound();
-
-            // 2. Lấy cửa hàng
-            var store = await _storeDetailService.FindAsync(s => s.ID == productDetail.StoreID);
-            if (store == null)
-                return NotFound("Store not found");
-
-            // 3. Lấy AppUser từ UserID (giống GetStoreDetail)
-            var user = await _userManager.FindByIdAsync(store?.UserID);
-
-            // 4. Lấy loại sản phẩm
-            var productType = await _productvarian.ListAsync(x => x.ProductID == productDetail.ID);
-
-            // 5. Khởi tạo ViewModel
-            var viewModel = new ProductDetailsViewModel
-            {
-                ID = productDetail.ID,
-                Name = productDetail.Name,
-                StoreName = store.Name ?? "Hollow",
-                Owner = user?.UserName ?? store?.UserID ?? "Hollow",
-                StoreID = productDetail.StoreID,
-                UserID = store.UserID, // ✅ Gán thêm dòng này
-                ShortDescription = productDetail.ShortDescription,
-                LongDescription = productDetail.LongDescription,
-                CreatedDate = productDetail.CreatedDate,
-                Stock = productType.FirstOrDefault()?.Stock ?? 0
-            };
-
-
-            // 6. Ảnh sản phẩm
-            var productImages = await _productimg.ListAsync(i => i.ProductID == id);
-            viewModel.Img = productImages.Select(i => i.ImageUrl).ToList();
-
-            // 7. Biến thể (variants)
-            var variants = (await _productvarian.ListAsync(v => v.ProductID == id && v.IsActive)).ToList();
-            viewModel.size = variants.Select(v => v.Name).ToList();
-            viewModel.Variant = variants.Select(v => new ProductVariantViewModel
-            {
-                ID = v.ID,
-                Name = v.Name,
-                Price = v.SellPrice,
-                Stock = v.Stock
-            }).ToList();
-
-            var firstVariant = variants.FirstOrDefault();
-            viewModel.Price = firstVariant?.SellPrice ?? 0;
-            viewModel.Stocks = firstVariant?.Stock ?? 0;
-
-            // 8. Danh mục
-            var category = await _categoryService.FindAsync(c => c.ID == productDetail.CategoryID);
-            viewModel.CategoryName = category?.Name;
-
-            // 9. Bình luận
-            var comments = await _reviewService.ListAsync(c => c.ProductID == id);
-            viewModel.Comments = comments.Select(c => new CommentViewModels
-            {
-                Username = c.UserID,
-                Cmt = c.Comment,
-                Datecmt = c.CommentDate
-            }).ToList();
-
-            return View(viewModel);
-        }
-
-
+       
         public async Task<IActionResult> GetAllProductOfCategory(Guid id)
         {
             // Kiểm tra danh mục có tồn tại không
@@ -1553,7 +1398,7 @@ namespace Food_Haven.Web.Controllers
             else
             {
                 // Khi không có searchName, sử dụng toàn bộ products như Index1
-                return RedirectToAction(nameof(Index1));
+                return RedirectToAction(nameof(Index));
 
             }
 
@@ -1914,7 +1759,7 @@ namespace Food_Haven.Web.Controllers
         {
             return View();
         }
-        public async Task<IActionResult> Index1()
+        public async Task<IActionResult> Index()
         {
             // 1. Lấy danh mục (chỉ danh mục active)
             var categories = await _categoryService.ListAsync(
@@ -2131,7 +1976,7 @@ namespace Food_Haven.Web.Controllers
             return Json(result);
         }
 
-        public async Task<IActionResult> ProductDetail1(Guid id)
+        public async Task<IActionResult> ProductDetail(Guid id)
         {
             var productDetail = await _product.FindAsync(x => x.ID == id && x.IsActive);
             if (productDetail == null)
@@ -2249,51 +2094,124 @@ namespace Food_Haven.Web.Controllers
         {
             var tem = new InvoiceViewModels();
 
-            if (Guid.TryParse(id, out var InvoiceID))
-            {
-                  var order = await _order.FindAsync(o => o.ID == InvoiceID && o.IsActive);
-                  if( order != null)
-                  {
-
-                  }
-                var balance = await _balance.FindAsync(b => b.ID == InvoiceID && b.Display);
-                var getUser = await _userManager.FindByIdAsync(balance.UserID);
-                if (balance != null && getUser!=null)
-                {
-                    if (balance.Method == "Withdraw" || balance.Method == "Deposit")
-                    {
-                        tem.orderCoce = id;
-                        tem.invoiceDate = balance.StartTime;
-                        tem.DueDate = balance.DueTime;
-                        tem.NameUse = getUser.FirstName + " " + getUser.LastName;
-                        tem.paymentMethod = balance.Method;
-                        tem.status = balance.Status;
-                        tem.emailUser = getUser.Email;
-                        tem.phoneUser = getUser.PhoneNumber;
-                        tem.tax = 0;
-                        tem.AddressUse = getUser.Address;
-                        tem.itemList.Add(new ItemInvoice
-                        {
-                            amount = balance.MoneyChange,
-                            nameItem = balance.Method == "Withdraw"
-                        ? $"Withdraw to {getUser.UserName}"
-                       : balance.Method == "Deposit"
-                       ? $"Deposit to {getUser.UserName}"
-                       : "",
-                            quantity = 1,
-                            unitPrice = balance.MoneyChange
-
-                        });
-                        return View(tem);
-                    }                
-                }
-            }
-            else
+            if (!Guid.TryParse(id, out var invoiceID))
             {
                 return RedirectToAction("NotFoundPage");
             }
+            var order = await _order.FindAsync(o => o.ID == invoiceID && o.IsActive);
+            if (order != null)
+            {
+                var getUser = await _userManager.FindByIdAsync(order.UserID);
+                if (getUser != null)
+                {
+                    tem.orderCoce = order.OrderTracking;
+                    tem.invoiceDate = order.CreatedDate;
+                    tem.DueDate = order.ModifiedDate;
+                    tem.NameUse = getUser.FirstName + " " + getUser.LastName;
+                    tem.paymentMethod = order.PaymentMethod;
+                    tem.status = order.Status;
+                    tem.emailUser = getUser.Email;
+                    tem.phoneUser = getUser.PhoneNumber;
+                   
+                    tem.AddressUse = getUser.Address;
+
+                    // Voucher
+                    if (order.VoucherID != Guid.Empty)
+                    {
+                        var getVoucher = await _voucher.FindAsync(v => v.ID == order.VoucherID && v.IsActive);
+                        if (getVoucher != null)
+                        {
+                            tem.vocherName = getVoucher.Code;
+
+                            if (getVoucher.DiscountType == "Fixed")
+                            {
+                                tem.discountVocher = getVoucher.DiscountAmount;
+                                tem.subtotal = Math.Max(0, order.TotalPrice - getVoucher.DiscountAmount);
+                            }
+                            else if (getVoucher.DiscountType == "Percent")
+                            {
+                                var discountAmount = (order.TotalPrice * getVoucher.DiscountAmount) / 100;
+                                tem.discountVocher = discountAmount;
+                                tem.subtotal = Math.Max(0, order.TotalPrice - discountAmount);
+                            }
+                            else
+                            {
+                                tem.discountVocher = 0;
+                                tem.subtotal = order.TotalPrice;
+                            }
+                        }
+                        else
+                        {
+                            tem.discountVocher = 0;
+                            tem.subtotal = order.TotalPrice;
+                        }
+                    }
+                    else
+                    {
+                        tem.discountVocher = 0;
+                        tem.subtotal = order.TotalPrice;
+                    }
+
+                    // Order detail
+                    var orderDetails = await _orderDetail.ListAsync(u => u.OrderID == order.ID && u.IsActive);
+                    if (orderDetails != null && orderDetails.Any())
+                    {
+                        foreach (var item in orderDetails)
+                        {
+                            var getProduct = await _productvarian.FindAsync(u => u.ID == item.ProductTypesID && u.IsActive);
+                            if (getProduct != null)
+                            {
+                                tem.itemList.Add(new ItemInvoice
+                                {
+                                    amount = item.Quantity * item.ProductPrice,
+                                    nameItem = string.IsNullOrWhiteSpace(item.ProductTypeName)
+                                        ? getProduct.Name
+                                        : item.ProductTypeName,
+                                    quantity = item.Quantity,
+                                    unitPrice = item.ProductPrice
+                                });
+                            }
+                        }
+                    }
+
+                    return View(tem);
+                }
+            }
+
+            var balance = await _balance.FindAsync(b => b.ID == invoiceID && b.Display);
+            if (balance != null)
+            {
+                var getUser = await _userManager.FindByIdAsync(balance.UserID);
+                if (getUser != null && (balance.Method == "Withdraw" || balance.Method == "Deposit"))
+                {
+                    tem.orderCoce = id;
+                    tem.invoiceDate = balance.StartTime;
+                    tem.DueDate = balance.DueTime;
+                    tem.NameUse = getUser.FirstName + " " + getUser.LastName;
+                    tem.paymentMethod = balance.Method;
+                    tem.status = balance.Status;
+                    tem.emailUser = getUser.Email;
+                    tem.phoneUser = getUser.PhoneNumber;
+                    tem.subtotal = balance.MoneyChange;
+                    tem.AddressUse = getUser.Address;
+
+                    tem.itemList.Add(new ItemInvoice
+                    {
+                        amount = balance.MoneyChange,
+                        nameItem = balance.Method == "Withdraw"
+                            ? $"Withdraw to {getUser.UserName}"
+                            : $"Deposit to {getUser.UserName}",
+                        quantity = 1,
+                        unitPrice = balance.MoneyChange
+                    });
+
+                    return View(tem);
+                }
+            }
+
             return RedirectToAction("NotFoundPage");
         }
+
     }
     public class HomeViewModel
     {

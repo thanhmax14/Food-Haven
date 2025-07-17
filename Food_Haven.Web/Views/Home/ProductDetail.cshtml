@@ -1,4 +1,8 @@
-﻿@model Repository.ViewModels.ProductDetailsViewModel;
+﻿@using Models
+@using Repository.ViewModels
+@using System.Security.Claims
+@model ProductDetails
+
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -17,180 +21,424 @@
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/plugins/slider-range.css" />
-    <link rel="stylesheet" href="~/assets/css/main.css" />
-
-    <!-- SweetAlert2 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
+    <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
     @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
-
-    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
-            <!-- Icons Css -->
+    <!-- Icons Css -->
     <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body class="single-product">
+    <!-- Quick view -->
+   
+
     @await Html.PartialAsync("_Header")
+    @* <div class="mobile-header-active mobile-header-wrapper-style">
+        <div class="mobile-header-wrapper-inner">
+            <div class="mobile-header-top">
+                <div class="mobile-header-logo">
+                    <a href='/'><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
+                </div>
+                <div class="mobile-menu-close close-style-wrap close-style-position-inherit">
+                    <button class="close-style search-close">
+                        <i class="icon-top"></i>
+                        <i class="icon-bottom"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mobile-header-content-area">
+                <div class="mobile-search search-style-3 mobile-header-border">
+                    <form action="#">
+                        <input type="text" placeholder="Search for items…" />
+                        <button type="submit"><i class="fi-rs-search"></i></button>
+                    </form>
+                </div>
+                <div class="mobile-menu-wrap mobile-header-border">
+                    <!-- mobile menu start -->
+                    <nav>
+                        <ul class="mobile-menu font-heading">
+                            <li class="menu-item-has-children">
+                                <a href='/'>Home</a>
+                                <ul class="dropdown">
+                                    <li><a href='/'>Home 1</a></li>
+                                    <li><a href='/index-2'>Home 2</a></li>
+                                    <li><a href='/index-3'>Home 3</a></li>
+                                    <li><a href='/index-4'>Home 4</a></li>
+                                    <li><a href='/index-5'>Home 5</a></li>
+                                    <li><a href='/index-6'>Home 6</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href='/shop-grid-right'>shop</a>
+                                <ul class="dropdown">
+                                    <li><a href='/shop-grid-right'>Shop Grid – Right Sidebar</a></li>
+                                    <li><a href='/shop-grid-left'>Shop Grid – Left Sidebar</a></li>
+                                    <li><a href='/shop-list-right'>Shop List – Right Sidebar</a></li>
+                                    <li><a href='/shop-list-left'>Shop List – Left Sidebar</a></li>
+                                    <li><a href='/shop-fullwidth'>Shop - Wide</a></li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Single Product</a>
+                                        <ul class="dropdown">
+                                            <li><a href='/shop-product-right'>Product – Right Sidebar</a></li>
+                                            <li><a href='/shop-product-left'>Product – Left Sidebar</a></li>
+                                            <li><a href='/shop-product-full'>Product – No sidebar</a></li>
+                                            <li><a href='/shop-product-vendor'>Product – Vendor Infor</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a href='/shop-filter'>Shop – Filter</a></li>
+                                    <li><a href='/shop-wishlist'>Shop – Wishlist</a></li>
+                                    <li><a href='/shop-cart'>Shop – Cart</a></li>
+                                    <li><a href='/shop-checkout'>Shop – Checkout</a></li>
+                                    <li><a href='/shop-compare'>Shop – Compare</a></li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Shop Invoice</a>
+                                        <ul class="dropdown">
+                                            <li><a href='/shop-invoice-1'>Shop Invoice 1</a></li>
+                                            <li><a href='/shop-invoice-2'>Shop Invoice 2</a></li>
+                                            <li><a href='/shop-invoice-3'>Shop Invoice 3</a></li>
+                                            <li><a href='/shop-invoice-4'>Shop Invoice 4</a></li>
+                                            <li><a href='/shop-invoice-5'>Shop Invoice 5</a></li>
+                                            <li><a href='/shop-invoice-6'>Shop Invoice 6</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Vendors</a>
+                                <ul class="dropdown">
+                                    <li><a href='/vendors-grid'>Vendors Grid</a></li>
+                                    <li><a href='/vendors-list'>Vendors List</a></li>
+                                    <li><a href='/vendor-details-1'>Vendor Details 01</a></li>
+                                    <li><a href='/vendor-details-2'>Vendor Details 02</a></li>
+                                    <li><a href='/vendor-dashboard'>Vendor Dashboard</a></li>
+                                    <li><a href='/vendor-guide'>Vendor Guide</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Mega menu</a>
+                                <ul class="dropdown">
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Women's Fashion</a>
+                                        <ul class="dropdown">
+                                            <li><a href='/shop-product-right'>Dresses</a></li>
+                                            <li><a href='/shop-product-right'>Blouses & Shirts</a></li>
+                                            <li><a href='/shop-product-right'>Hoodies & Sweatshirts</a></li>
+                                            <li><a href='/shop-product-right'>Women's Sets</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Men's Fashion</a>
+                                        <ul class="dropdown">
+                                            <li><a href='/shop-product-right'>Jackets</a></li>
+                                            <li><a href='/shop-product-right'>Casual Faux Leather</a></li>
+                                            <li><a href='/shop-product-right'>Genuine Leather</a></li>
+                                        </ul>
+                                    </li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Technology</a>
+                                        <ul class="dropdown">
+                                            <li><a href='/shop-product-right'>Gaming Laptops</a></li>
+                                            <li><a href='/shop-product-right'>Ultraslim Laptops</a></li>
+                                            <li><a href='/shop-product-right'>Tablets</a></li>
+                                            <li><a href='/shop-product-right'>Laptop Accessories</a></li>
+                                            <li><a href='/shop-product-right'>Tablet Accessories</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href='/blog-category-fullwidth'>Blog</a>
+                                <ul class="dropdown">
+                                    <li><a href='/blog-category-grid'>Blog Category Grid</a></li>
+                                    <li><a href='/blog-category-list'>Blog Category List</a></li>
+                                    <li><a href='/blog-category-big'>Blog Category Big</a></li>
+                                    <li><a href='/blog-category-fullwidth'>Blog Category Wide</a></li>
+                                    <li class="menu-item-has-children">
+                                        <a href="#">Single Product Layout</a>
+                                        <ul class="dropdown">
+                                            <li><a href='/blog-post-left'>Left Sidebar</a></li>
+                                            <li><a href='/blog-post-right'>Right Sidebar</a></li>
+                                            <li><a href='/blog-post-fullwidth'>No Sidebar</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Pages</a>
+                                <ul class="dropdown">
+                                    <li><a href='/page-about'>About Us</a></li>
+                                    <li><a href='/page-contact'>Contact</a></li>
+                                    <li><a href='/page-account'>My Account</a></li>
+                                    <li><a href='/page-login'>Login</a></li>
+                                    <li><a href='/page-register'>Register</a></li>
+                                    <li><a href='/page-forgot-password'>Forgot password</a></li>
+                                    <li><a href='/page-reset-password'>Reset password</a></li>
+                                    <li><a href='/page-purchase-guide'>Purchase Guide</a></li>
+                                    <li><a href='/page-privacy-policy'>Privacy Policy</a></li>
+                                    <li><a href='/page-terms'>Terms of Service</a></li>
+                                    <li><a href='/page-404'>404 Page</a></li>
+                                </ul>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">Language</a>
+                                <ul class="dropdown">
+                                    <li><a href="#">English</a></li>
+                                    <li><a href="#">French</a></li>
+                                    <li><a href="#">German</a></li>
+                                    <li><a href="#">Spanish</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- mobile menu end -->
+                </div>
+                <div class="mobile-header-info-wrap">
+                    <div class="single-mobile-header-info">
+                        <a href='/page-contact'><i class="fi-rs-marker"></i> Our location </a>
+                    </div>
+                    <div class="single-mobile-header-info">
+                        <a href='/page-login'><i class="fi-rs-user"></i>Log In / Sign Up </a>
+                    </div>
+                    <div class="single-mobile-header-info">
+                        <a href="#"><i class="fi-rs-headphones"></i>(+01) - 2345 - 6789 </a>
+                    </div>
+                </div>
+                <div class="mobile-social-icon mb-50">
+                    <h6 class="mb-15">Follow Us</h6>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-facebook-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-twitter-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-instagram-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-pinterest-white.svg" alt="" /></a>
+                    <a href="#"><img src="~/assets/imgs/theme/icons/icon-youtube-white.svg" alt="" /></a>
+                </div>
+                <div class="site-copyright">Copyright 2024 © Nest. All rights reserved. Powered by AliThemes.</div>
+            </div>
+        </div>
+    </div> *@
     <!--End header-->
     <main class="main">
-        <div class="container mt-20 mb-30">
-            <div class="row">
-                <div class="col-xl-11 col-lg-12 m-auto">
-                    <div class="row">
-                        @if (Model != null)
-                        {
+        @* <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href='/' rel='nofollow'><i class="fi-rs-home mr-5"></i>Home</a>
+                     <span></span> @Model.Name
+                </div>
+            </div>
+        </div> *@
+        @if (Model != null)
+        {
+            <div class="container mb-30">
+                <div class="row">
+                    <div class="col-xl-11 col-lg-12 m-auto">
+                        <div class="row">
                             <div class="col-xl-9">
                                 <div class="product-detail accordion-detail">
                                     <div class="row mb-50 mt-30">
                                         <div class="col-md-6 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
                                             <div class="detail-gallery">
                                                 <span class="zoom-icon"><i class="fi-rs-search"></i></span>
-                                                <!-- MAIN SLIDES -->
-                                                <div class="detail-gallery">
-                                                        <span class="zoom-icon"><i class="fi-rs-search"></i></span>
-                                                        <!-- MAIN SLIDES -->
-                                                        <div class="product-image-slider">
-                                                        @foreach (var item in Model.Img.Distinct().Take(5))
+                                                
+    
+
+                                                <div class="product-image-slider">
+                                                    
+                                                    @if (!Model.ProductImages.Any())
+                                                    {
+                                                        <figure class="border-radius-10">
+                                                            <img src="~/assets/imgs/shop/product-16-2.jpg" alt="product image" />
+                                                        </figure>
+                                                    }
+                                                    else
+                                                    {
+                                                        @foreach (var image in Model.ProductImages)
                                                         {
                                                             <figure class="border-radius-10">
-                                                                <img src="@item" alt="product image" />
+                                                                <img src="@image.ImageUrl" alt="product image" />
                                                             </figure>
                                                         }
-                                                        </div>
-                                                        <!-- THUMBNAILS -->
-                                                        <div class="slider-nav-thumbnails">
-                                                            @foreach (var img in Model.Img.Distinct().Take(5))
-                                                            {
-                                                                <img src="@img" alt="product thumbnail" />
-                                                            }
-                                                        </div>
-                                                   
-                                            
-                                                </div>
-                                                <!-- THUMBNAILS -->
+                                                    }
 
+                                                </div>
+                                            
+
+                                                <div class="slider-nav-thumbnails">
+                                                    @if (!Model.ProductImages.Any())
+                                                    {
+                                                        <div><img src="~/assets/imgs/shop/thumbnail-3.jpg" alt="product image" /></div>
+                                                    }
+                                                    else
+                                                    {
+                                                        @foreach (var image in Model.ProductImages)
+                                                        {
+                                                            <div><img src="@image.ImageUrl" alt="product image" /></div>
+                                                           
+                                                        }
+                                                    }
+                                                   
+                                                   
+                                                </div>
                                             </div>
                                             <!-- End Gallery -->
                                         </div>
+                                        @{
+                                            // Bảo vệ null an toàn
+                                            var reviewList = Model.Review ?? new List<Review>();
+                                            var reviews = reviewList.Where(r => r.Rating >= 1 && r.Rating <= 5).ToList();
+
+                                            int totalReviews = reviews.Count;
+                                            double averageRating = totalReviews > 0 ? reviews.Average(r => r.Rating) : 5;
+
+                                            int[] ratingCounts = new int[6]; // từ 1 đến 5
+
+                                            foreach (var r in reviews)
+                                            {
+                                                ratingCounts[r.Rating]++;
+                                            }
+
+                                            Func<int, string> getPercentage = (star) =>
+                                            {
+                                                return totalReviews > 0 ? $"{(ratingCounts[star] * 100 / totalReviews)}%" : "0%";
+                                            };
+                                        }
+
                                         <div class="col-md-6 col-sm-12 col-xs-12">
                                             <div class="detail-info pr-30 pl-30">
-                                                <h2 class="title-detail mb-20">@Model.Name</h2>
-                                                <div class="font-xs">
-                                                    <ul class="mr-50 float-start">
-                                                        <li class="mb-5">
-                                                        <strong>
-                                                                By: <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@Model.StoreID">
-                                                                    <span class="text-brand">@Model.StoreName</span>
-                                                                    </a>
-                                                            </strong>
-                                                        </li>
-                                                    </ul>
-                                                    <ul class="float-start">
-                                                        <li>
-                                                            <strong>
-                                                                Owner
-                                                                <a asp-action="UserInformation" asp-controller="Home" asp-route-id="@Model.UserID">
-                                                                    <span class="text-brand">@Model.Owner</span>
-                                                                </a>
-                                                            </strong>
-                                                        </li>
-                                                    </ul>
-
+                                                @*  <span class="stock-status out-stock"> Sale Off </span> *@
+                                                <h2 class="title-detail">@Model.Name</h2>
+                                                <div class="product-detail-rating">
+                                                    <div class="product-rate-cover text-end">
+                                                        <div class="product-rate d-inline-block">
+                                                            <div class="product-rating" style="width:  @(averageRating * 20)%"></div>
+                                                        </div>
+                                                        <span class="font-small ml-5 text-muted"> (@Model.Review.Count() reviews)</span>
+                                                    </div>
                                                 </div>
-
-                                                <div class="short-desc mb-30" style="clear: both;">
-                                                    <p class="font-lg">
-                                                        @Model.ShortDescription
-                                                    </p>
-                                                </div>
-
                                                 <div class="clearfix product-price-cover">
                                                     <div class="product-price primary-color float-left">
-                                                        <span class="current-price text-brand" id="price-display">@Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                                                        @{
+                                                            var variant1 = Model.ProductVariants.FirstOrDefault();
+                                                        }
+
+                                                    <span class="current-price text-brand" id="price-display">
+                                                        @(variant1 != null
+                                                                                                                ? variant1.SellPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+                                                                                                                : "Out of stock")
+                                                    </span>
+
+                                                        @*     <span>
+                                                        <span class="save-price font-md color3 ml-15">26% Off</span>
+                                                        <span class="old-price font-md ml-15">$52</span>
+                                                    </span> *@
                                                     </div>
+                                                </div>
+                                                <div class="short-desc mb-30">
+                                                    @Model.ShortDescription
                                                 </div>
                                                 <div class="attr-detail attr-size mb-30">
-                                                    <strong class="mr-10">Size / Weight:</strong>
-                                                                                            <ul class="list-filter size-filter font-small d-flex flex-wrap">
-                                                    @foreach (var variant in Model.Variant)
-                                                    {
-                                                        <li class="mr-3">
-                                                            <button type="button"
-                                                                    class="variant-button @(variant == Model.Variant.First() ? "active" : "")"
-                                                                    data-variantid="@variant.ID"
-                                                                    data-target="#price-@variant.ID">
-                                                                @variant.Name
-                                                            </button>
-                                                        </li>
-                                                    }
-                                                </ul>
+                                                    <strong class="mr-10">Type: </strong>
+                                                    <ul class="list-filter size-filter font-small">
+    @if (Model.ProductVariants?.Any(pv => pv.IsActive) ?? false)
+    {
+        var activeVariants = Model.ProductVariants
+            .Where(pv => pv.IsActive)
+            .Select((variant, index) => new { variant, index })
+            .ToList();
+
+        foreach (var variant in activeVariants)
+        {
+            <li style="margin-top: 5px" class="@(variant.index == 0 ? "active" : "")">
+                <a href="#" class="variant-button"
+                   data-variantid="@variant.variant.ID"
+                   data-target="#price-@variant.variant.ID">
+                    @variant.variant.Name
+                </a>
+            </li>
+        }
+    }
+</ul>
 
                                                 </div>
-                                    <style>
-    .variant-button {
-        padding: 8px 20px;
-        border: 1px solid #ccc;
-        background-color: white;
-        color: gray;
-        font-size: 14px;
-        border-radius: 2px;
-        cursor: pointer;
-        margin-right: 12px;   /* thêm khoảng cách ngang */
-        margin-bottom: 12px;  /* thêm khoảng cách dọc */
-    }
+                                                <input type="hidden" id="selectedVariantId" value="" />
 
-    .variant-button.active {
-        background-color: #3BB77E;
-        color: white;
-        border: none;
-    }
-
-    .list-filter li {
-        list-style: none;
-    }
-</style>
-
-
-            <input type="hidden" id="selectedVariantId" value="" />
-                                               
                                                 <div class="detail-extralink mb-50">
-                                                    <div class="detail-qty border radius">
-                                                        <a href="#" class="qty-down">
-                                                            <i class="fi-rs-angle-small-down"></i>
-                                                        </a>
-<input type="text" name="quantity" class="qty-val" value="1" min="1" data-max="@Model.Quantity">
+                                                  @{
+    var variant12 = Model.ProductVariants.FirstOrDefault();
+}
+@if (variant12 != null)
+{
+     <div class="detail-qty border radius">
+        <a href="#" class="qty-down" data-id="@variant12.ID">
+            <i class="fi-rs-angle-small-down"></i>
+        </a>
 
-                                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                                    </div>
+        <input type="text"
+               class="qty-val"
+               value="1"
+               data-id="@variant12.ID"
+               data-max="@variant12.Stock"
+               name="quantity" />
+
+        <a href="#" class="qty-up" data-id="@variant12.ID">
+            <i class="fi-rs-angle-small-up"></i>
+        </a>
+    </div>
+}
+
                                                     <div class="product-extra-link2">
-                                                            <button type="button" class="btn btn-success btn-lg" id="btnAddToCart">
-                                                                <i class="fi-rs-shopping-cart"></i> Add to cart
-                                                            </button>
-                                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                           href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                      
+                                                        <button type="button" class="btn btn-success btn-lg" id="btnAddToCart">
+                                                            <i class="fi-rs-shopping-cart"></i> Add to cart
+                                                        </button>                                                        @Html.AntiForgeryToken()
+                                                        @if (Model.IsWishList)
+                                                        {
+                                                            <a aria-label="@(Model.IsWishList ? "Remove wishlist" : "Add To Wishlist")" class="action-btn hover-up"
+                                                               onclick="AddWishlist(this, '@Model.ID')">
+                                                                <i class="fi-rs-heart@(Model.IsWishList ? " text-danger" : "")"></i>
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a aria-label="Add To Wishlist" class="action-btn hover-up" onclick="AddWishlist(this, '@Model.ID')">
+                                                                <i class="fi-rs-heart"></i>
+                                                            </a>
+                                                        }
+                                            
                                                     </div>
                                                 </div>
                                                 <div class="font-xs">
                                                     <ul class="mr-50 float-start">
-                                                        <li class="mb-5">Type: <span class="text-brand">@Model.CategoryName</span></li>
-                                                        <li class="mb-5">
-                                                            MFG:<span class="text-brand">@Model.CreatedDate</span>
-                                                        </li>
-                                                       
+                                                        <li class="mb-5">Category: <span class="text-brand"> <a href="/Home/GetAllProductOfCategory/@Model.categories.ID">@Model.categories.Name</a></span></li>
+                                                        <li class="mb-5">MFG:<span class="text-brand"> @Model.CreatedDate.ToString("MMM d, yyyy")</span></li>
+                                                        @*  <li>LIFE: <span class="text-brand">70 days</span></li> *@
                                                     </ul>
                                                     <ul class="float-start">
-                                                       
-                                                        <li>
-                                                            Stock:<span id="stock-display" class="in-stock text-brand ml-5">
-                                                                @Model.Stocks
-                                                            </span>
-                                                        </li>
-                                                    </ul>
+                                                        @if (Model.ProductVariants != null && Model.ProductVariants.Any())
+                                                        {
+                                                            <li>
+                                                                Stock:
+                                                                <span id="stock-display" class="in-stock text-brand ml-5">
+                                                                    @if (Model.ProductVariants.First().Stock == 0)
+                                                                    {
+                                                                        @:out of stock
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        @: @Model.ProductVariants.First().Stock Items In Stock
+                                                                    }
+                                                                </span>
+                                                            </li>
+                                                        }
+                                                        else
+                                                        {
+                                                            <li>
+                                                                Stock:
+                                                                <span class="in-stock text-brand ml-5">
+                                                                  out of stock
+                                                                    
+                                                                </span>
+                                                            </li>
+                                                        }
 
+                                                        <li class="mb-5">Totals Sell: <a class ="in-stock text-brand ml-5">@Model.totalsell</a></li>
+                                                    </ul>
                                                 </div>
                                             </div>
                                             <!-- Detail Info -->
@@ -200,815 +448,461 @@
                                         <div class="tab-style3">
                                             <ul class="nav nav-tabs text-uppercase">
                                                 <li class="nav-item">
-                                                    <a class="nav-link active" id="Description-tab" data-bs-toggle="tab"
-                                                       href="#Description">Description</a>
+                                                    <a class="nav-link active" id="Description-tab" data-bs-toggle="tab" href="#Description">Description</a>
+                                                </li>
+                                                @*  <li class="nav-item">
+                                                <a class="nav-link" id="Additional-info-tab" data-bs-toggle="tab" href="#Additional-info">Additional info</a>
+                                            </li> *@
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="Vendor-info-tab" data-bs-toggle="tab" href="#Vendor-info">Vendor</a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    @* <a class="nav-link" id="Additional-info-tab" data-bs-toggle="tab" *@
-                                                    @*    href="#Additional-info">Additional info</a> *@
-                                                </li>
-                                                <li class="nav-item">
-                                                    @* <a class="nav-link" id="Vendor-info-tab" data-bs-toggle="tab" *@
-                                                    @*    href="#Vendor-info">Vendor</a> *@
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab"
-                                                       href="#Reviews">Reviews (3)</a>
+                                                    <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab" href="#Reviews">Reviews (@Model.Review.Count())</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content shop_info_tab entry-main-content">
                                                 <div class="tab-pane fade show active" id="Description">
                                                     <div class="">
-                                                        @Html.Raw(@Model.LongDescription)
-
-                                                        @* <ul class="product-more-infor mt-30"> *@
-                                                        @*     <li><span>Type Of Packing</span> Bottle</li> *@
-                                                        @*     <li><span>Color</span> Green, Pink, Powder Blue, Purple</li> *@
-                                                        @*     <li><span>Quantity Per Case</span> 100ml</li> *@
-                                                        @*     <li><span>Ethyl Alcohol</span> 70%</li> *@
-                                                        @*     <li><span>Piece In One</span> Carton</li> *@
-                                                        @* </ul> *@
-                                                        @* <hr class="wp-block-separator is-style-dots" /> *@
-                                                        @* <p> *@
-                                                        @*     Laconic overheard dear woodchuck wow this outrageously taut *@
-                                                        @*     beaver hey hello far meadowlark imitatively egregiously hugged *@
-                                                        @*     that yikes minimally unanimous pouted flirtatiously as beaver *@
-                                                        @*     beheld above forward *@
-                                                        @*     energetic across this jeepers beneficently cockily less a the *@
-                                                        @*     raucously that magic upheld far so the this where crud then *@
-                                                        @*     below after jeez enchanting drunkenly more much wow callously *@
-                                                        @*     irrespective *@
-                                                        @*     limpet. *@
-                                                        @* </p> *@
-                                                        @* <h4 class="mt-30">Packaging & Delivery</h4> *@
-                                                        @* <hr class="wp-block-separator is-style-wide" /> *@
-                                                        @* <p> *@
-                                                        @*     Less lion goodness that euphemistically robin expeditiously *@
-                                                        @*     bluebird smugly scratched far while thus cackled sheepishly *@
-                                                        @*     rigid after due one assenting regarding censorious while *@
-                                                        @*     occasional or this more *@
-                                                        @*     crane went more as this less much amid overhung anathematic *@
-                                                        @*     because much held one exuberantly sheep goodness so where rat *@
-                                                        @*     wry well concomitantly. *@
-                                                        @* </p> *@
-                                                        @* <p> *@
-                                                        @*     Scallop or far crud plain remarkably far by thus far iguana lewd *@
-                                                        @*     precociously and and less rattlesnake contrary caustic wow this *@
-                                                        @*     near alas and next and pled the yikes articulate about as less *@
-                                                        @*     cackled *@
-                                                        @*     dalmatian in much less well jeering for the thanks blindly *@
-                                                        @*     sentimental whimpered less across objectively fanciful grimaced *@
-                                                        @*     wildly some wow and rose jeepers outgrew lugubrious luridly *@
-                                                        @*     irrationally *@
-                                                        @*     attractively dachshund. *@
-                                                        @* </p> *@
-                                                        @* <h4 class="mt-30">Suggested Use</h4> *@
-                                                        @* <ul class="product-more-infor mt-30"> *@
-                                                        @*     <li>Refrigeration not necessary.</li> *@
-                                                        @*     <li>Stir before serving</li> *@
-                                                        @* </ul> *@
-                                                        @* <h4 class="mt-30">Other Ingredients</h4> *@
-                                                        @* <ul class="product-more-infor mt-30"> *@
-                                                        @*     <li>Organic raw pecans, organic raw cashews.</li> *@
-                                                        @*     <li> *@
-                                                        @*         This butter was produced using a LTG (Low Temperature *@
-                                                        @*         Grinding) process *@
-                                                        @*     </li> *@
-                                                        @*     <li> *@
-                                                        @*         Made in machinery that processes tree nuts but does not *@
-                                                        @*         process peanuts, gluten, dairy or soy *@
-                                                        @*     </li> *@
-                                                        @* </ul> *@
-                                                        @* <h4 class="mt-30">Warnings</h4> *@
-                                                        @* <ul class="product-more-infor mt-30"> *@
-                                                        @*     <li> *@
-                                                        @*         Oil separation occurs naturally. May contain pieces of *@
-                                                        @*         shell. *@
-                                                        @*     </li> *@
-                                                        @* </ul> *@
+                                                       @Html.Raw(Model.LongDescription)
                                                     </div>
                                                 </div>
-                                                <div class="tab-pane fade" id="Additional-info">
-                                                    <table class="font-md">
-                                                        <tbody>
-                                                            <tr class="stand-up">
-                                                                <th>Stand Up</th>
-                                                                <td>
-                                                                    <p>35″L x 24″W x 37-45″H(front to back wheel)</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="folded-wo-wheels">
-                                                                <th>Folded (w/o wheels)</th>
-                                                                <td>
-                                                                    <p>32.5″L x 18.5″W x 16.5″H</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="folded-w-wheels">
-                                                                <th>Folded (w/ wheels)</th>
-                                                                <td>
-                                                                    <p>32.5″L x 24″W x 18.5″H</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="door-pass-through">
-                                                                <th>Door Pass Through</th>
-                                                                <td>
-                                                                    <p>24</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="frame">
-                                                                <th>Frame</th>
-                                                                <td>
-                                                                    <p>Aluminum</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="weight-wo-wheels">
-                                                                <th>Weight (w/o wheels)</th>
-                                                                <td>
-                                                                    <p>20 LBS</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="weight-capacity">
-                                                                <th>Weight Capacity</th>
-                                                                <td>
-                                                                    <p>60 LBS</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="width">
-                                                                <th>Width</th>
-                                                                <td>
-                                                                    <p>24″</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="handle-height-ground-to-handle">
-                                                                <th>Handle height (ground to handle)</th>
-                                                                <td>
-                                                                    <p>37-45″</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="wheels">
-                                                                <th>Wheels</th>
-                                                                <td>
-                                                                    <p>12″ air / wide track slick tread</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="seat-back-height">
-                                                                <th>Seat back height</th>
-                                                                <td>
-                                                                    <p>21.5″</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="head-room-inside-canopy">
-                                                                <th>Head room (inside canopy)</th>
-                                                                <td>
-                                                                    <p>25″</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="pa_color">
-                                                                <th>Color</th>
-                                                                <td>
-                                                                    <p>Black, Blue, Red, White</p>
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="pa_size">
-                                                                <th>Size</th>
-                                                                <td>
-                                                                    <p>M, S</p>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div class="tab-pane fade" id="Vendor-info">
-                                                    <div class="vendor-logo d-flex mb-30">
-                                                        <img src="~/assets/imgs/vendor/vendor-18.svg" alt="" />
-                                                        <div class="vendor-name ml-15">
-                                                            <h6>
-                                                                <a href="vendor-details-2.html">Noodles Co.</a>
-                                                            </h6>
-                                                            <div class="product-rate-cover text-end">
+
+                                                @if (Model.storeDetails != null)
+                                                {
+                                                    <div class="tab-pane fade" id="Vendor-info">
+                                                        <div class="vendor-logo d-flex mb-30">
+                                                            <img src="@Model.storeDetails.ImageUrl" alt="" />
+                                                            <div class="vendor-name ml-15">
+                                                                <h6>
+                                                                    <a asp-action="GetStoreDetail" asp-controller="Home" asp-route-id="@Model.storeDetails.ID">@Model.storeDetails.Name.</a>
+                                                                </h6>
+                                                                    @* <div class="product-rate-cover text-end">
                                                                 <div class="product-rate d-inline-block">
                                                                     <div class="product-rating" style="width: 90%"></div>
                                                                 </div>
-                                                                <span class="font-small ml-5 text-muted">
-                                                                    (32
-                                                                    reviews)
-                                                                </span>
+                                                                <span class="font-small ml-5 text-muted"> (32 reviews)</span>
+                                                            </div> *@
                                                             </div>
                                                         </div>
+                                                        <ul class="contact-infor mb-50">
+                                                            <li>
+                                                                <img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Owner:</strong>
+                                                                <a asp-action="UserInformation" asp-controller="Home" asp-route-id="@Model.storeDetails.AppUser.Id">
+                                                                        <span class="text-brand">@Model.storeDetails.AppUser.UserName</span>
+                                                                    </a>
+                                                             
+                                                            </li>
+                                                            <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>@Model.storeDetails.Address</span></li>
+                                                            <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Contact Seller:</strong><span style="margin-left:5px">@Model.storeDetails.Phone</span></li>
+                                                        </ul>
+                                                        @*   <div class="d-flex mb-55">
+                                                    <div class="mr-30">
+                                                        <p class="text-brand font-xs">Rating</p>
+                                                        <h4 class="mb-0">92%</h4>
                                                     </div>
-                                                    <ul class="contact-infor mb-50">
-                                                        <li>
-                                                            <img src="~/assets/imgs/theme/icons/icon-location.svg"
-                                                                 alt="" /><strong>Address: </strong> <span>
-                                                                5171 W Campbell
-                                                                Ave undefined Kent, Utah 53127 United States
-                                                            </span>
-                                                        </li>
-                                                        <li>
-                                                            <img src="~/assets/imgs/theme/icons/icon-contact.svg"
-                                                                 alt="" /><strong>Contact Seller:</strong><span>
-                                                                (+91) -
-                                                                540-025-553
-                                                            </span>
-                                                        </li>
-                                                    </ul>
-                                                    <div class="d-flex mb-55">
-                                                        <div class="mr-30">
-                                                            <p class="text-brand font-xs">Rating</p>
-                                                            <h4 class="mb-0">92%</h4>
-                                                        </div>
-                                                        <div class="mr-30">
-                                                            <p class="text-brand font-xs">Ship on time</p>
-                                                            <h4 class="mb-0">100%</h4>
-                                                        </div>
-                                                        <div>
-                                                            <p class="text-brand font-xs">Chat response</p>
-                                                            <h4 class="mb-0">89%</h4>
-                                                        </div>
+                                                    <div class="mr-30">
+                                                        <p class="text-brand font-xs">Ship on time</p>
+                                                        <h4 class="mb-0">100%</h4>
                                                     </div>
-                                                    <p>
-                                                        Noodles & Company is an American fast-casual restaurant that offers
-                                                        international and American noodle dishes and pasta in addition to
-                                                        soups and salads. Noodles & Company was founded in 1995 by Aaron
-                                                        Kennedy and is headquartered in Broomfield, Colorado.
-                                                        The company went public in 2013 and recorded a $457 million revenue
-                                                        in 2017.In late 2018, there were 460 Noodles & Company locations
-                                                        across 29 states and Washington, D.C.
-                                                    </p>
-                                                </div>
+                                                    <div>
+                                                        <p class="text-brand font-xs">Chat response</p>
+                                                        <h4 class="mb-0">89%</h4>
+                                                    </div>
+                                                </div> *@
+                                                      @Html.Raw(Model.storeDetails.LongDescriptions)
+                                                    </div>
+                                                }
+  
+                                                
+
                                                 <div class="tab-pane fade" id="Reviews">
                                                     <!--Comments-->
                                                     <div class="comments-area">
                                                         <div class="row">
-                                                            <div class="col-lg-8">
-                                                                <h4 class="mb-30">Customer questions & answers</h4>
-                                                                 @{
-                                                                    var totalRatings = Model.Comments.Count();
-                                                                    var star5 = Model.Comments.Count(c => c.Rating == 5);
-                                                                    var star4 = Model.Comments.Count(c => c.Rating == 4);
-                                                                    var star3 = Model.Comments.Count(c => c.Rating == 3);
-                                                                    var star2 = Model.Comments.Count(c => c.Rating == 2);
-                                                                    var star1 = Model.Comments.Count(c => c.Rating == 1);
 
-                                                                    var percent5 = totalRatings > 0 ? (star5 * 100) / totalRatings : 0;
-                                                                    var percent4 = totalRatings > 0 ? (star4 * 100) / totalRatings : 0;
-                                                                    var percent3 = totalRatings > 0 ? (star3 * 100) / totalRatings : 0;
-                                                                    var percent2 = totalRatings > 0 ? (star2 * 100) / totalRatings : 0;
-                                                                    var percent1 = totalRatings > 0 ? (star1 * 100) / totalRatings : 0;
-                                                                } 
+                                                            @if (Model.Review != null && Model.Review.Any())
+                                                            {
+                                                                <div class="col-lg-8">
+                                                                    <h4 class="mb-30">Customer questions & answers</h4>
+                                                                    <div class="comment-list">
 
-                                                                <div class="comment-list">
-                                                                    @foreach(var item in Model.Comments)
-                                                                    
-                                                                    {
-                                                                        <div class="single-comment justify-content-between d-flex mb-30">
+                                                                        @foreach(var review in Model.Review)
+                                                                        {
+                                                                            if(review.Comment != null && review.Comment.Trim().Length > 0)
+                                                                            {
+                                                                                <div class="single-comment justify-content-between d-flex mb-30">
+                                                                                    <div class="user justify-content-between d-flex">
+                                                                                        <div class="thumb text-center">
+                                                                                   <img src="@(string.IsNullOrEmpty(review.AppUser.ImageUrl) 
+                                                                                         ? Url.Content("~/assets/imgs/blog/author-2.png") 
+                                                                                            : review.AppUser.ImageUrl)" alt="" />
+                                                                                            
+                                                                                        </div>
+                                                                                        <div class="desc">
+                                                                                            <div class="d-flex justify-content-between mb-10">
+                                                                                                    
+                                                                                                <div class="d-flex align-items-center mr-10">
+                                                                                                    <a href="/Home/UserInformation/@review.UserID" class="font-heading text-brand mr-10 ">@review.AppUser.UserName</a>
+                                                                                                    <span class="font-xs text-muted ">@review.CommentDate.ToString("MMMM d, yyyy 'at' h:mm tt") </span>
+                                                                                                </div>
+                                                                                                
+                                                                                                <div class="product-rate d-inline-block">
+                                                                                                    
+                                                                                                    <div class="product-rating" style="width: @(review.Rating * 20)%"></div>
+                                                                                                </div>
+                                                                                                @* <div class="product-rate d-inline-block">
+                                                                                                    
+                                                                                                </div> *@
+                                                                                            </div>
+                                                                                            <p class="mb-10">@review.Comment</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                            if(review.Reply != null && review.Reply.Trim().Length > 0)
+                                                                            {
+                                                                            <div class="single-comment justify-content-between d-flex mb-30 ml-50">
                                                                             <div class="user justify-content-between d-flex">
                                                                                 <div class="thumb text-center">
-                                                                                   @*  <img src="~/assets/imgs/blog/author-2.png"
-                                                                                         alt="" /> *@
-                                                                                     <a href="#"
-                                                                                        class="font-heading text-brand">@item.Username</a>
+                                                                                            <img src="@(string.IsNullOrEmpty(Model.storeDetails.AppUser.ImageUrl) ? Url.Content("~/assets/imgs/blog/author-2.png") : Model.storeDetails.AppUser.ImageUrl)" alt="" />
+                                                                                            
                                                                                 </div>
                                                                                 <div class="desc">
                                                                                     <div class="d-flex justify-content-between mb-10">
                                                                                         <div class="d-flex align-items-center">
-                                                                                            <span class="font-xs text-muted" style="margin-left: -10px;">
-                                                                                                @item.Datecmt.ToString("dd/MM/yyyy")
-                                                                                            </span>
+                                                                                                    <a href="/Home/UserInformation/@Model.storeDetails.AppUser.Id" class="font-heading text-brand">@Model.storeDetails.AppUser.UserName</a>
                                                                                         </div>
-
-                                                                                        <div class="product-rate d-inline-block ms-3">
-                                                                                            <div class="product-rating" style="width: @(item.Rating * 20)%"></div>
+                                                                                        <div class="d-flex align-items-center">
+                                                                                                    <span class="font-xs text-muted">@review.ReplyDate?.ToString("MMMM d, yyyy 'at' h:mm tt") </span>
                                                                                         </div>
-
-
+                                                                                        @* <div class="product-rate d-inline-block">
+                                                                                            <div class="product-rating" style="width: 80%"></div>
+                                                                                        </div> *@
                                                                                     </div>
-                                                                                    <p class="mb-10">
-                                                                                       @item.Cmt <a href="#"
-                                                                                                                      class="reply">Reply</a>
-                                                                                    </p>
+                                                                                    <p class="mb-10">@review.Reply</p>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                    }
-                                                                   
-                                                                   @*   <div class="single-comment justify-content-between d-flex mb-30 ml-30">
-                                                                         <div class="user justify-content-between d-flex">
-                                                                             <div class="thumb text-center">
-                                                                                 <img src="~/assets/imgs/blog/author-3.png"
-                                                                                      alt="" />
-                                                                                 <a href="#"
-                                                                                    class="font-heading text-brand">Brenna</a>
-                                                                             </div>
-                                                                             <div class="desc">
-                                                                                 <div class="d-flex justify-content-between mb-10">
-                                                                                     <div class="d-flex align-items-center">
-                                                                                         <span class="font-xs text-muted">
-                                                                                             December
-                                                                                             4, 2024 at 3:12 pm
-                                                                                         </span>
-                                                                                     </div>
-                                                                                     <div class="product-rate d-inline-block">
-                                                                                         <div class="product-rating"
-                                                                                              style="width: 80%"></div>
-                                                                                     </div>
-                                                                                 </div>
-                                                                                 <p class="mb-10">
-                                                                                     Lorem ipsum dolor sit amet,
-                                                                                     consectetur adipisicing elit. Delectus,
-                                                                                     suscipit exercitationem accusantium
-                                                                                     obcaecati quos voluptate nesciunt
-                                                                                     facilis itaque modi commodi dignissimos
-                                                                                     sequi repudiandae minus ab deleniti
-                                                                                     totam officia id incidunt? <a href="#"
-                                                                                                                   class="reply">Reply</a>
-                                                                                 </p>
-                                                                             </div>
-                                                                         </div>
-                                                                     </div> *@
-                                                                @*     <div class="single-comment justify-content-between d-flex">
-                                                                        <div class="user justify-content-between d-flex">
-                                                                            <div class="thumb text-center">
-                                                                                <img src="~/assets/imgs/blog/author-4.png"
-                                                                                     alt="" />
-                                                                                <a href="#"
-                                                                                   class="font-heading text-brand">Gemma</a>
-                                                                            </div>
-                                                                            <div class="desc">
-                                                                                <div class="d-flex justify-content-between mb-10">
-                                                                                    <div class="d-flex align-items-center">
-                                                                                        <span class="font-xs text-muted">
-                                                                                            December
-                                                                                            4, 2024 at 3:12 pm
-                                                                                        </span>
-                                                                                    </div>
-                                                                                    <div class="product-rate d-inline-block">
-                                                                                        <div class="product-rating"
-                                                                                             style="width: 80%"></div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <p class="mb-10">
-                                                                                    Lorem ipsum dolor sit amet,
-                                                                                    consectetur adipisicing elit. Delectus,
-                                                                                    suscipit exercitationem accusantium
-                                                                                    obcaecati quos voluptate nesciunt
-                                                                                    facilis itaque modi commodi dignissimos
-                                                                                    sequi repudiandae minus ab deleniti
-                                                                                    totam officia id incidunt? <a href="#"
-                                                                                                                  class="reply">Reply</a>
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div> *@
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-4">
-                                                                <h4 class="mb-30">Customer reviews</h4>
-                                                                <div class="d-flex mb-30">
-                                                                    <div class="product-rate d-inline-block mr-15">
-                                                                        <div class="product-rating" style="width: 90%"></div>
+                                                                        </div>                                                                                
+                                                                            }
+                                                                        }
                                                                     </div>
-                                                                    <h6>4.8 out of 5</h6>
                                                                 </div>
 
-                                                                <div class="progress">
-                                                                     <span>5 star</span>
-                                                                     <div class="progress-bar" role="progressbar"
-                                                                          style="width: @percent5%" aria-valuenow="@percent5"
-                                                                          aria-valuemin="0" aria-valuemax="100">
-                                                                         @percent5%
-                                                                     </div>
-                                                                 </div>
-                                                                 <div class="progress">
-                                                                     <span>4 star</span>
-                                                                     <div class="progress-bar" role="progressbar"
-                                                                          style="width: @percent4%" aria-valuenow="@percent4"
-                                                                          aria-valuemin="0" aria-valuemax="100">
-                                                                         @percent4%
-                                                                     </div>
-                                                                 </div>
-                                                                 <div class="progress">
-                                                                     <span>3 star</span>
-                                                                     <div class="progress-bar" role="progressbar"
-                                                                          style="width: @percent3%" aria-valuenow="@percent3"
-                                                                          aria-valuemin="0" aria-valuemax="100">
-                                                                         @percent3%
-                                                                     </div>
-                                                                 </div>
-                                                                 <div class="progress">
-                                                                     <span>2 star</span>
-                                                                     <div class="progress-bar" role="progressbar"
-                                                                          style="width: @percent2%" aria-valuenow="@percent2"
-                                                                          aria-valuemin="0" aria-valuemax="100">
-                                                                         @percent2%
-                                                                     </div>
-                                                                 </div>
-                                                                 <div class="progress mb-30">
-                                                                     <span>1 star</span>
-                                                                     <div class="progress-bar" role="progressbar"
-                                                                          style="width: @percent1%" aria-valuenow="@percent1"
-                                                                          aria-valuemin="0" aria-valuemax="100">
-                                                                         @percent1%
-                                                                     </div>
-                                                                 </div>
- 
-                                                                @* <a href="#" class="font-xs text-muted">
-                                                                    How are ratings calculated?
-                                                                </a> *@
-                                                            </div>
+                                                                  
+
+   
+<div class="col-lg-4">
+    <h4 class="mb-30">Customer reviews</h4>
+
+    <div class="d-flex mb-30">
+        <div class="product-rate d-inline-block mr-15">
+            <div class="product-rating" style="width: @(averageRating * 20)%"></div>
+        </div>
+        <h6>@averageRating.ToString("0.0") out of 5</h6>
+    </div>
+
+    @for (int star = 5; star >= 1; star--)
+    {
+        <div class="progress mb-2">
+            <span>@star star</span>
+            <div class="progress-bar" role="progressbar"
+                 style="width: @getPercentage(star)"
+                 aria-valuenow="@ratingCounts[star]"
+                 aria-valuemin="0"
+                 aria-valuemax="@totalReviews">
+                @getPercentage(star)
+            </div>
+        </div>
+    }
+
+    <a href="#" class="font-xs text-muted">How are ratings calculated?</a>
+</div>
+
+
+
+
+                                                            }
+
+                                                           
                                                         </div>
                                                     </div>
                                                     <!--comment form-->
-                                                    @* <div class="comment-form">
-                                                        <h4 class="mb-15">Add a review</h4>
-                                                        <div class="product-rate d-inline-block mb-30"></div>
-                                                        <div class="row">
-                                                            <div class="col-lg-8 col-md-12">
-                                                                <form class="form-contact comment_form" action="#"
-                                                                      id="commentForm">
-                                                                    <div class="row">
-                                                                        <div class="col-12">
-                                                                            <div class="form-group">
-                                                                                <textarea class="form-control w-100"
-                                                                                          name="comment" id="comment" cols="30"
-                                                                                          rows="9"
-                                                                                          placeholder="Write Comment"></textarea>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-sm-6">
-                                                                            <div class="form-group">
-                                                                                <input class="form-control" name="name"
-                                                                                       id="name" type="text"
-                                                                                       placeholder="Name" />
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-sm-6">
-                                                                            <div class="form-group">
-                                                                                <input class="form-control" name="email"
-                                                                                       id="email" type="email"
-                                                                                       placeholder="Email" />
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-12">
-                                                                            <div class="form-group">
-                                                                                <input class="form-control" name="website"
-                                                                                       id="website" type="text"
-                                                                                       placeholder="Website" />
-                                                                            </div>
+                                                    @*        <div class="comment-form">
+                                                    <h4 class="mb-15">Add a review</h4>
+                                                    <div class="product-rate d-inline-block mb-30"></div>
+                                                    <div class="row">
+                                                        <div class="col-lg-8 col-md-12">
+                                                            <form class="form-contact comment_form" action="#" id="commentForm">
+                                                                <div class="row">
+                                                                    <div class="col-12">
+                                                                        <div class="form-group">
+                                                                            <textarea class="form-control w-100" name="comment" id="comment" cols="30" rows="9" placeholder="Write Comment"></textarea>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="form-group">
-                                                                        <button type="submit"
-                                                                                class="button button-contactForm">
-                                                                            Submit
-                                                                            Review
-                                                                        </button>
+                                                                    <div class="col-sm-6">
+                                                                        <div class="form-group">
+                                                                            <input class="form-control" name="name" id="name" type="text" placeholder="Name" />
+                                                                        </div>
                                                                     </div>
-                                                                </form>
-                                                            </div>
+                                                                    <div class="col-sm-6">
+                                                                        <div class="form-group">
+                                                                            <input class="form-control" name="email" id="email" type="email" placeholder="Email" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="form-group">
+                                                                            <input class="form-control" name="website" id="website" type="text" placeholder="Website" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <button type="submit" class="button button-contactForm">Submit Review</button>
+                                                                </div>
+                                                            </form>
                                                         </div>
-                                                    </div> *@
+                                                    </div>
+                                                </div> *@
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    @* <div class="row mt-60"> *@
-                                    @*     <div class="col-12"> *@
-                                    @*         <h2 class="section-title style-1 mb-30">Related products</h2> *@
-                                    @*     </div> *@
-                                    @*     <div class="col-12"> *@
-                                    @*         <div class="row related-products"> *@
-                                    @*             <div class="col-lg-3 col-md-4 col-12 col-sm-6"> *@
-                                    @*                 <div class="product-cart-wrap hover-up"> *@
-                                    @*                     <div class="product-img-action-wrap"> *@
-                                    @*                         <div class="product-img product-img-zoom"> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 <img class="default-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-2-1.jpg" alt="" /> *@
-                                    @*                                 <img class="hover-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-2-2.jpg" alt="" /> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-action-1"> *@
-                                    @*                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-                                    @*                                data-bs-toggle="modal" *@
-                                    @*                                data-bs-target="#quickViewModal"> *@
-                                    @*                                 <i class="fi-rs-search"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Add To Wishlist" *@
-                                    @*                                class="action-btn small hover-up" *@
-                                    @*                                href="shop-wishlist.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-heart"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Compare" class="action-btn small hover-up" *@
-                                    @*                                href="shop-compare.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-shuffle"></i> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-                                    @*                             <span class="hot">Hot</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                     <div class="product-content-wrap"> *@
-                                    @*                         <h2> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 Ulstra Bass *@
-                                    @*                                 Headphone *@
-                                    @*                             </a> *@
-                                    @*                         </h2> *@
-                                    @*                         <div class="rating-result" title="90%"> *@
-                                    @*                             <span> </span> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-price"> *@
-                                    @*                             <span>$238.85 </span> *@
-                                    @*                             <span class="old-price">$245.8</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                 </div> *@
-                                    @*             </div> *@
-                                    @*             <div class="col-lg-3 col-md-4 col-12 col-sm-6"> *@
-                                    @*                 <div class="product-cart-wrap hover-up"> *@
-                                    @*                     <div class="product-img-action-wrap"> *@
-                                    @*                         <div class="product-img product-img-zoom"> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 <img class="default-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-3-1.jpg" alt="" /> *@
-                                    @*                                 <img class="hover-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-4-2.jpg" alt="" /> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-action-1"> *@
-                                    @*                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-                                    @*                                data-bs-toggle="modal" *@
-                                    @*                                data-bs-target="#quickViewModal"> *@
-                                    @*                                 <i class="fi-rs-search"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Add To Wishlist" *@
-                                    @*                                class="action-btn small hover-up" *@
-                                    @*                                href="shop-wishlist.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-heart"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Compare" class="action-btn small hover-up" *@
-                                    @*                                href="shop-compare.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-shuffle"></i> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-                                    @*                             <span class="sale">-12%</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                     <div class="product-content-wrap"> *@
-                                    @*                         <h2> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 Smart *@
-                                    @*                                 Bluetooth Speaker *@
-                                    @*                             </a> *@
-                                    @*                         </h2> *@
-                                    @*                         <div class="rating-result" title="90%"> *@
-                                    @*                             <span> </span> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-price"> *@
-                                    @*                             <span>$138.85 </span> *@
-                                    @*                             <span class="old-price">$145.8</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                 </div> *@
-                                    @*             </div> *@
-                                    @*             <div class="col-lg-3 col-md-4 col-12 col-sm-6"> *@
-                                    @*                 <div class="product-cart-wrap hover-up"> *@
-                                    @*                     <div class="product-img-action-wrap"> *@
-                                    @*                         <div class="product-img product-img-zoom"> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 <img class="default-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-4-1.jpg" alt="" /> *@
-                                    @*                                 <img class="hover-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-4-2.jpg" alt="" /> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-action-1"> *@
-                                    @*                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-                                    @*                                data-bs-toggle="modal" *@
-                                    @*                                data-bs-target="#quickViewModal"> *@
-                                    @*                                 <i class="fi-rs-search"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Add To Wishlist" *@
-                                    @*                                class="action-btn small hover-up" *@
-                                    @*                                href="shop-wishlist.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-heart"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Compare" class="action-btn small hover-up" *@
-                                    @*                                href="shop-compare.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-shuffle"></i> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-                                    @*                             <span class="new">New</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                     <div class="product-content-wrap"> *@
-                                    @*                         <h2> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 HomeSpeak *@
-                                    @*                                 12UEA Goole *@
-                                    @*                             </a> *@
-                                    @*                         </h2> *@
-                                    @*                         <div class="rating-result" title="90%"> *@
-                                    @*                             <span> </span> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-price"> *@
-                                    @*                             <span>$738.85 </span> *@
-                                    @*                             <span class="old-price">$1245.8</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                 </div> *@
-                                    @*             </div> *@
-                                    @*             <div class="col-lg-3 col-md-4 col-12 col-sm-6 d-lg-block d-none"> *@
-                                    @*                 <div class="product-cart-wrap hover-up mb-0"> *@
-                                    @*                     <div class="product-img-action-wrap"> *@
-                                    @*                         <div class="product-img product-img-zoom"> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 <img class="default-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-5-1.jpg" alt="" /> *@
-                                    @*                                 <img class="hover-img" *@
-                                    @*                                      src="~/assets/imgs/shop/product-3-2.jpg" alt="" /> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-action-1"> *@
-                                    @*                             <a aria-label="Quick view" class="action-btn small hover-up" *@
-                                    @*                                data-bs-toggle="modal" *@
-                                    @*                                data-bs-target="#quickViewModal"> *@
-                                    @*                                 <i class="fi-rs-search"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Add To Wishlist" *@
-                                    @*                                class="action-btn small hover-up" *@
-                                    @*                                href="shop-wishlist.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-heart"></i> *@
-                                    @*                             </a> *@
-                                    @*                             <a aria-label="Compare" class="action-btn small hover-up" *@
-                                    @*                                href="shop-compare.html" tabindex="0"> *@
-                                    @*                                 <i class="fi-rs-shuffle"></i> *@
-                                    @*                             </a> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-badges product-badges-position product-badges-mrg"> *@
-                                    @*                             <span class="hot">Hot</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                     <div class="product-content-wrap"> *@
-                                    @*                         <h2> *@
-                                    @*                             <a href="shop-product-right.html" tabindex="0"> *@
-                                    @*                                 Dadua Camera *@
-                                    @*                                 4K 2024EF *@
-                                    @*                             </a> *@
-                                    @*                         </h2> *@
-                                    @*                         <div class="rating-result" title="90%"> *@
-                                    @*                             <span> </span> *@
-                                    @*                         </div> *@
-                                    @*                         <div class="product-price"> *@
-                                    @*                             <span>$89.8 </span> *@
-                                    @*                             <span class="old-price">$98.8</span> *@
-                                    @*                         </div> *@
-                                    @*                     </div> *@
-                                    @*                 </div> *@
-                                    @*             </div> *@
-                                    @*         </div> *@
-                                    @*     </div> *@
-                                    @* </div> *@
+                                       <div class="row mt-60">
+                                    <div class="col-12">
+                                        <h2 class="section-title style-1 mb-30">Related products</h2>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="row related-products">
+
+                                                @if(Model.ProductBycate.Any()&& Model.ProductBycate != null)
+                                                {
+                                                    foreach(var product in Model.ProductBycate.Take(4))
+                                                    {
+                                                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                                            <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
+                                                                 data-wow-delay=".1s">
+                                                                <div class="product-img-action-wrap">
+                                                                    <div class="product-img product-img-zoom">
+                                                                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                                                                            <img class="default-img"
+                                                                                 src="@(product.ProductImages?.FirstOrDefault()?.ImageUrl ?? "/assets/imgs/shop/product-5-1.jpg")"
+                                                                                 alt="@product.Name" />
+                                                                            <img class="hover-img"
+                                                                                 src="@(product.ProductImages?.Skip(1).FirstOrDefault()?.ImageUrl
+                                                                                                                                             ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
+                                                                                                                                             ?? "/assets/imgs/shop/product-5-2.jpg")"
+                                                                                 alt="@product.Name" />
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="product-action-1">
+                                                                        @Html.AntiForgeryToken()
+
+                                                                        @if (product.Wishlists != null && product.Wishlists.Any())
+                                                                        {
+                                                                            var isInWishlist = product.Wishlists.Any(w => w.UserID ==
+                                                                            @User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                                                                            <a aria-label="@(isInWishlist ? "Remove wishlist" : "Add To Wishlist")" class="action-btn"
+                                                                               onclick="AddWishlist(this, '@product.ID')">
+                                                                                <i class="fi-rs-heart@(isInWishlist ? " text-danger" : "")"></i>
+                                                                            </a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@product.ID')">
+                                                                                <i class="fi-rs-heart"></i>
+                                                                            </a>
+                                                                        }
+                                                                    </div>
+                                                 
+                                                                </div>
+                                                                <div class="product-content-wrap">
+                                                                    <div class="product-category">
+                                                                        <span class="font-small text-muted">
+                                                                            <a href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
+                                                                                @product.Categories?.Name
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                    <h2>
+                                                                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                                                                            @product.Name
+                                                                        </a>
+                                                                    </h2>
+                                                                    <div class="product-rate-cover">
+                                                                        <div class="product-rate d-inline-block">
+                                                                            <div class="product-rating" style="width: 90%"></div>
+                                                                        </div>
+                                                                        <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="font-small text-muted">
+                                                                            By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = product.StoreID })">
+                                                                                @product.StoreDetails?.Name
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="product-card-bottom">
+                                                                        <div class="product-card-bottom">
+                                                                            <div class="product-price">
+                                                                                <span>
+                                                                                    @{
+                                                                                        var minPrice = product.ProductTypes.OrderBy(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                                                                                        var maxPrice = product.ProductTypes.OrderByDescending(pt => pt.SellPrice).FirstOrDefault()?.SellPrice ?? 0;
+                                                                                    }
+
+                                                                                    @if (minPrice == 0 && maxPrice == 0)
+                                                                                    {
+                                                                                        <span>0</span>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span>@minPrice - @maxPrice</span>
+                                                                                    }
+
+                                                                                </span>
+
+
+
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                       <div class="product-card-bottom">
+
+                    <div class="add-cart">
+                        <a class="add" href="@Url.Action("ProductDetail", "Home", new { id = product.ID })">
+                            <i class="fi-rs-shopping-cart mr-5"></i>View Detail
+                        </a>
+                    </div>
+                </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                              
+                                              
+                                               </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
-                        }
-
-                        <div class="col-xl-3 primary-sidebar sticky-sidebar mt-30">
-                            
-                            <!-- Fillter By Price -->
-                            @* <div class="sidebar-widget price_range range mb-30"> *@
-                            @*     <h5 class="section-title style-1 mb-30">Fill by price</h5> *@
-                            @*     <div class="price-filter"> *@
-                            @*         <div class="price-filter-inner"> *@
-                            @*             <div id="slider-range" class="mb-20"></div> *@
-                            @*             <div class="d-flex justify-content-between"> *@
-                            @*                 <div class="caption"> *@
-                            @*                     From: <strong id="slider-range-value1" *@
-                            @*                                   class="text-brand"></strong> *@
-                            @*                 </div> *@
-                            @*                 <div class="caption"> *@
-                            @*                     To: <strong id="slider-range-value2" *@
-                            @*                                 class="text-brand"></strong> *@
-                            @*                 </div> *@
-                            @*             </div> *@
-                            @*         </div> *@
-                            @*     </div> *@
-                            @*     <div class="list-group"> *@
-                            @*         <div class="list-group-item mb-10 mt-10"> *@
-                            @*             <label class="fw-900">Color</label> *@
-                            @*             <div class="custome-checkbox"> *@
-                            @*                 <input class="form-check-input" type="checkbox" name="checkbox" *@
-                            @*                        id="exampleCheckbox1" value="" /> *@
-                            @*                 <label class="form-check-label" for="exampleCheckbox1"> *@
-                            @*                     <span> *@
-                            @*                         Red *@
-                            @*                         (56) *@
-                            @*                     </span> *@
-                            @*                 </label> *@
-                            @*                 <br /> *@
-                            @*                 <input class="form-check-input" type="checkbox" name="checkbox" *@
-                            @*                        id="exampleCheckbox2" value="" /> *@
-                            @*                 <label class="form-check-label" for="exampleCheckbox2"> *@
-                            @*                     <span> *@
-                            @*                         Green *@
-                            @*                         (78) *@
-                            @*                     </span> *@
-                            @*                 </label> *@
-                            @*                 <br /> *@
-                            @*                 <input class="form-check-input" type="checkbox" name="checkbox" *@
-                            @*                        id="exampleCheckbox3" value="" /> *@
-                            @*                 <label class="form-check-label" for="exampleCheckbox3"> *@
-                            @*                     <span> *@
-                            @*                         Blue *@
-                            @*                         (54) *@
-                            @*                     </span> *@
-                            @*                 </label> *@
-                            @*             </div> *@
-                            @*             <label class="fw-900 mt-15">Item Condition</label> *@
-                            @*             <div class="custome-checkbox"> *@
-                            @*                 <input class="form-check-input" type="checkbox" name="checkbox" *@
-                            @*                        id="exampleCheckbox11" value="" /> *@
-                            @*                 <label class="form-check-label" for="exampleCheckbox11"> *@
-                            @*                     <span> *@
-                            @*                         New *@
-                            @*                         (1506) *@
-                            @*                     </span> *@
-                            @*                 </label> *@
-                            @*                 <br /> *@
-                            @*                 <input class="form-check-input" type="checkbox" name="checkbox" *@
-                            @*                        id="exampleCheckbox21" value="" /> *@
-                            @*                 <label class="form-check-label" for="exampleCheckbox21"> *@
-                            @*                     <span> *@
-                            @*                         Refurbished *@
-                            @*                         (27) *@
-                            @*                     </span> *@
-                            @*                 </label> *@
-                            @*                 <br /> *@
-                            @*                 <input class="form-check-input" type="checkbox" name="checkbox" *@
-                            @*                        id="exampleCheckbox31" value="" /> *@
-                            @*                 <label class="form-check-label" for="exampleCheckbox31"> *@
-                            @*                     <span> *@
-                            @*                         Used *@
-                            @*                         (45) *@
-                            @*                     </span> *@
-                            @*                 </label> *@
-                            @*             </div> *@
-                            @*         </div> *@
-                            @*     </div> *@
-                            @*     <a href="shop-grid-right.html" class="btn btn-sm btn-default"> *@
-                            @*         <i class="fi-rs-filter mr-5"></i> Fillter *@
-                            @*     </a> *@
-                            @* </div> *@
-                            <!-- Product sidebar Widget -->
-                            @* <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10"> *@
-                            @*     <h5 class="section-title style-1 mb-30">New products</h5> *@
-                            @*     <div class="single-post clearfix"> *@
-                            @*         <div class="image"> *@
-                            @*             <img src="~/assets/imgs/shop/thumbnail-3.jpg" alt="#" /> *@
-                            @*         </div> *@
-                            @*         <div class="content pt-10"> *@
-                            @*             <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5> *@
-                            @*             <p class="price mb-0 mt-5">$99.50</p> *@
-                            @*             <div class="product-rate"> *@
-                            @*                 <div class="product-rating" style="width: 90%"></div> *@
-                            @*             </div> *@
-                            @*         </div> *@
-                            @*     </div> *@
-                            @*     <div class="single-post clearfix"> *@
-                            @*         <div class="image"> *@
-                            @*             <img src="~/assets/imgs/shop/thumbnail-4.jpg" alt="#" /> *@
-                            @*         </div> *@
-                            @*         <div class="content pt-10"> *@
-                            @*             <h6><a href="shop-product-detail.html">Chen Sweater</a></h6> *@
-                            @*             <p class="price mb-0 mt-5">$89.50</p> *@
-                            @*             <div class="product-rate"> *@
-                            @*                 <div class="product-rating" style="width: 80%"></div> *@
-                            @*             </div> *@
-                            @*         </div> *@
-                            @*     </div> *@
-                            @*     <div class="single-post clearfix"> *@
-                            @*         <div class="image"> *@
-                            @*             <img src="~/assets/imgs/shop/thumbnail-5.jpg" alt="#" /> *@
-                            @*         </div> *@
-                            @*         <div class="content pt-10"> *@
-                            @*             <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6> *@
-                            @*             <p class="price mb-0 mt-5">$25</p> *@
-                            @*             <div class="product-rate"> *@
-                            @*                 <div class="product-rating" style="width: 60%"></div> *@
-                            @*             </div> *@
-                            @*         </div> *@
-                            @*     </div> *@
-                            @* </div> *@
-                        
+                            <div class="col-xl-3 primary-sidebar sticky-sidebar mt-30">
+                                <div class="sidebar-widget widget-category-2 mb-30">
+                                    <h5 class="section-title style-1 mb-30">Category</h5>
+                                    <ul>
+                                        @foreach (var category in Model.Allcate
+                                                                            .Where(c => c.Products != null && c.Products.Any()) // Filter categories with products
+                                                                            .OrderByDescending(c => c.Products.Count) // Sort by the number of products (optional)
+                                                                            .Take(5)) // Take the top 5 categories with the most products
+                                        {
+                                            <li>
+                                                <a href="/Home/GetAllProductOfCategory/@category.ID" onclick="filterBySpecificCategory('@category.ID')">
+                                                    <img src="~/assets/imgs/theme/icons/category-1.svg" alt="" />@category.Name
+                                                </a>
+                                                <span class="count">@(category.Products?.Count() ?? 0)</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                                <!-- Fillter By Price -->
+                                @*            <div class="sidebar-widget price_range range mb-30">
+                                <h5 class="section-title style-1 mb-30">Fill by price</h5>
+                                <div class="price-filter">
+                                    <div class="price-filter-inner">
+                                        <div id="slider-range" class="mb-20"></div>
+                                        <div class="d-flex justify-content-between">
+                                            <div class="caption">From: <strong id="slider-range-value1" class="text-brand"></strong></div>
+                                            <div class="caption">To: <strong id="slider-range-value2" class="text-brand"></strong></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group">
+                                    <div class="list-group-item mb-10 mt-10">
+                                        <label class="fw-900">Color</label>
+                                        <div class="custome-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox1"><span>Red (56)</span></label>
+                                            <br />
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox2" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox2"><span>Green (78)</span></label>
+                                            <br />
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox3" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox3"><span>Blue (54)</span></label>
+                                        </div>
+                                        <label class="fw-900 mt-15">Item Condition</label>
+                                        <div class="custome-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox11"><span>New (1506)</span></label>
+                                            <br />
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox21" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox21"><span>Refurbished (27)</span></label>
+                                            <br />
+                                            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox31" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox31"><span>Used (45)</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class='btn btn-sm btn-default' href='/shop-grid-right'><i class="fi-rs-filter mr-5"></i> Fillter</a>
+                            </div> *@
+                                <!-- Product sidebar Widget -->
+                                @*    <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
+                                <h5 class="section-title style-1 mb-30">New products</h5>
+                                <div class="single-post clearfix">
+                                    <div class="image">
+                                        <img src="~/assets/imgs/shop/thumbnail-3.jpg" alt="#" />
+                                    </div>
+                                    <div class="content pt-10">
+                                        <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5>
+                                        <p class="price mb-0 mt-5">$99.50</p>
+                                        <div class="product-rate">
+                                            <div class="product-rating" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="single-post clearfix">
+                                    <div class="image">
+                                        <img src="~/assets/imgs/shop/thumbnail-4.jpg" alt="#" />
+                                    </div>
+                                    <div class="content pt-10">
+                                        <h6><a href="shop-product-detail.html">Chen Sweater</a></h6>
+                                        <p class="price mb-0 mt-5">$89.50</p>
+                                        <div class="product-rate">
+                                            <div class="product-rating" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="single-post clearfix">
+                                    <div class="image">
+                                        <img src="~/assets/imgs/shop/thumbnail-5.jpg" alt="#" />
+                                    </div>
+                                    <div class="content pt-10">
+                                        <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6>
+                                        <p class="price mb-0 mt-5">$25</p>
+                                        <div class="product-rate">
+                                            <div class="product-rating" style="width: 60%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> *@
+                                @* <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
+                                    <img src="~/assets/imgs/banner/banner-11.png" alt="" />
+                                    <div class="banner-text">
+                                        <span>Oganic</span>
+                                        <h4>
+                                            Save 17% <br />
+                                            on <span class="text-brand">Oganic</span><br />
+                                            Juice
+                                        </h4>
+                                    </div>
+                                </div> *@
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
     </main>
     <footer class="main">
         <section class="newsletter mb-15">
@@ -1018,14 +912,10 @@
                         <div class="position-relative newsletter-inner">
                             <div class="newsletter-content">
                                 <h2 class="mb-20">
-                                    Stay home & get your daily <br /> needs from our shop
+                                    Stay home & get your daily <br />
+                                    needs from our shop
                                 </h2>
-                                <p class="mb-45">
-                                    Start You'r Daily Shopping with <span class="text-brand">
-                                        Nest
-                                        Mart
-                                    </span>
-                                </p>
+                                <p class="mb-45">Start You'r Daily Shopping with <span class="text-brand">Nest Mart</span></p>
                                 <form class="form-subcriber d-flex">
                                     <input type="email" placeholder="Your emaill address" />
                                     <button class="btn" type="submit">Subscribe</button>
@@ -1115,32 +1005,14 @@
                     <div class="col">
                         <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
                             <div class="logo mb-30">
-                                <a href="index.html" class="mb-15">
-                                    <img src="~/assets/imgs/theme/logo.svg"
-                                         alt="logo" />
-                                </a>
+                                <a class='mb-15' href='/'><img src="~/assets/imgs/theme/logo.svg" alt="logo" /></a>
                                 <p class="font-lg text-heading">Awesome grocery store website template</p>
                             </div>
                             <ul class="contact-infor">
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>
-                                        Address:
-                                    </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>
-                                        Call
-                                        Us:
-                                    </strong><span>(+91) - 540-025-124553</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-email-2.svg"
-                                         alt="" /><strong>Email:</strong><span>sale@Nest.com</span>
-                                </li>
-                                <li>
-                                    <img src="~/assets/imgs/theme/icons/icon-clock.svg"
-                                         alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span>
-                                </li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>Address: </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>Call Us:</strong><span>(+91) - 540-025-124553</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-email-2.svg" alt="" /><strong>Email:</strong><span>sale@Nest.com</span></li>
+                                <li><img src="~/assets/imgs/theme/icons/icon-clock.svg" alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span></li>
                             </ul>
                         </div>
                     </div>
@@ -1196,14 +1068,8 @@
                         <h4 class="widget-title">Install App</h4>
                         <p class="wow fadeIn animated">From App Store or Google Play</p>
                         <div class="download-app">
-                            <a href="#" class="hover-up mb-sm-2 mb-lg-0">
-                                <img class="active"
-                                     src="~/assets/imgs/theme/app-store.jpg" alt="" />
-                            </a>
-                            <a href="#" class="hover-up mb-sm-2">
-                                <img src="~/assets/imgs/theme/google-play.jpg"
-                                     alt="" />
-                            </a>
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0"><img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" /></a>
+                            <a href="#" class="hover-up mb-sm-2"><img src="~/assets/imgs/theme/google-play.jpg" alt="" /></a>
                         </div>
                         <p class="mb-20">Secured Payment Gateways</p>
                         <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
@@ -1217,10 +1083,7 @@
                     <div class="footer-bottom"></div>
                 </div>
                 <div class="col-xl-4 col-lg-6 col-md-6">
-                    <p class="font-sm mb-0">
-                        &copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
-                        Template <br />All rights reserved
-                    </p>
+                    <p class="font-sm mb-0">&copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce Template <br />All rights reserved</p>
                 </div>
                 <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
                     <div class="hotline d-lg-inline-flex mr-30">
@@ -1256,158 +1119,6 @@
             </div>
         </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-@*    <script>
-  $(document).ready(function () {
-
-
-    $('.variant-select').click(function (e) {
-      e.preventDefault();
-
-      var variantId = $(this).data('variantid');
-
-      if (!variantId) {
-        new Notify({
-          status: 'error',
-          title: 'Error!',
-          text: 'Cannot get variant ID.',
-          effect: 'fade',
-          speed: 300,
-          showIcon: true,
-          showCloseButton: true,
-          autoclose: true,
-          autotimeout: 3000,
-          position: 'right top'
-        });
-        return;
-      }
-
-      $('#selectedVariantId').val(variantId);
-
-      $.ajax({
-        url: '@Url.Action("GetVariantPrice", "Home")',
-        type: 'GET',
-        data: { variantId: variantId },
-        dataType: 'json',
-        success: function (result) {
-          if (result && result.price != null && !isNaN(parseFloat(result.price))) {
-            var price = parseFloat(result.price);
-            var formattedPrice = new Intl.NumberFormat('vi-VN', {
-              style: 'currency',
-              currency: 'VND',
-              maximumFractionDigits: 0
-            }).format(price);
-
-            $('.current-price.text-brand').text(formattedPrice);
-
-            var targetSelector = $('.variant-select[data-variantid="' + result.variantId + '"]').data('target');
-            if (targetSelector) {
-              $(targetSelector).text(formattedPrice);
-            }
-          } else {
-            new Notify({
-              status: 'error',
-              title: 'Error!',
-              text: 'Failed to retrieve price from server.',
-              effect: 'fade',
-              speed: 300,
-              showIcon: true,
-              showCloseButton: true,
-              autoclose: true,
-              autotimeout: 3000,
-              position: 'right top'
-            });
-          }
-        },
-        error: function () {
-          new Notify({
-            status: 'error',
-            title: 'Server Error!',
-            text: 'An error occurred while getting price.',
-            effect: 'fade',
-            speed: 300,
-            showIcon: true,
-            showCloseButton: true,
-            autoclose: true,
-            autotimeout: 3000,
-            position: 'right top'
-          });
-        }
-      });
-    });
-
-    $('#btnAddToCart').click(function () {
-      var variantId = $('#selectedVariantId').val();
-
-      if (!variantId) {
-        new Notify({
-          status: 'error',
-          title: 'Warning!',
-          text: 'Please choose option before adding to cart.',
-          effect: 'fade',
-          speed: 300,
-          showIcon: true,
-          showCloseButton: true,
-          autoclose: true,
-          autotimeout: 3000,
-          position: 'right top'
-        });
-        return;
-      }
-
-      // Lấy đúng giá trị quantity từ input lúc bấm nút
-      var quantity = parseInt($('.qty-val').val()) || 1;
-
-      AddToCart(variantId, quantity);
-    });
-
-    window.AddToCart = function (variantId, quantity) {
-      $.ajax({
-        url: "/Home/AddToCart",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ ProductTypeID: variantId, quantity: quantity }),
-        success: function (response) {
-          new Notify({
-            status: response.success ? 'success' : 'error',
-            title: response.success ? 'Success!' : 'Error!',
-            text: response.message,
-            effect: 'fade',
-            speed: 300,
-            showIcon: true,
-            showCloseButton: true,
-            autoclose: true,
-            autotimeout: 3000,
-            position: 'right top'
-          });
-        },
-        error: function () {
-          new Notify({
-            status: 'error',
-            title: 'Server Error!',
-            text: "An error occurred, please try again.",
-            effect: 'fade',
-            speed: 300,
-            showIcon: true,
-            showCloseButton: true,
-            autoclose: true,
-            autotimeout: 3000,
-            position: 'right top'
-          });
-        }
-      });
-    };
-  });
-</script>
- *@
-
-<script>
-  
-</script>
-
-
-
     <!-- Vendor JS-->
     <script src="~/assets/js/vendor/modernizr-3.6.0.min.js"></script>
     <script src="~/assets/js/vendor/jquery-3.6.0.min.js"></script>
@@ -1435,3 +1146,90 @@
 </body>
 
 </html>
+<script>
+
+    function AddWishlist(el, id) {
+        var icon = el.querySelector("i");
+        const actionBtn = el;
+
+        if (icon.classList.contains("text-danger")) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to remove this from your wishlist?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/Home/RemoveWish",
+                        type: "POST",
+                        data: { id: id },
+                        headers: {
+                            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                new Notify({
+                                    status: 'success',
+                                    title: 'Success!',
+                                    text: response.message || 'Sent successfully!',
+                                    effect: 'fade',
+                                    speed: 300,
+                                    showIcon: true,
+                                    showCloseButton: true,
+                                    autoclose: true,
+                                    autotimeout: 3000,
+                                    position: 'right top'
+                                });
+                                icon.classList.remove("text-danger");
+                                actionBtn.setAttribute("aria-label", "Add To Wishlist");
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'An error occurred while removing from the wishlist.', 'error');
+                        }
+                    });
+                }
+            });
+        } else {
+            $.ajax({
+                url: "/Home/AddWish",
+                type: "POST",
+                data: { id: id },
+                headers: {
+                    "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        new Notify({
+                            status: 'success',
+                            title: 'Success!',
+                            text: response.message || 'Sent successfully!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+
+                        icon.classList.add("text-danger");
+                        actionBtn.setAttribute("aria-label", "Remove wishlist");
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function () {
+
+                    Swal.fire('Error', 'An error occurred while adding to the wishlist.', 'error');
+                }
+            });
+        }
+    }
+
+</script>
