@@ -878,14 +878,15 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                        /* // Update order status
+                         // Update order status
                         order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
                         order.ModifiedDate = DateTime.UtcNow;
                         order.Description = string.IsNullOrEmpty(order.Description)
                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                        await _order.UpdateAsync(order);*/
+                        order.IsPaid = true;
+                        await _order.UpdateAsync(order);
 
                         // Save changes
                         await _orderDetail.SaveChangesAsync();

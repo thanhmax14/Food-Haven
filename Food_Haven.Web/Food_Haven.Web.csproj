@@ -37,10 +37,15 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-<PackageReference Include="X.PagedList.Mvc.Core" Version="8.1.1" />
+		<PackageReference Include="Quartz" Version="3.14.0" />
+		<PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.14.0" />
+		<PackageReference Include="Quartz.Extensions.Hosting" Version="3.14.0" />
+		<PackageReference Include="Quartz.Jobs" Version="3.14.0" />
+        <PackageReference Include="X.PagedList.Mvc.Core" Version="8.1.1" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
 		<PackageReference Include="CsvHelper" Version="33.1.0" />
 

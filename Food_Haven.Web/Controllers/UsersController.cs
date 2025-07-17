@@ -1101,7 +1101,7 @@ namespace Food_Haven.Web.Controllers
                 foreach (var item in orderDetails)
                 {
                     item.Status = "Refunded";
-                    item.ModifiedDate = DateTime.UtcNow;
+                    item.ModifiedDate = DateTime.Now;
                     await _orderDetailService.UpdateAsync(item);
 
                     var product = await _productWarian.FindAsync(p => p.ID == item.ProductTypesID);
@@ -1136,7 +1136,8 @@ namespace Food_Haven.Web.Controllers
                     : $"{order.Description}#CANCELLED BY USER-{DateTime.Now}";
 
                 order.PaymentStatus = "Refunded";
-                order.ModifiedDate = DateTime.UtcNow;
+                order.ModifiedDate = DateTime.Now;
+                order.IsPaid = true;
                 await _order.UpdateAsync(order);
 
                 await _orderDetailService.SaveChangesAsync();
