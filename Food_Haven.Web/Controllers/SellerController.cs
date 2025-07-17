@@ -1309,14 +1309,15 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                        /* // Cập nhật trạng thái đơn hàng
+                         // Cập nhật trạng thái đơn hàng
                          order.Status = "Refunded";
                          order.PaymentStatus = "Refunded";
                          order.ModifiedDate = DateTime.UtcNow;
                          order.Description = string.IsNullOrEmpty(order.Description)
                              ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
                              : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                         await _order.UpdateAsync(order);*/
+                        order.IsPaid = true;
+                        await _order.UpdateAsync(order);
 
                         // Lưu thay đổi
                         await _orderDetail.SaveChangesAsync();

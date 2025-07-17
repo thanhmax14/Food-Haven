@@ -28,6 +28,7 @@ namespace Models
         public string Note { get; set; } = "";
         [StringLength(200)]
         public string DeliveryAddress { get; set; } = "";
+        public bool IsPaid { get; set; } = false;
         [ForeignKey("AppUser")]
         [StringLength(450)]
         public string UserID { get; set; }

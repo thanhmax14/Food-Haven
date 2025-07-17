@@ -10,12 +10,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
-
 using Repository.IngredientTagRepositorys;
 using Repository.TypeOfDishRepositoties;
-
 using Repository.IngredientTagRepositorys;
 using System.Security.Claims;
+using Quartz;
+using Quartz.Simpl;
+using Quartz.Spi;
+using Microsoft.Extensions.DependencyInjection;
+
+using Food_Haven.Web.Services.Auto;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -161,6 +165,25 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<RecipeSearchService>(provider => new RecipeSearchService(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\dataset", "full_dataset.csv")));
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    // Cấu hình job
+    var jobKey = new JobKey("ReleasePaymentJob");
+    q.AddJob<ReleasePaymentJob>(opts => opts.WithIdentity(jobKey));
+
+    // Cấu hình trigger
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("ReleasePaymentTrigger")
+      .WithCronSchedule("0/5 * * * * ?") // Mỗi 15 phút
+        .WithDescription("Release payment every 15 minutes"));
+});
+
+// Thêm hosted service
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
