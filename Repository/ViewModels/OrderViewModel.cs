@@ -22,7 +22,7 @@ namespace Repository.ViewModels
         public Guid OrderId { get; set; }
         public string  Desctiption { get; set; }
         public string DeliveryAddress { get; set; }
-
-
+        public bool isPay { get; set; }=false;
+        public string linkpay { get; set; }="";
     }
 }

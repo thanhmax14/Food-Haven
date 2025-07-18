@@ -179,10 +179,21 @@ builder.Services.AddQuartz(q =>
         .WithIdentity("ReleasePaymentTrigger")
       .WithCronSchedule("0/5 * * * * ?") // Mỗi 15 phút
         .WithDescription("Release payment every 15 minutes"));
+
+    var deposit = new JobKey("ReleasePaymentDeposit");
+    q.AddJob<ReleasePaymentDeposit>(opts => opts.WithIdentity(deposit));
+    q.AddTrigger(opts => opts
+        .ForJob(deposit)
+        .WithIdentity("ReleasePaymentDepositTrigger")
+        .WithSimpleSchedule(x => x
+            .WithIntervalInSeconds(5)
+            .RepeatForever())
+        .WithDescription("Release deposit every 5 seconds"));
+
 });
 
-// Thêm hosted service
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddScoped<IJob, ReleasePaymentDeposit>();
+builder.Services.AddScoped<IJob, ReleasePaymentJob>();
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
