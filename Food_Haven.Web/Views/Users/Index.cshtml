@@ -848,37 +848,53 @@
                                                         { name: "Note", width: "200px" },
                                                         { name: "Delivery Address", width: "220px" },
 
-                                                        {
-                                                            name: "Actions",
-                                                            width: "130px",
-                                                            formatter: (_, row) => {
-                                                                const orderId = row.cells[1].data;
-                                                                return gridjs.html(`
-                                                                    <button class="btn btn-sm btn-primary view-details"
-                                                                            data-id="${orderId}">
-                                                                        View Order
-                                                                    </button>`);
-                                                            }
-                                                        }
+                                                                                                {
+                                          name: "Actions",
+                                          formatter: (_, row) => {
+                                            const orderId = row.cells[1]?.data;
+                                            const isPay = row.cells[11]?.data;
+                                            const linkPay = row.cells[12]?.data;
+
+                                            console.log("Debug:", row.cells.map(c => c.data)); // kiểm tra chính xác
+
+                                            if (isPay === true && linkPay && linkPay.trim() !== '') {
+                                              return gridjs.html(`
+                                                <button type="button" class="btn btn-sm btn-light"
+                                                        onclick="window.open('${linkPay}', '_blank')">
+                                                    Details
+                                                </button>
+                                              `);
+                                            }
+
+                                            return gridjs.html(`
+                                              <button class="btn btn-sm btn-primary view-details"
+                                                      data-id="${orderId}">
+                                                  View Order
+                                              </button>
+                                            `);
+                                          }
+                                        }
+
                                                     ],
                                                     pagination: { enabled: true, limit: 5, summary: true },
                                                     search: true,
                                                     sort: true,
-                                                    data: orderData.map((o, index) => [
-                                                        sttCounter++,
-                                                        o.OrderTracking,
-                                                        o.PaymentMethod,
-                                                        o.StatusPayment,
-                                                        o.Status,
-                                                        o.Quantity,
-                                                        o.Total,
-                                                        o.OrderDate,
-                                                        o.DeliveryDate,
-                                                        o.Note,
-                                                        o.DeliveryAddress,
-
-                                                        ""
-                                                    ])
+                                            data: orderData.map((o, index) => [
+                                            sttCounter++,           // 0
+                                            o.OrderTracking,        // 1
+                                            o.PaymentMethod,        // 2
+                                            o.StatusPayment,        // 3
+                                            o.Status,               // 4
+                                            o.Quantity,             // 5
+                                            o.Total,                // 6
+                                            o.OrderDate,            // 7
+                                            o.DeliveryDate,         // 8
+                                            o.Note,                 // 9
+                                            o.DeliveryAddress,      // 10
+                                            o.isPay,                // 11
+                                            o.linkpay,              // 12
+                                            ""                      // 13: placeholder cho formatter
+                                        ])
                                                 }).render(orderContainer);
 
                                                 document.addEventListener("click", function (e) {

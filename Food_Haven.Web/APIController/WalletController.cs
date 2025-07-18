@@ -97,16 +97,18 @@ namespace Food_Haven.Web.APIController
                         var order = await this._ordersServices.FindAsync(u => u.OrderCode == data.orderCode + "");
                         if (order != null)
                         {
-                            order.Status = "PROCESSING";
+                            var dueTime = DateTime.Now;
+                            order.Status = "Pending";
                             order.PaymentStatus = "Success";
                             order.IsActive = true;
-                            order.ModifiedDate = DateTime.Now;
+                            order.ModifiedDate = dueTime;
+                            order.Description = $"Pending-{DateTime.Now}";
                             await this._ordersServices.UpdateAsync(order);
                             await this._ordersServices.SaveChangesAsync();
                             var getOrderDetil = await this._detail.ListAsync(_detail => _detail.OrderID == order.ID);
                             foreach (var item in getOrderDetil)
                             {
-                                item.Status = "PROCESSING";
+                                item.Status = "Pending";
                                 item.IsActive = true;
                                 item.ModifiedDate = DateTime.Now;
                                 await this._detail.UpdateAsync(item);
