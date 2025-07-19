@@ -111,21 +111,70 @@ namespace Food_Haven.Web.Services.Auto
                         continue;
                     }
 
+                    if (order.Status.Equals("PREPARING IN KITCHEN", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalHours >= 2)
+                    {
+                        var orderDetails = await _orderdetail.ListAsync(d => d.OrderID == order.ID);
 
-                    /*                    // RULE 2: Preparing > 2h → Hủy
-                                        if (order.Status.Equals("PREPARING IN KITCHEN", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalHours >= 2)
-                                        {
-                                            order.Status = "Cancelled by System";
-                                            order.Description += $"#AUTO CANCEL (PREPARING > 2h) {DateTime.Now}";
-                                            order.PaymentStatus = "Refunded";
-                                            order.ModifiedDate = DateTime.Now;
+                        if (orderDetails != null && orderDetails.Any())
+                        {
+                            foreach (var item in orderDetails)
+                            {
+                                item.Status = "Refunded";
+                                item.ModifiedDate = DateTime.Now;
+                                await _orderdetail.UpdateAsync(item);
 
-                                            await _order.UpdateAsync(order);
-                                            await _order.SaveChangesAsync();
+                                var product = await _producttype.FindAsync(p => p.ID == item.ProductTypesID);
+                                if (product != null)
+                                {
+                                    product.Stock += item.Quantity;
+                                    product.IsActive = true;
+                                    await _producttype.UpdateAsync(product);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[RULE 2] Đơn {order.ID} không có sản phẩm, nhưng vẫn huỷ và hoàn tiền.");
+                        }
 
-                                            Console.WriteLine($"[RULE 2] Đơn {order.ID} huỷ do preparing > 2h.");
-                                            continue;
-                                        }*/
+                        var currentBalance = await _balance.GetBalance(order.UserID);
+                        var refund = new BalanceChange
+                        {
+                            UserID = order.UserID,
+                            MoneyChange = order.TotalPrice,
+                            MoneyBeforeChange = currentBalance,
+                            MoneyAfterChange = currentBalance + order.TotalPrice,
+                            Method = "Refund (Kitchen Timeout)",
+                            Status = "Success",
+                            Display = true,
+                            IsComplete = true,
+                            CheckDone = true,
+                            StartTime = DateTime.Now,
+                            DueTime = DateTime.Now,
+                            Description = $"Refund for order {order.ID} due to 'PREPARING IN KITCHEN' timeout (over 2 hours)."
+                        };
+                        await _balance.AddAsync(refund);
+
+                        order.Status = "CANCELLED BY SHOP";
+                        order.Description = string.IsNullOrEmpty(order.Description)
+                            ? $"CANCELLED BY SHOP - kitchen timeout - {DateTime.Now}"
+                            : $"{order.Description}#CANCELLED BY SHOP - kitchen timeout - {DateTime.Now}";
+                        order.PaymentStatus = "Refunded";
+                        order.ModifiedDate = DateTime.Now;
+                        order.IsPaid = true;
+
+                        await _order.UpdateAsync(order);
+                        await _orderdetail.SaveChangesAsync();
+                        await _producttype.SaveChangesAsync();
+                        await _order.SaveChangesAsync();
+                        await _balance.SaveChangesAsync();
+
+                        await _order.UpdateAsync(order);
+                        await _order.SaveChangesAsync();
+                        Console.WriteLine($"[RULE 2] Đơn {order.ID} đã huỷ do 'PREPARING IN KITCHEN' quá 2 giờ.");
+                        continue;
+                    }
+
 
                     // RULE 3: Delivered > 3 ngày và không có tranh chấp → Cộng tiền cho người bán
                     if (order.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalDays >= 3)
