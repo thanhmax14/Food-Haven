@@ -29,7 +29,6 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Models;
 using Net.payOS;
 using Repository.ViewModels;
@@ -92,7 +91,7 @@ namespace Food_Haven.Web.Controllers
             _service = service;
         }
 
-    
+
         [HttpGet]
         public IActionResult Login(string ReturnUrl = null)
         {
@@ -649,7 +648,7 @@ namespace Food_Haven.Web.Controllers
             return View(storeVM);
         }
 
-       
+
         public async Task<IActionResult> GetAllProductOfCategory(Guid id)
         {
             // Kiểm tra danh mục có tồn tại không
@@ -1404,7 +1403,7 @@ namespace Food_Haven.Web.Controllers
 
             ViewData["SearchKeyword"] = searchName ?? "";
 
-            return View("Index1", viewModel);
+            return View("Index", viewModel);
         }
 
 
@@ -2112,7 +2111,7 @@ namespace Food_Haven.Web.Controllers
                     tem.status = order.Status;
                     tem.emailUser = getUser.Email;
                     tem.phoneUser = getUser.PhoneNumber;
-                   
+
                     tem.AddressUse = getUser.Address;
 
                     // Voucher
