@@ -239,12 +239,12 @@
     <!--End header-->
     <main class="main pages">
         @* <div class="page-header breadcrumb-wrap">
-            <div class="container">
-                <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                    <span></span> Pages <span></span> My Account
-                </div>
-            </div>
+        <div class="container">
+        <div class="breadcrumb">
+        <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+        <span></span> Pages <span></span> My Account
+        </div>
+        </div>
         </div> *@
         <div class="page-content pt-50 pb-50">
             <div class="container">
@@ -260,11 +260,11 @@
                                                aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
                                         </li>
                                         @* <li class="nav-item">
-                                            <a class="nav-link " id="dashboard-tab" data-bs-toggle="tab"
-                                               href="#dashboard" role="tab" aria-controls="dashboard"
-                                               aria-selected="false">
-                                                <i class="fi-rs-settings-sliders mr-10"></i>Dashboard
-                                            </a>
+                                        <a class="nav-link " id="dashboard-tab" data-bs-toggle="tab"
+                                        href="#dashboard" role="tab" aria-controls="dashboard"
+                                        aria-selected="false">
+                                        <i class="fi-rs-settings-sliders mr-10"></i>Dashboard
+                                        </a>
                                         </li> *@
                                         <li class="nav-item">
                                             <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders"
@@ -279,11 +279,11 @@
                                         </li>
 
                                         @* <li class="nav-item">
-                                            <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab"
-                                               href="#track-orders" role="tab" aria-controls="track-orders"
-                                               aria-selected="false">
-                                                <i class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order
-                                            </a>
+                                        <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab"
+                                        href="#track-orders" role="tab" aria-controls="track-orders"
+                                        aria-selected="false">
+                                        <i class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order
+                                        </a>
                                         </li> *@
 
                                         @if (Model.userView.RequestSeller == "0" || Model.userView.RequestSeller == "1" || Model.userView.RequestSeller == "3") // Nếu chưa đăng ký seller
@@ -305,9 +305,9 @@
                                             </li>
                                         }
                                         @* <li class="nav-item">
-                                            <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab"
-                                               href="#account-detail" role="tab" aria-controls="account-detail"
-                                               aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
+                                        <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab"
+                                        href="#account-detail" role="tab" aria-controls="account-detail"
+                                        aria-selected="true"><i class="fi-rs-user mr-10"></i>Account details</a>
                                         </li> *@
                                         <li class="nav-item">
                                             <a class="nav-link" id="wallet-tab" data-bs-toggle="tab" href="#wallet"
@@ -322,11 +322,11 @@
                                             </a>
                                         </li>
 
-                                        @* <li class="nav-item"> 
-                                            <a class="nav-link" id="Feedback-tab" data-bs-toggle="tab" href="#Feedback"
-                                               role="tab" aria-controls="Feedback" aria-selected="false">
-                                                <i class="fi-rs-shopping-bag mr-10"></i>Your Feedback
-                                            </a>
+                                        @* <li class="nav-item">
+                                        <a class="nav-link" id="Feedback-tab" data-bs-toggle="tab" href="#Feedback"
+                                        role="tab" aria-controls="Feedback" aria-selected="false">
+                                        <i class="fi-rs-shopping-bag mr-10"></i>Your Feedback
+                                        </a>
                                         </li>*@
                                         <li class="nav-item">
                                             <a class="nav-link" href="page-login.html">
@@ -383,7 +383,7 @@
                                                     <input type="hidden" id="product-id-field">
                                                     <input type="hidden" id="product-name-hidden">
 
-                                                    <h3 class="mb-3 fs-4">Đánh giá đơn hàng đã mua</h3>
+                                                    <h3 class="mb-3 fs-4">Review purchased order</h3>
                                                     <span id="review_product_name" class="badge bg-success mb-3 fs-6 py-2 px-3">
 
                                                     </span>
@@ -399,7 +399,7 @@
                                                     </div>
 
                                                     <div class="form-group mb-3">
-                                                        <label for="review-text" class="fs-5">Chia sẻ thêm thông tin</label>
+                                                        <label for="review-text" class="fs-5"> Share more information</label>
                                                         <textarea class="form-control fs-5" id="review-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;"></textarea>
 
                                                         <script>
@@ -416,13 +416,14 @@
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm chuẩn chất lượng.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm khá tốt.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm ổn.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Hỗ trợ nhiệt tình.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Sản phẩm kém chất lượng.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Không hỗ trợ khách hàng.</span>
-                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Hàng không sử dụng được.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Product meets quality standards.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Product is quite good.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Product is okay.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Support was enthusiastic.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Product is poor quality.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">No customer support.</span>
+                                                        <span class="badge badge-warning py-2 px-3 fs-6 me-2 mb-2 d-inline-block" onclick="setReason(this)">Product is unusable.</span>
+
                                                     </div>
 
                                                     <button type="button" class="btn btn-success w-100 mt-3 fs-5" onclick="doRating()">Gửi đánh giá</button>
@@ -434,21 +435,21 @@
                                         <div class="modal-dialog modal-xl modal-dialog-centered">
                                             <div class="modal-content p-4">
                                                 <form id="complaint-form" enctype="multipart/form-data">
-                                                    <h3 class="mb-3">Gửi Khiếu Nại</h3>
+                                                    <h3 class="mb-3">Submit Complaint</h3>
                                                     <input type="hidden" id="order-detail-id">
 
                                                     <div class="mb-2">
-                                                        <label>Mã đơn hàng:</label>
+                                                        <label>Order Tracking:</label>
                                                         <span id="order-code" class="fw-bold text-primary">#...</span>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label>Sản phẩm khiếu nại:</label>
+                                                        <label> Complained product:</label>
                                                         <span id="product-name" class="fw-bold text-danger">...</span>
                                                     </div>
 
                                                     <!-- Upload ảnh -->
                                                     <div class="mb-3">
-                                                        <label for="complaint-image" class="form-label">Tải ảnh minh họa (tối đa 3 ảnh, mỗi ảnh ≤ 5MB)</label>
+                                                        <label for="complaint-image" class="form-label">Upload illustrative images (up to 3 images, each ≤ 5MB)</label>
                                                         <input class="form-control" type="file" id="complaint-image" accept="image/*" multiple
                                                                onchange="handleComplaintImage(this)" onclick="clearImageError()">
                                                         <span id="image-error" class="error-message"></span>
@@ -459,8 +460,8 @@
 
                                                     <!-- Textarea mô tả -->
                                                     <div class="form-group mb-1">
-                                                        <label for="complaint-text">Mô tả lỗi gặp phải</label>
-                                                        <textarea class="form-control fs-5" id="complaint-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;" placeholder="Mô tả chi tiết vấn đề..."
+                                                        <label for="complaint-text"> Describe the error encountered</label>
+                                                        <textarea class="form-control fs-5" id="complaint-text" rows="6" style="height: auto; overflow-y: hidden; resize: none;" placeholder="Provide a detailed description of the issue..."
                                                                   oninput="clearTextError();"></textarea>
                                                         <span id="text-error" class="error-message"></span>
 
@@ -478,7 +479,7 @@
                                                     </div>
 
                                                     <button type="button" id="btnSubmitComplaint" class="btn btn-danger w-100 mt-3" onclick="submitComplaint()">
-                                                        Gửi Khiếu Nại
+                                                        Submit Complaint
                                                     </button>
 
                                                 </form>
@@ -511,14 +512,14 @@
                                             errorSpan.textContent = '';
 
                                             if ((selectedImages.length + files.length) > 3) {
-                                                errorSpan.textContent = "Chỉ cho phép tối đa 3 ảnh.";
+                                                errorSpan.textContent = "A maximum of 3 images is allowed";
                                                 input.value = "";
                                                 return;
                                             }
 
                                             for (const file of files) {
                                                 if (file.size > 5 * 1024 * 1024) {
-                                                    errorSpan.textContent = `Ảnh "${file.name}" vượt quá 5MB và bị loại.`;
+                                                    errorSpan.textContent = `Image "${file.name}" exceeds 5MB and has been removed`;
                                                     continue;
                                                 }
                                                 selectedImages.push(file);
@@ -568,12 +569,12 @@
                                             let hasError = false;
 
                                             if (!text) {
-                                                textError.textContent = "Vui lòng nhập mô tả khiếu nại.";
+                                                textError.textContent = "Please enter a complaint description.";
                                                 hasError = true;
                                             }
 
                                             if (selectedImages.length === 0) {
-                                                imageError.textContent = "Vui lòng chọn ít nhất 1 ảnh.";
+                                                imageError.textContent = "Please select at least one image.";
                                                 hasError = true;
                                             }
 
@@ -581,7 +582,7 @@
 
                                             // 🔄 Hiển thị loading
                                             submitBtn.disabled = true;
-                                            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+                                            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
 
                                             const formData = new FormData();
                                             formData.append("OrderDetailID", orderDetailId);
@@ -596,13 +597,13 @@
                                                 .then(data => {
                                                     // ✅ Khôi phục nút
                                                     submitBtn.disabled = false;
-                                                    submitBtn.innerHTML = 'Gửi Khiếu Nại';
+                                                    submitBtn.innerHTML = 'Submit Complaint';
 
                                                     if (data.success) {
                                                         new Notify({
                                                             status: 'success',
-                                                            title: 'Thành công!',
-                                                            text: data.message || 'Gửi thành công!',
+                                                            title: 'Success!',
+                                                            text: data.message || 'Send successful!',
                                                             effect: 'fade',
                                                             speed: 300,
                                                             showIcon: true,
@@ -621,8 +622,8 @@
                                                     } else {
                                                         new Notify({
                                                             status: 'error',
-                                                            title: 'Thất Bại',
-                                                            text: data.message || 'Gửi thất bại!',
+                                                            title: 'Failed',
+                                                            text: data.message || 'Failed to send!',
                                                             effect: 'fade',
                                                             speed: 300,
                                                             showIcon: true,
@@ -635,9 +636,10 @@
                                                 })
                                                 .catch(err => {
                                                     console.error(err);
-                                                    alert("❌ Lỗi kết nối.");
+                                                    Swal.fire("❌ Connection Error", "Unable to connect to the server.", "error");
+
                                                     submitBtn.disabled = false;
-                                                    submitBtn.innerHTML = 'Gửi Khiếu Nại';
+                                                    submitBtn.innerHTML = 'Submit Complaint';
                                                 });
                                         }
 
@@ -711,7 +713,8 @@
                                             const productName = document.getElementById("product-name-hidden").value;
 
                                             if (!rating) {
-                                                Swal.fire("Chưa chọn số sao!", "Vui lòng chọn số sao để đánh giá.", "warning");
+                                                Swal.fire("No Rating Selected!", "Please select a star rating before submitting.", "warning");
+
                                                 return;
                                             }
 
@@ -739,16 +742,18 @@
                                                         const modalInstance = bootstrap.Modal.getInstance(modalElement);
                                                         modalInstance?.hide();
 
-                                                        Swal.fire("Thành công!", data.message || "Cảm ơn bạn đã đánh giá.", "success")
-                                                            .then(() => document.getElementById("orders-tab")?.click());
+                                                        Swal.fire("Success!", data.message || "Thank you for your review.", "success");
+
+                                                                                                    .then(() => document.getElementById("orders-tab")?.click());
                                                     } else {
-                                                        Swal.fire("Lỗi!", data.message || "Không gửi được đánh giá.", "error");
+                                                        Swal.fire("Error!", data.message || "Failed to submit the review.", "error");
                                                     }
 
                                                 })
                                                 .catch(error => {
                                                     console.error("Submit error:", error);
-                                                    Swal.fire("Lỗi!", "Không thể kết nối máy chủ.", "error");
+                                                    Swal.fire("Error!", "Unable to connect to the server.", "error");
+
                                                 });
                                         }
                                         function openReviewModal(productId, productName) {
@@ -766,7 +771,7 @@
                                             }
 
                                             if (productNameBadge) {
-                                                productNameBadge.textContent = `Đánh giá sản phẩm: ${productName}`;
+                                                productNameBadge.textContent = ` Product review: ${productName}`;
                                             } else {
                                                 console.warn("Không tìm thấy span với id='review_product_name'");
                                             }
@@ -775,326 +780,330 @@
                                     </script>
 
                                     <script>
-                                            let detailsGrid = null;
+                                        let detailsGrid = null;
 
-                                            document.addEventListener("DOMContentLoaded", function () {
-                                                const orderContainer = document.getElementById("table-orders");
-                                                orderContainer.innerHTML = "";
+                                        document.addEventListener("DOMContentLoaded", function () {
+                                            const orderContainer = document.getElementById("table-orders");
+                                            orderContainer.innerHTML = "";
 
-                                                const orderData = @Html.Raw(JsonSerializer.Serialize(Model.OrderViewodels));
-                                                let sttCounter = 1;
+                                            const orderData = @Html.Raw(JsonSerializer.Serialize(Model.OrderViewodels));
+                                            let sttCounter = 1;
 
-                                                new gridjs.Grid({
-                                                    columns: [
-                                                        { name: "STT", width: "60px" },
-                                                        { name: "Order Tracking", width: "160px" },
-                                                        { name: "Payment Method", width: "130px" },
-                                                        {
-                                                            name: "Status Payment",
-                                                            width: "160px",
-                                                            formatter: (cell) => {
-                                                                const value = (cell || "").toLowerCase();
-                                                                let color = "secondary";
-                                                                if (value === "success") color = "success";
-                                                                else if (value === "failed") color = "danger";
-                                                                else if (value === "waiting payment") color = "warning";
-                                                                return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                                            new gridjs.Grid({
+                                                columns: [
+                                                    { name: "STT", width: "60px" },
+                                                    { name: "Order Tracking", width: "160px" },
+                                                    { name: "Payment Method", width: "130px" },
+                                                    {
+                                                        name: "Status Payment",
+                                                        width: "160px",
+                                                        formatter: (cell) => {
+                                                            const value = (cell || "").toLowerCase();
+                                                            let color = "secondary";
+                                                            if (value === "success") color = "success";
+                                                            else if (value === "failed") color = "danger";
+                                                            else if (value === "waiting payment") color = "warning";
+                                                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                                                        }
+                                                    },
+                                                    {
+                                                        name: "Order Status",
+                                                        width: "180px",
+                                                        formatter: (cell) => {
+                                                            const value = (cell || "").toLowerCase();
+                                                            let color = "secondary";
+                                                            switch (value) {
+                                                                case "pending": color = "warning"; break;
+                                                                case "preparing in kitchen": color = "info"; break;
+                                                                case "delivering": color = "primary"; break;
+                                                                case "confirmed": color = "success"; break;
+                                                                case "cancelled by user":
+                                                                case "cancelled by restaurant":
+                                                                case "delivery failed": color = "danger"; break;
+                                                                case "refunded": color = "dark"; break;
                                                             }
-                                                        },
-                                                        {
-                                                            name: "Order Status",
-                                                            width: "180px",
-                                                            formatter: (cell) => {
-                                                                const value = (cell || "").toLowerCase();
-                                                                let color = "secondary";
-                                                                switch (value) {
-                                                                    case "pending": color = "warning"; break;
-                                                                    case "preparing in kitchen": color = "info"; break;
-                                                                    case "delivering": color = "primary"; break;
-                                                                    case "confirmed": color = "success"; break;
-                                                                    case "cancelled by user":
-                                                                    case "cancelled by restaurant":
-                                                                    case "delivery failed": color = "danger"; break;
-                                                                    case "refunded": color = "dark"; break;
-                                                                }
-                                                                return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
-                                                            }
-                                                        },
-                                                        { name: "Quantity", width: "90px" },
-                                                        {
-                                                            name: "Total",
-                                                            width: "120px",
-                                                            formatter: (cell) => parseFloat(cell).toLocaleString("vi-VN", {
-                                                                style: "currency", currency: "VND"
-                                                            })
-                                                        },
-                                                        {
-                                                            name: "Order Date",
-                                                            width: "180px",
-                                                            formatter: (cell) => {
-                                                                const date = new Date(cell);
-                                                                return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN");
-                                                            }
-                                                        },
-                                                        {
-                                                            name: "Delivery Date",
-                                                            width: "180px",
-                                                            formatter: (cell) => {
-                                                                if (!cell) return "";
-                                                                const date = new Date(cell);
-                                                                return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN");
-                                                            }
-                                                        },
-                                                        { name: "Note", width: "200px" },
-                                                        { name: "Delivery Address", width: "220px" },
+                                                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                                                        }
+                                                    },
+                                                    { name: "Quantity", width: "90px" },
+                                                    {
+                                                        name: "Total",
+                                                        width: "120px",
+                                                        formatter: (cell) => parseFloat(cell).toLocaleString("vi-VN", {
+                                                            style: "currency", currency: "VND"
+                                                        })
+                                                    },
+                                                    {
+                                                        name: "Order Date",
+                                                        width: "180px",
+                                                        formatter: (cell) => {
+                                                            const date = new Date(cell);
+                                                            return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN");
+                                                        }
+                                                    },
+                                                    {
+                                                        name: "Delivery Date",
+                                                        width: "180px",
+                                                        formatter: (cell) => {
+                                                            if (!cell) return "";
+                                                            const date = new Date(cell);
+                                                            return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN");
+                                                        }
+                                                    },
+                                                    { name: "Note", width: "200px" },
+                                                    { name: "Delivery Address", width: "220px" },
 
-                                                                                                {
-                                          name: "Actions",
-                                          formatter: (_, row) => {
-                                            const orderId = row.cells[1]?.data;
-                                            const isPay = row.cells[11]?.data;
-                                            const linkPay = row.cells[12]?.data;
+                                                    {
+                                                        name: "Actions",
+                                                        formatter: (_, row) => {
+                                                            const orderId = row.cells[1]?.data;
+                                                            const isPay = row.cells[11]?.data;
+                                                            const linkPay = row.cells[12]?.data;
 
-                                            console.log("Debug:", row.cells.map(c => c.data)); // kiểm tra chính xác
+                                                            console.log("Debug:", row.cells.map(c => c.data)); // kiểm tra chính xác
 
-                                            if (isPay === true && linkPay && linkPay.trim() !== '') {
-                                              return gridjs.html(`
-                                                <button type="button" class="btn btn-sm btn-light"
-                                                        onclick="window.open('${linkPay}', '_blank')">
-                                                    Details
-                                                </button>
-                                              `);
+                                                            if (isPay === true && linkPay && linkPay.trim() !== '') {
+                                                                return gridjs.html(`
+                                                                                        <button type="button" class="btn btn-sm btn-light"
+                                                                                                onclick="window.open('${linkPay}', '_blank')">
+                                                                                            Details
+                                                                                        </button>
+                                                                                      `);
+                                                            }
+
+                                                            return gridjs.html(`
+                                                                                      <button class="btn btn-sm btn-primary view-details"
+                                                                                              data-id="${orderId}">
+                                                                                          View Order
+                                                                                      </button>
+                                                                                    `);
+                                                        }
+                                                    }
+
+                                                ],
+                                                pagination: { enabled: true, limit: 5, summary: true },
+                                                search: true,
+                                                sort: true,
+                                                data: orderData.map((o, index) => [
+                                                    sttCounter++,           // 0
+                                                    o.OrderTracking,        // 1
+                                                    o.PaymentMethod,        // 2
+                                                    o.StatusPayment,        // 3
+                                                    o.Status,               // 4
+                                                    o.Quantity,             // 5
+                                                    o.Total,                // 6
+                                                    o.OrderDate,            // 7
+                                                    o.DeliveryDate,         // 8
+                                                    o.Note,                 // 9
+                                                    o.DeliveryAddress,      // 10
+                                                    o.isPay,                // 11
+                                                    o.linkpay,              // 12
+                                                    ""                      // 13: placeholder cho formatter
+                                                ])
+                                            }).render(orderContainer);
+
+                                            document.addEventListener("click", function (e) {
+                                                if (e.target.classList.contains("view-details")) {
+                                                    const orderId = e.target.getAttribute("data-id");
+                                                    loadOrderDetails(orderId);
+                                                }
+                                            });
+                                            function loadOrderDetails(orderId) {
+                                                fetch("/Users/GetOrderDetails", {
+                                                    method: "POST",
+                                                    headers: {
+                                                        "Content-Type": "application/json",
+                                                        "Accept": "application/json"
+                                                    },
+                                                    body: JSON.stringify(orderId),
+                                                    cache: "no-store"
+                                                })
+                                                    .then(response => {
+                                                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                                                        return response.json();
+                                                    })
+                                                    .then(data => {
+                                                        if (data.success) {
+                                                            const detailsContainer = document.getElementById("table-order-details");
+                                                            detailsContainer.innerHTML = "";
+
+                                                            if (detailsGrid) {
+                                                                detailsGrid.destroy();
+                                                            }
+
+                                                            let sttCounter = 1;
+
+                                                            detailsGrid = new gridjs.Grid({
+                                                                columns: [
+                                                                    { name: "STT", width: "60px" },
+                                                                    { name: "Product Name", width: "250px" },
+                                                                    { name: "Product Price", width: "150px" },
+                                                                    { name: "Total Price", width: "150px" },
+                                                                    { name: "Quantity", width: "100px" },
+                                                                    {
+                                                                        name: "Status",
+                                                                        width: "150px",
+                                                                        formatter: (cell) => {
+                                                                            const value = (cell || "").toLowerCase();
+                                                                            let color = "secondary";
+                                                                            switch (value) {
+                                                                                case "pending": color = "warning"; break;
+                                                                                case "preparing in kitchen": color = "info"; break;
+                                                                                case "delivering": color = "primary"; break;
+                                                                                case "confirmed": color = "success"; break;
+                                                                                case "cancelled by user":
+                                                                                case "cancelled by restaurant":
+                                                                                case "delivery failed": color = "danger"; break;
+                                                                                case "refunded": color = "dark"; break;
+                                                                            }
+                                                                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                                                                        }
+                                                                    },
+                                                                    { name: "Feedback", hidden: true },  // index 6
+                                                                    { name: "Complaint", hidden: true }, // index 7
+                                                                    { name: "Product ID", hidden: true }, // index 8 ✅
+                                                                    {
+                                                                        name: "Action",
+                                                                        width: "200px",
+                                                                        formatter: (_, row) => {
+                                                                            const hasFeedback = row.cells[6]?.data;
+                                                                            const hasComplaint = row.cells[7]?.data;
+                                                                            const productName = row.cells[1]?.data || "";
+                                                                            const productId = row.cells[8]?.data || "";
+                                                                            const ortracking = row.cells[9]?.data || "";
+                                                                            console.log("Debug row:", row.cells.map(c => c.data));
+
+                                                                            const escapedName = String(productName).replace(/'/g, "\\'");
+                                                                            let buttons = '<div class="d-flex gap-2 justify-content-start">';
+
+                                                                            if (!hasFeedback) {
+                                                                                buttons += `
+                                                                                                                        <button class="btn btn-outline-success btn-sm"
+                                                                                                                          onclick="openReviewModal('${productId}', '${escapedName}')">
+                                                                                                                                                                  Review
+                                                                                                                                                                </button>`;
+                                                                            }
+
+                                                                            if (!hasComplaint) {
+                                                                                buttons += `
+                                                                                                                           <button class="btn btn-outline-danger btn-sm" onclick="openComplaintModal('${ortracking}', '${escapedName}', '${productId}')">
+                                                                                                                                                                 Complaint
+                                                                                                                        </button>`;
+                                                                            }
+
+                                                                            buttons += '</div>';
+                                                                            return gridjs.html(buttons);
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                pagination: { enabled: true, limit: 5, summary: true },
+                                                                search: true,
+                                                                sort: true,
+                                                                data: data.data.map((od) => [
+                                                                    sttCounter++,
+                                                                    od.productName,
+                                                                    od.productPrice,
+                                                                    od.totalPrice,
+                                                                    od.quantity,
+                                                                    od.status,
+                                                                    od.hasFeedback,
+                                                                    od.hasComplaint,
+                                                                    od.productId,
+                                                                    od.ortracking
+                                                                ])
+                                                            });
+
+
+                                                            detailsGrid.render(detailsContainer);
+
+                                                            // Tabs và buttons như cũ
+                                                            const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
+                                                            orderDetailsTab.show();
+
+                                                            document.getElementById("back-to-orders-btn")?.remove();
+                                                            document.getElementById("cancel-entire-order-btn")?.remove();
+
+
+                                                            const orderStatus = (data.orderStatus || "").toLowerCase();
+
+                                                            if (orderStatus === "pending") {
+                                                                const cancelAllBtn = document.createElement("button");
+                                                                cancelAllBtn.id = "cancel-entire-order-btn";
+                                                                cancelAllBtn.className = "btn btn-danger mt-3 float-end";
+                                                                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Cancel Order";
+                                                                cancelAllBtn.onclick = () => {
+                                                                    Swal.fire({
+                                                                        title: "Cancel this order?",
+                                                                        text: "This entire order will be cancelled!",
+                                                                        icon: "warning",
+                                                                        showCancelButton: true,
+                                                                        confirmButtonText: "Cancel Order",
+                                                                        cancelButtonText: "No",
+                                                                        confirmButtonColor: "#d33",
+                                                                        cancelButtonColor: "#6c757d"
+                                                                    }).then((result) => {
+                                                                        if (result.isConfirmed) {
+                                                                            fetch("/Users/CancelOrder", {
+                                                                                method: "POST",
+                                                                                headers: {
+                                                                                    "Content-Type": "application/json",
+                                                                                    "Accept": "application/json"
+                                                                                },
+                                                                                body: JSON.stringify(orderId)
+                                                                            })
+                                                                                .then(res => res.json())
+                                                                                .then(data => {
+                                                                                    if (data.success) {
+                                                                                        Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success")
+                                                                                            .then(() => document.getElementById("orders-tab")?.click());
+                                                                                    } else {
+                                                                                        Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
+
+                                                                                    }
+                                                                                })
+                                                                                .catch(() => Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error"));
+                                                                        }
+                                                                    });
+                                                                };
+                                                                detailsContainer.appendChild(cancelAllBtn);
+                                                            } else if (orderStatus === "confirmed") {
+                                                                const feedbackBtn = document.createElement("button");
+
+                                                            }
+
+                                                            const backButton = document.createElement("button");
+                                                            backButton.id = "back-to-orders-btn";
+                                                            backButton.className = "btn btn-secondary mt-3 me-2";
+                                                            backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i>Back to Orders";
+                                                            backButton.onclick = () => document.getElementById("orders-tab")?.click();
+                                                            detailsContainer.appendChild(backButton);
+
+                                                        } else {
+                                                            Swal.fire(
+                                                                "Not Found",
+                                                                "Order details could not be found.",
+                                                                "warning"
+                                                            );
+
+                                                            console.log("Lỗi trả về:", data.message);
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error("Fetch error:", error);
+                                                        Swal.fire(
+                                                            "Error!",
+                                                            "An error occurred while loading the order details.",
+                                                            "error"
+                                                        );
+
+                                                    });
                                             }
 
-                                            return gridjs.html(`
-                                              <button class="btn btn-sm btn-primary view-details"
-                                                      data-id="${orderId}">
-                                                  View Order
-                                              </button>
-                                            `);
-                                          }
-                                        }
-
-                                                    ],
-                                                    pagination: { enabled: true, limit: 5, summary: true },
-                                                    search: true,
-                                                    sort: true,
-                                            data: orderData.map((o, index) => [
-                                            sttCounter++,           // 0
-                                            o.OrderTracking,        // 1
-                                            o.PaymentMethod,        // 2
-                                            o.StatusPayment,        // 3
-                                            o.Status,               // 4
-                                            o.Quantity,             // 5
-                                            o.Total,                // 6
-                                            o.OrderDate,            // 7
-                                            o.DeliveryDate,         // 8
-                                            o.Note,                 // 9
-                                            o.DeliveryAddress,      // 10
-                                            o.isPay,                // 11
-                                            o.linkpay,              // 12
-                                            ""                      // 13: placeholder cho formatter
-                                        ])
-                                                }).render(orderContainer);
-
-                                                document.addEventListener("click", function (e) {
-                                                    if (e.target.classList.contains("view-details")) {
-                                                        const orderId = e.target.getAttribute("data-id");
-                                                        loadOrderDetails(orderId);
-                                                    }
-                                                });
-                                                                                    function loadOrderDetails(orderId) {
-                                                                                        fetch("/Users/GetOrderDetails", {
-                                                                                            method: "POST",
-                                                                                            headers: {
-                                                                                                "Content-Type": "application/json",
-                                                                                                "Accept": "application/json"
-                                                                                            },
-                                                                                            body: JSON.stringify(orderId),
-                                                                                            cache: "no-store"
-                                                                                        })
-                                                                                            .then(response => {
-                                                                                                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                                                                                                return response.json();
-                                                                                            })
-                                                                                            .then(data => {
-                                                                                                if (data.success) {
-                                                                                                    const detailsContainer = document.getElementById("table-order-details");
-                                                                                                    detailsContainer.innerHTML = "";
-
-                                                                                                    if (detailsGrid) {
-                                                                                                        detailsGrid.destroy();
-                                                                                                    }
-
-                                                                                                    let sttCounter = 1;
-
-                                                                                                    detailsGrid = new gridjs.Grid({
-                                                                                                        columns: [
-                                                                                                            { name: "STT", width: "60px" },
-                                                                                                            { name: "Product Name", width: "250px" },
-                                                                                                            { name: "Product Price", width: "150px" },
-                                                                                                            { name: "Total Price", width: "150px" },
-                                                                                                            { name: "Quantity", width: "100px" },
-                                                                                                            {
-                                                                                                                name: "Status",
-                                                                                                                width: "150px",
-                                                                                                                formatter: (cell) => {
-                                                                                                                    const value = (cell || "").toLowerCase();
-                                                                                                                    let color = "secondary";
-                                                                                                                    switch (value) {
-                                                                                                                        case "pending": color = "warning"; break;
-                                                                                                                        case "preparing in kitchen": color = "info"; break;
-                                                                                                                        case "delivering": color = "primary"; break;
-                                                                                                                        case "confirmed": color = "success"; break;
-                                                                                                                        case "cancelled by user":
-                                                                                                                        case "cancelled by restaurant":
-                                                                                                                        case "delivery failed": color = "danger"; break;
-                                                                                                                        case "refunded": color = "dark"; break;
-                                                                                                                    }
-                                                                                                                    return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
-                                                                                                                }
-                                                                                                            },
-                                                                                                            { name: "Feedback", hidden: true },  // index 6
-                                                                                                            { name: "Complaint", hidden: true }, // index 7
-                                                                                                            { name: "Product ID", hidden: true }, // index 8 ✅
-                                                                                                            {
-                                                                                                                name: "Action",
-                                                                                                                width: "200px",
-                                                                                                                formatter: (_, row) => {
-                                                                                                                    const hasFeedback = row.cells[6]?.data;
-                                                                                                                    const hasComplaint = row.cells[7]?.data;
-                                                                                                                    const productName = row.cells[1]?.data || "";
-                                                                                                                    const productId = row.cells[8]?.data || "";
-                                                                                                                    const ortracking = row.cells[9]?.data || "";
-                                                                                                                    console.log("Debug row:", row.cells.map(c => c.data));
-
-                                                                                                                    const escapedName = String(productName).replace(/'/g, "\\'");
-                                                                                                                    let buttons = '<div class="d-flex gap-2 justify-content-start">';
-
-                                                                                                                    if (!hasFeedback) {
-                                                                                                                        buttons += `
-                                                                                <button class="btn btn-outline-success btn-sm"
-                                                                                  onclick="openReviewModal('${productId}', '${escapedName}')">
-                                                                                  Đánh giá
-                                                                                </button>`;
-                                                                                                                    }
-
-                                                                                                                    if (!hasComplaint) {
-                                                                                                                        buttons += `
-                                                                                   <button class="btn btn-outline-danger btn-sm" onclick="openComplaintModal('${ortracking}', '${escapedName}', '${productId}')">
-                                                                                  Khiếu nại
-                                                                                </button>`;
-                                                                                                                    }
-
-                                                                                                                    buttons += '</div>';
-                                                                                                                    return gridjs.html(buttons);
-                                                                                                                }
-                                                                                                            }
-                                                                                                        ],
-                                                                                                        pagination: { enabled: true, limit: 5, summary: true },
-                                                                                                        search: true,
-                                                                                                        sort: true,
-                                                                                                        data: data.data.map((od) => [
-                                                                                                            sttCounter++,
-                                                                                                            od.productName,
-                                                                                                            od.productPrice,
-                                                                                                            od.totalPrice,
-                                                                                                            od.quantity,
-                                                                                                            od.status,
-                                                                                                            od.hasFeedback,
-                                                                                                            od.hasComplaint,
-                                                                                                            od.productId,
-                                                                                                            od.ortracking
-                                                                                                        ])
-                                                                                                    });
-
-
-                                                                                                    detailsGrid.render(detailsContainer);
-
-                                                                                                    // Tabs và buttons như cũ
-                                                                                                    const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
-                                                                                                    orderDetailsTab.show();
-
-                                                                                                    document.getElementById("back-to-orders-btn")?.remove();
-                                                                                                    document.getElementById("cancel-entire-order-btn")?.remove();
-                                                                                                    document.getElementById("feedback-order-btn")?.remove();
-
-                                                                                                    const orderStatus = (data.orderStatus || "").toLowerCase();
-
-                                                                                                    if (orderStatus === "pending") {
-                                                                                                        const cancelAllBtn = document.createElement("button");
-                                                                                                        cancelAllBtn.id = "cancel-entire-order-btn";
-                                                                                                        cancelAllBtn.className = "btn btn-danger mt-3 float-end";
-                                                                                                        cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Hủy đơn hàng";
-                                                                                                        cancelAllBtn.onclick = () => {
-                                                                                                            Swal.fire({
-                                                                                                                title: "Xác nhận hủy đơn?",
-                                                                                                                text: "Toàn bộ đơn hàng này sẽ bị hủy!",
-                                                                                                                icon: "warning",
-                                                                                                                showCancelButton: true,
-                                                                                                                confirmButtonText: "Hủy đơn",
-                                                                                                                cancelButtonText: "Không",
-                                                                                                                confirmButtonColor: "#d33",
-                                                                                                                cancelButtonColor: "#6c757d"
-                                                                                                            }).then((result) => {
-                                                                                                                if (result.isConfirmed) {
-                                                                                                                    fetch("/Users/CancelOrder", {
-                                                                                                                        method: "POST",
-                                                                                                                        headers: {
-                                                                                                                            "Content-Type": "application/json",
-                                                                                                                            "Accept": "application/json"
-                                                                                                                        },
-                                                                                                                        body: JSON.stringify(orderId)
-                                                                                                                    })
-                                                                                                                        .then(res => res.json())
-                                                                                                                        .then(data => {
-                                                                                                                            if (data.success) {
-                                                                                                                                Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success")
-                                                                                                                                    .then(() => document.getElementById("orders-tab")?.click());
-                                                                                                                            } else {
-                                                                                                                                Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
-                                                                                                                            }
-                                                                                                                        })
-                                                                                                                        .catch(() => Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error"));
-                                                                                                                }
-                                                                                                            });
-                                                                                                        };
-                                                                                                        detailsContainer.appendChild(cancelAllBtn);
-                                                                                                    } else if (orderStatus === "confirmed") {
-                                                                                                        const feedbackBtn = document.createElement("button");
-                                                                                                        feedbackBtn.id = "feedback-order-btn";
-                                                                                                       
-                                                                                                        feedbackBtn.onclick = () => {
-                                                                                                            const modal = new bootstrap.Modal(document.getElementById("showModal"));
-                                                                                                            modal.show();
-                                                                                                            document.getElementById("order_id-field").value = orderId;
-                                                                                                        };
-                                                                                                        detailsContainer.appendChild(feedbackBtn);
-                                                                                                    }
-
-                                                                                                    const backButton = document.createElement("button");
-                                                                                                    backButton.id = "back-to-orders-btn";
-                                                                                                    backButton.className = "btn btn-secondary mt-3 me-2";
-                                                                                                    backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i> Quay lại Orders";
-                                                                                                    backButton.onclick = () => document.getElementById("orders-tab")?.click();
-                                                                                                    detailsContainer.appendChild(backButton);
-
-                                                                                                } else {
-                                                                                                    alert("Không tìm thấy chi tiết đơn hàng.");
-                                                                                                    console.log("Lỗi trả về:", data.message);
-                                                                                                }
-                                                                                            })
-                                                                                            .catch(error => {
-                                                                                                console.error("Fetch error:", error);
-                                                                                                alert("Đã xảy ra lỗi khi tải chi tiết đơn hàng.");
-                                                                                            });
-                                                                                    }
 
 
 
 
-
-                                            });
+                                        });
 
 
                                         document.addEventListener("click", function (e) {
@@ -1102,12 +1111,12 @@
                                                 const orderId = e.target.getAttribute("data-id");
 
                                                 Swal.fire({
-                                                    title: "Xác nhận hủy đơn?",
-                                                    text: "Bạn sẽ không thể hoàn tác hành động này!",
+                                                    title: "Cancel this order?",
+                                                    text: "You won't be able to undo this action!",
                                                     icon: "warning",
                                                     showCancelButton: true,
-                                                    confirmButtonText: "Hủy đơn",
-                                                    cancelButtonText: "Không",
+                                                    confirmButtonText: "Cancel Order",
+                                                    cancelButtonText: "No",
                                                     confirmButtonColor: "#d33",
                                                     cancelButtonColor: "#6c757d"
                                                 }).then((result) => {
@@ -1120,20 +1129,20 @@
                                                             },
                                                             body: JSON.stringify(orderId)
                                                         })
-                                                        .then(res => res.json())
-                                                        .then(data => {
-                                                            if (data.success) {
-                                                                Swal.fire("Đã hủy!", data.message || "Đơn hàng đã được hủy.", "success").then(() => {
-                                                                    document.getElementById("orders-tab").click(); // Quay lại danh sách đơn
-                                                                });
-                                                            } else {
-                                                                Swal.fire("Lỗi!", data.message || "Không thể hủy đơn hàng.", "error");
-                                                            }
-                                                        })
-                                                        .catch(error => {
-                                                            console.error("Cancel error:", error);
-                                                            Swal.fire("Lỗi!", "Đã xảy ra lỗi khi gửi yêu cầu hủy.", "error");
-                                                        });
+                                                            .then(res => res.json())
+                                                            .then(data => {
+                                                                if (data.success) {
+                                                                    Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success").then(() => {
+                                                                        document.getElementById("orders-tab").click(); // Quay lại danh sách đơn
+                                                                    });
+                                                                } else {
+                                                                    Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
+                                                                }
+                                                            })
+                                                            .catch(error => {
+                                                                console.error("Cancel error:", error);
+                                                                Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error");
+                                                            });
                                                     }
                                                 });
                                             }
@@ -1147,42 +1156,42 @@
 
 
                                     @* <div class="tab-pane fade" id="track-orders" role="tabpanel"
-                                         aria-labelledby="track-orders-tab">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h3 class="mb-0">Orders tracking</h3>
-                                            </div>
-                                            <div class="card-body contact-from-area">
-                                                <p>
-                                                    To track your order please enter your OrderID in the box below and
-                                                    press "Track" button. This was given to you on your receipt and in
-                                                    the confirmation email you should have received.
-                                                </p>
-                                                <div class="row">
-                                                    <div class="col-lg-8">
-                                                        <form class="contact-form-style mt-30 mb-50" action="#"
-                                                              method="post">
-                                                            <div class="input-style mb-20">
-                                                                <label>Order ID</label>
-                                                                <input name="order-id"
-                                                                       placeholder="Found in your order confirmation email"
-                                                                       type="text" />
-                                                            </div>
-                                                            <div class="input-style mb-20">
-                                                                <label>Billing email</label>
-                                                                <input name="billing-email"
-                                                                       placeholder="Email you used during checkout"
-                                                                       type="email" />
-                                                            </div>
-                                                            <button class="submit submit-auto-width"
-                                                                    type="submit">
-                                                                Track
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    aria-labelledby="track-orders-tab">
+                                    <div class="card">
+                                    <div class="card-header">
+                                    <h3 class="mb-0">Orders tracking</h3>
+                                    </div>
+                                    <div class="card-body contact-from-area">
+                                    <p>
+                                    To track your order please enter your OrderID in the box below and
+                                    press "Track" button. This was given to you on your receipt and in
+                                    the confirmation email you should have received.
+                                    </p>
+                                    <div class="row">
+                                    <div class="col-lg-8">
+                                    <form class="contact-form-style mt-30 mb-50" action="#"
+                                    method="post">
+                                    <div class="input-style mb-20">
+                                    <label>Order ID</label>
+                                    <input name="order-id"
+                                    placeholder="Found in your order confirmation email"
+                                    type="text" />
+                                    </div>
+                                    <div class="input-style mb-20">
+                                    <label>Billing email</label>
+                                    <input name="billing-email"
+                                    placeholder="Email you used during checkout"
+                                    type="email" />
+                                    </div>
+                                    <button class="submit submit-auto-width"
+                                    type="submit">
+                                    Track
+                                    </button>
+                                    </form>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
                                     </div> *@
                                     <div class="tab-pane fade" id="address" role="tabpanel"
                                          aria-labelledby="address-tab">
@@ -1308,10 +1317,10 @@
                                                 <div class="row mb-4">
                                                     <div class="col-md-12">
                                                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#depositModal">
-                                                            <i class="fas fa-wallet me-1"></i> Nạp Tiền
+                                                            <i class="fas fa-wallet me-1"></i> Deposit
                                                         </button>
                                                         <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#withdrawModal">
-                                                            <i class="fas fa-money-bill-wave me-1"></i> Rút Tiền
+                                                            <i class="fas fa-money-bill-wave me-1"></i>Withdraw
                                                         </button>
                                                     </div>
                                                 </div>
@@ -1323,22 +1332,23 @@
                                                         <div class="modal-dialog modal-dialog-centered">
                                                             <div class="modal-content shadow">
                                                                 <div class="modal-header bg-success text-white">
-                                                                    <h5 class="modal-title" id="depositModalLabel">Nạp Tiền</h5>
+                                                                    <h5 class="modal-title" id="depositModalLabel">Deposit</h5>
                                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                                 </div>
                                                                 <form>
                                                                     @Html.AntiForgeryToken()
                                                                     <div class="modal-body">
-                                                                        <label class="form-label">Số tiền nạp</label>
-                                                                        <input type="number" min="1000" step="1000" id="numOrder" class="form-control mb-3" placeholder="Nhập số tiền (VND)">
-                                                                        <label class="form-label">Hình thức thanh toán</label>
+                                                                        <label class="form-label">Deposit amount</label>
+
+                                                                        <input type="number" min="1000" step="1000" id="numOrder" class="form-control mb-3" placeholder="Enter amount (VND)">
+                                                                        <label class="form-label">Payment method</label>
                                                                         <div class="form-check">
                                                                             <input class="form-check-input" type="radio" name="paymentType" checked>
                                                                             <label class="form-check-label">Online payment</label>
                                                                         </div>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button id="btnDeposit" class="btn btn-success w-100">Nạp Tiền</button>
+                                                                        <button id="btnDeposit" class="btn btn-success w-100">Submit</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -1350,28 +1360,28 @@
                                                         <div class="modal-dialog modal-dialog-centered">
                                                             <div class="modal-content shadow">
                                                                 <div class="modal-header bg-danger text-white">
-                                                                    <h5 class="modal-title" id="withdrawModalLabel">Rút Tiền</h5>
+                                                                    <h5 class="modal-title" id="withdrawModalLabel">Withdraw</h5>
                                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                                 </div>
                                                                 <form>
                                                                     @Html.AntiForgeryToken()
                                                                     <div class="modal-body">
-                                                                        <label class="form-label">Số tiền rút</label>
-                                                                        <input type="number" min="1000" step="1000" class="form-control mb-3" id="numOrderVut" placeholder="Nhập số tiền (VND)">
-                                                                        <label class="form-label">Phương thức rút</label>
+                                                                        <label class="form-label">Withdrawal amount</label>
+                                                                        <input type="number" min="1000" step="1000" class="form-control mb-3" id="numOrderVut" placeholder="Enter amount (VND)">
+                                                                        <label class="form-label">Withdrawal method</label>
                                                                         <div class="form-check">
                                                                             <input class="form-check-input" type="radio" name="withdrawType" checked>
-                                                                            <label class="form-check-label">Chuyển khoản ngân hàng</label>
+                                                                            <label class="form-check-label">Bank transfer</label>
                                                                         </div>
                                                                         <label class="form-label mt-3">Ngân Hàng</label>
                                                                         <select class="form-control" id="bankSelect" style="width:100%"></select>
-                                                                        <label class="form-label mt-3">Tên tài khoản nhận</label>
-                                                                        <input type="text" class="form-control" id="nameAcc" placeholder="Tên chủ tài khoản">
-                                                                        <label class="form-label mt-3">Số tài khoản</label>
-                                                                        <input type="text" class="form-control" id="umaccou" placeholder="Số tài khoản">
+                                                                        <label class="form-label mt-3">Recipient account name</label>
+                                                                        <input type="text" class="form-control" id="nameAcc" placeholder="Account holder name">
+                                                                        <label class="form-label mt-3">Account number</label>
+                                                                        <input type="text" class="form-control" id="umaccou" placeholder="Account number">
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button id="btnWithdraw" class="btn btn-danger w-100">Rút Tiền</button>
+                                                                        <button id="btnWithdraw" class="btn btn-danger w-100">Submit</button>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -1515,15 +1525,15 @@
 
                                     @* ///FEEDBACK *@
                                     @* <div class="tab-pane fade" id="Feedback" role="tabpanel" aria-labelledby="Feedback-tab">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h3 class="mb-0">Your Feedback</h3>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="table-responsive" id="table-feedback">
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="card">
+                                    <div class="card-header">
+                                    <h3 class="mb-0">Your Feedback</h3>
+                                    </div>
+                                    <div class="card-body">
+                                    <div class="table-responsive" id="table-feedback">
+                                    </div>
+                                    </div>
+                                    </div>
                                     </div> *@
 
 
@@ -1786,62 +1796,62 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-            $(document).ready(function () {
-                $("#updateProfileForm").submit(function (event) {
-                    event.preventDefault();
+        $(document).ready(function () {
+            $("#updateProfileForm").submit(function (event) {
+                event.preventDefault();
 
-                    var birthdayValue = $("#Birthday").val();
-                    var formData = {
-                        userView: {
-                            FirstName: $("#FirstName").val(),
-                            LastName: $("#LastName").val(),
-                            UserName: $("#UserName").val(),
-                            Email: $("#Email").val(),
-                            PhoneNumber: $("#PhoneNumber").val(),
-                            Address: $("#Address").val(),
-                            Birthday: birthdayValue ? birthdayValue : null,  // Nếu trường Birthday rỗng, gửi null
+                var birthdayValue = $("#Birthday").val();
+                var formData = {
+                    userView: {
+                        FirstName: $("#FirstName").val(),
+                        LastName: $("#LastName").val(),
+                        UserName: $("#UserName").val(),
+                        Email: $("#Email").val(),
+                        PhoneNumber: $("#PhoneNumber").val(),
+                        Address: $("#Address").val(),
+                        Birthday: birthdayValue ? birthdayValue : null,  // Nếu trường Birthday rỗng, gửi null
+                    }
+                };
+
+                $.ajax({
+                    url: "/Users/UpdateProfile",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: "Updating...",
+                            text: "Please wait...",
+                            icon: "info",
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Success!",
+                                text: "Profile updated successfully!",
+                                icon: "success",
+                                confirmButtonText: "OK"
+                            }).then(() => {
+                                $("#account-detail").load(location.href + " #account-detail > *");
+                            });
+                        } else {
+                            Swal.fire("Error!", response.message || "Profile update failed!", "error");
                         }
-                    };
-
-                  $.ajax({
-            url: "/Users/UpdateProfile",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(formData),
-            beforeSend: function () {
-                Swal.fire({
-                    title: "Updating...",
-                    text: "Please wait...",
-                    icon: "info",
-                    showConfirmButton: false,
-                    allowOutsideClick: false
+                    },
+                    error: function (xhr) {
+                        let errorMessage = "Cannot connect to the server.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        Swal.fire("Error!", errorMessage, "error");
+                    }
                 });
-            },
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: "Success!",
-                        text: "Profile updated successfully!",
-                        icon: "success",
-                        confirmButtonText: "OK"
-                    }).then(() => {
-                        $("#account-detail").load(location.href + " #account-detail > *");
-                    });
-                } else {
-                    Swal.fire("Error!", response.message || "Profile update failed!", "error");
-                }
-            },
-            error: function (xhr) {
-                let errorMessage = "Cannot connect to the server.";
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                }
-                Swal.fire("Error!", errorMessage, "error");
-            }
-        });
 
-                });
             });
+        });
     </script>
 
     <script>
@@ -1861,7 +1871,7 @@
                                 text: "Your seller registration request has been sent successfully!",
                                 confirmButtonText: "OK"
                             }).then(() => {
-                                // Cập nhật #address khi đăng ký thành công
+                                // Cập nhật #address khi đăng ký Success
                                 $("#address").load(location.href + " #address > *");
                             });
                         } else {
@@ -2212,7 +2222,7 @@
 <script type="text/javascript">
     $("#btnDeposit").on("click", function () {
 
-        $('#btnDeposit').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnDeposit').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
         var checkbox = parseInt($("#numOrder").val(), 10);
         var token = $("input[name='__RequestVerificationToken']").val();
@@ -2221,8 +2231,8 @@
             setTimeout(() => {
                 new Notify({
                     status: 'error',
-                    title: 'Thất Bại',
-                    text: 'Số tiền nạp tối thiểu là 100,000 Vnd',
+                    title: 'Failed',
+                    text: 'The minimum deposit amount is 100,000 VND',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,
@@ -2237,7 +2247,7 @@
             return;
         }
 
-        $('#btnDeposit').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnDeposit').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
 
         $.ajax({
@@ -2251,8 +2261,8 @@
             success: function (response) {
                 if (response.success) {
                     Swal.fire({
-                        title: 'Thành công!',
-                        text: 'Bạn sẽ được chuyển hướng đến trang thanh toán...',
+                        title: 'Success!',
+                        text: 'You will be redirected to the payment page...',
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then((result) => {
@@ -2264,8 +2274,8 @@
                 } else {
                     new Notify({
                         status: 'error',
-                        title: 'Thất Bại',
-                        text: response.msg || 'Gửi thất bại!',
+                        title: 'Failed',
+                        text: response.msg || 'Failed to send!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -2280,8 +2290,8 @@
             error: function () {
                 new Notify({
                     status: 'error',
-                    title: 'Thất Bại',
-                    text: response.msg || 'Gửi thất bại!',
+                    title: 'Failed',
+                    text: response.msg || 'Failed to send!',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,
@@ -2298,32 +2308,33 @@
 
 <script type="text/javascript">
     $("#btnWithdraw").on("click", function () {
-        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
         var checkbox = parseInt($("#numOrderVut").val(), 10);
         var token = $("input[name='__RequestVerificationToken']").val();
 
         if (isNaN(checkbox) || checkbox < 50000) {
             setTimeout(() => {
-            new Notify({
-                status: 'error',
-                title: 'Thất Bại',
-                text: 'Số tiền rút tối thiểu là 50,000 Vnd',
-                effect: 'fade',
-                speed: 300,
-                showIcon: true,
-                showCloseButton: true,
-                autoclose: true,
-                autotimeout: 3000,
-                position: 'right top'
-            });
-            $('#btnWithdraw').html('Withdraw').prop('disabled', false);
-        }, 100);
-    return;
+                new Notify({
+                    status: 'error',
+                    title: 'Failed',
+                    text: 'The minimum withdrawal amount is 50,000 VND',
+                    effect: 'fade',
+                    speed: 300,
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    position: 'right top'
+                });
+
+                $('#btnWithdraw').html('Withdraw').prop('disabled', false);
+            }, 100);
+            return;
 
         }
 
-        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý...')
+        $('#btnWithdraw').html('<i class="fa fa-spinner fa-spin"></i> Processing...')
             .prop('disabled', true);
 
         $.ajax({
@@ -2341,8 +2352,8 @@
                 if (response.success) {
                     new Notify({
                         status: 'success',
-                        title: 'Thành công!',
-                        text: response.msg || 'Gửi thành công!',
+                        title: 'Success!',
+                        text: response.msg || 'Send successful!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -2355,8 +2366,8 @@
                 } else {
                     new Notify({
                         status: 'error',
-                        title: 'Thất Bại',
-                        text: response.msg || 'Gửi thất bại!',
+                        title: 'Failed',
+                        text: response.msg || 'Failed to send!',
                         effect: 'fade',
                         speed: 300,
                         showIcon: true,
@@ -2370,8 +2381,8 @@
             },
             error: function () {
                 Swal.fire(
-                    'Thất bại',
-                    "Đã xảy ra lỗi",
+                    'Failed',
+                    'An error has occurred',
                     'error'
                 );
                 $('#btnWithdraw').html('Withdraw').prop('disabled', false);
@@ -2387,9 +2398,7 @@
         function formatDate(dateStr) {
             if (!dateStr) return "N/A";
             const date = new Date(dateStr);
-            return `${date.getDate().toString().padStart(2, '0')}/${
-                (date.getMonth() + 1).toString().padStart(2, '0')}/${
-                date.getFullYear()}`;
+            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
         }
 
         function loadFeedback() {
@@ -2452,7 +2461,7 @@
                     });
                     // Bắt buộc gọi select2 ở đây
                     $('#bankSelect').select2({
-                        placeholder: "Chọn ngân hàng",
+                        placeholder: "Select bank",
                         dropdownParent: $('#withdrawModal')
                     });
                 }
