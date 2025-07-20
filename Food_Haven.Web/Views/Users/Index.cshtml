@@ -2262,7 +2262,7 @@
         // Hàm lấy dữ liệu mới qua AJAX
         function fetchUpdatedData() {
             if (!isInteracting) { // Chỉ cập nhật khi không tương tác
-                fetch('/Users/UpdateBalance', { // Thay bằng URL endpoint thực tế
+                fetch('/Users/LoadBalance', { // Thay bằng URL endpoint thực tế
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -2290,7 +2290,7 @@
         }
 
         // Cập nhật dữ liệu mỗi 5 giây
-        setInterval(fetchUpdatedData, 500000);
+        setInterval(fetchUpdatedData, 500);
 
         // Gọi lần đầu tiên ngay lập tức (tuỳ chọn)
         fetchUpdatedData();
