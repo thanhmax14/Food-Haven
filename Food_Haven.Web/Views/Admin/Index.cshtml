@@ -529,7 +529,7 @@
                                                 {
                                                     <h4 class="fs-16 mb-1">Hello, @User.Identity.Name!</h4>
                                                 }
-                                                <p id="dateRangeLabel" class="text-muted mb-0">Đang thống kê...</p>
+                                            <p id="dateRangeLabel" class="text-muted mb-0">Processing statistics...</p>
 
                                             </div>
                                             <div class="mt-3 mt-lg-0">
@@ -620,7 +620,12 @@
                                                 }
                                             },
                                             error: function (xhr) {
-                                                alert(xhr.responseJSON?.error || "Lỗi khi lấy dữ liệu thống kê.");
+                                            Swal.fire(
+                                                'Error',
+                                                xhr.responseJSON?.error || 'An error occurred while retrieving statistics.',
+                                                'error'
+                                            );
+
                                                 $(".total-earning").text("0₫");
                                                 $(".total-Commission-Revenue").text("0₫");
                                                 $(".total-deposit").text("0₫");
@@ -690,7 +695,12 @@
                                                 }
                                             },
                                             error: function (xhr) {
-                                                alert(xhr.responseJSON?.error || "Lỗi khi lấy dữ liệu thống kê.");
+                                            Swal.fire(
+                                                'Error',
+                                                xhr.responseJSON?.error || 'An error occurred while retrieving statistics.',
+                                                'error'
+                                            );
+
                                                 $(".total-earning").text("0₫");
                                                 $(".total-Commission-Revenue").text("0₫");
                                                 $(".total-deposit").text("0₫");
@@ -773,7 +783,12 @@
                                             },
                                             error: function (xhr, status, error) {
                                                 console.error('Error loading date config:', error);
-                                                alert("Không thể lấy cấu hình days");
+                                            Swal.fire(
+                                                'Error',
+                                                'Unable to retrieve the days configuration.',
+                                                'error'
+                                            );
+
                                             }
                                         });
                                     });
