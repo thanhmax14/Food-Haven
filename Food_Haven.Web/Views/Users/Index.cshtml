@@ -426,7 +426,7 @@
 
                                                     </div>
 
-                                                    <button type="button" class="btn btn-success w-100 mt-3 fs-5" onclick="doRating()">Gửi đánh giá</button>
+                                                    <button type="button" class="btn btn-success w-100 mt-3 fs-5" onclick="doRating()">Submit</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -714,7 +714,6 @@
 
                                             if (!rating) {
                                                 Swal.fire("No Rating Selected!", "Please select a star rating before submitting.", "warning");
-
                                                 return;
                                             }
 
@@ -742,7 +741,7 @@
                                                         const modalInstance = bootstrap.Modal.getInstance(modalElement);
                                                         modalInstance?.hide();
 
-                                                        Swal.fire("Success!", data.message || "Thank you for your review.", "success");
+                                                        Swal.fire("Success!", data.message || "Thank you for your review.", "success")
 
                                                                                                     .then(() => document.getElementById("orders-tab")?.click());
                                                     } else {
@@ -798,11 +797,43 @@
                                                         name: "Status Payment",
                                                         width: "160px",
                                                         formatter: (cell) => {
-                                                            const value = (cell || "").toLowerCase();
+                                                            const value = (cell || "").trim().toLowerCase();
                                                             let color = "secondary";
-                                                            if (value === "success") color = "success";
-                                                            else if (value === "failed") color = "danger";
-                                                            else if (value === "waiting payment") color = "warning";
+
+                                                            switch (value) {
+                                                                case "pending":
+                                                                case "waiting confirmation":
+                                                                case "processing":
+                                                                    color = "warning";
+                                                                    break;
+
+                                                                case "confirmed":
+                                                                    color = "success";
+                                                                    break;
+                                                                case "success":
+                                                                color = "success";
+                                                                    break;
+                                                                case "preparing in kitchen":
+                                                                    color = "info";
+                                                                    break;
+
+                                                                case "delivering":
+                                                                    color = "primary";
+                                                                    break;
+
+                                                                case "cancelled by user":
+                                                                case "cancelled by restaurant":
+                                                                case "cancelled by shop":
+                                                                case "delivery failed":
+                                                                case "rejected":
+                                                                    color = "danger";
+                                                                    break;
+
+                                                                case "refunded":
+                                                                    color = "dark";
+                                                                    break;
+                                                            }
+
                                                             return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
                                                         }
                                                     },
@@ -810,18 +841,41 @@
                                                         name: "Order Status",
                                                         width: "180px",
                                                         formatter: (cell) => {
-                                                            const value = (cell || "").toLowerCase();
+                                                            const value = (cell || "").trim().toLowerCase();
                                                             let color = "secondary";
+
                                                             switch (value) {
-                                                                case "pending": color = "warning"; break;
-                                                                case "preparing in kitchen": color = "info"; break;
-                                                                case "delivering": color = "primary"; break;
-                                                                case "confirmed": color = "success"; break;
+                                                                case "pending":
+                                                                case "waiting confirmation":
+                                                                case "processing":
+                                                                    color = "warning";
+                                                                    break;
+
+                                                                case "confirmed":
+                                                                    color = "success";
+                                                                    break;
+
+                                                                case "preparing in kitchen":
+                                                                    color = "info";
+                                                                    break;
+
+                                                                case "delivering":
+                                                                    color = "primary";
+                                                                    break;
+
                                                                 case "cancelled by user":
                                                                 case "cancelled by restaurant":
-                                                                case "delivery failed": color = "danger"; break;
-                                                                case "refunded": color = "dark"; break;
+                                                                case "cancelled by shop":
+                                                                case "delivery failed":
+                                                                case "rejected":
+                                                                    color = "danger";
+                                                                    break;
+
+                                                                case "refunded":
+                                                                    color = "dark";
+                                                                    break;
                                                             }
+
                                                             return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
                                                         }
                                                     },
@@ -946,16 +1000,40 @@
                                                                         formatter: (cell) => {
                                                                             const value = (cell || "").toLowerCase();
                                                                             let color = "secondary";
+
                                                                             switch (value) {
-                                                                                case "pending": color = "warning"; break;
-                                                                                case "preparing in kitchen": color = "info"; break;
-                                                                                case "delivering": color = "primary"; break;
-                                                                                case "confirmed": color = "success"; break;
+                                                                                case "pending":
+                                                                                case "waiting confirmation":
+                                                                                case "processing":
+                                                                                    color = "warning";
+                                                                                    break;
+
+                                                                                case "confirmed":
+                                                                                    color = "success";
+                                                                                    break;
+
+                                                                                case "preparing in kitchen":
+                                                                                    color = "info";
+                                                                                    break;
+
+                                                                                case "delivering":
+                                                                                    color = "primary";
+                                                                                    break;
+
                                                                                 case "cancelled by user":
                                                                                 case "cancelled by restaurant":
-                                                                                case "delivery failed": color = "danger"; break;
-                                                                                case "refunded": color = "dark"; break;
+                                                                                case "cancelled by shop":
+                                                                                case "delivery failed":
+                                                                                case "rejected":
+                                                                                    color = "danger";
+                                                                                    break;
+
+                                                                                case "refunded":
+                                                                                    color = "dark";
+                                                                                    break;
                                                                             }
+
+
                                                                             return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
                                                                         }
                                                                     },

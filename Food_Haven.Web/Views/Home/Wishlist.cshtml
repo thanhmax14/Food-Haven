@@ -376,63 +376,58 @@
         console.log("oke");
         var icon = document.getElementById("row-" + id);
 
-        if (true) {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Do you want to remove this from your wishlist?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, remove!",
-                cancelButtonText: "Cancel".then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "/Home/RemoveWish",
-                        type: "POST",
-                        data: { id: id },
-                        headers: {
-                            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        success: function (response) {
-                                if (response.success) {
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Success!',
-                                        text: response.message || 'Sent successfully!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    icon.remove();
-                                } else if (response.notAuth) {
-                                    Swal.fire('Failed', response.message, 'error');
-                                } else {
-                                    Swal.fire('Failed', response.message, 'error');
-                                }
-
-                        },
-                        error: function () {
-                                new Notify({
-                                    status: 'error',
-                                    title: 'Failed',
-                                    text: response.message || 'Sending failed!',
-                                    effect: 'fade',
-                                    speed: 300,
-                                    showIcon: true,
-                                    showCloseButton: true,
-                                    autoclose: true,
-                                    autotimeout: 3000,
-                                    position: 'right top'
-                                });
-
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to remove this from your wishlist?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, remove!",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/Home/RemoveWish",
+                    type: "POST",
+                    data: { id: id },
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            new Notify({
+                                status: 'success',
+                                title: 'Success!',
+                                text: response.message || 'Sent successfully!',
+                                effect: 'fade',
+                                speed: 300,
+                                showIcon: true,
+                                showCloseButton: true,
+                                autoclose: true,
+                                autotimeout: 3000,
+                                position: 'right top'
+                            });
+                            icon.remove();
+                        } else {
+                            Swal.fire('Failed', response.message, 'error');
                         }
-                    });
-                }
-            });
-        }
-
+                    },
+                    error: function () {
+                        new Notify({
+                            status: 'error',
+                            title: 'Failed',
+                            text: 'Sending failed!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+                    }
+                });
+            }
+        });
     }
+
 </script>
