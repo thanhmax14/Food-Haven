@@ -111,6 +111,7 @@ namespace Food_Haven.Web.Services.Auto
                         continue;
                     }
 
+                    // RULE 2: PREPARING IN KITCHEN > 2h → Hủy và hoàn tiền
                     if (order.Status.Equals("PREPARING IN KITCHEN", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalHours >= 2)
                     {
                         var orderDetails = await _orderdetail.ListAsync(d => d.OrderID == order.ID);
@@ -182,28 +183,75 @@ namespace Food_Haven.Web.Services.Auto
                         var getOrderDetails = await _orderdetail.ListAsync(d => d.OrderID == order.ID);
                         if (getOrderDetails.Any())
                         {
-                            bool hasAnyComplaint = false;
+                            bool hasAnyActiveComplaint = false;
 
                             foreach (var item in getOrderDetails)
                             {
-                                var hasComplaint = await _complant.FindAsync(c => c.OrderDetailID == item.ID);
-                                if (hasComplaint != null)
+                                var complaint = await _complant.FindAsync(c => c.OrderDetailID == item.ID);
+                                if (complaint != null)
                                 {
-                                    hasAnyComplaint = true;
-                                    Console.WriteLine($"[RULE 3] Đơn {order.ID} không cộng tiền do có tranh chấp ở sản phẩm {item.ID}.");
-                                    break;
+                                    var timeSinceComplaint = DateTime.Now - complaint.CreatedDate;
+
+                                    if (string.IsNullOrWhiteSpace(complaint.Reply) && timeSinceComplaint.TotalDays >= 3)
+                                    {
+                                        // ❗ RULE 3.1: Tranh chấp quá 3 ngày chưa phản hồi → Hủy đơn và hoàn tiền
+                                        decimal currentBalance = await _balance.GetBalance(order.UserID);
+
+                                        var refund = new BalanceChange
+                                        {
+                                            UserID = order.UserID,
+                                            MoneyChange = order.TotalPrice,
+                                            MoneyBeforeChange = currentBalance,
+                                            MoneyAfterChange = currentBalance + order.TotalPrice,
+                                            Method = "Refund (Dispute Timeout)",
+                                            Status = "Success",
+                                            Display = true,
+                                            IsComplete = true,
+                                            CheckDone = true,
+                                            StartTime = DateTime.Now,
+                                            DueTime = DateTime.Now,
+                                            Description = $"Refund đơn {order.ID} do tranh chấp quá 3 ngày chưa phản hồi."
+                                        };
+
+                                        await _balance.AddAsync(refund);
+
+                                        order.Status = "CANCELLED BY SYSTEM";
+                                        order.Description = string.IsNullOrEmpty(order.Description)
+                                            ? $"CANCELLED BY SYSTEM - dispute timeout - {DateTime.Now}"
+                                            : $"{order.Description}#CANCELLED BY SYSTEM - dispute timeout - {DateTime.Now}";
+                                        order.PaymentStatus = "Refunded";
+                                        order.ModifiedDate = DateTime.Now;
+                                        order.IsPaid = true;
+
+                                        await _order.UpdateAsync(order);
+                                        await _balance.SaveChangesAsync();
+                                        await _order.SaveChangesAsync();
+
+                                        Console.WriteLine($"[RULE 3.1] Đơn {order.ID} bị hủy do tranh chấp quá 3 ngày không phản hồi.");
+                                        hasAnyActiveComplaint = true;
+                                        break; // dừng xử lý đơn này
+                                    }
+                                    else
+                                    {
+                                        // ❌ Có tranh chấp chưa xử lý xong → Không cộng tiền
+                                        Console.WriteLine($"[RULE 3] Đơn {order.ID} không cộng tiền do có tranh chấp ở sản phẩm {item.ID}.");
+                                        hasAnyActiveComplaint = true;
+                                        break;
+                                    }
                                 }
                             }
 
-                            if (!hasAnyComplaint)
+                            // ✅ Nếu không có tranh chấp hoặc tất cả đã xử lý → cộng tiền cho người bán
+                            if (!hasAnyActiveComplaint)
                             {
-                                var currentBalance = await _balance.GetBalance(order.UserID);
+                                decimal currentBalance = await _balance.GetBalance(order.UserID);
 
                                 foreach (var item in getOrderDetails)
                                 {
-                                    var moneychange = item.TotalPrice * (Convert.ToDecimal(item.CommissionPercent ?? 0f) / 100);
+                                    decimal commissionPercent = Convert.ToDecimal(item.CommissionPercent ?? 0f);
+                                    decimal moneychange = item.TotalPrice * (commissionPercent / 100);
 
-                                    var temBalance = new BalanceChange
+                                    var tempBalance = new BalanceChange
                                     {
                                         UserID = order.UserID,
                                         MoneyChange = moneychange,
@@ -219,17 +267,20 @@ namespace Food_Haven.Web.Services.Auto
                                         Description = $"Cộng tiền cho người bán sau 3 ngày delivered - Đơn {order.ID}"
                                     };
 
-                                    await _balance.AddAsync(temBalance);
-                                    order.IsPaid = true;
-                                    await _order.UpdateAsync(order);
+                                    await _balance.AddAsync(tempBalance);
+                                    currentBalance += moneychange;
                                 }
 
+                                order.IsPaid = true;
+                                await _order.UpdateAsync(order);
                                 await _balance.SaveChangesAsync();
                                 await _order.SaveChangesAsync();
+
                                 Console.WriteLine($"[RULE 3] Đơn {order.ID} đã cộng tiền sau 3 ngày delivered và không có tranh chấp.");
                             }
                         }
                     }
+
 
                 }
                 catch (Exception ex)
