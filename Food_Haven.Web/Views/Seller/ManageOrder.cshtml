@@ -324,12 +324,12 @@
 
                                                             const viewBtn = `
                                                                             <a href="/seller/ViewOrderDetails/${orderId}" target="_blank" class="btn btn-sm btn-outline-primary me-1">
-                                                <i class="ri-eye-line"></i> Xem
+                                                <i class="ri-eye-line"></i> View
                                             </a>`;
 
                                                             const cancelBtn = (status === "PENDING" || status === "PREPARING IN KITCHEN")
                                                                 ? `<button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('${orderId}')">
-                                                   <i class="ri-close-line"></i> Hủy
+                                                   <i class="ri-close-line"></i> Cancel order
                                                </button>`
                                                                 : "";
 
