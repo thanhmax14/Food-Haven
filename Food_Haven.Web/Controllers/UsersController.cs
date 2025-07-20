@@ -387,7 +387,7 @@ namespace Food_Haven.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> UpdateBalance()
+        public async Task<IActionResult> LoadBalance()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -421,8 +421,21 @@ namespace Food_Haven.Web.Controllers
                         {
                             count++;
                             var getInvoce = RegexAll.ExtractPayosLink(item.Description);
-                            if (getInvoce == null)
+                            if (getInvoce != null)
                                 getInvoce = item.Description;
+                            else
+                            {
+                                var guidString = RegexAll.ExtractGuid(item.Description);
+
+                                if (Guid.TryParse(guidString, out Guid guid))
+                                {
+                                    getInvoce = "/home/Invoice/" + guid;
+                                }
+                                else
+                                {
+                                    getInvoce = "/home/Invoice/" + item.ID;
+                                }
+                            }
 
 
                             list.Add(new BalanceListViewModels
@@ -612,26 +625,37 @@ namespace Food_Haven.Web.Controllers
                             }
                         }
                         var orderID = Guid.NewGuid();
-
                         foreach (var id in buyRequest.Products)
                         {
-                            var product = await _product.GetAsyncById(id.Key);
+                            var product = await _productWarian.GetAsyncById(id.Key);
                             if (product == null)
                             {
                                 return Json(new ErroMess { msg = "The selected product does not exist!" });
                             }
-                            /*
-                            var checkcart = await this._cart.FindAsync(u => u.UserID == request.UserID && u.ProductID == id.Key);
+                            var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
                             if (checkcart == null)
                             {
-                                return NotFound(new ErroMess { msg = "The selected product does not exist in the cart!" });
-                            }*/
+                                return Json(new ErroMess { msg = "The selected product does not exist in the cart!" });
+                            }
                             var getQuatity = await this._productWarian.FindAsync(u => u.ID == id.Key);
-                            if (id.Value > getQuatity.Stock)
+                            if (getQuatity == null)
+                            {
+                                return Json(new ErroMess { msg = "The selected product does not exist!" });
+                            }
+                            var getinfoPorudt = await this._product.FindAsync(u => u.ID == getQuatity.ProductID && u.IsActive);
+                            if (getinfoPorudt == null)
+                            {
+                                return Json(new ErroMess { msg = "The selected product does not exist!" });
+                            }
+                            var getcate = await this._categoryService.GetAsyncById(getinfoPorudt.CategoryID);
+                            if (getcate == null)
+                            {
+                                return Json(new ErroMess { msg = "The selected product does not exist!" });
+                            }
+                            if (checkcart.Quantity > getQuatity.Stock)
                             {
                                 return Json(new ErroMess { msg = "The quantity you wish to buy exceeds the available stock!" });
                             }
-
                             temOrderDeyail.Add(new OrderDetail
                             {
                                 ID = Guid.NewGuid(),
@@ -641,7 +665,9 @@ namespace Food_Haven.Web.Controllers
                                 ProductPrice = getQuatity.SellPrice,
                                 TotalPrice = getQuatity.SellPrice * id.Value,
                                 Status = "PROCESSING",
-                                IsActive = false
+                                IsActive = true,
+                                ProductTypeName = getQuatity.Name,
+                                CommissionPercent = getcate.Commission,
                             });
                         }
                         int orderCode = RandomCode.GenerateOrderCode();
@@ -658,48 +684,14 @@ namespace Food_Haven.Web.Controllers
                             TotalPrice = totelPrice,
                             Status = "PROCESSING",
                             CreatedDate = DateTime.Now,
-                            PaymentMethod = "wallet",
+                            PaymentMethod = "Online",
                             PaymentStatus = "PROCESSING",
                             Quantity = buyRequest.Products.Sum(u => u.Value),
                             OrderCode = "" + orderCode,
                             DeliveryAddress = model.Address,
-                            Note = model.Note ?? ""
+                            Note = model.Note ?? "",
+                            OrderTracking = RandomCode.GenerateUniqueCode(),
                         };
-                        /*   var balan = new BalanceChange
-                        {
-                            UserID = user.Id,
-                            MoneyChange = -totelPrice,
-                            MoneyBeforeChange = await _balance.GetBalance(user.Id),
-                            MoneyAfterChange = await _balance.GetBalance(user.Id) - totelPrice,
-                            Method = "Buy",
-                            Status = "PROCESSING",
-                            DisPlay = true,
-                            IsComplele = false,
-                            checkDone = true,
-                            StartTime = DateTime.Now
-                        };*/
-
-                        try
-                        {
-                            // await this._balance.AddAsync(balan);
-                            await _order.AddAsync(order);
-                            await this._balance.SaveChangesAsync();
-                            await this._order.SaveChangesAsync();
-                        }
-                        catch
-                        {
-                            order.PaymentStatus = "Failed";
-                            order.Status = "Failed";
-                            /*  balan.Status = "Failed";
-                                balan.DueTime = DateTime.Now;
-                                balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
-                                balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
-                                balan.MoneyChange = totelPrice;*/
-                            await this._order.SaveChangesAsync();
-                            // await this._balance.SaveChangesAsync();
-                            return BadRequest(new ErroMess { msg = "An error occurred during the purchase process! (11)" });
-                        }
-
                         try
                         {
                             var url = "";
@@ -712,20 +704,29 @@ namespace Food_Haven.Web.Controllers
                                 long expirationTimestamp = DateTimeOffset.Now.AddMinutes(5).ToUnixTimeSeconds();
                                 ItemData item = new ItemData($"Purchase made on account {user.UserName}:", 1, (int)totelPrice);
                                 List<ItemData> items = new List<ItemData> { item };
-                                PaymentData paymentData = new PaymentData(orderCode, (int)totelPrice, "", items, $"{buyRequest.CalledUrl}/{orderCode}",
-                                   $"{buyRequest.SuccessUrl}/{orderCode}", null, null, null, null, null, expirationTimestamp
+                                PaymentData paymentData = new PaymentData(orderCode, (int)totelPrice, "", items, $"{buyRequest.CalledUrl}/{orderID}",
+                                   $"{buyRequest.SuccessUrl}/{orderID}", null, null, null, null, null, expirationTimestamp
                                 );
                                 CreatePaymentResult createPayment = await this._payos.createPaymentLink(paymentData);
                                 url = $"https://pay.payos.vn/web/{createPayment.paymentLinkId}/";
+                                order.Description = $"link payment:{url}";
                             });
-                            await this._orderDetailService.SaveChangesAsync();
+
                             if (result)
                             {
+                                await _order.AddAsync(order);
+                                await this._order.SaveChangesAsync();
+                                await this._orderDetailService.SaveChangesAsync();
                                 var productKeys = buyRequest.Products;
 
                                 foreach (var productId in productKeys)
                                 {
+                                    var getCart = await this._cart.FindAsync(u => u.ProductTypesID == productId.Key);
 
+                                    if (getCart != null)
+                                    {
+                                        await this._cart.DeleteAsync(getCart);
+                                    }
                                     var getWarian = await this._productWarian.FindAsync(u => u.ID == productId.Key);
                                     getWarian.Stock -= productId.Value;
                                     if (getWarian.Stock == 0 || getWarian.Stock < 0)
@@ -736,11 +737,16 @@ namespace Food_Haven.Web.Controllers
                                     await this._productWarian.UpdateAsync(getWarian);
                                     await this._productWarian.SaveChangesAsync();
                                 }
+                                await this._cart.SaveChangesAsync();
+
+                                var hubContext1 = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
+                                await hubContext1.Clients.User(user.Id).SendAsync("ReceiveCartUpdate");
+
                                 return Json(new { success = true, msg = $"{url}", haveUrl = true, redirectUrl = $"{url}" }); ;
                             }
                             else
                             {
-                                return Json(new ErroMess { msg = "An error occurred during the purchase process! (22)" });
+                                return Json(new ErroMess { msg = "An error occurred during the purchase process!" });
                             }
                         }
                         catch (Exception e)
@@ -753,10 +759,6 @@ namespace Food_Haven.Web.Controllers
                     }
                 }
             }
-
-
-
-
             if (paymentOption.ToLower() == "Wallet".ToLower())
             {
                 if (HttpContext.Session.TryGetValue("BillingTourInfo", out byte[] data))
@@ -769,13 +771,8 @@ namespace Food_Haven.Web.Controllers
                         {
                             buyRequest.Products.Add(item.productID, item.ItemQuantity);
                         }
-                        var request = _httpContextAccessor.HttpContext.Request;
-                        var baseUrl = $"{request.Scheme}://{request.Host}";
                         buyRequest.IsOnline = false;
                         buyRequest.UserID = user.Id;
-                        buyRequest.SuccessUrl = $"{baseUrl}/home/invoice";
-                        buyRequest.CalledUrl = $"{baseUrl}/home/invoice";
-
                         if (buyRequest.Products == null || !buyRequest.Products.Any())
                         {
                             return Json(new ErroMess { msg = "Please select the products you want to buy!" });
@@ -783,7 +780,6 @@ namespace Food_Haven.Web.Controllers
                         var addedDetails = new List<OrderDetail>();
                         var temOrderDeyail = new List<OrderDetail>();
                         decimal totelPrice = 0;
-
                         foreach (var id in buyRequest.Products)
                         {
                             var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
@@ -817,6 +813,20 @@ namespace Food_Haven.Web.Controllers
                                 return Json(new ErroMess { msg = "The selected product does not exist in the cart!" });
                             }
                             var getQuatity = await this._productWarian.FindAsync(u => u.ID == id.Key);
+                            if (getQuatity == null)
+                            {
+                                return Json(new ErroMess { msg = "The selected product does not exist!" });
+                            }
+                            var getinfoPorudt = await this._product.FindAsync(u => u.ID == getQuatity.ProductID && u.IsActive);
+                            if (getinfoPorudt == null)
+                            {
+                                return Json(new ErroMess { msg = "The selected product does not exist!" });
+                            }
+                            var getcate = await this._categoryService.GetAsyncById(getinfoPorudt.CategoryID);
+                            if (getcate == null)
+                            {
+                                return Json(new ErroMess { msg = "The selected product does not exist!" });
+                            }
                             if (checkcart.Quantity > getQuatity.Stock)
                             {
                                 return Json(new ErroMess { msg = "The quantity you wish to buy exceeds the available stock!" });
@@ -832,10 +842,10 @@ namespace Food_Haven.Web.Controllers
                                 TotalPrice = getQuatity.SellPrice * id.Value,
                                 Status = "Pending",
                                 ProductTypeName = getQuatity.Name,
+                                CommissionPercent = getcate.Commission,
                             });
 
                         }
-
                         var order = new Order
                         {
                             ID = orderID,
@@ -863,7 +873,8 @@ namespace Food_Haven.Web.Controllers
                             Display = true,
                             IsComplete = false,
                             CheckDone = true,
-                            StartTime = DateTime.Now
+                            StartTime = DateTime.Now,
+                            Description = "Purchase order: " + orderID
                         };
 
                         if (await _balance.CheckMoney(user.Id, totelPrice))

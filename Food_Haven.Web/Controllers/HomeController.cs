@@ -2191,17 +2191,17 @@ namespace Food_Haven.Web.Controllers
                     tem.status = balance.Status;
                     tem.emailUser = getUser.Email;
                     tem.phoneUser = getUser.PhoneNumber;
-                    tem.subtotal = balance.MoneyChange;
+                    tem.subtotal = Math.Abs(balance.MoneyChange);
                     tem.AddressUse = getUser.Address;
 
                     tem.itemList.Add(new ItemInvoice
                     {
-                        amount = balance.MoneyChange,
+                        amount = Math.Abs(balance.MoneyChange),
                         nameItem = balance.Method == "Withdraw"
                             ? $"Withdraw to {getUser.UserName}"
                             : $"Deposit to {getUser.UserName}",
                         quantity = 1,
-                        unitPrice = balance.MoneyChange
+                        unitPrice = Math.Abs(balance.MoneyChange)
                     });
 
                     return View(tem);
