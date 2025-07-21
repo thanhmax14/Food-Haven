@@ -188,12 +188,14 @@
                                         </div> *@
                                     </div>
                                     <!-- Nút Edit phía trên bên phải -->
-                                  <button class="btn btn-sm btn-primary"
-        data-bs-toggle="modal"
-        data-bs-target="#editRecipeModal-@item.ID"
-        style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                          <a asp-action="EditRecipe"
+   asp-controller="Users"
+   asp-route-id="@item.ID"
+   class="btn btn-sm btn-primary"
+   style="position: absolute; top: 10px; right: 10px; z-index: 10;">
     Edit
-</button>
+</a>
+
 
                                  <button class="btn btn-sm @(item.IsActive ? "btn-danger" : "btn-success")"
         data-bs-toggle="modal"

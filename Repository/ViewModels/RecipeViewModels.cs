@@ -52,7 +52,7 @@ namespace Repository.ViewModels
         public Guid TypeOfDishID { get; set; }
         public Guid IngredientTagsID { get; set; }
         public string status { get; set; } = "";
-        public string ImageUrl { get; set; } 
+        public string ImageUrl { get; set; }
 
         public List<TypeOfDish> typeOfDishes { get; set; } = new List<TypeOfDish>();
         public List<TypeOfDishViewModel> typeOfDishes1 { get; set; } = new List<TypeOfDishViewModel>();
@@ -66,6 +66,8 @@ namespace Repository.ViewModels
         public bool IsFavorite { get; set; } // mới thêm
         public int ReviewCount { get; set; }  // Thêm mới
         public double AverageRating { get; set; }
+
+public List<IngredientTag> IngredientTagsAll { get; set; } = new List<IngredientTag>();
 
     }
 

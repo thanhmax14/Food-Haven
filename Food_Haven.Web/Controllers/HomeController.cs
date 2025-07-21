@@ -1672,26 +1672,30 @@ namespace Food_Haven.Web.Controllers
 
             var list = new List<StoreFollowerViewModel>();
 
-            // Lấy danh sách theo dõi
-            var followedStores = await _storeFollowersService.ListAsync(f => f.UserID == user.Id);
-
-            foreach (var item in followedStores)
+            try
             {
-                var store = await _storeDetailService.GetAsyncById(item.StoreID);
-                if (store != null)
+                var followedStores = await _storeFollowersService.ListAsync(f => f.UserID == user.Id);
+                foreach (var item in followedStores)
                 {
-                    list.Add(new StoreFollowerViewModel
+                    var store = await _storeDetailService.GetAsyncById(item.StoreID);
+                    if (store != null)
                     {
-                        ID = store.ID,
-                        Name = store.Name,
-                        Img = store.ImageUrl,
-                        Address = store.Address,
-                        Phone = store.Phone,
-                        ShortDescriptions = store.ShortDescriptions,
-                        CreatedDate = store.CreatedDate,
-                        // Thêm các thuộc tính khác nếu cần
-                    });
+                        list.Add(new StoreFollowerViewModel
+                        {
+                            ID = store.ID, // Chuyển Guid sang string nếu cần
+                            Name = store.Name,
+                            Img = store.ImageUrl,
+                            Address = store.Address,
+                            Phone = store.Phone,
+                            ShortDescriptions = store.ShortDescriptions,
+                            CreatedDate = store.CreatedDate
+                        });
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred. Please try again later."); // Trả về mã 500 với thông báo
             }
 
             return View(list);

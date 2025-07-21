@@ -152,6 +152,7 @@ namespace Food_Haven.Web.Controllers
                     PhoneNumber = user.PhoneNumber,
                     UserName = user.UserName,
                     Email = user.Email,
+                    RejectNote = user.RejectNote,
                     /*   StoreDeatilId = storeId */
                 };
                 list.userView = UserModel;
@@ -275,6 +276,10 @@ namespace Food_Haven.Web.Controllers
             if (user == null)
             {
                 return Json(new { success = false, message = "User not found" });
+            }
+            if (user.RequestSeller == "1")
+            {
+                return Json(new { success = false, message = "You are already a seller." });
             }
             else if (string.IsNullOrEmpty(user.Address) || string.IsNullOrEmpty(user.PhoneNumber) ||
             user.Birthday == null || user.Birthday == DateTime.MinValue || string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName))
@@ -2482,6 +2487,56 @@ namespace Food_Haven.Web.Controllers
             return View("ViewRecipe", viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EditRecipe(Guid id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Home");
+
+            var recipe = await _recipeService.GetAsyncById(id);
+            if (recipe == null || recipe.UserID != user.Id)
+                return NotFound();
+
+            // ✅ Lấy toàn bộ TypeOfDishes và IngredientTags
+            var typeOfDishes = (await _typeOfDishService.ListAsync()).ToList();
+            var allIngredientTags = (await _ingredientTagService.ListAsync()).ToList();
+            var categories = (await _categoryService.ListAsync()).ToList(); // Thêm dòng này
+
+            // ✅ Lấy những tag đã được chọn cho công thức
+            var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
+                .ListAsync(rt => rt.RecipeID == recipe.ID, null, include => include.Include(x => x.IngredientTag)))
+                .ToList();
+
+            var viewModel = new RecipeViewModels
+            {
+                ID = recipe.ID,
+                Title = recipe.Title,
+                ShortDescriptions = recipe.ShortDescriptions,
+                PreparationTime = recipe.PreparationTime,
+                CookTime = recipe.CookTime,
+                TotalTime = recipe.TotalTime,
+                DifficultyLevel = recipe.DifficultyLevel,
+                Servings = recipe.Servings,
+                CreatedDate = recipe.CreatedDate,
+                IsActive = recipe.IsActive,
+                CateID = recipe.CateID,
+                ThumbnailImage = recipe.ThumbnailImage,
+                TypeOfDishName = typeOfDishes.FirstOrDefault(t => t.ID == recipe.TypeOfDishID)?.Name,
+                CookingStep = recipe.CookingStep,
+                Ingredient = recipe.Ingredient,
+                TypeOfDishID = recipe.TypeOfDishID,
+                UserID = recipe.UserID,
+                IngredientTags = allIngredientTags,
+                SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(),
+                status = recipe.status,
+                RejectNote = recipe.RejectNote,
+                typeOfDishes = typeOfDishes,
+                Categories = categories // Thêm dòng này
+            };
+
+            return View(viewModel);
+        }
 
 
 

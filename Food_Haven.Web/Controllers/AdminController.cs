@@ -60,13 +60,14 @@ namespace Food_Haven.Web.Controllers
         private readonly IStoreReportServices _storeReport;
         private readonly IProductImageService _productImageService;
         private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService,
             IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance,
             ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail,
             IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService,
             IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport,
-            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce)
+            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, RoleManager<IdentityRole> roleManager)
 
         {
             _ingredienttag = ingredientTagService;
@@ -95,6 +96,7 @@ namespace Food_Haven.Web.Controllers
             _storeReport = storeReport;
             _productImageService = productImageService;
             _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -230,6 +232,7 @@ namespace Food_Haven.Web.Controllers
             }
 
         }
+        [HttpGet]
         public async Task<IActionResult> ManagementSeller()
         {
             var admin = await _userManager.GetUserAsync(User);
@@ -264,6 +267,7 @@ namespace Food_Haven.Web.Controllers
                             UserName = user.UserName,
                             Email = user.Email,
                             IsBanByadmin = user.IsBannedByAdmin,
+                            UserNameAdmin = admin.UserName,
                         });
                     }
                 }
@@ -271,6 +275,8 @@ namespace Food_Haven.Web.Controllers
        .Where(x => x.RequestSeller == "1" || x.RequestSeller == "2" || x.RequestSeller == "3")  // Lọc tất cả user có RequestSeller là 1 hoặc 2
        .OrderByDescending(x => x.RequestSeller == "1" || x.RequestSeller == "3")  // Sắp xếp người đăng ký (RequestSeller == "1") lên trên
        .ToList();
+                ViewBag.AdminUserName = admin.UserName;
+
                 return View(list);
             }
             catch (Exception ex)
@@ -313,13 +319,18 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { success = false, message = "Failed to add role" });
                 }
 
-                return Json(new { success = true, message = "User approved as seller" });
+                // 🔹 Thêm phần lấy RoleId (KHÔNG thay đổi logic gốc)
+                var sellerRole = await _roleManager.FindByNameAsync("Seller");
+                var roleId = sellerRole?.Id ?? "unknown";
+
+                return Json(new { success = true, message = "User approved as seller", roleId });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, message = "An error occurred while updating the user", error = ex.Message });
             }
         }
+
         [HttpPost]
         public async Task<IActionResult> RejectSeller([FromBody] UsersViewModel obj)
         {
@@ -340,6 +351,7 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { success = false, message = "User not found" });
                 }
                 user.RequestSeller = "3";
+                user.RejectNote = obj.RejectNote;
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
                 {
@@ -878,7 +890,7 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                         // Update order status
+                        // Update order status
                         order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
                         order.ModifiedDate = DateTime.UtcNow;
