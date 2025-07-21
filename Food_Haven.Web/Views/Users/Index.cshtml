@@ -1099,10 +1099,25 @@
                                                             orderDetailsTab.show();
 
                                                             document.getElementById("back-to-orders-btn")?.remove();
+                                                            document.getElementById("go-to-pay-btn")?.remove();
                                                             document.getElementById("cancel-entire-order-btn")?.remove();
 
 
                                                             const orderStatus = (data.orderStatus || "").toLowerCase();
+                                                            const flag =data.isPay; // hoặc !!data.isPay nếu bạn cần ép kiểu
+                                                            const link = (data.linkpay || "");
+                                                             if(orderStatus === "processing"){
+                                             if (flag === true && link && link.trim() !== '') {
+                                        const button = document.createElement("button");
+                                        button.className = "btn btn-success mt-3 float-end";
+                                        button.id = "go-to-pay-btn";
+                                        button.innerHTML = "<i class='fi fi-rs-star'></i> Go to pay";
+                                        button.addEventListener("click", () => {
+                                            window.open(link, "_blank");
+                                        });
+                                        detailsContainer.appendChild(button);
+                                              }
+                                                             }
 
                                                             if (orderStatus === "pending") {
                                                                 const cancelAllBtn = document.createElement("button");
@@ -1146,9 +1161,7 @@
                                                                 detailsContainer.appendChild(cancelAllBtn);
                                                             } else if (orderStatus === "confirmed") {
                                                                 const feedbackBtn = document.createElement("button");
-
-                                                            }
-
+                                                             }
                                                             const backButton = document.createElement("button");
                                                             backButton.id = "back-to-orders-btn";
                                                             backButton.className = "btn btn-secondary mt-3 me-2";

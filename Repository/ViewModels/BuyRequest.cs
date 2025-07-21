@@ -18,22 +18,23 @@ namespace Repository.ViewModels
     }
     public class OrderInputModel
     {
-        [Required(ErrorMessage = "Vui lòng điền First Name")]
+        [Required(ErrorMessage = "Please enter your First Name")]
         public string FirstName { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng điền Last Name")]
+        [Required(ErrorMessage = "Please enter your Last Name")]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập Email")]
         [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
-        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+
+        [Required(ErrorMessage = "Please enter your phone number")]
+        [Phone(ErrorMessage = "Invalid phone number")]
         public string Phone { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng nhập địa chỉ giao hàng")]
+        [Required(ErrorMessage = "Please enter your delivery address")]
         public string Address { get; set; }
-        public string Note { get; set; } // Không đánh [Required]
+        public string Note { get; set; } 
     }
 }
