@@ -8,6 +8,7 @@ using BusinessLogic.Services.VoucherServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Models;
+using Net.payOS;
 using Quartz;
 using System;
 
@@ -24,8 +25,9 @@ namespace Food_Haven.Web.Services.Auto
         private readonly IComplaintServices _complant;
         private readonly IVoucherServices _voucher;
         private readonly IProductVariantService _producttype;
+        private readonly PayOS _payos;
 
-        public ReleasePaymentJob(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> usermanager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype)
+        public ReleasePaymentJob(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> usermanager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos)
         {
             _order = order;
             _orderdetail = orderdetail;
@@ -35,6 +37,7 @@ namespace Food_Haven.Web.Services.Auto
             _complant = complant;
             _voucher = voucher;
             _producttype = producttype;
+            _payos = payos;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -280,8 +283,106 @@ namespace Food_Haven.Web.Services.Auto
                             }
                         }
                     }
+                    if (order.Status.Equals("PROCESSING", StringComparison.OrdinalIgnoreCase) &&
+         order.PaymentMethod.Equals("Online", StringComparison.OrdinalIgnoreCase) &&
+         !order.PaymentStatus.Equals("Success", StringComparison.OrdinalIgnoreCase))
+                    {
+                        try
+                        {
+                            // Validate OrderCode
+                            if (string.IsNullOrWhiteSpace(order.OrderCode + "") ||
+                                !long.TryParse(order.OrderCode + "", out long orderCode))
+                            {
+                                Console.WriteLine($"[Quartz] ❌ Order {order.ID} has invalid OrderCode: '{order.OrderCode}'");
 
+                                order.PaymentStatus = "Failed";
+                                order.Status = "Failed";
+                                order.Description = "Invalid OrderCode";
+                                order.ModifiedDate = DateTime.Now;
 
+                                await _order.UpdateAsync(order);
+                                await _order.SaveChangesAsync();
+                                continue;
+                            }
+
+                            // Check payment status via PayOS API
+                            var checkOrder = await _payos.getPaymentLinkInformation(orderCode);
+                            var status = checkOrder.status?.ToUpper() ?? "UNKNOWN";
+
+                            Console.WriteLine($"[Quartz] 🔄 PayOS check result for Order {order.ID}: {status}");
+                            order.ModifiedDate = DateTime.Now;
+
+                            switch (status)
+                            {
+                                case "CANCELLED":
+                                case "EXPIRED":
+                                case "FAILED":
+                                    // Get order details
+                                    var orderDetails = await _orderdetail.ListAsync(d => d.OrderID == order.ID);
+
+                                    if (orderDetails != null && orderDetails.Any())
+                                    {
+                                        foreach (var item in orderDetails)
+                                        {
+                                            item.Status = "CANCELLED";
+                                            item.ModifiedDate = DateTime.Now;
+                                            await _orderdetail.UpdateAsync(item);
+
+                                            var product = await _producttype.FindAsync(p => p.ID == item.ProductTypesID);
+                                            if (product != null)
+                                            {
+                                                product.Stock += item.Quantity;
+                                                product.IsActive = true;
+                                                await _producttype.UpdateAsync(product);
+                                            }
+                                        }
+                                    }
+
+                                    // Update order status
+                                    order.PaymentStatus = "CANCELLED";
+                                    order.IsPaid = true;
+
+                                    if (status == "CANCELLED")
+                                    {
+                                        order.Status = "CANCELLED BY USER";
+                                        Console.WriteLine($"[Quartz] ❌ Order {order.ID} was cancelled by the user.");
+                                    }
+                                    else
+                                    {
+                                        order.Status = "CANCELLED BY SHOP";
+                                        Console.WriteLine($"[Quartz] ❌ Order {order.ID} was cancelled due to payment failure ({status}).");
+                                    }
+                                    break;
+
+                                case "PENDING":
+                                case "UNDERPAID":
+                                case "PROCESSING":
+                                    Console.WriteLine($"[Quartz] ⏳ Order {order.ID} is still processing payment ({status}).");
+                                    break;
+
+                                default:
+                                    Console.WriteLine($"[Quartz] ⚠️ Unknown payment status from PayOS: {status} for Order {order.ID}");
+                                    break;
+                            }
+
+                            await _orderdetail.SaveChangesAsync();
+                            await _producttype.SaveChangesAsync();
+                            await _order.UpdateAsync(order);
+                            await _order.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[Quartz] ❗ Error while processing Order {order.ID}: {ex.Message}");
+
+                            order.Status = "Failed";
+                            order.PaymentStatus = "Failed";
+                            order.Description = "Payment check system error";
+                            order.ModifiedDate = DateTime.Now;
+
+                            await _order.UpdateAsync(order);
+                            await _order.SaveChangesAsync();
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {

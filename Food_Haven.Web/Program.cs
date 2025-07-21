@@ -165,7 +165,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSingleton<RecipeSearchService>(provider => new RecipeSearchService(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\dataset", "full_dataset.csv")));
-/*builder.Services.AddQuartz(q =>
+builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionJobFactory();
 
@@ -194,7 +194,7 @@ builder.Services.AddSingleton<RecipeSearchService>(provider => new RecipeSearchS
 
 builder.Services.AddScoped<IJob, ReleasePaymentDeposit>();
 builder.Services.AddScoped<IJob, ReleasePaymentJob>();
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);*/
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 

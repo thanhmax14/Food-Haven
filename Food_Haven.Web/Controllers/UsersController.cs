@@ -611,19 +611,21 @@ namespace Food_Haven.Web.Controllers
                             var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
                             if (checkcart != null)
                             {
-                                var getQuatity = await this._productWarian.FindAsync(u => u.ID == id.Key && u.IsActive);
+                                var getQuantity = await this._productWarian.FindAsync(u => u.ID == id.Key && u.IsActive);
+                                if (getQuantity == null)
+                                    return Json(new ErroMess { msg = "The selected product does not exist!" });
 
-                                if (getQuatity == null)
-                                {
-                                    return NotFound(new ErroMess { msg = "The selected product does not exist!" });
-                                }
+                                if (id.Value > getQuantity.Stock)
+                                    return Json(new ErroMess { msg = "Not enough stock for a product." });
 
-                                if (id.Value < getQuatity.Stock)
-                                {
-                                    totelPrice += getQuatity.SellPrice * id.Value;
-                                }
+                                totelPrice += getQuantity.SellPrice * id.Value;
+                            }
+                            else
+                            {
+                                return Json(new ErroMess { msg = "A product is not in your cart!" });
                             }
                         }
+
                         var orderID = Guid.NewGuid();
                         foreach (var id in buyRequest.Products)
                         {
@@ -785,16 +787,21 @@ namespace Food_Haven.Web.Controllers
                             var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
                             if (checkcart != null)
                             {
-                                var getQuatity = await this._productWarian.FindAsync(u => u.ID == id.Key && u.IsActive);
-
-                                if (getQuatity == null)
+                                var getQuantity = await this._productWarian.FindAsync(u => u.ID == id.Key && u.IsActive);
+                                if (getQuantity == null)
                                     return Json(new ErroMess { msg = "The selected product does not exist!" });
-                                if (checkcart.Quantity < getQuatity.Stock)
-                                {
-                                    totelPrice += getQuatity.SellPrice * id.Value;
-                                }
+
+                                if (id.Value > getQuantity.Stock)
+                                    return Json(new ErroMess { msg = "Not enough stock for a product." });
+
+                                totelPrice += getQuantity.SellPrice * id.Value;
+                            }
+                            else
+                            {
+                                return Json(new ErroMess { msg = "A product is not in your cart!" });
                             }
                         }
+
                         var orderID = Guid.NewGuid();
                         if (await _balance.CheckMoney(user.Id, totelPrice) == false)
                         {
@@ -1032,7 +1039,14 @@ namespace Food_Haven.Web.Controllers
             var productList = await _productWarian.ListAsync(p => productTypeIds.Contains(p.ID));
 
             var detailDtos = new List<object>();
-
+            var link = "";
+            var checkPaylink = RegexAll.ExtractPayosLink(order.Description);
+            var flag = false;
+            if (checkPaylink != null)
+            {
+                flag = true;
+                link = checkPaylink;
+            }
             foreach (var item in getOrderDetail)
             {
                 var product = productList.FirstOrDefault(p => p.ID == item.ProductTypesID);
@@ -1066,7 +1080,9 @@ namespace Food_Haven.Web.Controllers
             {
                 success = true,
                 orderStatus = order.Status,
-                data = detailDtos
+                data = detailDtos,
+                isPay = flag,
+                linkpay = link,
             });
 
         }

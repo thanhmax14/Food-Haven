@@ -1452,9 +1452,7 @@ namespace Food_Haven.Web.Controllers
             var vouchers = _voucher.GetAll()
      .Where(v => v.IsGlobal || (!v.IsGlobal && v.StoreID == storeId))
      .ToList()  // Lấy về client
-     .Where(v => !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase));
-
-
+     .Where(v => !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase) && v.ExpirationDate < now || (v.MaxUsage - v.CurrentUsage) <= 0);
             var data = vouchers.Select(v => new
             {
                 id = v.ID,
@@ -1465,7 +1463,7 @@ namespace Food_Haven.Web.Controllers
                 minOrder = $"Min order: ₫{v.MinOrderValue:n0}",
                 expire = v.ExpirationDate.ToString("MM/dd/yyyy"),
                 count = v.MaxUsage - v.CurrentUsage,
-                disabled = v.ExpirationDate < now || (v.MaxUsage - v.CurrentUsage) <= 0,
+                disabled = false,
                 isStoreVoucher = !v.IsGlobal,
                 maxDiscountAmount = v.MaxDiscountAmount.HasValue ? $"Max discount: ₫{v.MaxDiscountAmount.Value:n0}" : null
             }).ToList();
