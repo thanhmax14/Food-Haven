@@ -1,0 +1,1057 @@
+@model Repository.ViewModels.RecipeViewModels
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Nest - Multipurpose eCommerce HTML Template</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="" />
+    <meta property="og:type" content="" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
+
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+    <script src="chrome-extension://mooikfkahbdckldjjndioackbalphokd/~/assets/prompt.js"></script>
+    @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
+
+    <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
+    <link rel="shortcut icon" href="assets/images/favicon.ico">
+    <!-- Plugins css -->
+    <link href="assets/libs/dropzone/dropzone.css" rel="stylesheet" type="text/css" />
+    <!-- Layout config Js -->
+    <script src="assets/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.css">
+    <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+  <style>
+    .multi-select-container {
+        border: 1px solid #ccc;
+        display: flex;
+        gap: 10px;
+        font-family: Arial, sans-serif;
+    }
+
+    .multi-select-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .multi-select-column .header {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .search-input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #ced4da !important;
+        border-radius: 6px;
+        padding: 8px 12px;
+        background-color: #fff;
+        outline: none;
+        box-shadow: none;
+        margin-bottom: 10px;
+    }
+
+    .Models-list {
+        border: 1px solid #ccc;
+        height: 250px;
+        overflow-y: auto;
+    }
+
+    .Model {
+        padding: 5px;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .Model:hover {
+        background-color: #eee;
+    }
+
+    .Model.selected {
+        background-color: #2f00ff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .ql-container {
+    height: auto !important;
+    min-height: 100px; /* hoặc gì đó */
+}
+
+</style>
+
+</head>
+
+<body>
+    <!-- Quick view -->
+
+    @await Html.PartialAsync("_Header")
+    <div class="page-content pt-30 pb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12 col-lg-12 col-md-12 m-auto">
+                    <h1 class="heading-2 mb-10">Edit Recipe</h1>
+                 <form asp-action="EditRecipe" asp-controller="Users" method="post" enctype="multipart/form-data"
+      class="edit-recipe-form" data-recipe-id="@Model.ID"
+      data-selected-tags='@Html.Raw(Json.Serialize(Model.SelectedIngredientTags ?? new List<Guid>()))'>
+
+
+
+<input type="hidden" name="ID" value="@Model.ID" />
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Title -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title</label>
+                            <input class="form-control" name="Title" value="@Model.Title" required />
+                        </div>
+
+                        <!-- Servings -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Servings</label>
+                            <input class="form-control" name="Servings" value="@Model.Servings" required />
+                        </div>
+
+                        <!-- Short Description -->
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Short Description</label>
+                            <textarea class="form-control" name="ShortDescriptions" rows="3">@Model.ShortDescriptions</textarea>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="CateID" required>
+                                <option value="">Choose...</option>
+                                @foreach (var cate in Model.Categories)
+                                {
+                                    <option value="@cate.ID" selected="@(cate.ID == Model.CateID ? "selected" : null)">
+                                        @cate.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Type of Dish -->
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Type of Dish</label>
+                            <select class="form-select" name="TypeOfDishID" required>
+                                <option value="">Choose...</option>
+                                @foreach (var dish in Model.typeOfDishes)
+                                {
+                                    <option value="@dish.ID" selected="@(dish.ID == Model.TypeOfDishID ? "selected" : null)">
+                                        @dish.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Difficulty Level</label>
+                            <select class="form-select" name="DifficultyLevel">
+                                <option value="Easy" selected="@(Model.DifficultyLevel == "Easy")">Easy</option>
+                                <option value="Medium" selected="@(Model.DifficultyLevel == "Medium")">Medium</option>
+                                <option value="Hard" selected="@(Model.DifficultyLevel == "Hard")">Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- IsActive -->
+                        <div class="col-md-6 mb-3">
+                                <input type="hidden" name="IsActive" value="true" />
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
+        <label class="form-check-label">Is Active</label>
+    </div>
+                        </div>
+
+
+                        <div class="row">
+                        <!-- Cột phải: Ingredient Tag -->
+
+
+                    <div class="col-md-6 mb-3 h-100 d-flex flex-column edit-recipe-form" data-recipe-id="@Model.ID" data-selected-tags='@Json.Serialize(Model.SelectedIngredientTags)'>
+    <input class="search-input" type="text" placeholder="Search..." title="Search..." id="searchAll-@Model.ID">
+    <label for="IngredientTags-@Model.ID" class="form-label">Ingredient Tag</label>
+    
+    <select id="IngredientTags-@Model.ID" name="SelectedIngredientTags" class="form-select" multiple size="5" style="display: none;">
+        @foreach (var tag in Model.IngredientTags)
+        {
+            <option value="@tag.ID" selected="@(Model.SelectedIngredientTags.Contains(tag.ID) ? "selected" : null)">
+                @tag.Name
+            </option>
+        }
+    </select>
+
+    <div class="multi-select-container">
+        <div class="multi-select-column">
+            <div class="header">Available</div>
+            <div class="Models-list" id="availableList-@Model.ID"></div>
+        </div>
+        <div class="multi-select-column">
+            <div class="header">Selected</div>
+            <div class="Models-list" id="selectedList-@Model.ID"></div>
+        </div>
+    </div>
+</div>
+
+@{
+    int prepValue = 0;
+    string prepUnit = "minutes";
+    string prepQuick = "";
+
+    var prepMatch = System.Text.RegularExpressions.Regex.Match(Model.PreparationTime ?? "", @"(\d+)\s*(minutes|minute|hours|hour|days|day)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    if (prepMatch.Success)
+    {
+        prepValue = int.Parse(prepMatch.Groups[1].Value);
+        var u = prepMatch.Groups[2].Success ? prepMatch.Groups[2].Value.ToLower() : "";
+        if (u.Contains("hour")) { prepUnit = "hours"; prepQuick = (prepValue * 60).ToString(); }
+        else if (u.Contains("day")) { prepUnit = "days"; prepQuick = (prepValue * 1440).ToString(); }
+        else { prepQuick = prepValue.ToString(); }
+    }
+
+    var quickOptions = new Dictionary<string, string>
+    {
+        { "5", "5 min" }, { "10", "10 min" }, { "15", "15 min" }, { "20", "20 min" }, { "30", "30 min" },
+        { "45", "45 min" }, { "60", "1 hour" }, { "120", "2 hours" }, { "180", "3 hours" }
+    };
+}
+
+
+                        <!-- Cột trái: 3 time input -->
+                        <div class="col-md-6">
+                            <!-- Preparation Time -->
+                            <div class="mb-3">
+                                <label class="form-label">Preparation Time</label>
+                              <div class="d-flex gap-2 align-Models-center">
+    <!-- Input number -->
+    <input type="number" class="form-control" min="0" placeholder="Enter time"
+           name="PreparationValue" style="width: 120px;" value="@prepValue" />
+
+    <!-- Select Unit -->
+    <select class="form-select" name="PreparationUnit" style="width: 120px;">
+        @foreach (var unit in new[] { "minutes", "hours", "days" })
+        {
+            var selected = prepUnit == unit ? "selected=\"selected\"" : "";
+            @:<option value="@unit" @Html.Raw(selected)>@char.ToUpper(unit[0])@unit.Substring(1)</option>
+        }
+    </select>
+
+    <!-- Quick Select -->
+    <span class="text-muted">or</span>
+    <select class="form-select" name="PreparationQuick" style="width: 150px;">
+        <option value="">Quick select</option>
+        @foreach (var opt in quickOptions)
+        {
+            var selected = prepQuick == opt.Key ? "selected=\"selected\"" : "";
+            @:<option value="@opt.Key" @Html.Raw(selected)>@opt.Value</option>
+        }
+    </select>
+</div>
+                            </div>
+@{
+    int cookValue = 0;
+    string cookUnit = "minutes";
+    string cookQuick = "";
+
+    var cookMatch = System.Text.RegularExpressions.Regex.Match(Model.CookTime ?? "", @"(\d+)\s*(minutes|minute|hours|hour|days|day)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    if (cookMatch.Success)
+    {
+        cookValue = int.Parse(cookMatch.Groups[1].Value);
+        var u = cookMatch.Groups[2].Success ? cookMatch.Groups[2].Value.ToLower() : "";
+
+        if (u.Contains("hour")) { cookUnit = "hours"; cookQuick = (cookValue * 60).ToString(); }
+        else if (u.Contains("day")) { cookUnit = "days"; cookQuick = (cookValue * 1440).ToString(); }
+        else { cookQuick = cookValue.ToString(); }
+    }
+
+    var quickOptions1 = new Dictionary<string, string>
+    {
+        { "5", "5 min" }, { "10", "10 min" }, { "15", "15 min" }, { "20", "20 min" }, { "30", "30 min" },
+        { "45", "45 min" }, { "60", "1 hour" }, { "120", "2 hours" }, { "180", "3 hours" }, { "240", "4 hours" }
+    };
+}
+
+                            <!-- Cooking Time -->
+                            <div class="mb-3">
+                                <label class="form-label">Cooking Time</label>
+                              <div class="d-flex gap-2 align-Models-center">
+    <input type="number" class="form-control" min="0" placeholder="Enter time"
+           name="CookingValue" style="width: 120px;" value="@cookValue" />
+
+    <select class="form-select" name="CookingUnit" style="width: 120px;">
+        @foreach (var unit in new[] { "minutes", "hours", "days" })
+        {
+            var selected = cookUnit == unit ? "selected=\"selected\"" : "";
+            @:<option value="@unit" @Html.Raw(selected)>@char.ToUpper(unit[0])@unit.Substring(1)</option>
+        }
+    </select>
+
+    <span class="text-muted">or</span>
+
+    <select class="form-select" name="CookingQuick" style="width: 150px;">
+        <option value="">Quick select</option>
+        @foreach (var opt in quickOptions)
+        {
+            var selected = cookQuick == opt.Key ? "selected=\"selected\"" : "";
+            @:<option value="@opt.Key" @Html.Raw(selected)>@opt.Value</option>
+        }
+    </select>
+</div>
+
+
+
+
+                                <!-- Total Time -->
+                                <div class="mb-3">
+                                    <label class="form-label">Total Time</label>
+                                    <div class="form-control bg-light" id="displayTotalTime" style="height: auto;">
+                                        0 minute
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- end inner row -->
+                    <input type="hidden" id="hiddenPrepTime" name="PreparationTime" />
+<input type="hidden" id="hiddenCookTime" name="CookTime" />
+<input type="hidden" id="hiddenTotalTime" name="TotalTime" />
+
+                        <!-- Ingredient Editor -->
+                        <div class="card mt-3">
+                            <div class="card-header"><h5>Ingredient</h5></div>
+                            <div class="card-body">
+<div id="editor-Ingredient-@Model.ID" class="snow-editor">@Html.Raw(Model.Ingredient)</div>
+                            </div>
+                        </div>
+
+                        <!-- Cooking Step Editor -->
+                        <div class="card mt-3">
+                            <div class="card-header"><h5>Cooking Step</h5></div>
+                            <div class="card-body">
+<div id="editor-CookingStep-@Model.ID" class="snow-editor">@Html.Raw(Model.CookingStep)</div>
+                            </div>
+                        </div>
+
+                        <!-- Thumbnail -->
+                     
+                    </div>
+   <div class="col-md-12 mt-3">
+                            <label class="form-label">Thumbnail Image</label><br />
+                            @if (!string.IsNullOrEmpty(Model.ThumbnailImage))
+                            {
+                                <img src="@Model.ThumbnailImage" alt="Thumbnail" style="max-height: 100px; margin-bottom: 10px;" /><br />
+                            }
+                            <input type="file" class="form-control" name="ThumbnailImage" />
+                        </div>
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="IngredientHidden-@Model.ID" name="Ingredient" />
+                        <input type="hidden" id="CookingStepHidden-@Model.ID" name="CookingStep" />
+
+                    <!-- Submit Buttons -->
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-sm btn-success">Edit Recipe</button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main">
+        <section class="newsletter mb-15">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="position-relative newsletter-inner">
+                            <div class="newsletter-content">
+                                <h2 class="mb-20">
+                                    Stay home & get your daily <br />
+                                    needs from our shop
+                                </h2>
+                                <p class="mb-45">
+                                    Start You'r Daily Shopping with <span class="text-brand">
+                                        Nest
+                                        Mart
+                                    </span>
+                                </p>
+                                <form class="form-subcriber d-flex">
+                                    <input type="email" placeholder="Your emaill address" />
+                                    <button class="btn" type="submit">Subscribe</button>
+                                </form>
+                            </div>
+                            <img src="~/assets/imgs/banner/banner-9.png" alt="newsletter" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="featured section-padding">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 mb-md-4 mb-xl-0">
+                        <div class="banner-left-icon d-flex align-Models-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-1.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Best prices & offers</h3>
+                                <p>Orders $50 or more</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-Models-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-2.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Free delivery</h3>
+                                <p>24/7 amazing services</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-Models-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-3.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Great daily deal</h3>
+                                <p>When you sign up</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-Models-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-4.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Wide assortment</h3>
+                                <p>Mega Discounts</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+                        <div class="banner-left-icon d-flex align-Models-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-5.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Easy returns</h3>
+                                <p>Within 30 days</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1-5 col-md-4 col-12 col-sm-6 d-xl-none">
+                        <div class="banner-left-icon d-flex align-Models-center wow fadeIn animated">
+                            <div class="banner-icon">
+                                <img src="~/assets/imgs/theme/icons/icon-6.svg" alt="" />
+                            </div>
+                            <div class="banner-text">
+                                <h3 class="icon-box-title">Safe delivery</h3>
+                                <p>Within 30 days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section-padding footer-mid">
+            <div class="container pt-15 pb-20">
+                <div class="row">
+                    <div class="col">
+                        <div class="widget-about font-md mb-md-3 mb-lg-3 mb-xl-0">
+                            <div class="logo mb-30">
+                                <a href="/" class="mb-15">
+                                    <img src="~/assets/imgs/theme/logo.svg" alt="logo" />
+                                </a>
+                                <p class="font-lg text-heading">Awesome grocery store website template</p>
+                            </div>
+                            <ul class="contact-infor">
+                                <li>
+                                    <img src="~/assets/imgs/theme/icons/icon-location.svg" alt="" /><strong>
+                                        Address:
+                                    </strong> <span>5171 W Campbell Ave undefined Kent, Utah 53127 United States</span>
+                                </li>
+                                <li>
+                                    <img src="~/assets/imgs/theme/icons/icon-contact.svg" alt="" /><strong>
+                                        Call
+                                        Us:
+                                    </strong><span>(+91) - 540-025-124553</span>
+                                </li>
+                                <li>
+                                    <img src="~/assets/imgs/theme/icons/icon-email-2.svg"
+                                        alt="" /><strong>Email:</strong><span>sale@Nest.com</span>
+                                </li>
+                                <li>
+                                    <img src="~/assets/imgs/theme/icons/icon-clock.svg"
+                                        alt="" /><strong>Hours:</strong><span>10:00 - 18:00, Mon - Sat</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Company</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Delivery Information</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms &amp; Conditions</a></li>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">Support Center</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Account</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">Sign In</a></li>
+                            <li><a href="#">View Cart</a></li>
+                            <li><a href="#">My Wishlist</a></li>
+                            <li><a href="#">Track My Order</a></li>
+                            <li><a href="#">Help Ticket</a></li>
+                            <li><a href="#">Shipping Details</a></li>
+                            <li><a href="#">Compare products</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Corporate</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">Become a Vendor</a></li>
+                            <li><a href="#">Affiliate Program</a></li>
+                            <li><a href="#">Farm Business</a></li>
+                            <li><a href="#">Farm Careers</a></li>
+                            <li><a href="#">Our Suppliers</a></li>
+                            <li><a href="#">Accessibility</a></li>
+                            <li><a href="#">Promotions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget col">
+                        <h4 class="widget-title">Popular</h4>
+                        <ul class="footer-list mb-sm-5 mb-md-0">
+                            <li><a href="#">Milk & Flavoured Milk</a></li>
+                            <li><a href="#">Butter and Margarine</a></li>
+                            <li><a href="#">Eggs Substitutes</a></li>
+                            <li><a href="#">Marmalades</a></li>
+                            <li><a href="#">Sour Cream and Dips</a></li>
+                            <li><a href="#">Tea & Kombucha</a></li>
+                            <li><a href="#">Cheese</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-link-widget widget-install-app col">
+                        <h4 class="widget-title">Install App</h4>
+                        <p class="wow fadeIn animated">From App Store or Google Play</p>
+                        <div class="download-app">
+                            <a href="#" class="hover-up mb-sm-2 mb-lg-0">
+                                <img class="active" src="~/assets/imgs/theme/app-store.jpg" alt="" />
+                            </a>
+                            <a href="#" class="hover-up mb-sm-2">
+                                <img src="~/assets/imgs/theme/google-play.jpg" alt="" />
+                            </a>
+                        </div>
+                        <p class="mb-20">Secured Payment Gateways</p>
+                        <img class="wow fadeIn animated" src="~/assets/imgs/theme/payment-method.png" alt="" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="container pb-30">
+            <div class="row align-Models-center">
+                <div class="col-12 mb-30">
+                    <div class="footer-bottom"></div>
+                </div>
+                <div class="col-xl-4 col-lg-6 col-md-6">
+                    <p class="font-sm mb-0">
+                        &copy; 2024, <strong class="text-brand">Nest</strong> - HTML Ecommerce
+                        Template <br />All rights reserved
+                    </p>
+                </div>
+                <div class="col-xl-4 col-lg-6 text-center d-none d-xl-block">
+                    <div class="hotline d-lg-inline-flex mr-30">
+                        <img src="~/assets/imgs/theme/icons/phone-call.svg" alt="hotline" />
+                        <p>1900 - 6666<span>Working 8:00 - 22:00</span></p>
+                    </div>
+                    <div class="hotline d-lg-inline-flex">
+                        <img src="~/assets/imgs/theme/icons/phone-call.svg" alt="hotline" />
+                        <p>1900 - 8888<span>24/7 Support Center</span></p>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-6 col-md-6 text-end d-none d-md-block">
+                    <div class="mobile-social-icon">
+                        <h6>Follow Us</h6>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-facebook-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-twitter-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-instagram-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-pinterest-white.svg" alt="" /></a>
+                        <a href="#"><img src="~/assets/imgs/theme/icons/icon-youtube-white.svg" alt="" /></a>
+                    </div>
+                    <p class="font-sm">Up to 15% discount on your first subscribe</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Preloader Start -->
+    <div id="preloader-active">
+        <div class="preloader d-flex align-Models-center justify-content-center">
+            <div class="preloader-inner position-relative">
+                <div class="text-center">
+                    <img src="~/assets/imgs/theme/loading.gif" alt="" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ✅ jQuery (luôn phải đứng trước các plugin dùng jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+
+    <!-- ✅ Bootstrap 5 -->
+    @* <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> *@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ✅ Quill (dùng cho trình soạn thảo) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- ✅ multi.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/multi.js@0.5.0/multi.min.css">
+
+    <!-- ✅ autoComplete.js -->
+
+    <!-- ✅ Các plugin khác -->
+    <script src="~/assets/js/plugins/slick.js"></script>
+    <script src="~/assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="~/assets/js/plugins/wow.js"></script>
+    <script src="~/assets/js/plugins/perfect-scrollbar.js"></script>
+    <script src="~/assets/js/plugins/magnific-popup.js"></script>
+    <script src="~/assets/js/plugins/select2.min.js"></script>
+    <script src="~/assets/js/plugins/waypoints.js"></script>
+    <script src="~/assets/js/plugins/counterup.js"></script>
+    <script src="~/assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="~/assets/js/plugins/images-loaded.js"></script>
+    <script src="~/assets/js/plugins/isotope.js"></script>
+    <script src="~/assets/js/plugins/scrollup.js"></script>
+    <script src="~/assets/js/plugins/jquery.vticker-min.js"></script>
+    <script src="~/assets/js/plugins/jquery.theia.sticky.js"></script>
+    <script src="~/assets/js/plugins/jquery.elevatezoom.js"></script>
+
+    <!-- ✅ Template JS -->
+    <script src="~/assets/js/main.js?v=6.0"></script>
+    <script src="~/assets/js/shop.js?v=6.0"></script>
+
+    <!-- ✅ Grid.js -->
+    <script src="~/assets/js/gridjs/gridjs.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- ✅ Admin Template (nếu dùng layout riêng cho admin) -->
+    <script src="assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+    <script src="assetsAdmin/libs/node-waves/waves.min.js"></script>
+    <script src="assetsAdmin/libs/feather-icons/feather.min.js"></script>
+    <script src="assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="assetsAdmin/js/plugins.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/multi.js@0.5.1/multi.min.js"></script>
+
+
+
+    <!-- Dropzone (nếu dùng) -->
+    <script src="assetsAdmin/libs/dropzone/dropzone-min.js"></script>
+
+    <!-- Prism (code highlight) -->
+    <script src="assetsAdmin/libs/prismjs/prism.js"></script>
+
+    <!-- Quản lý nội dung nâng cao -->
+    <script src="assetsAdmin/js/pages/form-input-spin.init.js"></script>
+    <script src="assetsAdmin/js/pages/flag-input.init.js"></script>
+
+    <!-- Khởi tạo Quill hoặc form nâng cao -->
+    <script src="assetsAdmin/js/pages/form-editor.init.js"></script>
+
+    <!-- ✅ Quill nếu dùng bản local -->
+    <!-- <script src="assetsAdmin/libs/quill/quill.min.js"></script> -->
+
+    <!-- Admin app -->
+    <script src="assetsAdmin/js/app.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+   
+    <script>
+    function initializeQuillEditor(form, id) {
+        const ingredientEditor = new Quill(`#editor-Ingredient-${id}`, {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'font': [] }, { 'size': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'script': 'super' }, { 'script': 'sub' }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    [{ 'indent': '-1' }, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    ['link', 'image', 'video'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // ✅ GÁN NỘI DUNG Ingredient sau khi khởi tạo
+        ingredientEditor.root.innerHTML = `@Html.Raw(Model.Ingredient?.Replace("`", "\\`"))`;
+
+        const cookingEditor = new Quill(`#editor-CookingStep-${id}`, {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'font': [] }, { 'size': [] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'script': 'super' }, { 'script': 'sub' }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    [{ 'indent': '-1' }, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    ['link', 'image', 'video'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // ✅ GÁN NỘI DUNG CookingStep sau khi khởi tạo
+        cookingEditor.root.innerHTML = `@Html.Raw(Model.CookingStep?.Replace("`", "\\`"))`;
+    }
+
+    // Dữ liệu IngredientTags
+    const allModels = @Html.Raw(Json.Serialize(Model.IngredientTags.Select(t => new { id = t.ID, name = t.Name })));
+
+    // Hàm render danh sách IngredientTags
+    function renderLists(form) {
+        const recipeId = form.dataset.recipeId;
+        const availableList = form.querySelector(`#availableList-${recipeId}`);
+        const selectedList = form.querySelector(`#selectedList-${recipeId}`);
+        const selectElement = form.querySelector(`#IngredientTags-${recipeId}`);
+        const searchInput = form.querySelector(`#searchAll-${recipeId}`);
+        const searchVal = searchInput ? searchInput.value.toLowerCase() : "";
+
+        let selectedModels = JSON.parse(form.dataset.selectedTags || "[]");
+
+        if (!availableList || !selectedList) {
+            console.error("DOM elements not found for recipeId:", recipeId);
+            return;
+        }
+
+        availableList.innerHTML = '';
+        selectedList.innerHTML = '';
+        Array.from(selectElement.options).forEach(option => option.selected = false);
+
+        allModels.forEach(Model => {
+            const isSelected = selectedModels.includes(Model.id);
+            const matchSearch = Model.name.toLowerCase().includes(searchVal);
+
+            if (matchSearch) {
+                const div = document.createElement('div');
+                div.textContent = Model.name;
+                div.className = 'Model';
+                div.style.cursor = 'pointer';
+                if (isSelected) div.classList.add('selected');
+
+                div.onclick = () => {
+                    if (isSelected) {
+                        selectedModels = selectedModels.filter(id => id !== Model.id);
+                    } else {
+                        selectedModels.push(Model.id);
+                    }
+                    form.dataset.selectedTags = JSON.stringify(selectedModels);
+                    renderLists(form);
+                };
+
+                if (isSelected) selectedList.appendChild(div);
+                else availableList.appendChild(div);
+            }
+
+            if (isSelected) {
+                const option = selectElement.querySelector(`option[value="${Model.id}"]`);
+                if (option) option.selected = true;
+            }
+        });
+    }
+
+    // Hàm tính thời gian
+    function getCustomTimeInMinutes(value, unit) {
+        if (!value) return 0;
+        const val = parseFloat(value);
+        switch (unit) {
+            case 'minutes': return val;
+            case 'hours': return val * 60;
+            case 'days': return val * 24 * 60;
+            default: return val;
+        }
+    }
+
+    function formatTimeForDatabase(totalMinutes) {
+        if (totalMinutes <= 0) return "";
+        const days = Math.floor(totalMinutes / (24 * 60));
+        const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+        let parts = [];
+        if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+        if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+        if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
+        return parts.join(' ');
+    }
+
+    function calculateTotal(form) {
+        const prepValue = form.querySelector('input[name="PreparationValue"]')?.value || 0;
+        const prepUnit = form.querySelector('select[name="PreparationUnit"]')?.value || 'minutes';
+        const prepQuick = form.querySelector('select[name="PreparationQuick"]')?.value || 0;
+        const cookValue = form.querySelector('input[name="CookingValue"]')?.value || 0;
+        const cookUnit = form.querySelector('select[name="CookingUnit"]')?.value || 'minutes';
+        const cookQuick = form.querySelector('select[name="CookingQuick"]')?.value || 0;
+
+        let prepMinutes = prepQuick && !prepValue ? parseInt(prepQuick) : getCustomTimeInMinutes(prepValue, prepUnit);
+        let cookMinutes = cookQuick && !cookValue ? parseInt(cookQuick) : getCustomTimeInMinutes(cookValue, cookUnit);
+        const totalMinutes = prepMinutes + cookMinutes;
+
+        const prepTimeString = formatTimeForDatabase(prepMinutes);
+        const cookTimeString = formatTimeForDatabase(cookMinutes);
+        const totalTimeString = formatTimeForDatabase(totalMinutes);
+
+        const hiddenPrep = form.querySelector('#hiddenPrepTime');
+        const hiddenCook = form.querySelector('#hiddenCookTime');
+        const hiddenTotal = form.querySelector('#hiddenTotalTime');
+
+        if (hiddenPrep) hiddenPrep.value = prepTimeString;
+        if (hiddenCook) hiddenCook.value = cookTimeString;
+        if (hiddenTotal) hiddenTotal.value = totalTimeString;
+
+        const display = form.querySelector('#displayTotalTime');
+        if (display) display.textContent = totalTimeString || '0 minute';
+
+        console.log('Calculated times:', { prepMinutes, cookMinutes, totalMinutes, prepTimeString, cookTimeString, totalTimeString });
+    }
+
+    // Hàm resize và preview ảnh
+    function resizeAndPreviewImage(event) {
+        const input = event.target;
+        const file = input.files[0];
+
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.src = e.target.result;
+
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = 1280;
+                canvas.height = 720;
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const resizedDataUrl = canvas.toDataURL('image/jpeg');
+
+                const preview = document.getElementById('product-img');
+                if (preview) {
+                    preview.src = resizedDataUrl;
+                    preview.style.display = 'block';
+                }
+            };
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    // Khởi tạo khi trang tải
+    document.addEventListener('DOMContentLoaded', function () {
+        // Khởi tạo Quill editors với ID động
+        document.querySelectorAll('.edit-recipe-form').forEach(function (form) {
+            const id = form.dataset.recipeId;
+            const ingredientEditor = new Quill(`#editor-Ingredient-${id}`, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'super' }, { 'script': 'sub' }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            const cookingEditor = new Quill(`#editor-CookingStep-${id}`, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'super' }, { 'script': 'sub' }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Xử lý submit form
+            form.addEventListener('submit', function (e) {
+                console.log('Form submit event triggered!');
+                e.preventDefault();
+
+                try {
+                    const ingredientContent = ingredientEditor.root.innerHTML;
+                    const cookingStepContent = cookingEditor.root.innerHTML;
+
+                    console.log('Ingredient content:', ingredientContent);
+                    console.log('CookingStep content:', cookingStepContent);
+
+                    const ingredientHidden = document.getElementById(`IngredientHidden-${id}`);
+                    const cookingHidden = document.getElementById(`CookingStepHidden-${id}`);
+
+                    if (ingredientHidden && cookingHidden) {
+                        ingredientHidden.value = ingredientContent;
+                        cookingHidden.value = cookingStepContent;
+
+                        console.log('Hidden input values set:', {
+                            ingredient: ingredientHidden.value,
+                            cookingStep: cookingHidden.value
+                        });
+
+                        form.submit();
+                    } else {
+                        console.error('Hidden inputs not found!');
+                        alert('Error: Could not find hidden input fields!');
+                    }
+                } catch (error) {
+                    console.error('Error in form submission:', error);
+                    alert('An error occurred while preparing the form data.');
+                }
+            });
+
+            // Cập nhật hidden fields khi thay đổi nội dung
+            ingredientEditor.on('text-change', function () {
+                const ingredientHidden = document.getElementById(`IngredientHidden-${id}`);
+                if (ingredientHidden) ingredientHidden.value = ingredientEditor.root.innerHTML;
+            });
+
+            cookingEditor.on('text-change', function () {
+                const cookingHidden = document.getElementById(`CookingStepHidden-${id}`);
+                if (cookingHidden) cookingHidden.value = cookingEditor.root.innerHTML;
+            });
+
+            // Xử lý danh sách IngredientTags
+            const searchInput = form.querySelector(`#searchAll-${id}`);
+            if (searchInput) {
+                searchInput.addEventListener('input', () => renderLists(form));
+            }
+            renderLists(form);
+
+            // Xử lý thời gian
+            const prepQuick = form.querySelector('select[name="PreparationQuick"]');
+            if (prepQuick) {
+                prepQuick.addEventListener('change', function () {
+                    const prepValue = form.querySelector('input[name="PreparationValue"]');
+                    const prepUnit = form.querySelector('select[name="PreparationUnit"]');
+                    const val = parseInt(this.value);
+                    if (val >= 1440) {
+                        prepValue.value = val / 1440;
+                        prepUnit.value = 'days';
+                    } else if (val >= 60) {
+                        prepValue.value = val / 60;
+                        prepUnit.value = 'hours';
+                    } else {
+                        prepValue.value = val;
+                        prepUnit.value = 'minutes';
+                    }
+                    calculateTotal(form);
+                });
+            }
+
+            const cookQuick = form.querySelector('select[name="CookingQuick"]');
+            if (cookQuick) {
+                cookQuick.addEventListener('change', function () {
+                    const cookValue = form.querySelector('input[name="CookingValue"]');
+                    const cookUnit = form.querySelector('select[name="CookingUnit"]');
+                    const val = parseInt(this.value);
+                    if (val >= 1440) {
+                        cookValue.value = val / 1440;
+                        cookUnit.value = 'days';
+                    } else if (val >= 60) {
+                        cookValue.value = val / 60;
+                        cookUnit.value = 'hours';
+                    } else {
+                        cookValue.value = val;
+                        cookUnit.value = 'minutes';
+                    }
+                    calculateTotal(form);
+                });
+            }
+
+            ['PreparationValue', 'PreparationUnit', 'CookingValue', 'CookingUnit'].forEach(name => {
+                form.querySelectorAll(`[name="${name}"]`).forEach(el => {
+                    el.addEventListener('input', () => calculateTotal(form));
+                    el.addEventListener('change', () => calculateTotal(form));
+                });
+            });
+
+            calculateTotal(form);
+
+            // Xử lý resize ảnh
+            const fileInput = form.querySelector('input[type="file"][name="ThumbnailImage"]');
+            if (fileInput) {
+                fileInput.addEventListener('change', resizeAndPreviewImage);
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
