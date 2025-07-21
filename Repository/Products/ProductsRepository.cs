@@ -18,10 +18,11 @@ namespace Repository.Products
     public class ProductsRepository : BaseRepository<Models.Product>, IProductsRepository
     {
         private readonly FoodHavenDbContext _context;
-        public ProductsRepository(FoodHavenDbContext context) : base(context) {
+        public ProductsRepository(FoodHavenDbContext context) : base(context)
+        {
             _context = context;
         }
-        
+
         public async Task<bool> AddAsync(Product product)
         {
             await _context.Products.AddAsync(product);
@@ -182,7 +183,7 @@ namespace Repository.Products
             product.ModifiedDate = DateTime.UtcNow;
             product.IsOnSale = model.IsOnSale;
             product.CategoryID = model.CateID;
-
+            await _context.SaveChangesAsync();
             // === XÓA ẢNH ĐƯỢC CHỌN ===
             if (model.RemoveImageUrls?.Any() == true)
             {
@@ -257,7 +258,7 @@ namespace Repository.Products
 
             // Xác minh có ảnh chính
             if (!mainHandled || !product.ProductImages.Any(i => i.IsMain))
-                return (false, "Ảnh chính không được để trống.");
+                return (false, "The main photo cannot be blank.");
 
             await _context.SaveChangesAsync();
 
@@ -295,7 +296,7 @@ namespace Repository.Products
                 .ToListAsync();
 
             if (subImages.Count < 1)
-                return (false, "Phải có ít nhất một ảnh phụ (gallery).");
+                return (false, "Must have at least one gallery photo.");
 
             // Đảm bảo ảnh chính không nằm trong ảnh phụ
             var mainImageUrl = product.ProductImages.FirstOrDefault(i => i.IsMain)?.ImageUrl;
