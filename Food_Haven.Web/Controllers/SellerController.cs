@@ -1397,7 +1397,7 @@ namespace Food_Haven.Web.Controllers
                                 PaymentMethod = "wallet",
                                 PaymentStatus = "Success",
                                 Quantity = orderDetail.Quantity,
-                                OrderCode = voucherCode,
+                                OrderCode = "",
                                 VoucherID = voucher.ID,
                                 DeliveryAddress = originalOrder.DeliveryAddress ?? "Automatic warranty",
                                 Note = "Automatic warranty order",
@@ -1412,7 +1412,8 @@ namespace Food_Haven.Web.Controllers
                                 Quantity = orderDetail.Quantity,
                                 ProductPrice = product.SellPrice,
                                 TotalPrice = 0,
-                                Status = "Pending"
+                                Status = "Pending",
+                                ProductTypeName = product.Name,
                             };
 
                             // Ghi lịch sử ví
@@ -1594,7 +1595,7 @@ namespace Food_Haven.Web.Controllers
                     errors["startDate"] = "Start date must be before expiration date.";
             }
 
-            if (string.IsNullOrWhiteSpace(v.Scope))
+            if (string.IsNullOrWhiteSpace(v.Scope) && v.DiscountType != "Fixed")
                 errors["scope"] = "Scope is required.";
 
             if (v.MaxUsage < 0)
@@ -1610,6 +1611,17 @@ namespace Food_Haven.Web.Controllers
 
             if (errors.Any())
                 return BadRequest(new { success = false, fieldErrors = errors });
+            decimal temp;
+            decimal? result;
+            if (decimal.TryParse(v.Scope, out temp))
+            {
+                result = temp;
+            }
+            else
+            {
+                result = null;
+            }
+
 
             try
             {
@@ -1621,7 +1633,7 @@ namespace Food_Haven.Web.Controllers
                     DiscountType = v.DiscountType,
                     StartDate = startDate,
                     ExpirationDate = expirationDate,
-                    MaxDiscountAmount = decimal.Parse(v.Scope),
+                    MaxDiscountAmount = result,
                     MaxUsage = v.MaxUsage,
                     CurrentUsage = v.CurrentUsage,
                     MinOrderValue = v.MinOrderValue,
@@ -1667,8 +1679,9 @@ namespace Food_Haven.Web.Controllers
                     errors["startDate"] = "Start date must be before expiration date.";
             }
 
-            if (string.IsNullOrWhiteSpace(v.Scope))
+            if (string.IsNullOrWhiteSpace(v.Scope) && v.DiscountType != "Fixed")
                 errors["scope"] = "Scope is required.";
+
 
             if (v.MaxUsage < 0)
                 errors["maxUsage"] = "Max usage must be 0 or greater.";
@@ -1683,7 +1696,16 @@ namespace Food_Haven.Web.Controllers
 
             if (errors.Any())
                 return BadRequest(new { success = false, fieldErrors = errors });
-
+            decimal temp;
+            decimal? result;
+            if (decimal.TryParse(v.Scope, out temp))
+            {
+                result = temp;
+            }
+            else
+            {
+                result = null;
+            }
             try
             {
                 var entity = await _voucher.FindAsync(x => x.ID == v.ID);
@@ -1695,7 +1717,7 @@ namespace Food_Haven.Web.Controllers
                 entity.DiscountType = v.DiscountType;
                 entity.StartDate = startDate;
                 entity.ExpirationDate = expirationDate;
-                entity.MaxDiscountAmount = decimal.Parse(v.Scope);
+                entity.MaxDiscountAmount = result;
                 entity.MaxUsage = v.MaxUsage;
                 entity.CurrentUsage = v.CurrentUsage;
                 entity.MinOrderValue = v.MinOrderValue;

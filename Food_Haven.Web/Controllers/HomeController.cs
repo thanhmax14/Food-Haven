@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
@@ -1452,7 +1453,7 @@ namespace Food_Haven.Web.Controllers
             var vouchers = _voucher.GetAll()
      .Where(v => v.IsGlobal || (!v.IsGlobal && v.StoreID == storeId))
      .ToList()  // Lấy về client
-     .Where(v => !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase) && v.ExpirationDate < now || (v.MaxUsage - v.CurrentUsage) <= 0);
+     .Where(v => !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase) && v.ExpirationDate < now || (v.MaxUsage - v.CurrentUsage) <= 0 && v.IsActive);
             var data = vouchers.Select(v => new
             {
                 id = v.ID,
@@ -1476,12 +1477,12 @@ namespace Food_Haven.Web.Controllers
 
 
         [HttpPost("voucher/calculate-discount")]
-        public IActionResult CalculateDiscount([FromBody] DiscountRequest request)
+        public async Task<IActionResult> CalculateDiscount([FromBody] DiscountRequest request)
         {
             if (string.IsNullOrEmpty(request.Code) || request.OrderTotal <= 0)
                 return BadRequest(new { message = "Invalid data" });
 
-            var v = _voucher.GetAll().FirstOrDefault(x => x.Code == request.Code && x.IsActive);
+            var v = await _voucher.FindAsync(x => x.Code.ToLower() == request.Code.ToLower() && x.IsActive);
             if (v == null)
                 return NotFound(new { message = "Invalid voucher" });
 

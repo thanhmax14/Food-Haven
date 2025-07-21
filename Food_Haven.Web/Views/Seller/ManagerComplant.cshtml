@@ -166,7 +166,7 @@
                             <div class="card-header border-0">
                                 <div class="row align-items-center gy-3">
                                     <div class="col-sm">
-                                        <h5 class="card-title mb-0">Order History</h5>
+                                        <h5 class="card-title mb-0">Manager Complant</h5>
                                     </div>
                                     <!-- <div class="col-sm-auto">
                                         <div class="d-flex gap-1 flex-wrap">
@@ -276,7 +276,7 @@
                                                 { id: "userName", name: "User" },
                                                 {
                                                     id: "description", name: "User Description",
-                                                    formatter: text => text || "Không có mô tả"
+                                                    formatter: text => text || "No description"
                                                 }
                                             ];
 
@@ -284,7 +284,7 @@
                                             if (["REFUND", "PRODUCT WARRANTY", "REPORT TO ADMIN"].includes(upperStatus)) {
                                                 baseColumns.push({
                                                     id: "sellerReply", name: "Seller Reply",
-                                                    formatter: reply => reply || "Chưa phản hồi"
+                                                    formatter: reply => reply || "No response yet"
                                                 });
                                             }
 
@@ -292,7 +292,7 @@
                                             if (upperStatus === "REPORT TO ADMIN") {
                                                 baseColumns.push({
                                                     id: "adminReply", name: "Admin Reply",
-                                                    formatter: reply => reply || "Chưa phản hồi"
+                                                    formatter: reply => reply || "No response yet"
                                                 });
                                                 baseColumns.push({
                                                     id: "reportStatus", name: "Report Status",
@@ -358,11 +358,11 @@
                                                 sort: true,
                                                 search: { enabled: true },
                                                 language: {
-                                                    search: { placeholder: 'Tìm kiếm khiếu nại...' },
+                                                    search: { placeholder: 'Searching for complaints...' },
                                                     pagination: {
-                                                        previous: 'Trước', next: 'Sau', showing: 'Hiển thị', results: () => 'khiếu nại'
+                                                        previous: 'Previous ', next: 'Next ', showing: 'Display', results: () => 'Complaint'
                                                     },
-                                                    noRecordsFound: 'Không có dữ liệu.'
+                                                    noRecordsFound: 'No data available.'
                                                 }
                                             }).render(target);
                                         });
