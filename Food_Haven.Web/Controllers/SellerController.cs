@@ -465,7 +465,7 @@ namespace Food_Haven.Web.Controllers
                 Categories = categories.Select(c => new SelectListItem
                 {
                     Value = c.ID.ToString(),
-                    Text = c.Name +$" - ({c.Commission}%)"
+                    Text = c.Name + $" - ({c.Commission}%)"
                 }).ToList()
             };
 
@@ -662,7 +662,7 @@ namespace Food_Haven.Web.Controllers
                 bool isSeller = await _storeRepository.IsUserSellerAsync(user.Id);
                 if (!isSeller)
                 {
-                    ModelState.AddModelError("", "Bạn không có quyền tạo cửa hàng.");
+                    ModelState.AddModelError("", "You do not have permission to create a store.");
                     return View(model);
                 }
 
@@ -685,7 +685,7 @@ namespace Food_Haven.Web.Controllers
 
                     if (!allowedExtensions.Contains(extension))
                     {
-                        ModelState.AddModelError("Img", "Chỉ hỗ trợ file ảnh (.png, .jpeg, .jpg)");
+                        ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported.");
                         return View(model);
                     }
 
@@ -709,7 +709,7 @@ namespace Food_Haven.Web.Controllers
                 await _storeDetailService.AddStoreAsync(storeEntity, user.Id);
 
                 // 🟢 Dùng Session thay vì TempData
-                HttpContext.Session.SetString("SuccessMessage", "Đăng ký cửa hàng thành công! Vui lòng chờ quản trị viên duyệt.");
+                HttpContext.Session.SetString("SuccessMessage", "Store registration successful! Please wait for admin approval.");
 
                 return RedirectToAction("ViewStore"); // Điều hướng sau khi tạo thành công
             }
@@ -1119,7 +1119,7 @@ namespace Food_Haven.Web.Controllers
                 return RedirectToAction("Login", "Home");
             var getComplaint = await _complaintService.FindAsync(u => u.ID == id);
             if (getComplaint == null)
-                return NotFound("Complant not found.");
+                return NotFound("Complaint not found.");
             var getOrderDetail = await _orderDetail.FindAsync(u => u.ID == getComplaint.OrderDetailID);
             if (getOrderDetail == null)
                 return NotFound("Order detail not found.");
@@ -1309,13 +1309,13 @@ namespace Food_Haven.Web.Controllers
                         };
                         await _balance.AddAsync(refundTransaction);
 
-                         // Cập nhật trạng thái đơn hàng
-                         order.Status = "Refunded";
-                         order.PaymentStatus = "Refunded";
-                         order.ModifiedDate = DateTime.UtcNow;
-                         order.Description = string.IsNullOrEmpty(order.Description)
-                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                        // Cập nhật trạng thái đơn hàng
+                        order.Status = "Refunded";
+                        order.PaymentStatus = "Refunded";
+                        order.ModifiedDate = DateTime.UtcNow;
+                        order.Description = string.IsNullOrEmpty(order.Description)
+                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
                         order.IsPaid = true;
                         await _order.UpdateAsync(order);
 
@@ -2471,5 +2471,75 @@ namespace Food_Haven.Web.Controllers
                 _ => now.Date
             };
         }
+        [HttpGet]
+        public async Task<IActionResult> ReRegisterStore()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            var store = await _storeDetailService.FindAsync(s => s.UserID == user.Id && s.Status == "Rejected");
+            if (store == null) return RedirectToAction("ViewStore"); // Nếu không có store bị từ chối thì về ViewStore
+
+            var vm = new StoreViewModel
+            {
+                ID = store.ID,
+                Name = store.Name,
+                LongDescriptions = store.LongDescriptions,
+                ShortDescriptions = store.ShortDescriptions,
+                Address = store.Address,
+                Phone = store.Phone,
+                Img = store.ImageUrl,
+                Status = "Pending",
+                IsActive = false,
+                UserID = store.UserID,
+                UserName = user.UserName
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReRegisterStore(StoreViewModel model, IFormFile imageFile)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            if (!ModelState.IsValid) return View(model);
+
+            var store = await _storeDetailService.GetStoreByIdAsync(model.ID);
+            if (store == null) return NotFound();
+
+            // Xử lý upload ảnh mới (nếu có)
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                model.Img = fileName;
+            }
+
+            // Cập nhật thông tin store
+            store.Name = model.Name;
+            store.LongDescriptions = model.LongDescriptions;
+            store.ShortDescriptions = model.ShortDescriptions;
+            store.Address = model.Address;
+            store.Phone = model.Phone;
+            store.ImageUrl = model.Img;
+            store.Status = "Pending";
+            store.IsActive = false;
+            store.ModifiedDate = DateTime.Now;
+
+            await _storeDetailService.UpdateAsync(store);
+
+            return RedirectToAction("ViewStore");
+        }
+
     }
 }
