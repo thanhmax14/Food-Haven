@@ -436,6 +436,7 @@ namespace Food_Haven.Web.Controllers
 
             ViewBag.StoreId = products.FirstOrDefault()?.StoreId ?? Guid.Empty; // Lấy StoreId từ danh sách sản phẩm
             ViewBag.StoreStatus = store?.IsActive ?? false;
+            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
 
             return View(products);
         }
@@ -468,7 +469,7 @@ namespace Food_Haven.Web.Controllers
                     Text = c.Name + $" - ({c.Commission}%)"
                 }).ToList()
             };
-
+            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
             return View(model);
         }
 
@@ -565,6 +566,7 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateProduct(Guid productId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = await _productService.GetProductByIdAsync(productId);
             if (model == null)
             {
@@ -583,10 +585,10 @@ namespace Food_Haven.Web.Controllers
                 Value = c.ID.ToString(),
                 Text = c.Name
             }).ToList();
-
+            var store = await _storeDetailService.GetStoreByUserIdAsync(userId); // để lấy StoreID
             ViewBag.ProductID = productId;
             ViewBag.StoreID = model.StoreID;
-
+            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
             return View(model);
         }
 
@@ -718,31 +720,33 @@ namespace Food_Haven.Web.Controllers
 
         public async Task<IActionResult> ViewProductType(Guid productId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var productType = await _variantService.GetProductTypeByProductIdAsync(productId);
             if (productType.Any())
             {
                 ViewBag.StoreId = productType.First().StoreID; // Lấy StoreID từ danh sách variant
             }
             ViewBag.ProductId = productId; // Lưu ProductId để sử dụng trong View
-
+            var store = _storeDetailService.GetStoreByUserId(userId);
             var isStoreActive = await _productService.IsStoreActiveByProductIdAsync(productId);
             ViewBag.IsStoreActive = isStoreActive;
-
+            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
             return View(productType);
         }
 
         [HttpGet]
         public async Task<IActionResult> CreateProductType(Guid productId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = new ProductVariantCreateViewModel
             {
                 ProductID = productId
             };
             ViewBag.ProductID = productId;
-
+            var store = _storeDetailService.GetStoreByUserId(userId);
             var isActive = await _variantService.IsStoreActiveByProductIdAsync(productId);
             ViewBag.IsActive = isActive ?? false;
-
+            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
             return View(model);
         }
 
@@ -767,16 +771,17 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateProductType(Guid variantId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = await _variantService.GetProductVariantForEditAsync(variantId);
             if (model == null)
             {
                 return NotFound();
             }
-
+            var store = _storeDetailService.GetStoreByUserId(userId);
             // Kiểm tra trạng thái của Store dựa trên variantId
             var isStoreActive = await _variantService.IsStoreActiveByVariantIdAsync(variantId);
             ViewBag.IsStoreActive = isStoreActive;
-
+            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
             ViewBag.ProductID = model.ProductID;
             return View(model);
         }
@@ -2478,7 +2483,7 @@ namespace Food_Haven.Web.Controllers
             if (user == null) return RedirectToAction("Login", "Account");
 
             var store = await _storeDetailService.FindAsync(s => s.UserID == user.Id && s.Status == "Rejected");
-            if (store == null) return RedirectToAction("ViewStore"); // Nếu không có store bị từ chối thì về ViewStore
+            if (store == null) return RedirectToAction("ViewStore");
 
             var vm = new StoreViewModel
             {
@@ -2503,17 +2508,44 @@ namespace Food_Haven.Web.Controllers
         public async Task<IActionResult> ReRegisterStore(StoreViewModel model, IFormFile imageFile)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null)
+                return RedirectToAction("Login", "Account");
 
-            if (!ModelState.IsValid) return View(model);
+            // ==== Thủ công kiểm tra ====
+            if (string.IsNullOrWhiteSpace(model.Name))
+                ModelState.AddModelError("Name", "Name is required.");
 
-            var store = await _storeDetailService.GetStoreByIdAsync(model.ID);
-            if (store == null) return NotFound();
+            if (string.IsNullOrWhiteSpace(model.ShortDescriptions))
+                ModelState.AddModelError("ShortDescriptions", "Short description is required.");
 
-            // Xử lý upload ảnh mới (nếu có)
+            if (string.IsNullOrWhiteSpace(model.LongDescriptions))
+                ModelState.AddModelError("LongDescriptions", "Long description is required.");
+
+            if (string.IsNullOrWhiteSpace(model.Phone))
+                ModelState.AddModelError("Phone", "Phone number is required.");
+
+            if (string.IsNullOrWhiteSpace(model.Address))
+                ModelState.AddModelError("Address", "Address is required.");
+
+            // Nếu không có ảnh cũ và cũng không upload ảnh mới → lỗi
+            if (string.IsNullOrEmpty(model.Img) && (imageFile == null || imageFile.Length == 0))
+                ModelState.AddModelError("Img", "Please upload an image.");
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            // Upload ảnh mới nếu có
             if (imageFile != null && imageFile.Length > 0)
             {
-                var ext = Path.GetExtension(imageFile.FileName);
+                var ext = Path.GetExtension(imageFile.FileName).ToLower();
+                var allowedExtensions = new[] { ".png", ".jpeg", ".jpg" };
+
+                if (!allowedExtensions.Contains(ext))
+                {
+                    ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are allowed.");
+                    return View(model);
+                }
+
                 var fileName = $"{Guid.NewGuid()}{ext}";
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", fileName);
 
@@ -2525,21 +2557,32 @@ namespace Food_Haven.Web.Controllers
                 model.Img = fileName;
             }
 
-            // Cập nhật thông tin store
+            // Cập nhật thông tin
+            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+            if (store == null)
+                return NotFound();
+
             store.Name = model.Name;
-            store.LongDescriptions = model.LongDescriptions;
             store.ShortDescriptions = model.ShortDescriptions;
-            store.Address = model.Address;
+            store.LongDescriptions = model.LongDescriptions;
             store.Phone = model.Phone;
+            store.Address = model.Address;
             store.ImageUrl = model.Img;
             store.Status = "Pending";
             store.IsActive = false;
             store.ModifiedDate = DateTime.Now;
 
-            await _storeDetailService.UpdateAsync(store);
+            await _storedetail.UpdateAsync(store);
 
-            return RedirectToAction("ViewStore");
+            // Gán lại dữ liệu mới nhất cho ViewModel trước khi trả về View
+            model.Status = store.Status;
+            model.IsActive = store.IsActive;
+            model.ModifiedDate = store.ModifiedDate;
+
+            ViewBag.SuccessMessage = "Store registration updated. Waiting for approval.";
+            return View(model); // 👈 Không redirect nữa
         }
+
 
     }
 }

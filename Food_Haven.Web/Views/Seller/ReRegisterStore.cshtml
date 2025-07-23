@@ -1,4 +1,5 @@
 @model Repository.ViewModels.StoreViewModel
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
@@ -138,7 +139,7 @@
                     <div class="col-12">
                         <div
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Register Store Details</h4>
+                            <h4 class="mb-sm-0">Register Store Again Details</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
@@ -157,50 +158,72 @@
                         <div class="col-lg-10 col-xl-9">
                             <div class="card shadow-lg p-4">
                                 <div class="mb-4">
-                                    <h4 class="text-primary">Create Your Store</h4>
+                                    <h4 class="text-primary">Create Your Store Again</h4>
                                     <p class="text-muted">Modify your store details below.</p>
                                 </div>
 
                                 <form asp-action="ReRegisterStore" enctype="multipart/form-data" method="post">
                                     @Html.AntiForgeryToken()
+                                    @if (!ViewData.ModelState.IsValid)
+                                    {
+                                        <div class="alert alert-danger">
+                                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                        </div>
+                                    }
+
 
                                     <input type="hidden" asp-for="ID" />
+                                    <input type="hidden" asp-for="Img" />
 
                                     <div class="form-group">
                                         <label asp-for="Name"></label>
-                                        <input asp-for="Name" class="form-control" />
+                                        <input asp-for="Name" class="form-control" required />
                                         <span asp-validation-for="Name" class="text-danger"></span>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group mt-2">
                                         <label asp-for="ShortDescriptions"></label>
-                                        <textarea asp-for="ShortDescriptions" class="form-control"></textarea>
+                                        <textarea asp-for="ShortDescriptions" class="form-control" required></textarea>
+                                        <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
                                     </div>
 
                                     <div class="form-group">
                                         <label asp-for="LongDescriptions"></label>
-                                        <textarea asp-for="LongDescriptions" class="form-control"></textarea>
+                                        <textarea asp-for="LongDescriptions" class="form-control" required></textarea>
+                                        <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                     </div>
 
                                     <div class="form-group">
                                         <label asp-for="Address"></label>
-                                        <input asp-for="Address" class="form-control" />
+                                        <input asp-for="Address" class="form-control" required />
+                                        <span asp-validation-for="Address" class="text-danger"></span>
                                     </div>
+
 
                                     <div class="form-group">
                                         <label asp-for="Phone"></label>
-                                        <input asp-for="Phone" class="form-control" />
+                                        <input asp-for="Phone" class="form-control" required />
                                         <span asp-validation-for="Phone" class="text-danger"></span>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label>Store Image</label>
-                                        <input type="file" name="imageFile" class="form-control" />
-                                        @if (!string.IsNullOrEmpty(Model.Img))
-                                        {
-                                            <img src="~/uploads/@Model.Img" alt="Store Image" width="100" />
-                                        }
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Upload New Image</label>
+                                        <input type="file" name="imageFile" class="form-control"
+                                            accept=".png, .jpeg, .jpg" id="imgInput" />
+                                        <small class="text-muted">Supported formats: PNG, JPEG, JPG</small>
+
+                                        <div class="mt-3" id="previewWrapper" @(string.IsNullOrEmpty(Model.Img) ?
+                                                                                                                          "style=\"display:none;\"" : "")>
+                                            <label class="form-label fw-bold d-block">Current Image</label>
+                                            <img id="previewImage"
+                                                src="@(Model.Img != null ? Url.Content("~/uploads/" + Model.Img) : "")"
+                                                class="img-thumbnail" style="max-width: 200px; max-height: 150px;" />
+                                        </div>
+
+                                        <span asp-validation-for="Img" class="text-danger"></span>
                                     </div>
+
+
                                     <a href="/Seller/ViewStore" class="btn btn-secondary px-4">Back to Profile</a>
                                     <button type="submit" class="btn btn-primary">Submit</button>
                                 </form>
@@ -211,18 +234,22 @@
 
                 <script>
                     document.getElementById("imgInput").addEventListener("change", function (event) {
-                        let file = event.target.files[0];
+                        const file = event.target.files[0];
                         if (file) {
-                            let reader = new FileReader();
+                            const reader = new FileReader();
                             reader.onload = function (e) {
-                                let img = document.getElementById("previewImage");
+                                const img = document.getElementById("previewImage");
+                                const wrapper = document.getElementById("previewWrapper");
+
                                 img.src = e.target.result;
                                 img.classList.remove("d-none");
+                                wrapper.style.display = "block";
                             };
                             reader.readAsDataURL(file);
                         }
                     });
                 </script>
+
 
                 <footer class="footer">
                     <div class="container-fluid">
@@ -279,6 +306,12 @@
 
 
 </body>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->

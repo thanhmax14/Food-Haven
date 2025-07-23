@@ -2,6 +2,7 @@
 @{
     var storeId = ViewBag.StoreId;
     bool storeStatus = ViewBag.StoreStatus ?? false;
+    string storeStatusText = ViewBag.StoreStatusText as string ?? "Pending";
 }
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
@@ -157,327 +158,186 @@
                     </div>
                 </div>
                 <!-- end page title -->
-                @if (!storeStatus)
+                @if (storeStatusText == "Rejected")
                 {
                     <div class="alert alert-danger text-center">
-                        <p><strong>Your store has been locked due to a policy violation!</strong></p>
-                        <p>Please contact support for further assistance.</p>
+                        <p><strong>Your store has been rejected by admin!</strong></p>
+                        <p>Please update your store information and register store again.</p>
                     </div>
-
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h4 class="card-title mb-0">Product List</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-start mb-3">
-                                        <a href="/Seller/CreateProduct?storeId=@storeId"
-                                            class="btn btn-sm btn-success disabled" tabindex="-1" aria-disabled="true">
-                                            <i class="ri-add-line"></i> Create Product
-                                        </a>
-                                    </div>
-                                    @if (!string.IsNullOrEmpty(ViewBag.NoProductsMessage))
-                                    {
-                                        <div class="alert alert-warning text-center">
-                                            <p>@ViewBag.NoProductsMessage</p>
-                                        </div>
-                                    }
-                                    <div id="table-product"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            var products = @Html.Raw(Json.Serialize(Model));
-
-                            if (!products || products.length === 0) {
-                                document.getElementById("table-product").innerHTML = "<div class='alert alert-warning text-center'><p>No products available.</p></div>";
-                                return;
-                            }
-
-                            new gridjs.Grid({
-                                columns: [
-                                    { name: "No.", width: "60px" },
-                                    { name: "ID", hidden: true },
-                                    { name: "Name", width: "200px" },
-                                    { name: "Short Description", width: "250px" },
-                                    { name: "Long Description", width: "300px", hidden: true },
-                                    { name: "Created Date", width: "150px" },
-                                    { name: "Modified Date", width: "150px", hidden: true },
-                                    { name: "Manufacture Date", width: "150px", hidden: true },
-                                    {
-                                        name: "Is Active",
-                                        width: "100px",
-                                        formatter: (cell) => {
-                                            let statusText = cell ? "Active" : "Disabled";
-                                            let statusClass = cell ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger";
-                                            return gridjs.html(`<span class="badge ${statusClass}">${statusText}</span>`);
-                                        }
-                                    },
-                                    {
-                                        name: "Is On Sale",
-                                        width: "100px",
-                                        formatter: (cell) => {
-                                            let statusText = cell ? "On Sale" : "Original Price";
-                                            let statusClass = cell ? "bg-primary-subtle text-primary" : "bg-secondary-subtle text-secondary";
-                                            return gridjs.html(`<span class="badge ${statusClass}">${statusText}</span>`);
-                                        }
-                                    },
-                                    { name: "Category", width: "150px" },
-                                    { name: "Store Name", width: "150px" },
-                                    {
-                                        name: "Image",
-                                        width: "150px",
-                                        formatter: (cell) => gridjs.html(`<img src="${cell}" width="50" height="50" style="object-fit:cover; border-radius:5px;"/>`)
-                                    },
-                                    {
-                                        name: "Actions",
-                                        width: "300px",
-                                        formatter: (_, row) => {
-                                            let productId = row.cells[1].data; // ID is now at index 1 because STT is added at index 0
-                                            let isActive = row.cells[8].data;   // Adjusted index due to STT column
-
-                                            let toggleButtonHtml = isActive
-                                                ? `<button class="btn btn-sm btn-danger me-1" onclick="toggleProductStatus('${productId}', false)">Hide</button>`
-                                                : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)">Show</button>`;
-
-                                            return gridjs.html(`
-                                            <div class="d-flex flex-wrap gap-1">
-                                                <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}">Edit</a>
-                                                <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}">View Types</a>
-                                                ${toggleButtonHtml}
-                                            </div>
-                                        `);
-                                        }
-                                    }
-                                ],
-                                pagination: { enabled: true, limit: 10, summary: true },
-                                sort: true,
-                                search: true,
-                                data: products.map((p, index) => [
-                                    index + 1, // STT bắt đầu từ 1
-                                    p.productId, p.name, p.shortDescription, p.longDescription, formatDate(p.createdDate), formatDate(p.modifiedDate),
-                                    formatDate(p.manufactureDate), p.isActive, p.isOnSale, p.cateName, p.storeName, p.imageUrl
-                                ])
-                            }).render(document.getElementById("table-product"));
-
-                        });
-
-                        function formatDate(dateString) {
-                            if (!dateString) return ""; // Xử lý trường hợp null hoặc undefined
-                            let date = new Date(dateString);
-                            let day = date.getDate().toString().padStart(2, '0'); // Lấy ngày, đảm bảo 2 chữ số
-                            let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng (bắt đầu từ 0 nên +1)
-                            let year = date.getFullYear(); // Lấy năm
-                            return `${day}/${month}/${year}`; // Ghép thành chuỗi dd/MM/yyyy
-                        }
-
-
-                        function toggleProductStatus(productId, isActive) {
-                            let actionText = isActive ? "show" : "hide";
-                            let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
-
-                            Swal.fire({
-                                title: `Are you sure?`,
-                                text: `Do you want to ${actionText} this product?`,
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonColor: confirmButtonColor,
-                                cancelButtonColor: "#6c757d",
-                                confirmButtonText: `Yes, ${actionText} it!`
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    fetch(`/Seller/ToggleStatus?productId=${productId}&isActive=${isActive}`, {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ productId, isActive })
-                                    })
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            if (data.success) {
-                                                Swal.fire({
-                                                    title: "Success!",
-                                                    text: `Product has been ${actionText} successfully.`,
-                                                    icon: "success",
-                                                    timer: 1500,
-                                                    showConfirmButton: false
-                                                }).then(() => location.reload());
-                                            } else {
-                                                Swal.fire("Error!", "Failed to update product status.", "error");
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error("Error updating product status:", error);
-                                            Swal.fire("Error!", "An unexpected error occurred.", "error");
-                                        });
-                                }
-                            });
-                        }
-                    </script>
                 }
-                else
+                else if (storeStatusText == "Pending")
                 {
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h4 class="card-title mb-0">Product List</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-start mb-3">
-                                        <a href="/Seller/CreateProduct?storeId=@storeId" class="btn btn-sm btn-success">
-                                            <i class="ri-add-line"></i> Create Product
-                                        </a>
+                    <div class="alert alert-warning text-center">
+                        <p><strong>Your store is currently pending approval.</strong></p>
+                        <p>Please wait while we review your request.</p>
+                    </div>
+                }
+                else if (storeStatusText == "Approved")
+                {
+                    @if (!storeStatus)
+                    {
+                        <div class="alert alert-danger text-center">
+                            <p><strong>Your store has been locked due to a policy violation!</strong></p>
+                            <p>Please contact support for further assistance.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h4 class="card-title mb-0">Product List</h4>
                                     </div>
-                                    @if (!string.IsNullOrEmpty(ViewBag.NoProductsMessage))
-                                    {
-                                        <div class="alert alert-warning text-center">
-                                            <p>@ViewBag.NoProductsMessage</p>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-start mb-3">
+                                            <a href="/Seller/CreateProduct?storeId=@storeId" class="btn btn-sm btn-success">
+                                                <i class="ri-add-line"></i> Create Product
+                                            </a>
                                         </div>
-                                    }
-                                    <div id="table-product"></div>
+                                        @if (!string.IsNullOrEmpty(ViewBag.NoProductsMessage))
+                                        {
+                                            <div class="alert alert-warning text-center">
+                                                <p>@ViewBag.NoProductsMessage</p>
+                                            </div>
+                                        }
+                                        <div id="table-product"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
-                            var products = @Html.Raw(Json.Serialize(Model));
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                var products = @Html.Raw(Json.Serialize(Model));
 
-                            if (!products || products.length === 0) {
-                                document.getElementById("table-product").innerHTML = "<div class='alert alert-warning text-center'><p>No products available.</p></div>";
-                                return;
+                                if (!products || products.length === 0) {
+                                    document.getElementById("table-product").innerHTML = "<div class='alert alert-warning text-center'><p>No products available.</p></div>";
+                                    return;
+                                }
+
+                                new gridjs.Grid({
+                                    columns: [
+                                        { name: "No.", width: "60px" },
+                                        { name: "ID", hidden: true },
+                                        { name: "Name", width: "200px" },
+                                        { name: "Short Description", width: "250px" },
+                                        { name: "Long Description", width: "300px", hidden: true },
+                                        { name: "Created Date", width: "150px" },
+                                        { name: "Modified Date", width: "150px", hidden: true },
+                                        { name: "Manufacture Date", width: "150px", hidden: true },
+                                        {
+                                            name: "Is Active",
+                                            width: "100px",
+                                            formatter: (cell) => {
+                                                let statusText = cell ? "Active" : "Disabled";
+                                                let statusClass = cell ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger";
+                                                return gridjs.html(`<span class="badge ${statusClass}">${statusText}</span>`);
+                                            }
+                                        },
+                                        {
+                                            name: "Is On Sale",
+                                            width: "100px",
+                                            formatter: (cell) => {
+                                                let statusText = cell ? "On Sale" : "Original Price";
+                                                let statusClass = cell ? "bg-primary-subtle text-primary" : "bg-secondary-subtle text-secondary";
+                                                return gridjs.html(`<span class="badge ${statusClass}">${statusText}</span>`);
+                                            }
+                                        },
+                                        { name: "Category", width: "150px" },
+                                        { name: "Store Name", width: "150px" },
+                                        {
+                                            name: "Image",
+                                            width: "150px",
+                                            formatter: (cell) => gridjs.html(`<img src="${cell}" width="50" height="50" style="object-fit:cover; border-radius:5px;"/>`)
+                                        },
+                                        {
+                                            name: "Actions",
+                                            width: "300px",
+                                            formatter: (_, row) => {
+                                                let productId = row.cells[1].data; // ID is now at index 1 because STT is added at index 0
+                                                let isActive = row.cells[8].data;   // Adjusted index due to STT column
+
+                                                let toggleButtonHtml = isActive
+                                                    ? `<button class="btn btn-sm btn-danger me-1" onclick="toggleProductStatus('${productId}', false)">Hide</button>`
+                                                    : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)">Show</button>`;
+
+                                                return gridjs.html(`
+                                                                                    <div class="d-flex flex-wrap gap-1">
+                                                                                        <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}">Edit</a>
+                                                                                        <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}">View Types</a>
+                                                                                        ${toggleButtonHtml}
+                                                                                    </div>
+                                                                                `);
+                                            }
+                                        }
+                                    ],
+                                    pagination: { enabled: true, limit: 10, summary: true },
+                                    sort: true,
+                                    search: true,
+                                    data: products.map((p, index) => [
+                                        index + 1, // STT bắt đầu từ 1
+                                        p.productId, p.name, p.shortDescription, p.longDescription, formatDate(p.createdDate), formatDate(p.modifiedDate),
+                                        formatDate(p.manufactureDate), p.isActive, p.isOnSale, p.cateName, p.storeName, p.imageUrl
+                                    ])
+
+                                }).render(document.getElementById("table-product"));
+
+                            });
+
+                            function formatDate(dateString) {
+                                if (!dateString) return ""; // Xử lý trường hợp null hoặc undefined
+                                let date = new Date(dateString);
+                                let day = date.getDate().toString().padStart(2, '0'); // Lấy ngày, đảm bảo 2 chữ số
+                                let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng (bắt đầu từ 0 nên +1)
+                                let year = date.getFullYear(); // Lấy năm
+                                return `${day}/${month}/${year}`; // Ghép thành chuỗi dd/MM/yyyy
                             }
 
-                            new gridjs.Grid({
-                                columns: [
-                                    { name: "No.", width: "60px" },
-                                    { name: "ID", hidden: true },
-                                    { name: "Name", width: "200px" },
-                                    { name: "Short Description", width: "250px" },
-                                    { name: "Long Description", width: "300px", hidden: true },
-                                    { name: "Created Date", width: "150px" },
-                                    { name: "Modified Date", width: "150px", hidden: true },
-                                    { name: "Manufacture Date", width: "150px", hidden: true },
-                                    {
-                                        name: "Is Active",
-                                        width: "100px",
-                                        formatter: (cell) => {
-                                            let statusText = cell ? "Active" : "Disabled";
-                                            let statusClass = cell ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger";
-                                            return gridjs.html(`<span class="badge ${statusClass}">${statusText}</span>`);
-                                        }
-                                    },
-                                    {
-                                        name: "Is On Sale",
-                                        width: "100px",
-                                        formatter: (cell) => {
-                                            let statusText = cell ? "On Sale" : "Original Price";
-                                            let statusClass = cell ? "bg-primary-subtle text-primary" : "bg-secondary-subtle text-secondary";
-                                            return gridjs.html(`<span class="badge ${statusClass}">${statusText}</span>`);
-                                        }
-                                    },
-                                    { name: "Category", width: "150px" },
-                                    { name: "Store Name", width: "150px" },
-                                    {
-                                        name: "Image",
-                                        width: "150px",
-                                        formatter: (cell) => gridjs.html(`<img src="${cell}" width="50" height="50" style="object-fit:cover; border-radius:5px;"/>`)
-                                    },
-                                    {
-                                        name: "Actions",
-                                        width: "300px",
-                                        formatter: (_, row) => {
-                                            let productId = row.cells[1].data; // ID is now at index 1 because STT is added at index 0
-                                            let isActive = row.cells[8].data;   // Adjusted index due to STT column
 
-                                            let toggleButtonHtml = isActive
-                                                ? `<button class="btn btn-sm btn-danger me-1" onclick="toggleProductStatus('${productId}', false)">Hide</button>`
-                                                : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)">Show</button>`;
+                            function toggleProductStatus(productId, isActive) {
+                                let actionText = isActive ? "show" : "hide";
+                                let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
 
-                                            return gridjs.html(`
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}">Edit</a>
-                                            <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}">View Types</a>
-                                            ${toggleButtonHtml}
-                                        </div>
-                                    `);
-                                        }
-                                    }
-                                ],
-                                pagination: { enabled: true, limit: 10, summary: true },
-                                sort: true,
-                                search: true,
-                                data: products.map((p, index) => [
-                                    index + 1, // STT bắt đầu từ 1
-                                    p.productId, p.name, p.shortDescription, p.longDescription, formatDate(p.createdDate), formatDate(p.modifiedDate),
-                                    formatDate(p.manufactureDate), p.isActive, p.isOnSale, p.cateName, p.storeName, p.imageUrl
-                                ])
-
-                            }).render(document.getElementById("table-product"));
-
-                        });
-
-                        function formatDate(dateString) {
-                            if (!dateString) return ""; // Xử lý trường hợp null hoặc undefined
-                            let date = new Date(dateString);
-                            let day = date.getDate().toString().padStart(2, '0'); // Lấy ngày, đảm bảo 2 chữ số
-                            let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Lấy tháng (bắt đầu từ 0 nên +1)
-                            let year = date.getFullYear(); // Lấy năm
-                            return `${day}/${month}/${year}`; // Ghép thành chuỗi dd/MM/yyyy
-                        }
-
-
-                        function toggleProductStatus(productId, isActive) {
-                            let actionText = isActive ? "show" : "hide";
-                            let confirmButtonColor = isActive ? "#28a745" : "#dc3545";
-
-                            Swal.fire({
-                                title: `Are you sure?`,
-                                text: `Do you want to ${actionText} this product?`,
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonColor: confirmButtonColor,
-                                cancelButtonColor: "#6c757d",
-                                confirmButtonText: `Yes, ${actionText} it!`
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    fetch(`/Seller/ToggleStatus?productId=${productId}&isActive=${isActive}`, {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ productId, isActive })
-                                    })
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            if (data.success) {
-                                                Swal.fire({
-                                                    title: "Success!",
-                                                    text: `Product has been ${actionText} successfully.`,
-                                                    icon: "success",
-                                                    timer: 1500,
-                                                    showConfirmButton: false
-                                                }).then(() => location.reload());
-                                            } else {
-                                                Swal.fire("Error!", "Failed to update product status.", "error");
-                                            }
+                                Swal.fire({
+                                    title: `Are you sure?`,
+                                    text: `Do you want to ${actionText} this product?`,
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: confirmButtonColor,
+                                    cancelButtonColor: "#6c757d",
+                                    confirmButtonText: `Yes, ${actionText} it!`
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        fetch(`/Seller/ToggleStatus?productId=${productId}&isActive=${isActive}`, {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ productId, isActive })
                                         })
-                                        .catch(error => {
-                                            console.error("Error updating product status:", error);
-                                            Swal.fire("Error!", "An unexpected error occurred.", "error");
-                                        });
-                                }
-                            });
-                        }
-                    </script>
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    Swal.fire({
+                                                        title: "Success!",
+                                                        text: `Product has been ${actionText} successfully.`,
+                                                        icon: "success",
+                                                        timer: 1500,
+                                                        showConfirmButton: false
+                                                    }).then(() => location.reload());
+                                                } else {
+                                                    Swal.fire("Error!", "Failed to update product status.", "error");
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error("Error updating product status:", error);
+                                                Swal.fire("Error!", "An unexpected error occurred.", "error");
+                                            });
+                                    }
+                                });
+                            }
+                        </script>
+                    }
                 }
-
-
-
-
                 <!-- end row -->
 
             </div>

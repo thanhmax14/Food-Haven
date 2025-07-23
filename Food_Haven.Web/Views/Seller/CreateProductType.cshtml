@@ -3,7 +3,7 @@
     ViewBag.Title = "Create Product Type";
     //bool isActive = ViewBag.IsActive;
     bool isActive = ViewBag.IsActive as bool? ?? true;
-
+    string storeStatusText = ViewBag.StoreStatusText as string ?? "Pending";
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!doctype html>
@@ -156,86 +156,27 @@
                 </div>
                 <!-- end page title -->
                 <!-- Alert nếu store bị khóa -->
-                @if (!isActive)
+                @if (storeStatusText == "Rejected")
+                {
+                    <div class="alert alert-danger text-center">
+                        <p><strong>Your store has been rejected by admin!</strong></p>
+                        <p>Please update your store information and register store again.</p>
+                    </div>
+                }
+                else if (storeStatusText == "Pending")
+                {
+                    <div class="alert alert-warning text-center">
+                        <p><strong>Your store is currently pending approval.</strong></p>
+                        <p>Please wait while we review your request.</p>
+                    </div>
+                }
+                else if (storeStatusText == "Approved")
+                {
+                    @if (!isActive)
                 {
                     <div class="alert alert-danger text-center">
                         <p><strong>Your store has been locked due to a policy violation!</strong></p>
                         <p>Please contact support for further assistance.</p>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xxl-12">
-                            <div class="card">
-                                <div class="card-header align-items-center d-flex">
-                                    <h4 class="card-title mb-0 flex-grow-1">Create Product Type</h4>
-                                </div>
-
-                                <div class="card-body">
-                                    <div class="live-preview">
-                                        <form method="post" asp-action="CreateProductType">
-                                            <input type="hidden" asp-for="ProductID" value="@Model.ProductID" />
-
-                                            <div class="row">
-                                                <!-- Size -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Size" class="form-label">Name</label>
-                                                        <input asp-for="Size" class="form-control" placeholder="Enter name" disabled />
-                                                        <span asp-validation-for="Size" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Price -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Price" class="form-label">Price</label>
-                                                        <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="Enter sell price" disabled />
-                                                        <span asp-validation-for="Price" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Original Price -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="OriginalPrice" class="form-label">Original Price</label>
-                                                        <input asp-for="OriginalPrice" type="number" step="0.01" class="form-control" placeholder="Enter original price" disabled />
-                                                        <span asp-validation-for="OriginalPrice" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Stock -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Stock" class="form-label">Stock Quantity</label>
-                                                        <input asp-for="Stock" type="number" class="form-control" placeholder="Enter stock quantity" disabled />
-                                                        <span asp-validation-for="Stock" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Manufacture Date -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="ManufactureDate" class="form-label">Manufacture Date</label>
-                                                        <input asp-for="ManufactureDate" type="date" class="form-control" disabled />
-                                                        <span asp-validation-for="ManufactureDate" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Nút hành động -->
-                                                <div class="col-lg-12 text-end">
-                                                    <a href="/Seller/ViewProductVariants?productId=@Model.ProductID" class="btn btn-sm btn-secondary px-3">
-                                                        Back to List
-                                                    </a>
-
-                                                    <!-- Nút Create Variant sẽ bị làm mờ nếu store bị khóa -->
-                                                    <button type="submit" class="btn btn-sm btn-success px-3" @(isActive ? "" : "disabled")>Create Product Type</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 }
                 else
@@ -315,6 +256,8 @@
                         </div>
                     </div>
                 }
+            }
+                
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
                     document.addEventListener("DOMContentLoaded", function () {
