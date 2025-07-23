@@ -1472,8 +1472,14 @@ namespace Food_Haven.Web.Controllers
             // và chỉ lấy voucher active
             var vouchers = _voucher.GetAll()
      .Where(v => v.IsGlobal || (!v.IsGlobal && v.StoreID == storeId))
-     .ToList()  // Lấy về client
-     .Where(v => !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase) && v.ExpirationDate < now || (v.MaxUsage - v.CurrentUsage) <= 0 && v.IsActive);
+     .ToList()
+.Where(v =>
+    !v.Code.StartsWith("Warranty", StringComparison.OrdinalIgnoreCase)
+    && v.IsActive
+    && v.ExpirationDate > now
+    && (v.MaxUsage - v.CurrentUsage) > 0
+);
+
             var data = vouchers.Select(v => new
             {
                 id = v.ID,

@@ -22,18 +22,18 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Moq;
 using Net.payOS;
+using Newtonsoft.Json;
 using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Food_Haven.UnitTest.Home_GetStoreDetail
+namespace Food_Haven.UnitTest.Home_CalculateDiscount_Test
 {
-    public class GetStoreDetail_Test
+    public class CalculateDiscount_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<SignInManager<AppUser>> _signInManagerMock;
@@ -129,148 +129,115 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
             _controller?.Dispose();
         }
         [Test]
-        public async Task GetStoreDetail_ValidId_ReturnsViewWithStoreDetails()
+        public async Task CalculateDiscount_InvalidData_ReturnsBadRequest()
         {
-            // Arrange
-            var storeId = Guid.NewGuid();
-            var userId = "user123";
-            var categoryId = Guid.NewGuid();
-            var productId = Guid.NewGuid();
-
-            var store = new StoreDetails
+            var request = new DiscountRequest
             {
-                ID = storeId,
-                Name = "Test Store",
-                Address = "123 Street",
-                Phone = "0123456789",
-                ImageUrl = "image.jpg",
-                ShortDescriptions = "Short desc",
-                LongDescriptions = "Long desc",
-                CreatedDate = DateTime.UtcNow,
-                UserID = userId
+                Code = "",
+                OrderTotal = 0
             };
 
-            var user = new AppUser { Id = userId, UserName = "storeowner", Email = "test@mail.com" };
+            var result = await _controller.CalculateDiscount(request) as BadRequestObjectResult;
 
-            var product = new Product
+            Assert.IsNotNull(result);
+            Assert.AreEqual(400, result.StatusCode);
+
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                JsonConvert.SerializeObject(result.Value)
+            );
+            Assert.AreEqual("Invalid data", dict["message"].ToString());
+        }
+
+        [Test]
+        public async Task CalculateDiscount_InvalidVoucherCode_ReturnsNotFound()
+        {
+            var request = new DiscountRequest
             {
-                ID = productId,
-                Name = "Test Product",
-                StoreID = storeId,
-                CategoryID = categoryId,
+                Code = "abc",
+                OrderTotal = 100000
+            };
+
+            _voucherServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Voucher, bool>>>()))
+                .ReturnsAsync((Voucher)null);
+
+            var result = await _controller.CalculateDiscount(request) as NotFoundObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(404, result.StatusCode);
+
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                JsonConvert.SerializeObject(result.Value)
+            );
+            Assert.AreEqual("Invalid voucher", dict["message"].ToString());
+        }
+
+        [Test]
+        public async Task CalculateDiscount_OrderBelowMinimum_ReturnsBadRequest()
+        {
+            var voucher = new Voucher
+            {
+                Code = "admin voucher test",
                 IsActive = true,
-                IsOnSale = true,
-                ShortDescription = "short",
-                LongDescription = "long",
-                ManufactureDate = DateTime.UtcNow,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
+                DiscountType = "Percent",
+                DiscountAmount = 10,
+                MinOrderValue = 15000
             };
 
-            var variant = new ProductTypes
+            var request = new DiscountRequest
             {
-                ProductID = productId,
-                SellPrice = 100000,
-                IsActive = true
+                Code = "admin voucher test",
+                OrderTotal = 12000
             };
 
-            var category = new Categories
+            _voucherServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Voucher, bool>>>()))
+                .ReturnsAsync(voucher);
+
+            var result = await _controller.CalculateDiscount(request) as BadRequestObjectResult;
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(400, result.StatusCode);
+
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                JsonConvert.SerializeObject(result.Value)
+            );
+            Assert.AreEqual("Order does not meet the minimum requirement", dict["message"].ToString());
+        }
+
+        [Test]
+        public async Task CalculateDiscount_ValidVoucher_ReturnsOk()
+        {
+            var voucher = new Voucher
             {
-                ID = categoryId,
-                Name = "Category A"
+                Code = "admin voucher test",
+                IsActive = true,
+                DiscountType = "Percent",
+                DiscountAmount = 10, // 10%
+                MinOrderValue = 10000,
+                MaxDiscountAmount = 20000
             };
 
-            var imageList = new List<ProductImage>
-    {
-        new ProductImage { ProductID = productId, ImageUrl = "img1.jpg" },
-        new ProductImage { ProductID = productId, ImageUrl = "img2.jpg" }
-    };
+            var request = new DiscountRequest
+            {
+                Code = "admin voucher test",
+                OrderTotal = 100000
+            };
 
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-                .ReturnsAsync(user);
+            _voucherServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Voucher, bool>>>()))
+                .ReturnsAsync(voucher);
 
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync(store);
+            var result = await _controller.CalculateDiscount(request) as OkObjectResult;
 
-            _userManagerMock.Setup(x => x.FindByIdAsync(userId))
-                .ReturnsAsync(user);
-
-            _productServiceMock.Setup(x => x.ListAsync(
-                It.IsAny<Expression<Func<Product, bool>>>(),
-                It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                null))
-                .ReturnsAsync(new List<Product> { product });
-
-            _productVariantServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
-                .ReturnsAsync(variant);
-
-            _categoryServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Categories, bool>>>()))
-                .ReturnsAsync(category);
-
-            _productImageServiceMock.Setup(x => x.ListAsync(
-                It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                null,
-                null))
-                .ReturnsAsync(imageList);
-
-            // Act
-            var result = await _controller.GetStoreDetail(storeId) as ViewResult;
-
-            // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<StoreDetailsViewModels>(result.Model);
-            var model = result.Model as StoreDetailsViewModels;
-            Assert.AreEqual("Test Store", model.Name);
-            Assert.AreEqual("storeowner", model.UserName);
-            Assert.AreEqual(1, model.ProductViewModel.Count);
-        }
-        [Test]
-        public async Task GetStoreDetail_InvalidId_ReturnsNotFound()
-        {
-            // Arrange
-            var storeId = Guid.NewGuid();
+            Assert.AreEqual(200, result.StatusCode);
 
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync((StoreDetails)null);
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(
+                JsonConvert.SerializeObject(result.Value)
+            );
 
-            // Act
-            var result = await _controller.GetStoreDetail(storeId);
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundObjectResult>(result);
-            var notFound = result as NotFoundObjectResult;
-            Assert.AreEqual("Store not found", notFound.Value);
-        }
-        [Test]
-        public async Task GetStoreDetail_ValidStoreButNoProducts_ReturnsViewWithEmptyProductList()
-        {
-            // Arrange
-            var storeId = Guid.NewGuid();
-            var userId = "user123";
-
-            var store = new StoreDetails { ID = storeId, Name = "Test Store", UserID = userId };
-            var user = new AppUser { Id = userId, UserName = "storeowner", Email = "owner@mail.com" };
-
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync(store);
-
-            _userManagerMock.Setup(x => x.FindByIdAsync(userId))
-                .ReturnsAsync(user);
-
-            _productServiceMock.Setup(x => x.ListAsync(
-                It.IsAny<Expression<Func<Product, bool>>>(),
-                It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                null))
-                .ReturnsAsync(new List<Product>()); // Empty product list
-
-            // Act
-            var result = await _controller.GetStoreDetail(storeId) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<StoreDetailsViewModels>(result.Model);
-            var model = result.Model as StoreDetailsViewModels;
-            Assert.AreEqual(0, model.ProductViewModel.Count);
+            Assert.AreEqual(10000m, Convert.ToDecimal(dict["discountAmount"]));
+            Assert.AreEqual(90000m, Convert.ToDecimal(dict["orderTotalAfterDiscount"]));
+            Assert.AreEqual("Percent", dict["discountType"].ToString());
+            Assert.AreEqual("admin voucher test", dict["code"].ToString());
         }
 
     }

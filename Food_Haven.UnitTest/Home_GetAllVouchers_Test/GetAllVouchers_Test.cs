@@ -22,18 +22,16 @@ using Microsoft.AspNetCore.Mvc;
 using Models;
 using Moq;
 using Net.payOS;
-using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Food_Haven.UnitTest.Home_GetStoreDetail
+namespace Food_Haven.UnitTest.Home_GetAllVouchers_Test
 {
-    public class GetStoreDetail_Test
+    public class GetAllVouchers_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<SignInManager<AppUser>> _signInManagerMock;
@@ -129,148 +127,106 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
             _controller?.Dispose();
         }
         [Test]
-        public async Task GetStoreDetail_ValidId_ReturnsViewWithStoreDetails()
+        public async Task GetAllVouchers_ValidProductVariantWithVouchers_ReturnsJson()
         {
-            // Arrange
-            var storeId = Guid.NewGuid();
-            var userId = "user123";
-            var categoryId = Guid.NewGuid();
+            var variantId = Guid.NewGuid();
             var productId = Guid.NewGuid();
+            var storeId = Guid.NewGuid();
 
-            var store = new StoreDetails
-            {
-                ID = storeId,
-                Name = "Test Store",
-                Address = "123 Street",
-                Phone = "0123456789",
-                ImageUrl = "image.jpg",
-                ShortDescriptions = "Short desc",
-                LongDescriptions = "Long desc",
-                CreatedDate = DateTime.UtcNow,
-                UserID = userId
-            };
+            var productVariant = new ProductTypes { ID = variantId, ProductID = productId };
+            var product = new Product { ID = productId, StoreID = storeId };
 
-            var user = new AppUser { Id = userId, UserName = "storeowner", Email = "test@mail.com" };
-
-            var product = new Product
-            {
-                ID = productId,
-                Name = "Test Product",
-                StoreID = storeId,
-                CategoryID = categoryId,
-                IsActive = true,
-                IsOnSale = true,
-                ShortDescription = "short",
-                LongDescription = "long",
-                ManufactureDate = DateTime.UtcNow,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
-            };
-
-            var variant = new ProductTypes
-            {
-                ProductID = productId,
-                SellPrice = 100000,
-                IsActive = true
-            };
-
-            var category = new Categories
-            {
-                ID = categoryId,
-                Name = "Category A"
-            };
-
-            var imageList = new List<ProductImage>
+            var vouchers = new List<Voucher>
     {
-        new ProductImage { ProductID = productId, ImageUrl = "img1.jpg" },
-        new ProductImage { ProductID = productId, ImageUrl = "img2.jpg" }
+        new Voucher
+        {
+            ID = Guid.NewGuid(),
+            Code = "SALE10",
+            DiscountType = "Percent",
+            DiscountAmount = 10,
+            MinOrderValue = 50000,
+            ExpirationDate = DateTime.Now.AddDays(5),
+            MaxUsage = 100,
+            CurrentUsage = 10,
+            IsGlobal = false,
+            StoreID = storeId,
+            IsActive = true
+        }
     };
 
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-                .ReturnsAsync(user);
+            _productVariantServiceMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
+                .ReturnsAsync(productVariant);
+            _productServiceMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
+                .ReturnsAsync(product);
+            _voucherServiceMock.Setup(s => s.GetAll())
+                .Returns(vouchers.AsQueryable());
 
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync(store);
+            var result = await _controller.GetAllVouchers(variantId) as JsonResult;
 
-            _userManagerMock.Setup(x => x.FindByIdAsync(userId))
-                .ReturnsAsync(user);
-
-            _productServiceMock.Setup(x => x.ListAsync(
-                It.IsAny<Expression<Func<Product, bool>>>(),
-                It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                null))
-                .ReturnsAsync(new List<Product> { product });
-
-            _productVariantServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
-                .ReturnsAsync(variant);
-
-            _categoryServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Categories, bool>>>()))
-                .ReturnsAsync(category);
-
-            _productImageServiceMock.Setup(x => x.ListAsync(
-                It.IsAny<Expression<Func<ProductImage, bool>>>(),
-                null,
-                null))
-                .ReturnsAsync(imageList);
-
-            // Act
-            var result = await _controller.GetStoreDetail(storeId) as ViewResult;
-
-            // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<StoreDetailsViewModels>(result.Model);
-            var model = result.Model as StoreDetailsViewModels;
-            Assert.AreEqual("Test Store", model.Name);
-            Assert.AreEqual("storeowner", model.UserName);
-            Assert.AreEqual(1, model.ProductViewModel.Count);
+            var list = result.Value as IEnumerable<object>;
+            Assert.IsNotNull(list);
+            Assert.IsTrue(list.Any());
         }
         [Test]
-        public async Task GetStoreDetail_InvalidId_ReturnsNotFound()
+        public async Task GetAllVouchers_ValidProductVariantButNoVouchers_ReturnsEmptyJsonList()
         {
-            // Arrange
+            var variantId = Guid.NewGuid();
+            var productId = Guid.NewGuid();
             var storeId = Guid.NewGuid();
 
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync((StoreDetails)null);
+            var productVariant = new ProductTypes { ID = variantId, ProductID = productId };
+            var product = new Product { ID = productId, StoreID = storeId };
 
-            // Act
-            var result = await _controller.GetStoreDetail(storeId);
+            var vouchers = new List<Voucher>(); // No voucher
 
-            // Assert
-            Assert.IsInstanceOf<NotFoundObjectResult>(result);
-            var notFound = result as NotFoundObjectResult;
-            Assert.AreEqual("Store not found", notFound.Value);
+            _productVariantServiceMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
+                .ReturnsAsync(productVariant);
+            _productServiceMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
+                .ReturnsAsync(product);
+            _voucherServiceMock.Setup(s => s.GetAll())
+                .Returns(vouchers.AsQueryable());
+
+            var result = await _controller.GetAllVouchers(variantId) as JsonResult;
+
+            Assert.IsNotNull(result);
+            var list = result.Value as IEnumerable<object>;
+            Assert.IsNotNull(list);
+            Assert.IsEmpty(list);
         }
         [Test]
-        public async Task GetStoreDetail_ValidStoreButNoProducts_ReturnsViewWithEmptyProductList()
+        public async Task GetAllVouchers_InvalidProductVariant_ReturnsNotFound()
         {
-            // Arrange
-            var storeId = Guid.NewGuid();
-            var userId = "user123";
+            var invalidId = Guid.NewGuid();
 
-            var store = new StoreDetails { ID = storeId, Name = "Test Store", UserID = userId };
-            var user = new AppUser { Id = userId, UserName = "storeowner", Email = "owner@mail.com" };
+            _productVariantServiceMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
+                .ReturnsAsync((ProductTypes)null); // không tồn tại
 
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync(store);
+            var result = await _controller.GetAllVouchers(invalidId) as NotFoundObjectResult;
 
-            _userManagerMock.Setup(x => x.FindByIdAsync(userId))
-                .ReturnsAsync(user);
-
-            _productServiceMock.Setup(x => x.ListAsync(
-                It.IsAny<Expression<Func<Product, bool>>>(),
-                It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
-                null))
-                .ReturnsAsync(new List<Product>()); // Empty product list
-
-            // Act
-            var result = await _controller.GetStoreDetail(storeId) as ViewResult;
-
-            // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<StoreDetailsViewModels>(result.Model);
-            var model = result.Model as StoreDetailsViewModels;
-            Assert.AreEqual(0, model.ProductViewModel.Count);
+            Assert.AreEqual(404, result.StatusCode);
+
+            // Cách xử lý message
+            var dict = result.Value?.GetType()
+                          .GetProperty("message")
+                          ?.GetValue(result.Value, null)?.ToString();
+
+            Assert.AreEqual("Product variant not found", dict);
+        }
+
+        [Test]
+        public async Task GetAllVouchers_ExceptionThrown_ReturnsException()
+        {
+            var id = Guid.NewGuid();
+
+            _productVariantServiceMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
+                .ThrowsAsync(new Exception("DB error"));
+
+            Assert.ThrowsAsync<Exception>(async () =>
+            {
+                await _controller.GetAllVouchers(id);
+            });
         }
 
     }

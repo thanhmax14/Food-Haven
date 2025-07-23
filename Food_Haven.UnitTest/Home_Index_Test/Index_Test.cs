@@ -25,6 +25,8 @@ using Net.payOS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -125,11 +127,102 @@ namespace Food_Haven.UnitTest.Home_Index_Test
         public void TearDown()
         {
             _controller?.Dispose();
-     
-        
         }
 
+        [Test]
+        public async Task TC01_Index_GuestUser_WithValidData_ReturnsViewWithData()
+        {
+            // Arrange
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync((AppUser)null);
 
+            var category = new Categories { ID = Guid.NewGuid(), IsActive = true };
+            var product = new Product { ID = Guid.NewGuid(), CategoryID = category.ID, StoreID = Guid.NewGuid(), IsActive = true };
+            var variant = new ProductTypes { ProductID = product.ID, IsActive = true };
+            var store = new StoreDetails { ID = product.StoreID };
+
+            _categoryServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Categories, bool>>>(), null, null))
+                .ReturnsAsync(new List<Categories> { category });
+
+            _productServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(), null))
+                .ReturnsAsync(new List<Product> { product });
+
+            _productVariantServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>(), null, null))
+                .ReturnsAsync(new List<ProductTypes> { variant });
+
+            _storeDetailServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>(), null, null))
+                .ReturnsAsync(new List<StoreDetails> { store });
+
+            _wishlistServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Wishlist, bool>>>(), null, null))
+                .ReturnsAsync(new List<Wishlist>());
+
+            _productImageServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), null, null))
+                .ReturnsAsync(new List<ProductImage>());
+
+            _reviewServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Review, bool>>>(), null, null))
+                .ReturnsAsync(new List<Review>());
+
+            // Act
+            var result = await _controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            var model = result.Model as HomeViewModel;
+            Assert.IsNotNull(model);
+            Assert.IsNotEmpty(model.Products);
+        }
+        [Test]
+        public async Task TC02_Index_ProductWithoutActiveVariant_ReturnsEmptyProductList()
+        {
+            // Arrange
+            var category = new Categories { ID = Guid.NewGuid(), IsActive = true };
+            var product = new Product { ID = Guid.NewGuid(), CategoryID = category.ID, StoreID = Guid.NewGuid(), IsActive = true };
+
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
+                .ReturnsAsync((AppUser)null);
+
+            _categoryServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Categories, bool>>>(), null, null))
+                .ReturnsAsync(new List<Categories> { category });
+
+            _productServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(), null))
+                .ReturnsAsync(new List<Product> { product });
+
+            _productVariantServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>(), null, null))
+                .ReturnsAsync(new List<ProductTypes>()); // không có variant active
+
+            _storeDetailServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>(), null, null))
+                .ReturnsAsync(new List<StoreDetails>());
+
+            _wishlistServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Wishlist, bool>>>(), null, null))
+                .ReturnsAsync(new List<Wishlist>());
+
+            _productImageServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<ProductImage, bool>>>(), null, null))
+                .ReturnsAsync(new List<ProductImage>());
+
+            _reviewServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Review, bool>>>(), null, null))
+                .ReturnsAsync(new List<Review>());
+
+            // Act
+            var result = await _controller.Index() as ViewResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            var model = result.Model as HomeViewModel;
+            Assert.IsNotNull(model);
+            Assert.IsEmpty(model.Products); // danh sách rỗng
+        }
+
+        [Test]
+        public void TC03_Index_ServiceThrowsException_ThrowsException()
+        {
+            // Arrange
+            _categoryServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Categories, bool>>>(), null, null))
+                .ThrowsAsync(new Exception("Unknown error, please try again."));
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<Exception>(() => _controller.Index());
+            Assert.That(ex.Message, Is.EqualTo("Unknown error, please try again."));
+        }
 
     }
 }
