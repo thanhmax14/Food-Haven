@@ -465,7 +465,7 @@ namespace Food_Haven.Web.Controllers
                 Categories = categories.Select(c => new SelectListItem
                 {
                     Value = c.ID.ToString(),
-                    Text = c.Name
+                    Text = c.Name +$" - ({c.Commission}%)"
                 }).ToList()
             };
 

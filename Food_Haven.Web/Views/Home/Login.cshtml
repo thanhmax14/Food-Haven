@@ -517,7 +517,7 @@
                             });
                         }
                     });
-                } else if (response.status == 'comfirm') {
+                } else if (response.status == 'notcomfirm') {
                     Swal.fire({
                         icon: 'warning',
                         title: 'Account Not Verified',
@@ -561,50 +561,56 @@
             cancelButtonText: 'No'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Show loading alert with timer and progress bar
                 let timerInterval;
                 Swal.fire({
                     title: "Sending Email...",
-                    html: "Please wait, we are resending the email. <b></b> milliseconds remaining.",
-                    timer: 4000, // Adjust the timer value as needed
+                    html: "Please wait, we are resending the email. <b></b> seconds remaining.",
+                    timer: 10000, // 10 seconds
                     timerProgressBar: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
                     didOpen: () => {
                         Swal.showLoading();
                         const timer = Swal.getPopup().querySelector("b");
                         timerInterval = setInterval(() => {
-                            timer.textContent = `${Swal.getTimerLeft()}`;
-                        }, 100);
+                            const timeLeft = Swal.getTimerLeft();
+                            if (timeLeft !== undefined) {
+                                timer.textContent = Math.ceil(timeLeft / 1000);
+                            }
+                        }, 200); // cập nhật mỗi 0.2 giây
                     },
                     willClose: () => {
                         clearInterval(timerInterval);
                     }
-                }).then((result) => {
-                    // AJAX call to resend the verification email
-                    $.ajax({
-                        url: '/Home/ResendConfirmationEmail',
-                        type: 'POST',
-                        data: {
-                            username: username,
-                            __RequestVerificationToken: token
-                        },
-                        success: function (response) {
-                            Swal.fire({
-                                icon: "info",
-                                title: "Verification Email Resent",
-                                text: "A new verification email has been sent to your inbox. Please check your email.",
-                            });
+                });
 
-                        },
-                        error: function () {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Error",
-                                text: "There was an issue resending the email. Please try again later.",
-                            });
-                        }
-                    });
+                // AJAX call ngay lập tức
+                $.ajax({
+                    url: '/Home/ResendConfirmationEmail',
+                    type: 'POST',
+                    data: {
+                        username: username,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
+                        Swal.close(); // Đóng loading Swal
+                        Swal.fire({
+                            icon: "info",
+                            title: "Verification Email Resent",
+                            text: "A new verification email has been sent to your inbox. Please check your email.",
+                        });
+                    },
+                    error: function () {
+                        Swal.close(); // Đóng loading Swal
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "There was an issue resending the email. Please try again later.",
+                        });
+                    }
                 });
             }
+
         });
     }
 
