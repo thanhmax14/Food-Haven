@@ -180,8 +180,8 @@ $(document).ready(function () {
     var $qtyInput = $container.find(".qty-val");
 
     var quantity = parseInt($qtyInput.val());
-    var maxStock = parseInt($qtyInput.data("max")) || 999;
-
+    var maxStock = parseInt($("#stock-display").text()) || 0;
+console.log("Quantity:", quantity, "Max Stock:", maxStock);
     if (isNaN(quantity) || quantity < 1) {
       new Notify({
         status: "error",

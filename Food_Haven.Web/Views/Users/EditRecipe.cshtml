@@ -100,8 +100,12 @@
     .ql-container {
     height: auto !important;
     min-height: 100px; /* hoặc gì đó */
-}
 
+    
+}
+.ql-toolbar + .ql-toolbar {
+    display: none !important;
+}
 </style>
 
 </head>
@@ -341,20 +345,23 @@
 <input type="hidden" id="hiddenTotalTime" name="TotalTime" />
 
                         <!-- Ingredient Editor -->
-                        <div class="card mt-3">
-                            <div class="card-header"><h5>Ingredient</h5></div>
-                            <div class="card-body">
-<div id="editor-Ingredient-@Model.ID" class="snow-editor">@Html.Raw(Model.Ingredient)</div>
-                            </div>
-                        </div>
+                       <!-- Ingredient Editor -->
+<div class="card mt-3">
+    <div class="card-header"><h5>Ingredient</h5></div>
+    <div class="card-body">
+        <!-- ✅ BỎ TRỐNG - JavaScript sẽ gán nội dung -->
+        <div id="editor-Ingredient-@Model.ID" class="snow-editor"></div>
+    </div>
+</div>
 
-                        <!-- Cooking Step Editor -->
-                        <div class="card mt-3">
-                            <div class="card-header"><h5>Cooking Step</h5></div>
-                            <div class="card-body">
-<div id="editor-CookingStep-@Model.ID" class="snow-editor">@Html.Raw(Model.CookingStep)</div>
-                            </div>
-                        </div>
+<!-- Cooking Step Editor -->
+<div class="card mt-3">
+    <div class="card-header"><h5>Cooking Step</h5></div>
+    <div class="card-body">
+        <!-- ✅ BỎ TRỐNG - JavaScript sẽ gán nội dung -->
+        <div id="editor-CookingStep-@Model.ID" class="snow-editor"></div>
+    </div>
+</div>
 
                         <!-- Thumbnail -->
                      
@@ -374,7 +381,7 @@
                     <!-- Submit Buttons -->
                     <div class="mt-3">
                         <button type="submit" class="btn btn-sm btn-success">Edit Recipe</button>
-                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+<a asp-action="MyViewRecipe" asp-controller="Users" class="btn btn-sm btn-secondary">Back To List</a>
                     </div>
                 </div>
             </form>
@@ -705,8 +712,190 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 
    
-    <script>
-    function initializeQuillEditor(form, id) {
+<script>
+    document.querySelectorAll('div.ql-toolbar.ql-snow').forEach(function(div) {
+    if (div.children.length === 2) {
+        // Xóa class 'ql-toolbar' và 'ql-snow' khỏi div
+        div.classList.remove('ql-toolbar', 'ql-snow');
+
+        // Xóa phần tử con đầu tiên
+        div.removeChild(div.children[0]);
+    }
+});
+
+</script>
+
+
+<script>
+// ✅ BIẾN TOÀN CỤC ĐỂ TRÁNH KHỞI TẠO NHIỀU LẦN
+let editorsInitialized = false;
+
+// Dữ liệu IngredientTags
+const allModels = @Html.Raw(Json.Serialize(Model.IngredientTags.Select(t => new { id = t.ID, name = t.Name })));
+
+// Hàm render danh sách IngredientTags
+function renderLists(form) {
+    const recipeId = form.dataset.recipeId;
+    const availableList = form.querySelector(`#availableList-${recipeId}`);
+    const selectedList = form.querySelector(`#selectedList-${recipeId}`);
+    const selectElement = form.querySelector(`#IngredientTags-${recipeId}`);
+    const searchInput = form.querySelector(`#searchAll-${recipeId}`);
+    const searchVal = searchInput ? searchInput.value.toLowerCase() : "";
+
+    let selectedModels = JSON.parse(form.dataset.selectedTags || "[]");
+
+    if (!availableList || !selectedList) {
+        console.error("DOM elements not found for recipeId:", recipeId);
+        return;
+    }
+
+    availableList.innerHTML = '';
+    selectedList.innerHTML = '';
+    Array.from(selectElement.options).forEach(option => option.selected = false);
+
+    allModels.forEach(Model => {
+        const isSelected = selectedModels.includes(Model.id);
+        const matchSearch = Model.name.toLowerCase().includes(searchVal);
+
+        if (matchSearch) {
+            const div = document.createElement('div');
+            div.textContent = Model.name;
+            div.className = 'Model';
+            div.style.cursor = 'pointer';
+            if (isSelected) div.classList.add('selected');
+
+            div.onclick = () => {
+                if (isSelected) {
+                    selectedModels = selectedModels.filter(id => id !== Model.id);
+                } else {
+                    selectedModels.push(Model.id);
+                }
+                form.dataset.selectedTags = JSON.stringify(selectedModels);
+                renderLists(form);
+            };
+
+            if (isSelected) selectedList.appendChild(div);
+            else availableList.appendChild(div);
+        }
+
+        if (isSelected) {
+            const option = selectElement.querySelector(`option[value="${Model.id}"]`);
+            if (option) option.selected = true;
+        }
+    });
+}
+
+// Hàm tính thời gian
+function getCustomTimeInMinutes(value, unit) {
+    if (!value) return 0;
+    const val = parseFloat(value);
+    switch (unit) {
+        case 'minutes': return val;
+        case 'hours': return val * 60;
+        case 'days': return val * 24 * 60;
+        default: return val;
+    }
+}
+
+function formatTimeForDatabase(totalMinutes) {
+    if (totalMinutes <= 0) return "";
+    const days = Math.floor(totalMinutes / (24 * 60));
+    const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+    const minutes = Math.floor(totalMinutes % 60);
+    let parts = [];
+    if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+    if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+    if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
+    return parts.join(' ');
+}
+
+function calculateTotal(form) {
+    const prepValue = form.querySelector('input[name="PreparationValue"]')?.value || 0;
+    const prepUnit = form.querySelector('select[name="PreparationUnit"]')?.value || 'minutes';
+    const prepQuick = form.querySelector('select[name="PreparationQuick"]')?.value || 0;
+    const cookValue = form.querySelector('input[name="CookingValue"]')?.value || 0;
+    const cookUnit = form.querySelector('select[name="CookingUnit"]')?.value || 'minutes';
+    const cookQuick = form.querySelector('select[name="CookingQuick"]')?.value || 0;
+
+    let prepMinutes = prepQuick && !prepValue ? parseInt(prepQuick) : getCustomTimeInMinutes(prepValue, prepUnit);
+    let cookMinutes = cookQuick && !cookValue ? parseInt(cookQuick) : getCustomTimeInMinutes(cookValue, cookUnit);
+    const totalMinutes = prepMinutes + cookMinutes;
+
+    const prepTimeString = formatTimeForDatabase(prepMinutes);
+    const cookTimeString = formatTimeForDatabase(cookMinutes);
+    const totalTimeString = formatTimeForDatabase(totalMinutes);
+
+    const hiddenPrep = form.querySelector('#hiddenPrepTime');
+    const hiddenCook = form.querySelector('#hiddenCookTime');
+    const hiddenTotal = form.querySelector('#hiddenTotalTime');
+
+    if (hiddenPrep) hiddenPrep.value = prepTimeString;
+    if (hiddenCook) hiddenCook.value = cookTimeString;
+    if (hiddenTotal) hiddenTotal.value = totalTimeString;
+
+    const display = form.querySelector('#displayTotalTime');
+    if (display) display.textContent = totalTimeString || '0 minute';
+
+    console.log('Calculated times:', { prepMinutes, cookMinutes, totalMinutes, prepTimeString, cookTimeString, totalTimeString });
+}
+
+// Hàm resize và preview ảnh
+function resizeAndPreviewImage(event) {
+    const input = event.target;
+    const file = input.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
+
+        img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = 1280;
+            canvas.height = 720;
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const resizedDataUrl = canvas.toDataURL('image/jpeg');
+
+            const preview = document.getElementById('product-img');
+            if (preview) {
+                preview.src = resizedDataUrl;
+                preview.style.display = 'block';
+            }
+        };
+    };
+
+    reader.readAsDataURL(file);
+}
+
+// ✅ KHỞI TẠO CHỈ MỘT LẦN
+function initializeEditors() {
+    if (editorsInitialized) {
+        console.log('Editors already initialized, skipping...');
+        return;
+    }
+
+    console.log('Initializing editors...');
+    editorsInitialized = true;
+
+    document.querySelectorAll('form.edit-recipe-form').forEach(function (form) {
+        const id = form.dataset.recipeId;
+        
+        // ✅ KIỂM TRA XEM EDITOR ĐÃ TỒN TẠI CHƯA
+        if (form.hasAttribute('data-editors-initialized')) {
+            console.log(`Editors for form ${id} already initialized`);
+            return;
+        }
+
+        console.log(`Initializing editors for form ${id}`);
+        
+        // ✅ ĐÁNH DẤU ĐÃ KHỞI TẠO
+        form.setAttribute('data-editors-initialized', 'true');
+
         const ingredientEditor = new Quill(`#editor-Ingredient-${id}`, {
             theme: 'snow',
             modules: {
@@ -727,7 +916,7 @@
             }
         });
 
-        // ✅ GÁN NỘI DUNG Ingredient sau khi khởi tạo
+        // ✅ GÁN NỘI DUNG SAU KHI KHỞI TẠO
         ingredientEditor.root.innerHTML = `@Html.Raw(Model.Ingredient?.Replace("`", "\\`"))`;
 
         const cookingEditor = new Quill(`#editor-CookingStep-${id}`, {
@@ -750,307 +939,126 @@
             }
         });
 
-        // ✅ GÁN NỘI DUNG CookingStep sau khi khởi tạo
+        // ✅ GÁN NỘI DUNG SAU KHI KHỞI TẠO
         cookingEditor.root.innerHTML = `@Html.Raw(Model.CookingStep?.Replace("`", "\\`"))`;
-    }
 
-    // Dữ liệu IngredientTags
-    const allModels = @Html.Raw(Json.Serialize(Model.IngredientTags.Select(t => new { id = t.ID, name = t.Name })));
+        // Xử lý submit form
+        form.addEventListener('submit', function (e) {
+            console.log('Form submit event triggered!');
+            e.preventDefault();
 
-    // Hàm render danh sách IngredientTags
-    function renderLists(form) {
-        const recipeId = form.dataset.recipeId;
-        const availableList = form.querySelector(`#availableList-${recipeId}`);
-        const selectedList = form.querySelector(`#selectedList-${recipeId}`);
-        const selectElement = form.querySelector(`#IngredientTags-${recipeId}`);
-        const searchInput = form.querySelector(`#searchAll-${recipeId}`);
-        const searchVal = searchInput ? searchInput.value.toLowerCase() : "";
+            try {
+                const ingredientContent = ingredientEditor.root.innerHTML;
+                const cookingStepContent = cookingEditor.root.innerHTML;
 
-        let selectedModels = JSON.parse(form.dataset.selectedTags || "[]");
+                console.log('Ingredient content:', ingredientContent);
+                console.log('CookingStep content:', cookingStepContent);
 
-        if (!availableList || !selectedList) {
-            console.error("DOM elements not found for recipeId:", recipeId);
-            return;
-        }
-
-        availableList.innerHTML = '';
-        selectedList.innerHTML = '';
-        Array.from(selectElement.options).forEach(option => option.selected = false);
-
-        allModels.forEach(Model => {
-            const isSelected = selectedModels.includes(Model.id);
-            const matchSearch = Model.name.toLowerCase().includes(searchVal);
-
-            if (matchSearch) {
-                const div = document.createElement('div');
-                div.textContent = Model.name;
-                div.className = 'Model';
-                div.style.cursor = 'pointer';
-                if (isSelected) div.classList.add('selected');
-
-                div.onclick = () => {
-                    if (isSelected) {
-                        selectedModels = selectedModels.filter(id => id !== Model.id);
-                    } else {
-                        selectedModels.push(Model.id);
-                    }
-                    form.dataset.selectedTags = JSON.stringify(selectedModels);
-                    renderLists(form);
-                };
-
-                if (isSelected) selectedList.appendChild(div);
-                else availableList.appendChild(div);
-            }
-
-            if (isSelected) {
-                const option = selectElement.querySelector(`option[value="${Model.id}"]`);
-                if (option) option.selected = true;
-            }
-        });
-    }
-
-    // Hàm tính thời gian
-    function getCustomTimeInMinutes(value, unit) {
-        if (!value) return 0;
-        const val = parseFloat(value);
-        switch (unit) {
-            case 'minutes': return val;
-            case 'hours': return val * 60;
-            case 'days': return val * 24 * 60;
-            default: return val;
-        }
-    }
-
-    function formatTimeForDatabase(totalMinutes) {
-        if (totalMinutes <= 0) return "";
-        const days = Math.floor(totalMinutes / (24 * 60));
-        const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-        const minutes = Math.floor(totalMinutes % 60);
-        let parts = [];
-        if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
-        if (hours > 0) parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
-        if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
-        return parts.join(' ');
-    }
-
-    function calculateTotal(form) {
-        const prepValue = form.querySelector('input[name="PreparationValue"]')?.value || 0;
-        const prepUnit = form.querySelector('select[name="PreparationUnit"]')?.value || 'minutes';
-        const prepQuick = form.querySelector('select[name="PreparationQuick"]')?.value || 0;
-        const cookValue = form.querySelector('input[name="CookingValue"]')?.value || 0;
-        const cookUnit = form.querySelector('select[name="CookingUnit"]')?.value || 'minutes';
-        const cookQuick = form.querySelector('select[name="CookingQuick"]')?.value || 0;
-
-        let prepMinutes = prepQuick && !prepValue ? parseInt(prepQuick) : getCustomTimeInMinutes(prepValue, prepUnit);
-        let cookMinutes = cookQuick && !cookValue ? parseInt(cookQuick) : getCustomTimeInMinutes(cookValue, cookUnit);
-        const totalMinutes = prepMinutes + cookMinutes;
-
-        const prepTimeString = formatTimeForDatabase(prepMinutes);
-        const cookTimeString = formatTimeForDatabase(cookMinutes);
-        const totalTimeString = formatTimeForDatabase(totalMinutes);
-
-        const hiddenPrep = form.querySelector('#hiddenPrepTime');
-        const hiddenCook = form.querySelector('#hiddenCookTime');
-        const hiddenTotal = form.querySelector('#hiddenTotalTime');
-
-        if (hiddenPrep) hiddenPrep.value = prepTimeString;
-        if (hiddenCook) hiddenCook.value = cookTimeString;
-        if (hiddenTotal) hiddenTotal.value = totalTimeString;
-
-        const display = form.querySelector('#displayTotalTime');
-        if (display) display.textContent = totalTimeString || '0 minute';
-
-        console.log('Calculated times:', { prepMinutes, cookMinutes, totalMinutes, prepTimeString, cookTimeString, totalTimeString });
-    }
-
-    // Hàm resize và preview ảnh
-    function resizeAndPreviewImage(event) {
-        const input = event.target;
-        const file = input.files[0];
-
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = new Image();
-            img.src = e.target.result;
-
-            img.onload = function () {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                canvas.width = 1280;
-                canvas.height = 720;
-
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const resizedDataUrl = canvas.toDataURL('image/jpeg');
-
-                const preview = document.getElementById('product-img');
-                if (preview) {
-                    preview.src = resizedDataUrl;
-                    preview.style.display = 'block';
-                }
-            };
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-    // Khởi tạo khi trang tải
-    document.addEventListener('DOMContentLoaded', function () {
-        // Khởi tạo Quill editors với ID động
-        document.querySelectorAll('.edit-recipe-form').forEach(function (form) {
-            const id = form.dataset.recipeId;
-            const ingredientEditor = new Quill(`#editor-Ingredient-${id}`, {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ 'font': [] }, { 'size': [] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'script': 'super' }, { 'script': 'sub' }],
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        ['blockquote', 'code-block'],
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        [{ 'align': [] }],
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],
-                        [{ 'direction': 'rtl' }],
-                        ['link', 'image', 'video'],
-                        ['clean']
-                    ]
-                }
-            });
-
-            const cookingEditor = new Quill(`#editor-CookingStep-${id}`, {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ 'font': [] }, { 'size': [] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'script': 'super' }, { 'script': 'sub' }],
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        ['blockquote', 'code-block'],
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        [{ 'align': [] }],
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],
-                        [{ 'direction': 'rtl' }],
-                        ['link', 'image', 'video'],
-                        ['clean']
-                    ]
-                }
-            });
-
-            // Xử lý submit form
-            form.addEventListener('submit', function (e) {
-                console.log('Form submit event triggered!');
-                e.preventDefault();
-
-                try {
-                    const ingredientContent = ingredientEditor.root.innerHTML;
-                    const cookingStepContent = cookingEditor.root.innerHTML;
-
-                    console.log('Ingredient content:', ingredientContent);
-                    console.log('CookingStep content:', cookingStepContent);
-
-                    const ingredientHidden = document.getElementById(`IngredientHidden-${id}`);
-                    const cookingHidden = document.getElementById(`CookingStepHidden-${id}`);
-
-                    if (ingredientHidden && cookingHidden) {
-                        ingredientHidden.value = ingredientContent;
-                        cookingHidden.value = cookingStepContent;
-
-                        console.log('Hidden input values set:', {
-                            ingredient: ingredientHidden.value,
-                            cookingStep: cookingHidden.value
-                        });
-
-                        form.submit();
-                    } else {
-                        console.error('Hidden inputs not found!');
-                        alert('Error: Could not find hidden input fields!');
-                    }
-                } catch (error) {
-                    console.error('Error in form submission:', error);
-                    alert('An error occurred while preparing the form data.');
-                }
-            });
-
-            // Cập nhật hidden fields khi thay đổi nội dung
-            ingredientEditor.on('text-change', function () {
                 const ingredientHidden = document.getElementById(`IngredientHidden-${id}`);
-                if (ingredientHidden) ingredientHidden.value = ingredientEditor.root.innerHTML;
-            });
-
-            cookingEditor.on('text-change', function () {
                 const cookingHidden = document.getElementById(`CookingStepHidden-${id}`);
-                if (cookingHidden) cookingHidden.value = cookingEditor.root.innerHTML;
-            });
 
-            // Xử lý danh sách IngredientTags
-            const searchInput = form.querySelector(`#searchAll-${id}`);
-            if (searchInput) {
-                searchInput.addEventListener('input', () => renderLists(form));
-            }
-            renderLists(form);
+                if (ingredientHidden && cookingHidden) {
+                    ingredientHidden.value = ingredientContent;
+                    cookingHidden.value = cookingStepContent;
 
-            // Xử lý thời gian
-            const prepQuick = form.querySelector('select[name="PreparationQuick"]');
-            if (prepQuick) {
-                prepQuick.addEventListener('change', function () {
-                    const prepValue = form.querySelector('input[name="PreparationValue"]');
-                    const prepUnit = form.querySelector('select[name="PreparationUnit"]');
-                    const val = parseInt(this.value);
-                    if (val >= 1440) {
-                        prepValue.value = val / 1440;
-                        prepUnit.value = 'days';
-                    } else if (val >= 60) {
-                        prepValue.value = val / 60;
-                        prepUnit.value = 'hours';
-                    } else {
-                        prepValue.value = val;
-                        prepUnit.value = 'minutes';
-                    }
-                    calculateTotal(form);
-                });
-            }
+                    console.log('Hidden input values set:', {
+                        ingredient: ingredientHidden.value,
+                        cookingStep: cookingHidden.value
+                    });
 
-            const cookQuick = form.querySelector('select[name="CookingQuick"]');
-            if (cookQuick) {
-                cookQuick.addEventListener('change', function () {
-                    const cookValue = form.querySelector('input[name="CookingValue"]');
-                    const cookUnit = form.querySelector('select[name="CookingUnit"]');
-                    const val = parseInt(this.value);
-                    if (val >= 1440) {
-                        cookValue.value = val / 1440;
-                        cookUnit.value = 'days';
-                    } else if (val >= 60) {
-                        cookValue.value = val / 60;
-                        cookUnit.value = 'hours';
-                    } else {
-                        cookValue.value = val;
-                        cookUnit.value = 'minutes';
-                    }
-                    calculateTotal(form);
-                });
-            }
-
-            ['PreparationValue', 'PreparationUnit', 'CookingValue', 'CookingUnit'].forEach(name => {
-                form.querySelectorAll(`[name="${name}"]`).forEach(el => {
-                    el.addEventListener('input', () => calculateTotal(form));
-                    el.addEventListener('change', () => calculateTotal(form));
-                });
-            });
-
-            calculateTotal(form);
-
-            // Xử lý resize ảnh
-            const fileInput = form.querySelector('input[type="file"][name="ThumbnailImage"]');
-            if (fileInput) {
-                fileInput.addEventListener('change', resizeAndPreviewImage);
+                    form.submit();
+                } else {
+                    console.error('Hidden inputs not found!');
+                    alert('Error: Could not find hidden input fields!');
+                }
+            } catch (error) {
+                console.error('Error in form submission:', error);
+                alert('An error occurred while preparing the form data.');
             }
         });
+
+        // Cập nhật hidden fields khi thay đổi nội dung
+        ingredientEditor.on('text-change', function () {
+            const ingredientHidden = document.getElementById(`IngredientHidden-${id}`);
+            if (ingredientHidden) ingredientHidden.value = ingredientEditor.root.innerHTML;
+        });
+
+        cookingEditor.on('text-change', function () {
+            const cookingHidden = document.getElementById(`CookingStepHidden-${id}`);
+            if (cookingHidden) cookingHidden.value = cookingEditor.root.innerHTML;
+        });
+
+        // Xử lý danh sách IngredientTags
+        const searchInput = form.querySelector(`#searchAll-${id}`);
+        if (searchInput) {
+            searchInput.addEventListener('input', () => renderLists(form));
+        }
+        renderLists(form);
+
+        // Xử lý thời gian
+        const prepQuick = form.querySelector('select[name="PreparationQuick"]');
+        if (prepQuick) {
+            prepQuick.addEventListener('change', function () {
+                const prepValue = form.querySelector('input[name="PreparationValue"]');
+                const prepUnit = form.querySelector('select[name="PreparationUnit"]');
+                const val = parseInt(this.value);
+                if (val >= 1440) {
+                    prepValue.value = val / 1440;
+                    prepUnit.value = 'days';
+                } else if (val >= 60) {
+                    prepValue.value = val / 60;
+                    prepUnit.value = 'hours';
+                } else {
+                    prepValue.value = val;
+                    prepUnit.value = 'minutes';
+                }
+                calculateTotal(form);
+            });
+        }
+
+        const cookQuick = form.querySelector('select[name="CookingQuick"]');
+        if (cookQuick) {
+            cookQuick.addEventListener('change', function () {
+                const cookValue = form.querySelector('input[name="CookingValue"]');
+                const cookUnit = form.querySelector('select[name="CookingUnit"]');
+                const val = parseInt(this.value);
+                if (val >= 1440) {
+                    cookValue.value = val / 1440;
+                    cookUnit.value = 'days';
+                } else if (val >= 60) {
+                    cookValue.value = val / 60;
+                    cookUnit.value = 'hours';
+                } else {
+                    cookValue.value = val;
+                    cookUnit.value = 'minutes';
+                }
+                calculateTotal(form);
+            });
+        }
+
+        ['PreparationValue', 'PreparationUnit', 'CookingValue', 'CookingUnit'].forEach(name => {
+            form.querySelectorAll(`[name="${name}"]`).forEach(el => {
+                el.addEventListener('input', () => calculateTotal(form));
+                el.addEventListener('change', () => calculateTotal(form));
+            });
+        });
+
+        calculateTotal(form);
+
+        // Xử lý resize ảnh
+        const fileInput = form.querySelector('input[type="file"][name="ThumbnailImage"]');
+        if (fileInput) {
+            fileInput.addEventListener('change', resizeAndPreviewImage);
+        }
     });
+}
+
+// ✅ GỌI HÀM KHỞI TẠO
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeEditors);
+} else {
+    initializeEditors();
+}
 </script>
 </body>
 

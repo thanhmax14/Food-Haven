@@ -306,6 +306,7 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { success = false, message = "User not found" });
                 }
 
+                // Cập nhật trạng thái đăng ký seller
                 user.RequestSeller = "2";
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
@@ -313,13 +314,27 @@ namespace Food_Haven.Web.Controllers
                     return Json(new { success = false, message = "Failed to update user" });
                 }
 
+                // Lấy tất cả các role hiện tại của user
+                var currentRoles = await _userManager.GetRolesAsync(user);
+
+                // Xoá toàn bộ role hiện tại trước khi thêm role "Seller"
+                if (currentRoles.Any())
+                {
+                    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeResult.Succeeded)
+                    {
+                        return Json(new { success = false, message = "Failed to remove existing roles" });
+                    }
+                }
+
+                // Thêm role mới là "Seller"
                 var roleResult = await _userManager.AddToRoleAsync(user, "Seller");
                 if (!roleResult.Succeeded)
                 {
-                    return Json(new { success = false, message = "Failed to add role" });
+                    return Json(new { success = false, message = "Failed to add role 'Seller'" });
                 }
 
-                // 🔹 Thêm phần lấy RoleId (KHÔNG thay đổi logic gốc)
+                // Lấy RoleId của role "Seller"
                 var sellerRole = await _roleManager.FindByNameAsync("Seller");
                 var roleId = sellerRole?.Id ?? "unknown";
 
