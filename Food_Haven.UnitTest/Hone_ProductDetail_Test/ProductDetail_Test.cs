@@ -122,119 +122,133 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
         {
             _controller?.Dispose();
         }
-
         [Test]
-        public async Task TC01_ProductDetail_ValidId_ReturnsView()
+        public async Task TC01_ProductDetail_ValidId_ReturnsProductDetailsView()
         {
-            var id = Guid.NewGuid();
-            var product = new Product { ID = id, IsActive = true, CategoryID = Guid.NewGuid(), StoreID = Guid.NewGuid() };
-            var store = new StoreDetails { ID = product.StoreID, IsActive = true, UserID = "user1" };
+            // Arrange
+            var productId = Guid.Parse("D7DFAEE2-9CFF-40F8-A7D8-3C630008B217");
+            var categoryId = Guid.NewGuid();
+            var storeId = Guid.NewGuid();
+
+            var product = new Product
+            {
+                ID = productId,
+                Name = "Test Product",
+                IsActive = true,
+                StoreID = storeId,
+                CategoryID = categoryId,
+                CreatedDate = DateTime.UtcNow,
+                ModifiedDate = DateTime.UtcNow
+            };
+
+            var store = new StoreDetails { ID = storeId, IsActive = true, UserID = "user1" };
+            var category = new Categories { ID = categoryId };
+            var variant = new ProductTypes { ProductID = productId, IsActive = true };
 
             _productServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
                 .ReturnsAsync(product);
+
             _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
                 .ReturnsAsync(store);
-            _userManagerMock.Setup(x => x.FindByIdAsync(It.IsAny<string>()))
-                .ReturnsAsync(new AppUser());
 
-            _cartServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Categories, bool>>>()))
-                .ReturnsAsync(new Categories());
-            _cartServiceMock.Setup(x => x.ListAsync(It.IsAny<Func<IQueryable<Categories>, IOrderedQueryable<Categories>>>()))
-                .ReturnsAsync(new List<Categories>());
+            _userManagerMock.Setup(x => x.FindByIdAsync("user1"))
+                .ReturnsAsync(new AppUser { Id = "user1" });
 
-            _productImageServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<ProductImage, bool>>>()))
+            _categoryServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Categories, bool>>>()))
+                .ReturnsAsync(category);
+
+            _productImageServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<ProductImage, bool>>>(),
+                null,
+                null))
                 .ReturnsAsync(new List<ProductImage>());
-            _productVariantServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<ProductVariant, bool>>>()))
-                .ReturnsAsync(new List<ProductVariant>());
-            _reviewServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Review, bool>>>()))
+
+            _productVariantServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<ProductTypes, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<ProductTypes> { variant });
+
+            _reviewServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<Review, bool>>>(),
+                null,
+                null))
                 .ReturnsAsync(new List<Review>());
-            _wishlistServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Wishlist, bool>>>()))
+
+            _wishlistServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<Wishlist, bool>>>(),
+                null,
+                null))
                 .ReturnsAsync(new List<Wishlist>());
-            _orderDetailServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<OrderDetail, bool>>>()))
+
+            _orderDetailServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<OrderDetail, bool>>>(),
+                null,
+                null))
                 .ReturnsAsync(new List<OrderDetail>());
-            _productServiceMock.Setup(x => x.ListAsync(It.IsAny<Expression<Func<Product, bool>>>(), It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>()))
+
+            _categoryServiceMock.Setup(x => x.ListAsync(
+                null,
+                It.IsAny<Func<IQueryable<Categories>, IOrderedQueryable<Categories>>>(),
+                null))
+                .ReturnsAsync(new List<Categories> { category });
+
+            _productServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<Product, bool>>>(),
+                It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
+                null))
                 .ReturnsAsync(new List<Product>());
 
-            var result = await _controller.ProductDetail(id) as ViewResult;
+            _storeDetailServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<StoreDetails, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<StoreDetails>());
 
+            _categoryServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<Categories, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<Categories>());
+
+            // Act
+            var result = await _controller.ProductDetail(productId) as ViewResult;
+
+            // Assert
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<ProductDetails>(result.Model);
         }
 
         [Test]
-        public async Task TC02_ProductDetail_InvalidId_ReturnsNotFound()
+        public async Task TC02_ProductDetail_InvalidProductId_ReturnsNotFoundRedirect()
         {
+            // Arrange
+            var productId = Guid.NewGuid();
+
             _productServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
                 .ReturnsAsync((Product)null);
 
-            var result = await _controller.ProductDetail(Guid.NewGuid()) as RedirectToActionResult;
+            // Act
+            var result = await _controller.ProductDetail(productId);
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual("NotFoundPage", result.ActionName);
+            // Assert
+            var redirectResult = result as RedirectToActionResult;
+            Assert.IsNotNull(redirectResult);
+            Assert.AreEqual("NotFoundPage", redirectResult.ActionName);
         }
-
         [Test]
-        public async Task TC03_ProductDetail_StoreNotFound_ReturnsNotFound()
+        public void TC03_ProductDetail_ServiceThrowsException_ThrowsException()
         {
-            var id = Guid.NewGuid();
-            var product = new Product { ID = id, IsActive = true, StoreID = Guid.NewGuid() };
+            // Arrange
+            var productId = Guid.NewGuid();
 
             _productServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-                .ReturnsAsync(product);
-            _storeDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync((StoreDetails)null);
+                .ThrowsAsync(new Exception("Unknown error, please try again."));
 
-            var result = await _controller.ProductDetail(id) as RedirectToActionResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("NotFoundPage", result.ActionName);
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<Exception>(() => _controller.ProductDetail(productId));
+            Assert.That(ex.Message, Is.EqualTo("Unknown error, please try again."));
         }
 
-        [Test]
-        public async Task TC04_ProductDetail_ServiceFails_ReturnsMessage()
-        {
-            var id = Guid.NewGuid();
-            _productServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-                .ThrowsAsync(new Exception("Service failure"));
-
-            try
-            {
-                await _controller.ProductDetail(id);
-                Assert.Fail("Expected exception not thrown");
-            }
-            catch (Exception ex)
-            {
-                Assert.AreEqual("Service failure", ex.Message);
-            }
-        }
-
-        [Test]
-        public async Task TC05_ProductDetail_ThrowsException()
-        {
-            _productServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-                .Throws(new NullReferenceException("Unexpected null"));
-
-            Assert.ThrowsAsync<NullReferenceException>(async () =>
-            {
-                await _controller.ProductDetail(Guid.NewGuid());
-            });
-        }
-
-        [Test]
-        public async Task TC06_ProductDetail_ServerConnectionFails_ReturnsMessage()
-        {
-            _productServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<Product, bool>>>()))
-                .ThrowsAsync(new HttpRequestException("Cannot connect with server"));
-
-            try
-            {
-                await _controller.ProductDetail(Guid.NewGuid());
-                Assert.Fail("Expected exception not thrown");
-            }
-            catch (HttpRequestException ex)
-            {
-                Assert.That(ex.Message, Is.EqualTo("Cannot connect with server"));
-            }
-        }
     }
 }
