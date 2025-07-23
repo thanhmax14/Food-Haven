@@ -180,11 +180,13 @@
                                         </div>
                                     }
                                     else if (storeStatus == "REJECTED")
-                                    {
-                                        <div class="alert alert-danger text-center">
-                                            <p>Your store registration has been rejected.</p>
-                                        </div>
-                                    }
+{
+    <div class="alert alert-danger text-center">
+        <p>Your store registration has been rejected.</p>
+        <a asp-action="ReRegisterStore" class="btn btn-warning mt-2">Register Store Again</a>
+    </div>
+}
+
                                     else if (storeStatus == "APPROVED")
                                     {
                                         if (!isActive)
