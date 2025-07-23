@@ -1,4 +1,5 @@
-﻿@model Repository.ViewModels.CategoryDetailsViewModel;
+﻿@using Models
+@model Repository.ViewModels.CategoryDetailsViewModel;
 
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -49,75 +50,117 @@
 
                         @foreach (var item in Model.ProductViewModel)
                         {
-
+                            double averageRating = 5;
+                            if (item.Reviews != null && item.Reviews.Any())
+                            {
+                                var reviewList = item.Reviews ?? new List<Review>();
+                                var reviews = reviewList.Where(r => r.Rating >= 1 && r.Rating <= 5).ToList();
+                                int totalReviews = reviews.Count;
+                                averageRating = totalReviews > 0 ? reviews.Average(r => r.Rating) : 0;
+                            }
+                            else
+                            {
+                                item.Reviews = new List<Review>();
+                            }
                             <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
                                 <div class="product-cart-wrap mb-30">
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
-                                            <a asp-action="ProductDetail" asp-controller="Home" asp-route-id="@item.ID">
-                                                <img class="default-img" src="@item.Img.FirstOrDefault()" alt="" />
+                                            <a href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">
+                                                <img class="default-img"
+                                                     src="@(item.Img?.FirstOrDefault() ?? "/assets/imgs/shop/product-5-1.jpg")"
+                                                     alt="@item.Name" />
+                                                <img class="hover-img"
+                                                     src="@(item.Img.Skip(1).FirstOrDefault() ?? item.Img?.FirstOrDefault()?? "/assets/imgs/shop/product-5-2.jpg")"
+                                                     alt="@item.Name" />
                                             </a>
                                         </div>
                                         <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                onclick="AddWishlist('@item.ID')"><i id="iconsave"
-                                                    class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="">
-                                                <i class="fi-rs-shuffle"></i>
-                                            </a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
+                                            @Html.AntiForgeryToken()
+
+                                            @if (item.isWish)
+                                            {
+                                                <a aria-label="@(item.isWish ? "Remove wishlist" : "Add To Wishlist")" class="action-btn"
+                                                   onclick="AddWishlist(this, '@item.ID')">
+                                                    <i class="fi-rs-heart@(item.isWish ? " text-danger" : "")"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@item.ID')">
+                                                    <i class="fi-rs-heart"></i>
+                                                </a>
+                                            }
                                         </div>
                                         <div class="product-badges product-badges-position product-badges-mrg">
                                             <span class="hot">Hot</span>
                                         </div>
                                     </div>
                                     <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">@item.CategoryName</a>
-                                        </div>
-                                        <h2><a asp-action="ProductDetail" asp-controller="Home"
-                                                asp-route-id="@item.ID">@item.Name</a></h2>
+                                       @*  <div class="product-category">
+                                            <a href="shop-grid-right.html">Snack</a>
+                                        </div> *@
+                                        <h2><a href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">@item.Name</a></h2>
                                         <div class="product-rate-cover">
                                             <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 90%"></div>
+                                                <div class="product-rating" style="width: @(averageRating * 20)%"></div>
                                             </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
+                                            <span class="font-small ml-5 text-muted">(@item.Reviews.Count())</span>
                                         </div>
                                         <div>
                                             <span class="font-small text-muted">
-                                                By <a asp-action="GetStoreDetail" asp-controller="Home"
-                                                    asp-route-id="@item.StoreId">@item.StoreName</a>
+                                                By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = item.StoreId })">
+                                                    @item.StoreName
+                                                </a>
+                                            </span>
+                                            <br />
+                                            <span class="font-small text-muted">
+                                                Category: <a href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = item.CateID })">
+                                                    @item.CategoryName
+                                                </a>
                                             </span>
                                         </div>
                                         <div class="product-card-bottom">
-                                            <div class="product-card-bottom">
-                                                <div class="product-price">
-                                                    @if (item.Price == 0)
+                                            <div class="product-price">
+                                                <span>
+                                                    @{
+                                                        decimal minPrice = 0;
+                                                        decimal maxPrice = 0;
+
+                                                        if (item.ProductTypes != null && item.ProductTypes.Any())
+                                                        {
+                                                            minPrice = item.ProductTypes.Min(pt => pt.SellPrice);
+                                                            maxPrice = item.ProductTypes.Max(pt => pt.SellPrice);
+                                                        }
+                                                    }
+
+                                                    @if (minPrice == 0 && maxPrice == 0)
                                                     {
-                                                        <span class="out-of-stock">Out of Stock</span>
+                                                        <span>0 đ</span>
+                                                    }
+                                                    else if (minPrice == maxPrice)
+                                                    {
+                                                        <span>@minPrice.ToString("N0") đ</span>
                                                     }
                                                     else
                                                     {
-                                                        <span>@item.Price</span>
-                                                        <span class="old-price">@item.Price</span>
+                                                        <span>@minPrice.ToString("N0") đ - @maxPrice.ToString("N0") đ</span>
                                                     }
-                                                </div>
-                                                @if (item.Price > 0)
-                                                {
-                                                    <div class="add-cart">
-                                                        <a class="add" href="javascript:void(0);"
-                                                            onclick="AddToCart('@item.ID')">
-                                                            <i class="fi-rs-shopping-cart mr-5"></i>Add
-                                                        </a>
-                                                    </div>
-                                                }
+                                                </span>
+                                            </div>
+
+                                        </div>
+                                        <div class="product-card-bottom">
+
+                                            <div class="add-cart">
+                                                <a class="add" href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">
+                                                    <i class="fi-rs-shopping-cart mr-5"></i>View Detail
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
 
 
                         }
@@ -443,3 +486,141 @@
 </body>
 
 </html>
+<script>
+    function AddToCart(productId) {
+        $.ajax({
+            url: "/Home/AddToCart",  // API to handle adding to cart
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ ProductID: productId, quantity: 1 }),
+            success: function (response) {
+                if (response.success) {
+                    new Notify({
+                        status: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top',
+                    });
+                } else {
+                    new Notify({
+                        status: 'error',
+                        title: 'Error!',
+                        text: response.message,
+                        effect: 'fade',
+                        speed: 300,
+                        showIcon: true,
+                        showCloseButton: true,
+                        autoclose: true,
+                        autotimeout: 3000,
+                        position: 'right top',
+                    });
+                }
+            },
+            error: function () {
+                new Notify({
+                    status: 'error',
+                    title: 'Server Error!',
+                    text: "An error occurred, please try again.",
+                    effect: 'fade',
+                    speed: 300,
+                    showIcon: true,
+                    showCloseButton: true,
+                    autoclose: true,
+                    autotimeout: 3000,
+                    position: 'right top',
+                });
+            }
+        });
+    }
+
+    function AddWishlist(el, id) {
+        var icon = el.querySelector("i");
+        const actionBtn = el;
+
+        if (icon.classList.contains("text-danger")) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to remove this from your wishlist?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/Home/RemoveWish",
+                        type: "POST",
+                        data: { id: id },
+                        headers: {
+                            "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                new Notify({
+                                    status: 'success',
+                                    title: 'Success!',
+                                    text: response.message || 'Sent successfully!',
+                                    effect: 'fade',
+                                    speed: 300,
+                                    showIcon: true,
+                                    showCloseButton: true,
+                                    autoclose: true,
+                                    autotimeout: 3000,
+                                    position: 'right top'
+                                });
+                                icon.classList.remove("text-danger");
+                                actionBtn.setAttribute("aria-label", "Add To Wishlist");
+                            } else {
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'An error occurred while removing from the wishlist.', 'error');
+                        }
+                    });
+                }
+            });
+        } else {
+            $.ajax({
+                url: "/Home/AddWish",
+                type: "POST",
+                data: { id: id },
+                headers: {
+                    "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        new Notify({
+                            status: 'success',
+                            title: 'Success!',
+                            text: response.message || 'Sent successfully!',
+                            effect: 'fade',
+                            speed: 300,
+                            showIcon: true,
+                            showCloseButton: true,
+                            autoclose: true,
+                            autotimeout: 3000,
+                            position: 'right top'
+                        });
+
+                        icon.classList.add("text-danger");
+                        actionBtn.setAttribute("aria-label", "Remove wishlist");
+                    } else {
+                        Swal.fire('Error', response.message, 'error');
+                    }
+                },
+                error: function () {
+
+                    Swal.fire('Error', 'An error occurred while adding to the wishlist.', 'error');
+                }
+            });
+        }
+    }
+
+</script>

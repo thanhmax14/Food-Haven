@@ -33,6 +33,7 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Net.payOS;
 using Repository.ViewModels;
+using X.PagedList;
 
 
 
@@ -62,6 +63,7 @@ namespace Food_Haven.Web.Controllers
         private readonly IStoreReportServices _storeReport;
         private readonly IStoreFollowersService _storeFollowersService;
         private readonly RecipeSearchService _service;
+        public bool IsTesting { get; set; } = false;
 
         public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
 , IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService, RecipeSearchService service)
@@ -152,7 +154,7 @@ namespace Food_Haven.Web.Controllers
                 }
                 if (!await _userManager.IsEmailConfirmedAsync(user))
                 {
-                    return Json(new { status = "error", msg = "You must verify your email before logging in." });
+                    return Json(new { status = "notcomfirm", msg = "You must verify your email before logging in." });
                 }
                 var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
                 if (!isPasswordValid)
@@ -287,10 +289,18 @@ namespace Food_Haven.Web.Controllers
                     var resultAddrole = await _userManager.AddToRoleAsync(user, "User");
                     if (resultAddrole.Succeeded)
                     {
-                        var token = EncryptData.Encrypt(await _userManager.GenerateEmailConfirmationTokenAsync(user), "Xinchao123@");
-                        var confirmationLink = Url.Action("Index", "Home", new { userId = Uri.EscapeDataString(EncryptData.Encrypt(user.Id, "Xinchao123@")), token = Uri.EscapeDataString(token) }, Request.Scheme);
-                        await _emailSender.SendEmailAsync(user.Email, "Email Verification",
-                            $"{TemplateSendmail.TemplateVerifyLinkCode(model.Username, confirmationLink)}");
+                        if (!IsTesting && Request?.Scheme != null && Url != null)
+                        {
+                            var token = EncryptData.Encrypt(await _userManager.GenerateEmailConfirmationTokenAsync(user), "Xinchao123@");
+                            var confirmationLink = Url.Action("Index", "Home", new
+                            {
+                                userId = Uri.EscapeDataString(EncryptData.Encrypt(user.Id, "Xinchao123@")),
+                                token = Uri.EscapeDataString(token)
+                            }, Request.Scheme);
+
+                            await _emailSender.SendEmailAsync(user.Email, "Email Verification",
+                                $"{TemplateSendmail.TemplateVerifyLinkCode(model.Username, confirmationLink)}");
+                        }
 
                         return Json(new { status = "success", msg = "Registration successful, please confirm your email." });
                     }
@@ -681,32 +691,42 @@ namespace Food_Haven.Web.Controllers
 
             foreach (var product in products)
             {
-                // Lấy thông tin bổ sung cho từng sản phẩm
-                var price = await _productvarian.FindAsync(v => v.ProductID == product.ID && v.IsActive);
-                var store = await _storeDetailService.FindAsync(s => s.ID == product.StoreID);
-                var imageList = await _productimg.ListAsync(i => i.ProductID == product.ID);
-                var imageUrls = imageList.Select(i => i.ImageUrl).ToList();
-
-                var productVM = new ProductsViewModel
+                var price = await _productvarian.ListAsync(v => v.ProductID == product.ID && v.IsActive);
+                if (price.Any())
                 {
-                    ID = product.ID,
-                    Name = product.Name,
-                    CateID = product.CategoryID,
-                    CategoryName = category.Name,
-                    StoreId = product.StoreID,
-                    StoreName = store?.Name,
-                    Price = price?.SellPrice ?? 0,
-                    Img = imageUrls,
-                    IsActive = product.IsActive,
-                    IsOnSale = product.IsOnSale,
-                    ShortDescription = product.ShortDescription,
-                    LongDescription = product.LongDescription,
-                    ManufactureDate = product.ManufactureDate,
-                    CreatedDate = product.CreatedDate,
-                    ModifiedDate = product.ModifiedDate
-                };
+                    var reviews = await _reviewService.ListAsync(r => r.ProductID == product.ID);
+                    var store = await _storeDetailService.FindAsync(s => s.ID == product.StoreID);
+                    var imageList = await _productimg.ListAsync(i => i.ProductID == product.ID);
+                    var imageUrls = imageList.Select(i => i.ImageUrl).ToList();
+                    var flag = false;
+                    var checkwwith = await this._wishlist.FindAsync(x => x.UserID == User.FindFirstValue(ClaimTypes.NameIdentifier) && x.ProductID == product.ID);
+                    if (checkwwith != null)
+                    {
+                        flag = true;
+                    }
+                    var productVM = new ProductsViewModel
+                    {
+                        ID = product.ID,
+                        Name = product.Name,
+                        CateID = product.CategoryID,
+                        CategoryName = category.Name,
+                        StoreId = product.StoreID,
+                        StoreName = store?.Name,
+                        ProductTypes = price.ToList(),
+                        Img = imageUrls,
+                        IsActive = product.IsActive,
+                        IsOnSale = product.IsOnSale,
+                        ShortDescription = product.ShortDescription,
+                        LongDescription = product.LongDescription,
+                        ManufactureDate = product.ManufactureDate,
+                        CreatedDate = product.CreatedDate,
+                        ModifiedDate = product.ModifiedDate,
+                        Reviews = reviews.ToList(),
+                        isWish = flag,
+                    };
 
-                viewModel.ProductViewModel.Add(productVM);
+                    viewModel.ProductViewModel.Add(productVM);
+                }
             }
 
             return View(viewModel);

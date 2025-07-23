@@ -31,10 +31,12 @@ namespace Repository.ViewModels
         public Guid CateID { get; set; }
         public Guid ProductTypeId { get; set; }
 
-
+        public bool isWish { get; set; } = false;
         public List<string> Img { get; set; } = new List<string>();
         public Guid StoreId { get; set; }
         public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
+        public List<Review> Reviews { get; set; } = new List<Review>();
+        public List<ProductTypes> ProductTypes { get; set; } = new List<ProductTypes>();
 
 
     }
