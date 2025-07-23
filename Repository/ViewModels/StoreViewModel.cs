@@ -6,15 +6,26 @@ namespace Repository.ViewModels
     public class StoreViewModel
     {
         public Guid ID { get; set; }
+        [Required(ErrorMessage = "Store name cannot be blank!")]
+        [StringLength(100, ErrorMessage = "Store name must not exceed 100 characters.")]
         public string Name { get; set; } = default!;
-        public string? LongDescriptions { get; set; }
-        public string? ShortDescriptions { get; set; }
-        public string? Address { get; set; }
+
+        [Required(ErrorMessage = "Short description cannot be blank!")]
+        [StringLength(100, ErrorMessage = "Short description must not exceed 100 characters.")]
+        public string ShortDescriptions { get; set; }
+
+        [Required(ErrorMessage = "Long description cannot be blank!")]
+        [StringLength(500, ErrorMessage = "Long description must not exceed 500 characters.")]
+        public string LongDescriptions { get; set; }
+
+        [Required(ErrorMessage = "Address cannot be blank!")]
+        [StringLength(100, ErrorMessage = "Address must not exceed 100 characters.")]
+        public string Address { get; set; }
         [Required(ErrorMessage = "Phone number cannot be blank!")]
         [RegularExpression(@"^(0\d{9}|\+84\d{9})$",
             ErrorMessage = "Phone number must be in the format: 0xxxxxxxxx or +84xxxxxxxxx")]
-        public string? Phone { get; set; }
-        public string? Img { get; set; }  // Hình ảnh cửa hàng
+        public string Phone { get; set; }
+        public string Img { get; set; }  // Hình ảnh cửa hàng
         public string? Status { get; set; } = "PENDING"; // Trạng thái mặc định
         public bool IsActive { get; set; } = true; // Mặc định chưa hoạt động
         public DateTime CreatedDate { get; set; } = DateTime.Now; // Ngày tạo mặc định

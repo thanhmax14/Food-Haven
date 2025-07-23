@@ -3,6 +3,7 @@
     var productId = ViewBag.ProductId;
     var storeId = ViewBag.StoreId;
     var variantId = ViewBag.VariantId;
+    string storeStatusText = ViewBag.StoreStatusText as string ?? "Pending";
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!doctype html>
@@ -155,87 +156,27 @@
                     </div>
                 </div>
                 <!-- end page title -->
-                @if (ViewBag.IsStoreActive == false)
+                @if (storeStatusText == "Rejected")
+                {
+                    <div class="alert alert-danger text-center">
+                        <p><strong>Your store has been rejected by admin!</strong></p>
+                        <p>Please update your store information and register store again.</p>
+                    </div>
+                }
+                else if (storeStatusText == "Pending")
+                {
+                    <div class="alert alert-warning text-center">
+                        <p><strong>Your store is currently pending approval.</strong></p>
+                        <p>Please wait while we review your request.</p>
+                    </div>
+                }
+                else if (storeStatusText == "Approved")
+                {
+                    @if (ViewBag.IsStoreActive == false)
                 {
                     <div class="alert alert-danger text-center">
                         <p><strong>Your store has been locked due to a policy violation!</strong></p>
                         <p>Please contact support for further assistance.</p>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xxl-12">
-                            <div class="card">
-                                <div class="card-header align-items-center d-flex">
-                                    <h4 class="card-title mb-0 flex-grow-1">Update Product Type</h4>
-                                </div>
-
-                                <div class="card-body">
-                                    <div class="live-preview">
-                                        <form asp-controller="Seller" asp-action="UpdateProductType" method="post">
-                                            @Html.AntiForgeryToken() <!-- Bảo mật chống CSRF -->
-
-                                            <input type="hidden" asp-for="ID" /> <!-- Giữ ID -->
-                                            <input type="hidden" asp-for="ProductID" /> <!-- Giữ ProductID -->
-
-                                            <div class="row">
-                                                <!-- Size -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Size" class="form-label">Name</label>
-                                                        <input asp-for="Size" class="form-control" required disabled />
-                                                        <span asp-validation-for="Size" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Price -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Price" class="form-label">Sell Price</label>
-                                                        <input asp-for="Price" type="number" step="0.01" class="form-control" required disabled />
-                                                        <span asp-validation-for="Price" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Original Price -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="OriginalPrice" class="form-label">Original Price</label>
-                                                        <input asp-for="OriginalPrice" type="number" step="0.01" class="form-control" disabled />
-                                                        <span asp-validation-for="OriginalPrice" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Stock -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="Stock" class="form-label">Stock</label>
-                                                        <input asp-for="Stock" type="number" min="0" class="form-control" required disabled />
-                                                        <span asp-validation-for="Stock" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Manufacture Date -->
-                                                <div class="col-md-6">
-                                                    <div class="mb-3">
-                                                        <label asp-for="ManufactureDate" class="form-label">Manufacture Date</label>
-                                                        <input asp-for="ManufactureDate" type="date" class="form-control" required disabled />
-                                                        <span asp-validation-for="ManufactureDate" class="text-danger"></span>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Nút hành động -->
-                                                <div class="col-lg-12 text-end">
-                                                    <a href="/Seller/ViewProductType?productId=@Model.ProductID" class="btn btn-sm btn-secondary px-3">
-                                                        Back To List
-                                                    </a>
-                                                    <button type="submit" class="btn btn-sm btn-primary px-3" disabled>Update Product Type</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 }
                 else
@@ -316,6 +257,8 @@
                         </div>
                     </div>
                 }
+            }
+                
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
                     @if (ViewBag.Success != null)

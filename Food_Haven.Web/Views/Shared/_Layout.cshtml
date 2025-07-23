@@ -5,7 +5,7 @@
     @Html.Raw("<link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
     <link href="~/assets/simple-notify/simple-notify.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-        <style>
+    <style>
         .chat-toast-notification {
             position: fixed;
             top: 20px;
@@ -21,10 +21,10 @@
             transition: transform 0.3s ease;
         }
 
-            .chat-toast-notification:hover {
-                transform: scale(1.05);
-                background-color: #1e272e;
-            }
+        .chat-toast-notification:hover {
+            transform: scale(1.05);
+            background-color: #1e272e;
+        }
     </style>
 </head>
 
@@ -64,66 +64,66 @@
                 });
             }
 
-          /*  function getStock() {
-
-                var variantId = $("#selectedVariantId").val();
-
-                // Nếu chưa có variant được chọn → tự động chọn option đầu tiên
-                if (!variantId) {
-                    var firstOption = $("#selectedVariantId option:first").val();
-                    $("#selectedVariantId").val(firstOption);
-                    variantId = firstOption;
-                }
-
-                $.ajax({
-                    url: "/Home/GetVariantPrice",
-                    type: "GET",
-                    data: { variantId: variantId },
-                    dataType: "json",
-                    success: function (data) {
-                        if (data && data.stock != null && !isNaN(data.stock)) {
-                            $("#stock-display").text(data.stock);
-
-                            if (data.price != null && !isNaN(data.price)) {
-                                var formattedPrice = data.price.toLocaleString("vi-VN", {
-                                    style: "currency",
-                                    currency: "VND"
-                                });
-                                $("#price-display").text(formattedPrice);
-                            } else {
-                                console.warn("Giá không hợp lệ:", data);
-                                $("#price-display").text("0 đ");
-                            }
-                        } else {
-                            console.warn("Dữ liệu stock không hợp lệ:", data);
-                            $("#stock-display").text("0");
-                            $("#price-display").text("0 đ");
-                        }
-                    },
-                    error: function () {
-                        console.error("Lỗi khi lấy thông tin từ server.");
-                        $("#stock-display").text("0");
-                        $("#price-display").text("0 đ");
-                    }
-                });
-            }  */
+            /*  function getStock() {
+  
+                  var variantId = $("#selectedVariantId").val();
+  
+                  // Nếu chưa có variant được chọn → tự động chọn option đầu tiên
+                  if (!variantId) {
+                      var firstOption = $("#selectedVariantId option:first").val();
+                      $("#selectedVariantId").val(firstOption);
+                      variantId = firstOption;
+                  }
+  
+                  $.ajax({
+                      url: "/Home/GetVariantPrice",
+                      type: "GET",
+                      data: { variantId: variantId },
+                      dataType: "json",
+                      success: function (data) {
+                          if (data && data.stock != null && !isNaN(data.stock)) {
+                              $("#stock-display").text(data.stock);
+  
+                              if (data.price != null && !isNaN(data.price)) {
+                                  var formattedPrice = data.price.toLocaleString("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND"
+                                  });
+                                  $("#price-display").text(formattedPrice);
+                              } else {
+                                  console.warn("Giá không hợp lệ:", data);
+                                  $("#price-display").text("0 đ");
+                              }
+                          } else {
+                              console.warn("Dữ liệu stock không hợp lệ:", data);
+                              $("#stock-display").text("0");
+                              $("#price-display").text("0 đ");
+                          }
+                      },
+                      error: function () {
+                          console.error("Lỗi khi lấy thông tin từ server.");
+                          $("#stock-display").text("0");
+                          $("#price-display").text("0 đ");
+                      }
+                  });
+              }  */
 
 
             // Gọi lần đầu khi trang load
             getBalance();
-       /*  getStock(); */
+            /*  getStock(); */
 
             // Cập nhật lại stock mỗi 10 giây
             setInterval(function () {
                 getBalance();
-               /*  getStock(); */
+                /*  getStock(); */
             }, 10000);
 
             // Nếu muốn khi user chọn variant khác thì gọi lại getStock ngay lập tức
-       /*      $("#selectedVariantId").on("change", function () {
-                getStock();
-            }); 
-            */
+            /*      $("#selectedVariantId").on("change", function () {
+                     getStock();
+                 }); 
+                 */
         });
     </script>
 
@@ -168,8 +168,8 @@
     </script>
     <script>
         function goToChat(userId) {
-            localStorage.setItem('startChatUserId', userId);  
-            console.log('Đã lưu userId vào localStorage:', userId);          
+            localStorage.setItem('startChatUserId', userId);
+            console.log('Đã lưu userId vào localStorage:', userId);
             setTimeout(function () {
                 window.location.href = '/users/chatlist';
             }, 100);
@@ -233,13 +233,13 @@
         function goToChat(userId) {
             localStorage.setItem('startChatUserId', userId);
 
-            fetch('/Home/GetCurrentUserRole') 
+            fetch('/Home/GetCurrentUserRole')
                 .then(response => {
                     if (!response.ok) throw new Error("Không thể lấy vai trò");
                     return response.json();
                 })
                 .then(data => {
-                    let redirectUrl = '/users/chatlist'; 
+                    let redirectUrl = '/users/chatlist';
                     if (data.role === "Admin") {
                         redirectUrl = '/Admin/chat';
                     } else if (data.role === "Seller") {
@@ -264,107 +264,107 @@
             }
         }
     </script>
-<script>
-console.log("📍 Script loaded: Initializing followHub SignalR...");
+    <script>
+        console.log("📍 Script loaded: Initializing followHub SignalR...");
 
-$(document).ready(function () {
-    console.log("📍 DOM ready: Starting followHub SignalR connection...");
+        $(document).ready(function () {
+            console.log("📍 DOM ready: Starting followHub SignalR connection...");
 
-    try {
-        if (!window.followConnection) {
-            window.followConnection = new signalR.HubConnectionBuilder()
-                .withUrl("/followHub")
-                .configureLogging(signalR.LogLevel.Information)
-                .build();
+            try {
+                if (!window.followConnection) {
+                    window.followConnection = new signalR.HubConnectionBuilder()
+                        .withUrl("/followHub")
+                        .configureLogging(signalR.LogLevel.Information)
+                        .build();
 
-            window.followConnection.onclose(() => {
-                console.error("❌ followHub connection closed unexpectedly");
-            });
-
-            window.followConnection.start()
-                .then(() => {
-                    console.log("✅ followHub SignalR connected successfully");
-                })
-                .catch(err => {
-                    console.error("❌ followHub connection failed:", err);
-                });
-
-            window.followConnection.on("ReceiveFollowUpdate", function (storeId, isFollowing) {
-                try {
-                    console.log("📡 SignalR event received:");
-                    console.log("   ➤ Store ID:", storeId);
-                    console.log("   ➤ Follow status:", isFollowing ? "Followed" : "Unfollowed");
-
-                    // Cập nhật nút follow/unfollow trên mọi trang
-                    const followBtn = $(`#followBtn[data-store-id="${storeId}"], .unfollow-btn[data-store-id="${storeId}"]`);
-                    if (followBtn.length) {
-                        if (isFollowing) {
-                            followBtn.html('<i class="fas fa-heart me-1 text-danger"></i> FOLLOWED');
-                        } else {
-                            followBtn.html('<i class="fas fa-heart me-1"></i> FOLLOW');
-                        }
-                    } else {
-                        console.warn(`⚠️ No follow button found for store ID: ${storeId}`);
-                    }
-
-                    // Xử lý cho trang ManagementFollowedStores
-                    if (window.location.pathname === "/Home/ManagementFollowedStores") {
-                        if (isFollowing) {
-                            console.log("📥 Sending AJAX GET to load store card...");
-                            $.get("/Users/RenderStoreCard?storeId=" + storeId, function (html) {
-                                console.log("✅ Card HTML received successfully");
-                                if ($('#store-container').length) {
-                                    $('#store-container').prepend(html);
-                                } else {
-                                    console.warn("⚠️ #store-container not found on this page. Reloading...");
-                                    window.location.reload();
-                                }
-                            }).fail(function (xhr) {
-                                console.error("❌ Failed to load card from server");
-                                console.error("   ➤ Status:", xhr.status);
-                                console.error("   ➤ Response:", xhr.responseText);
-                                new Notify({
-                                    status: 'error',
-                                    title: 'Error',
-                                    text: xhr.responseText || 'Failed to load store card.',
-                                    effect: 'fade',
-                                    speed: 300,
-                                    showIcon: true,
-                                    autoclose: true,
-                                    autotimeout: 3000,
-                                    position: 'right top'
-                                });
-                            });
-                        } else {
-                            console.log("🗑 Removing card with store ID:", storeId);
-                            $(`.store-item[data-id="${storeId}"]`).remove();
-                        }
-                    }
-
-                    // Hiển thị thông báo
-                    new Notify({
-                        status: 'success',
-                        title: 'Follow Update',
-                        text: isFollowing ? 'You followed a store.' : 'You unfollowed a store.',
-                        effect: 'fade',
-                        speed: 300,
-                        showIcon: true,
-                        autoclose: true,
-                        autotimeout: 3000,
-                        position: 'right top'
+                    window.followConnection.onclose(() => {
+                        console.error("❌ followHub connection closed unexpectedly");
                     });
-                } catch (e) {
-                    console.error("❌ Error in ReceiveFollowUpdate:", e);
+
+                    window.followConnection.start()
+                        .then(() => {
+                            console.log("✅ followHub SignalR connected successfully");
+                        })
+                        .catch(err => {
+                            console.error("❌ followHub connection failed:", err);
+                        });
+
+                    window.followConnection.on("ReceiveFollowUpdate", function (storeId, isFollowing) {
+                        try {
+                            console.log("📡 SignalR event received:");
+                            console.log("   ➤ Store ID:", storeId);
+                            console.log("   ➤ Follow status:", isFollowing ? "Followed" : "Unfollowed");
+
+                            // Cập nhật nút follow/unfollow trên mọi trang
+                            const followBtn = $(`#followBtn[data-store-id="${storeId}"], .unfollow-btn[data-store-id="${storeId}"]`);
+                            if (followBtn.length) {
+                                if (isFollowing) {
+                                    followBtn.html('<i class="fas fa-heart me-1 text-danger"></i> FOLLOWED');
+                                } else {
+                                    followBtn.html('<i class="fas fa-heart me-1"></i> FOLLOW');
+                                }
+                            } else {
+                                console.warn(`⚠️ No follow button found for store ID: ${storeId}`);
+                            }
+
+                            // Xử lý cho trang ManagementFollowedStores
+                            if (window.location.pathname === "/Home/ManagementFollowedStores") {
+                                if (isFollowing) {
+                                    console.log("📥 Sending AJAX GET to load store card...");
+                                    $.get("/Users/RenderStoreCard?storeId=" + storeId, function (html) {
+                                        console.log("✅ Card HTML received successfully");
+                                        if ($('#store-container').length) {
+                                            $('#store-container').prepend(html);
+                                        } else {
+                                            console.warn("⚠️ #store-container not found on this page. Reloading...");
+                                            window.location.reload();
+                                        }
+                                    }).fail(function (xhr) {
+                                        console.error("❌ Failed to load card from server");
+                                        console.error("   ➤ Status:", xhr.status);
+                                        console.error("   ➤ Response:", xhr.responseText);
+                                        new Notify({
+                                            status: 'error',
+                                            title: 'Error',
+                                            text: xhr.responseText || 'Failed to load store card.',
+                                            effect: 'fade',
+                                            speed: 300,
+                                            showIcon: true,
+                                            autoclose: true,
+                                            autotimeout: 3000,
+                                            position: 'right top'
+                                        });
+                                    });
+                                } else {
+                                    console.log("🗑 Removing card with store ID:", storeId);
+                                    $(`.store-item[data-id="${storeId}"]`).remove();
+                                }
+                            }
+
+                            // Hiển thị thông báo
+                            new Notify({
+                                status: 'success',
+                                title: 'Follow Update',
+                                text: isFollowing ? 'You followed a store.' : 'You unfollowed a store.',
+                                effect: 'fade',
+                                speed: 300,
+                                showIcon: true,
+                                autoclose: true,
+                                autotimeout: 3000,
+                                position: 'right top'
+                            });
+                        } catch (e) {
+                            console.error("❌ Error in ReceiveFollowUpdate:", e);
+                        }
+                    });
+                } else {
+                    console.warn("⚠️ followHub SignalR already initialized.");
                 }
-            });
-        } else {
-            console.warn("⚠️ followHub SignalR already initialized.");
-        }
-    } catch (e) {
-        console.error("❌ Exception in followHub script:", e);
-    }
-});
-</script>
+            } catch (e) {
+                console.error("❌ Exception in followHub script:", e);
+            }
+        });
+    </script>
 
     @RenderSection("Scripts", required: false)
 
