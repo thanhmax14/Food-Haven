@@ -6,6 +6,27 @@
 @inject UserManager<AppUser> UserManager
 
 
+@{
+    string chatUrl = "/Home/Login"; // Mặc định nếu chưa đăng nhập
+    var user = await UserManager.GetUserAsync(User);
+
+    if (user != null)
+    {
+        if (await UserManager.IsInRoleAsync(user, "Admin"))
+        {
+            chatUrl = "/Admin/chat";
+        }
+        else if (await UserManager.IsInRoleAsync(user, "Seller"))
+        {
+            chatUrl = "/Seller/chat";
+        }
+        else if (await UserManager.IsInRoleAsync(user, "User"))
+        {
+            chatUrl = "/users/chatlist";
+        }
+    }
+}
+
 <header class="header-area header-style-1 header-height-2">
     <div class="header-middle header-middle-ptb-1 d-none d-lg-block">
         <div class="container">
@@ -70,7 +91,7 @@
                                          src="~/assets/imgs/theme/icons/phone-call.svg" /> 
                                      @* <span class="pro-count blue">3</span>  *@
                                </a>
-                                <a onclick="goToChatOrver(@User.FindFirst(ClaimTypes.NameIdentifier)?.Value)"><span class="lable ml-0">Chat</span></a>
+                                <a href="@chatUrl"><span class="lable ml-0">Chat</span></a>
                             </div> 
                             <div class="header-action-icon-2">
                                 <a href="">
@@ -258,18 +279,25 @@
                                                     Account
                                                 </a>
                                             </li>
-                                            @* <li> *@
-                                            @*     <a href=""> *@
-                                            @*         <i class="fi fi-rs-location-alt mr-10"></i>Order Tracking *@
-                                            @*     </a> *@
-                                            @* </li> *@
+                                            @{
+                                                // var user = await UserManager.GetUserAsync(User);
+                                                var isSeller = user != null && await UserManager.IsInRoleAsync(user, "Seller");
+                                            }
+                                            @if (isSeller)
+                                            {
+                                                <li>
+                                                    <a href="/Seller">
+                                                        <i class="fi fi-rs-location-alt mr-10"></i>Management Seller
+                                                    </a>
+                                                </li>
+                                            }
                                             @* <li> *@
                                             @*     <a href=""> *@
                                             @*         <i class="fi fi-rs-label mr-10"></i>My *@
                                             @*         Voucher *@
                                             @*     </a> *@
                                             @* </li> *@
-                                            <li>
+                                            @* <li>
                                                 <a asp-controller="Home" asp-action="Wishlist">
                                                     <i class="fi fi-rs-heart mr-10"></i>My
                                                     Wishlist
@@ -280,7 +308,7 @@
                                                     <i class="fi-rs-shopping-cart mr-10"></i>My
                                                     Cart
                                                 </a>
-                                            </li>
+                                            </li> *@
                                             @* <li> *@
                                             @*     <a href=""> *@
                                             @*         <i class="fi fi-rs-settings-sliders mr-10"></i>Setting *@
@@ -525,7 +553,7 @@
         </div>
     </div>
     </div>
-    <script>
+    @* <script>
         function goToChatOrver(userId) {
               fetch('/Home/GetCurrentUserRole')
                   .then(response => {
@@ -549,5 +577,7 @@
                       window.location.href = '/users';
                   });
           }
-    </script>
+    </script> *@
 </header>
+
+
