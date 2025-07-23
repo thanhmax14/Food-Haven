@@ -60,7 +60,7 @@ namespace Repository.BalanceChange
             }
         }
 
-        public async Task<bool> ExecuteInTransactionAsync(Func<Task> action)
+        public virtual async Task<bool> ExecuteInTransactionAsync(Func<Task> action)
         {
             try
             {
