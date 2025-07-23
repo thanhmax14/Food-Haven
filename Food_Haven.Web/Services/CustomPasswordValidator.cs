@@ -13,7 +13,7 @@ namespace Food_Haven.Web.Services
                 errors.Add(new IdentityError
                 {
                     Code = "PasswordTooLong",
-                    Description = "Mật khẩu không được vượt quá 64 ký tự."
+                    Description = "The password must not exceed 64 characters."
                 });
             }
 
@@ -28,7 +28,7 @@ namespace Food_Haven.Web.Services
                 errors.Add(new IdentityError
                 {
                     Code = "PasswordComplexity",
-                    Description = "Mật khẩu phải chứa ít nhất 2 trong 4 loại: chữ hoa, chữ thường, số, ký tự đặc biệt."
+                    Description = "The password must contain at least 2 of the following 4 types: uppercase letters, lowercase letters, numbers, and special characters."
                 });
             }
 
