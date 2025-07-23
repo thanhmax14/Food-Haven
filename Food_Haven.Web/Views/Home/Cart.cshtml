@@ -135,9 +135,12 @@
                                 </a>
                             </h6>
                         </td>
-                        <td class="price" data-title="Price">
-                            <h4 class="text-body">@item.price.ToString("N0") đ</h4>
-                        </td>
+                        <!-- Giá đơn vị -->
+<td class="price" data-title="Price">
+    <h4 class="text-body" id="price-@item.ProductTypeID">
+        @item.price.ToString("N0") đ
+    </h4>
+</td>
                         <td class="text-center detail-info" data-title="Stock">
                             <div class="detail-extralink mr-15">
                                 <div class="detail-qty border radius">
@@ -152,9 +155,11 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="price" data-title="Subtotal">
-                            <h4 class="text-brand">@item.Subtotal.ToString("N0") đ</h4>
-                        </td>
+                       <td class="price" data-title="Subtotal">
+    <h4 class="text-brand" id="subtotal-@item.ProductTypeID">
+        @item.Subtotal.ToString("N0") đ
+    </h4>
+</td>
                         <td class="action text-center" data-title="Remove">
                             <a type="button" class="text-body delete-cart" data-id="@item.CartID">
                                 <i class="fi-rs-trash"></i>
@@ -304,7 +309,7 @@
 
                                     <tr>
                                         <td class="cart_total_label">
-                                            <h6 class="text-muted">Subtotal</h6>
+        <h6 class="text-muted">Subtotal</h6> <!-- ✅ Ghi nhãn đúng -->
                                         </td>
                                         <td class="cart_total_amount">
                                             <h5 class="text-end" id="subtotal-amount">@total.ToString("₫#,##0")</h5>
@@ -634,27 +639,33 @@
         $(".qty-down[data-id='" + productTypeId + "']").toggle(currentQty > 1);
     }
 
-    function updateTotalPrice() {
-        var total = 0;
-        var hasCheckedItems = $("input.cart-item:checked").length > 0;
+   function updateTotalPrice() {
+    var total = 0;
+    var hasCheckedItems = $("input.cart-item:checked").length > 0;
 
-        if (hasCheckedItems) {
-            $("input.cart-item:checked").each(function () {
-                var row = $(this).closest("tr");
-                if (!row.hasClass("outofstock")) {
-                    var subtotal = parseFloat(row.find("td.price h4.text-brand").text().replace(/,/g, '')) || 0;
-                    total += subtotal;
-                }
-            });
-        } else {
-            $("tr").not(".outofstock").each(function () {
-                var subtotal = parseFloat($(this).find("td.price h4.text-brand").text().replace(/,/g, '')) || 0;
-                total += subtotal;
-            });
-        }
-
-        $("#cart-total").text(total.toLocaleString("en-US"));
+    if (hasCheckedItems) {
+        $("input.cart-item:checked").each(function () {
+            var row = $(this).closest("tr");
+            if (!row.hasClass("outofstock")) {
+                var unitPrice = parseFloat(row.find("td[data-title='Price'] h4").text().replace(/[^\d]/g, '')) || 0;
+                var quantity = parseInt(row.find("input.qty-val").val()) || 0;
+                total += unitPrice * quantity;
+            }
+        });
+    } else {
+        $("tr").not(".outofstock").each(function () {
+            var row = $(this);
+            var unitPrice = parseFloat(row.find("td[data-title='Price'] h4").text().replace(/[^\d]/g, '')) || 0;
+            var quantity = parseInt(row.find("input.qty-val").val()) || 0;
+            total += unitPrice * quantity;
+        });
     }
+
+    // Gán giá trị hiển thị
+    $("#cart-total").text(`₫${total.toLocaleString("en-US")}`);
+    $("#subtotal-amount").text(`₫${total.toLocaleString("en-US")}`);
+}
+
 
     function debounce(func, wait) {
         var timeout;
@@ -941,61 +952,60 @@ if (newQty < 1) {
 </script>
 
     <script>
-        $(document).ready(function () {
-            function getTotalPrice() {
-                var total = 0;
-                $("tr").not(".outofstock").find("td.price h4.text-brand").each(function () {
-                    var subtotal = parseFloat($(this).text().replace(/,/g, '')) || 0;
-                    total += subtotal;
-                });
-                return total.toFixed(2);
-            }
-
-            function updateSelectedTotal() {
-                var total = 0;
-                var checkedItems = $("input.form-check-input:checked");
-
-                console.log("🟢 Số lượng checkbox được chọn:", checkedItems.length);
-
-                if (checkedItems.length > 0) {
-                    checkedItems.each(function () {
-                        var row = $(this).closest("tr");
-                        if (!row.hasClass("outofstock")) { // Chỉ tính tổng sản phẩm không bị mờ
-                            var subtotalText = row.find("td.price h4.text-brand").text().replace(/,/g, '');
-                            var subtotal = parseFloat(subtotalText) || 0;
-                            total += subtotal;
-                        }
-                    });
-                    console.log("⚡ Tổng tiền của các sản phẩm đã chọn:", total);
-
-                    // Gán vào subtotal
-                    document.getElementById("subtotal-amount").innerText = `₫${total.toLocaleString()}`;
-
-                    // Gán vào cart total (giả sử chưa trừ voucher)
-                    document.getElementById("cart-total").innerText = `₫${total.toLocaleString()}`;
-
-
-                } else {
-                    total = parseFloat(getTotalPrice());
-                    console.log("⚡ Không có checkbox nào được chọn. Tổng tiền = 0");
-                }
-
-                $("#cart-total").text(total.toFixed(2));
-            }
-
-            $("input.form-check-input").change(function () {
-                updateSelectedTotal();
-            });
-
-            $("#exampleCheckbox11").change(function () {
-                var isChecked = $(this).prop("checked");
-                $("input.form-check-input").prop("checked", isChecked).trigger("change");
-            });
-
-            // Đảm bảo tổng giá trị được cập nhật đúng khi tải trang
-            $("input.form-check-input").prop("checked", false);
-            updateSelectedTotal();
+       $(document).ready(function () {
+    function getTotalPrice() {
+        var total = 0;
+        $("tr").not(".outofstock").each(function () {
+            var row = $(this);
+            var unitPrice = parseFloat(row.find("td[data-title='Price'] h4").text().replace(/[^\d]/g, '')) || 0;
+            var quantity = parseInt(row.find("input.qty-val").val()) || 0;
+            var subtotal = unitPrice * quantity;
+            total += subtotal;
         });
+        return total;
+    }
+
+    function updateSelectedTotal() {
+        var total = 0;
+        var checkedItems = $("input.form-check-input:checked");
+
+        console.log("🟢 Số lượng checkbox được chọn:", checkedItems.length);
+
+        if (checkedItems.length > 0) {
+            checkedItems.each(function () {
+                var row = $(this).closest("tr");
+                if (!row.hasClass("outofstock")) {
+                    var unitPrice = parseFloat(row.find("td[data-title='Price'] h4").text().replace(/[^\d]/g, '')) || 0;
+                    var quantity = parseInt(row.find("input.qty-val").val()) || 0;
+                    var subtotal = unitPrice * quantity;
+                    total += subtotal;
+                }
+            });
+        } else {
+            total = getTotalPrice();
+            console.log("⚡ Không có checkbox nào được chọn. Tổng tiền =", total);
+        }
+
+        // ✅ Cập nhật giao diện
+        document.getElementById("subtotal-amount").innerText = `₫${total.toLocaleString()}`;
+        document.getElementById("cart-total").innerText = `₫${total.toLocaleString()}`;
+    }
+
+    // Khi checkbox thay đổi
+    $("input.form-check-input").change(function () {
+        updateSelectedTotal();
+    });
+
+    // Checkbox select-all
+    $("#exampleCheckbox11").change(function () {
+        var isChecked = $(this).prop("checked");
+        $("input.form-check-input").prop("checked", isChecked).trigger("change");
+    });
+
+    // ✅ Khi tải trang: reset tất cả và tính lại tổng
+    $("input.form-check-input").prop("checked", false);
+    updateSelectedTotal();
+});
 
 
 
@@ -1097,7 +1107,7 @@ if (newQty < 1) {
 
 
     </script>
-   <<script>
+   <script>
     $(document).ready(function () {
         $("#clearCartBtn").click(function (e) {
             e.preventDefault();
