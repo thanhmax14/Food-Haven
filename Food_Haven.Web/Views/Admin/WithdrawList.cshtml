@@ -176,14 +176,12 @@
                         <div
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Withdraw List</h4>
-
-                            <div class="page-title-right">
+                            @* <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="">Tables</a></li>
                                     <li class="breadcrumb-item active">Withdraw List</li>
                                 </ol>
-                            </div>
-
+                            </div> *@
                         </div>
                     </div>
                 </div>
@@ -246,7 +244,9 @@
                                             let url = `/admin/WithdrawDetails/${WithdrawId}`; // URL động
 
                                             return gridjs.html(`
-                        <a class="btn btn-sm btn-primary" href="${url}" ">Details</a>
+                        <a class="btn btn-sm btn-primary" href="${url}" ">
+                            <i class="ri-pencil-fill align-bottom me-1"></i>Details
+                        </a>
                     `);
 
                                         }

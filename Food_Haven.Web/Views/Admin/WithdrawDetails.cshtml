@@ -3,7 +3,7 @@
 @using System.Text.Json
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -65,7 +65,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -174,12 +174,13 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Withdraw Details</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="">Tables</a></li>
+                                    <li class="breadcrumb-item"><a href="/admin/WithdrawList">Withdraw List</a></li>
                                     <li class="breadcrumb-item active">Withdraw Details</li>
                                 </ol>
                             </div>
@@ -211,57 +212,68 @@
                                             <div class="col-md-12">
                                                 <div class="mb-3">
                                                     <label for="UserNameInput" class="form-label">User Name</label>
-                                                    <input type="text" class="form-control" id="UserNameInput" asp-for="UserName" readonly>
+                                                    <input type="text" class="form-control" id="UserNameInput"
+                                                        asp-for="UserName" readonly>
                                                 </div>
                                             </div>
 
                                             <!-- Các trường khác -->
                                             <div class="col-md-4">
                                                 <div class="mb-3">
-                                                    <label for="TransactionDateInput" class="form-label">Transaction Date</label>
-                                                    <input type="text" class="form-control" id="TransactionDateInput" asp-for="StartTime" readonly>
+                                                    <label for="TransactionDateInput" class="form-label">Transaction
+                                                        Date</label>
+                                                    <input type="text" class="form-control" id="TransactionDateInput"
+                                                        asp-for="StartTime" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="AmountInput" class="form-label">Amount</label>
-                                                    <input type="text" class="form-control" id="AmountInput" asp-for="Amount" readonly>
+                                                    <input type="text" class="form-control" id="AmountInput"
+                                                        asp-for="Amount" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="StatusInput" class="form-label">Status</label>
-                                                    <input type="text" class="form-control" id="StatusInput" asp-for="Status" readonly>
+                                                    <input type="text" class="form-control" id="StatusInput"
+                                                        asp-for="Status" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="BankNameInput" class="form-label">Bank Name</label>
-                                                    <input type="text" class="form-control" id="BankNameInput" asp-for="BankName" readonly>
+                                                    <input type="text" class="form-control" id="BankNameInput"
+                                                        asp-for="BankName" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="BankNumberInput" class="form-label">Bank Number</label>
-                                                    <input type="text" class="form-control" id="BankNumberInput" asp-for="BankAccount" readonly>
+                                                    <input type="text" class="form-control" id="BankNumberInput"
+                                                        asp-for="BankAccount" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="RecipientInput" class="form-label">Recipient</label>
-                                                    <input type="text" class="form-control" id="RecipientInput" asp-for="Recipient" readonly>
+                                                    <input type="text" class="form-control" id="RecipientInput"
+                                                        asp-for="Recipient" readonly>
                                                 </div>
                                             </div>
 
                                             <!-- Nút điều hướng -->
                                             <div class="col-md-12">
                                                 <div class="text-end mt-3">
-                                                    <a href="/admin/WithdrawList" class="btn btn-secondary me-2">Back to List</a>
+                                                    <a href="/admin/WithdrawList" class="btn btn-secondary me-2">Back to
+                                                        List</a>
 
                                                     @if (Model.Status == "PROCESSING")
                                                     {
-                                                        <button type="button" class="btn btn-success me-2" id="btnAccept">Accept</button>
-                                                        <button type="button" class="btn btn-danger" id="btnReject">Reject</button>
+                                                        <button type="button" class="btn btn-success me-2"
+                                                            id="btnAccept">Accept</button>
+                                                        <button type="button" class="btn btn-danger"
+                                                            id="btnReject">Reject</button>
                                                     }
                                                 </div>
                                             </div>
@@ -331,7 +343,8 @@
     <script src="~/assetsAdmin/js/app.js"></script>
     <!-- App js -->
     <script src="~/assetsAdmin/js/app.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="~/assets/cute-alert/cute-alert.js"></script>
     <script src="~/assets/sweetalert2/sweetalert2.js"></script>
     <link rel="stylesheet" href="~/assets/cute-alert/style.css" />
@@ -380,7 +393,7 @@
                     $("#btnAccept").remove();
                     $("#btnReject").remove();
                     $("#StatusInput").val("Success");
-               
+
                     new Notify({
                         status: 'success',
                         title: 'Success!',
@@ -453,8 +466,8 @@
             success: function (response) {
                 if (response.success) {
                     $("#btnReject").remove();
-                 $("#btnAccept").remove();
-                 $("#StatusInput").val("CANCELLED");
+                    $("#btnAccept").remove();
+                    $("#StatusInput").val("CANCELLED");
                     new Notify({
                         status: 'success',
                         title: 'Success!',

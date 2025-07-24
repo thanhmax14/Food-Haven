@@ -121,7 +121,7 @@
             <!-- LOGO -->
             <div class="navbar-brand-box">
                 <!-- Dark Logo-->
-                <<a class="logo logo-dark">
+                <a class="logo logo-dark">
                     <span class="logo-sm">
                         <img src="~/assetsAdmin/images/logo-sm.svg" alt="" height="22">
                     </span>
@@ -250,12 +250,13 @@
                     <div class="col-12">
                         <div
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Management Recipe</h4>
+                            <h4 class="mb-sm-0">Recipe Detail</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
-                                    <li class="breadcrumb-item active">Management Recipe</li>
+                                    <li class="breadcrumb-item"><a href="/Admin/ManagementRecipe">Management Recipe</a>
+                                    </li>
+                                    <li class="breadcrumb-item active">Recipe Detail</li>
                                 </ol>
                             </div>
 
@@ -367,24 +368,22 @@
 
                     <div class="col-md-12 mb-3">
                         <label class="form-label">Ingredient</label>
-                        <div id="editor-Ingredient" class="bg-white border p-3"
-                            style="min-height: 200px; pointer-events: none;">
+                        <div class="bg-white border p-3" style="min-height: 200px; pointer-events: none;">
                             @Html.Raw(Model.Ingredient ?? "<p>Enter ingredients here...</p>")
                         </div>
                         <input type="hidden" name="Ingredient" id="IngredientHidden" />
                     </div>
                     <div class="col-md-12 mb-3">
                         <label class="form-label">Cooking Steps</label>
-                        <div id="editor-Ingredient" class="bg-white border p-3"
-                            style="min-height: 200px; pointer-events: none;">
+                        <div class="bg-white border p-3" style="min-height: 200px; pointer-events: none;">
                             @Html.Raw(Model.CookingStep ?? "<p>Enter cooking steps here...</p>")
                         </div>
                         <input type="hidden" name="CookingStep" id="CookingStepHidden" />
                     </div>
 
                     <!-- Current Image -->
-                    <div class="col-md-6 mb-3 mt-5">
-                        <label class="form-label mt-2">Thumbnail Image</label>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Thumbnail Image</label>
                         <div class="border p-3 rounded bg-light">
                             <img src="@Model.ThumbnailImage" alt="Thumbnail" class="img-fluid rounded mx-auto d-block"
                                 style="max-width: 100%; height: auto;" />
@@ -393,11 +392,14 @@
 
                     <!-- Nút Accept / Reject -->
                     <div class="col-md-12 d-flex justify-content-end gap-2 mt-4">
+                        <button type="button" class="btn btn-primary"
+                            onclick="window.location.href='/Admin/ManagementRecipe'">Back To List</button>
+
                         <button type="button" class="btn btn-success" onclick="submitWithAjax('Approved')">
-                            <i class="ri-eye-line align-bottom me-1"></i>  Accept Recipe
+                            <i class="ri-eye-line align-bottom me-1"></i> Accept Recipe
                         </button>
                         <button type="button" class="btn btn-danger" onclick="openRejectModal()">
-                           <i class="ri-eye-off-line align-bottom me-1"></i> Reject Recipe
+                            <i class="ri-eye-off-line align-bottom me-1"></i> Reject Recipe
                         </button>
                     </div>
                     <!-- Reject Reason Modal -->
@@ -405,6 +407,7 @@
                         aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
+
                                 <div class="modal-header bg-danger text-white">
                                     <h5 class="modal-title" id="rejectModalLabel">Reject Recipe</h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
@@ -416,6 +419,7 @@
                                         placeholder="Enter your reason here..."></textarea>
                                 </div>
                                 <div class="modal-footer">
+
                                     <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">Cancel</button>
                                     <button type="button" class="btn btn-danger"
@@ -649,76 +653,76 @@
             });
         });
     </script>
-  <script>
-    function openRejectModal() {
-        const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
-        modal.show();
-    }
-
-    function submitWithAjax(status) {
-        const id = $("#RecipeId").val();
-        const token = $('input[name="__RequestVerificationToken"]').val();
-
-        Swal.fire({
-            title: `Are you sure you want to ${status.toLowerCase()} this recipe?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: "Yes, confirm"
-        }).then(result => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: `/Admin/UpdateRecipeStatus/${id}/${status}`,
-                    type: "POST",
-                    headers: {
-                        'RequestVerificationToken': token
-                    },
-                    success: function (res) {
-                        if (res.success) {
-                            Swal.fire("Success", res.message, "success")
-                                .then(() => window.location.href = "/Admin/ManagementRecipe");
-                        } else {
-                            Swal.fire("Error", res.message || "Update failed", "error");
-                        }
-                    },
-                    error: function (xhr) {
-                        Swal.fire("Error", xhr.responseText || "System error", "error");
-                    }
-                });
-            }
-        });
-    }
-
-    function confirmReject() {
-        const id = $("#RecipeId").val();
-        const reason = $("#rejectReason").val();
-        const token = $('input[name="__RequestVerificationToken"]').val();
-
-        if (!reason.trim()) {
-            Swal.fire("Validation", "Please provide a reason for rejection.", "warning");
-            return;
+    <script>
+        function openRejectModal() {
+            const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+            modal.show();
         }
 
-        $.ajax({
-            url: `/Admin/UpdateRecipeStatus/${id}/Rejected`,
-            type: "POST",
-            data: { rejectNote: reason },
-            headers: {
-                'RequestVerificationToken': token
-            },
-            success: function (res) {
-                if (res.success) {
-                    Swal.fire("Rejected", res.message, "success")
-                        .then(() => window.location.href = "/Admin/ManagementRecipe");
-                } else {
-                    Swal.fire("Error", res.message || "Update failed", "error");
+        function submitWithAjax(status) {
+            const id = $("#RecipeId").val();
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            Swal.fire({
+                title: `Are you sure you want to ${status.toLowerCase()} this recipe?`,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, confirm"
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/Admin/UpdateRecipeStatus/${id}/${status}`,
+                        type: "POST",
+                        headers: {
+                            'RequestVerificationToken': token
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                Swal.fire("Success", res.message, "success")
+                                    .then(() => window.location.href = "/Admin/ManagementRecipe");
+                            } else {
+                                Swal.fire("Error", res.message || "Update failed", "error");
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire("Error", xhr.responseText || "System error", "error");
+                        }
+                    });
                 }
-            },
-            error: function (xhr) {
-                Swal.fire("Error", xhr.responseText || "System error", "error");
+            });
+        }
+
+        function confirmReject() {
+            const id = $("#RecipeId").val();
+            const reason = $("#rejectReason").val();
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            if (!reason.trim()) {
+                Swal.fire("Validation", "Please provide a reason for rejection.", "warning");
+                return;
             }
-        });
-    }
-</script>
+
+            $.ajax({
+                url: `/Admin/UpdateRecipeStatus/${id}/Rejected`,
+                type: "POST",
+                data: { rejectNote: reason },
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                success: function (res) {
+                    if (res.success) {
+                        Swal.fire("Rejected", res.message, "success")
+                            .then(() => window.location.href = "/Admin/ManagementRecipe");
+                    } else {
+                        Swal.fire("Error", res.message || "Update failed", "error");
+                    }
+                },
+                error: function (xhr) {
+                    Swal.fire("Error", xhr.responseText || "System error", "error");
+                }
+            });
+        }
+    </script>
 
 
 

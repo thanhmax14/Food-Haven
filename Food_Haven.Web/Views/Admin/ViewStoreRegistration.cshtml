@@ -4,7 +4,7 @@
 
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -66,7 +66,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -174,15 +174,16 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Registration Store List</h4>
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Store Registration List</h4>
 
-                            <div class="page-title-right">
+                            @* <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
                                     <li class="breadcrumb-item active">Registration Store List</li>
                                 </ol>
-                            </div>
+                            </div> *@
 
                         </div>
                     </div>
@@ -226,7 +227,7 @@
                                     { name: "Phone", width: "150px" },
                                     {
                                         name: "Image", hidden: true,
-                                                            width: "100px",
+                                        width: "100px",
                                         formatter: (cell) => gridjs.html(`
                                             <img src="${cell}" alt="Store Image" width="50" height="50" style="border-radius: 5px;">
                                         `)

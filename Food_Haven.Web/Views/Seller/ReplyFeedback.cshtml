@@ -3,7 +3,7 @@
 @using System.Text.Json
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -65,7 +65,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -102,9 +102,9 @@
                             </a>
                         </li>
                         <li class="nav-item"></li>
-                            <a class="nav-link menu-link active" asp-controller="seller" asp-action="feedbacklist">
-                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                            </a>
+                        <a class="nav-link menu-link active" asp-controller="seller" asp-action="feedbacklist">
+                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                        </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -138,11 +138,12 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Reply Feedback</h4>
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item">Tables</li>
+                                    <li class="breadcrumb-item"><a href="/seller/Feedbacklist">Feedback List</a></li>
                                     <li class="breadcrumb-item active">Reply Feedback</li>
                                 </ol>
                             </div>
@@ -164,57 +165,47 @@
                                         <input type="hidden" asp-for="ID" />
                                         <input type="hidden" asp-for="UserID" />
                                         <input type="hidden" asp-for="ProductID" />
-                                      
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label for="ProductNameinput" class="form-label">Product Name</label>
+                                                    <label for="ProductNameinput" class="form-label">Product
+                                                        Name</label>
                                                     @* <input readonly class="form-control" id="ProductName" name="ProductName" type="text" value="@Model." /> *@
-                                                    <input type="text" class="form-control"
-                                                           id="ProductNameinput"
-                                                           asp-for="ProductName"
-                                                           readonly>
+                                                    <input type="text" class="form-control" id="ProductNameinput"
+                                                        asp-for="ProductName" readonly>
                                                 </div>
                                             </div>
                                             <!--end col-->
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label for="UserNameinput" class="form-label">User Name</label>
-                                                    <input type="text" class="form-control"
-                                                           id="UserNameinput"
-                                                           asp-for="Username"
-                                                           readonly>
+                                                    <input type="text" class="form-control" id="UserNameinput"
+                                                        asp-for="Username" readonly>
                                                 </div>
                                             </div>
                                             <!--end col-->
                                             <div class="col-md-8">
                                                 <div class="mb-3">
                                                     <label for="CommentInput" class="form-label">Comment</label>
-                                                    <input type="text" class="form-control"
-                                                           id="CommentInput"
-                                                           asp-for="Comment"
-                                                           readonly>
+                                                    <input type="text" class="form-control" id="CommentInput"
+                                                        asp-for="Comment" readonly>
                                                 </div>
                                             </div>
                                             <!--end col-->
                                             <div class="col-md-4">
                                                 <div class="mb-3">
                                                     <label for="RatingInput" class="form-label">Rating</label>
-                                                    <input type="text" class="form-control"
-                                                           id="RatingInput"
-                                                           asp-for="Rating"
-                                                           readonly>
+                                                    <input type="text" class="form-control" id="RatingInput"
+                                                        asp-for="Rating" readonly>
                                                 </div>
                                             </div>
                                             <!--end col-->
                                             <div class="col-md-12">
                                                 <div class="mb-3">
                                                     <label for="RelayInput" class="form-label">Reply</label>
-                                                    <textarea class="form-control"
-                                                              id="RelayInput"
-                                                              rows="3"
-                                                              asp-for="Reply"
-                                                              placeholder="Enter your reply"></textarea>
+                                                    <textarea class="form-control" id="RelayInput" rows="3"
+                                                        asp-for="Reply" placeholder="Enter your reply"></textarea>
 
                                                     <!-- Dòng này sẽ hiển thị thông báo lỗi nếu có -->
                                                     <span asp-validation-for="Reply" class="text-danger"></span>
@@ -224,6 +215,9 @@
                                             <!--end col-->
                                             <div class="col-lg-12">
                                                 <div class="text-end">
+                                                    <a href="/seller/Feedbacklist" class="btn btn-secondary px-3">Back
+                                                        To
+                                                        Feedback List</a>
                                                     <button type="submit" class="btn btn-primary">Submit</button>
                                                 </div>
                                             </div>

@@ -154,7 +154,7 @@
                     </a>
                 </div>
             </div>
-           <div id="scrollbar">
+            <div id="scrollbar">
                 <div class="container-fluid">
                     <div id="two-column-menu">
                     </div>
@@ -241,121 +241,121 @@
             <!-- Sidebar -->
         </div>
         <div class="sidebar-background"></div>
-        </div>
-        <!-- Left Sidebar End -->
-        <!-- Vertical Overlay-->
-        <div class="vertical-overlay"></div>
+    </div>
+    <!-- Left Sidebar End -->
+    <!-- Vertical Overlay-->
+    <div class="vertical-overlay"></div>
 
-        <!-- ============================================================== -->
-        <!-- Start right Content here -->
-        <!-- ============================================================== -->
-        <div class="main-content">
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
 
-            <div class="page-content">
-                <div class="container-fluid">
+        <div class="page-content">
+            <div class="container-fluid">
 
-                    <!-- start page title -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div
-                                class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                                <h4 class="mb-sm-0">Grid Js</h4>
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Store Reports List</h4>
 
-                                <div class="page-title-right">
+                            @* <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
                                         <li class="breadcrumb-item active">Grid Js</li>
                                     </ol>
-                                </div>
+                                </div> *@
 
-                            </div>
                         </div>
                     </div>
-                    <!-- end page title -->
-
-
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title mb-0 flex-grow-1">Base Example</h4>
-                                </div><!-- end card header -->
-
-                                <div class="card-body">
-                                    <div id="table-gridjs1111"></div>
-                                </div><!-- end card-body -->
-
-                            </div><!-- end card -->
-                        </div>
-                        <!-- end col -->
-                    </div>
-                    <!-- end row -->
-              <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        if (document.getElementById("table-gridjs1111")) {
-            var users = @Html.Raw(JsonSerializer.Serialize(Model));
-
-            new gridjs.Grid({
-                columns: [
-                    {
-                        name: "UserName",
-                        width: "140px",
-                        formatter: (cell, row) => {
-                            const userId = row.cells[5].data;
-                            return gridjs.html(`<a href="/Home/UserInformation/${userId}" target="_blank">${cell}</a>`);
-                        }
-                    },
-                    { name: "Email", width: "150px" },
-                    {
-                        name: "Store Name",
-                        width: "150px",
-                        formatter: (cell, row) => {
-                            const storeId = row.cells[6].data;
-                            return gridjs.html(`<a href="/Home/GetStoreDetail/${storeId}" target="_blank">${cell}</a>`);
-                        }
-                    },
-                    { name: "Reason", width: "200px" },
-                    { name: "Message", width: "250px" },
-                    { name: "UserID", hidden: true },
-                    { name: "StoreID", hidden: true }
-                ],
-                pagination: {
-                    enabled: true,
-                    limit: 10,
-                    summary: true
-                },
-                sort: true,
-                search: true,
-                data: users.map(user => [
-                    user.UserName,
-                    user.Email,
-                    user.StoreName,
-                    user.Reason,
-                    user.Message,
-                    user.UserID,    // index 5
-                    user.StoreID    // index 6
-                ])
-            }).render(document.getElementById("table-gridjs1111"));
-        }
-    });
-</script>
-
-
-
-
-
-
-
-
-                    <!-- end row -->
-
                 </div>
-                <!-- container-fluid -->
+                <!-- end page title -->
+
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title mb-0 flex-grow-1">Store Reports List</h4>
+                            </div><!-- end card header -->
+
+                            <div class="card-body">
+                                <div id="table-gridjs1111"></div>
+                            </div><!-- end card-body -->
+
+                        </div><!-- end card -->
+                    </div>
+                    <!-- end col -->
+                </div>
+                <!-- end row -->
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        if (document.getElementById("table-gridjs1111")) {
+                            var users = @Html.Raw(JsonSerializer.Serialize(Model));
+
+                            new gridjs.Grid({
+                                columns: [
+                                    {
+                                        name: "UserName",
+                                        width: "140px",
+                                        formatter: (cell, row) => {
+                                            const userId = row.cells[5].data;
+                                            return gridjs.html(`<a href="/Home/UserInformation/${userId}" target="_blank">${cell}</a>`);
+                                        }
+                                    },
+                                    { name: "Email", width: "150px" },
+                                    {
+                                        name: "Store Name",
+                                        width: "150px",
+                                        formatter: (cell, row) => {
+                                            const storeId = row.cells[6].data;
+                                            return gridjs.html(`<a href="/Home/GetStoreDetail/${storeId}" target="_blank">${cell}</a>`);
+                                        }
+                                    },
+                                    { name: "Reason", width: "200px" },
+                                    { name: "Message", width: "250px" },
+                                    { name: "UserID", hidden: true },
+                                    { name: "StoreID", hidden: true }
+                                ],
+                                pagination: {
+                                    enabled: true,
+                                    limit: 10,
+                                    summary: true
+                                },
+                                sort: true,
+                                search: true,
+                                data: users.map(user => [
+                                    user.UserName,
+                                    user.Email,
+                                    user.StoreName,
+                                    user.Reason,
+                                    user.Message,
+                                    user.UserID,    // index 5
+                                    user.StoreID    // index 6
+                                ])
+                            }).render(document.getElementById("table-gridjs1111"));
+                        }
+                    });
+                </script>
+
+
+
+
+
+
+
+
+                <!-- end row -->
+
             </div>
-            <!-- End Page-content -->
-        @await Html.PartialAsync("_Footer_Admin_Seller")
+            <!-- container-fluid -->
         </div>
-        <!-- end main content-->
+        <!-- End Page-content -->
+        @await Html.PartialAsync("_Footer_Admin_Seller")
+    </div>
+    <!-- end main content-->
 
     </div>
     <!-- END layout-wrapper -->

@@ -34,14 +34,14 @@
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
     <style>
         /* Đồng bộ màu nền toàn bộ phần content */
-        .main-content,
+        @* .main-content,
         .page-content,
         .card-body,
         .tab-content,
         .gridjs-wrapper {
             background-color: #ffffff !important;
             /* hoặc đổi sang #f3f3f9 nếu bạn thích nền xám nhẹ */
-        }
+        } *@
 
         /* Nếu muốn lược bỏ bóng của card (tùy template) */
         .card-body {
@@ -49,9 +49,9 @@
         }
 
         /* Chỉnh màu bảng nếu Grid.js vẫn lệch */
-        .gridjs-table {
+        @* .gridjs-table {
             background-color: #ffffff !important;
-        }
+        } *@
     </style>
 
 </head>
@@ -191,7 +191,6 @@
 
         <div class="page-content">
             <div class="container-fluid">
-
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
@@ -199,45 +198,57 @@
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Management Recipe</h4>
 
-                            <div class="page-title-right">
+                            @* <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
                                     <li class="breadcrumb-item active">Management Recipe</li>
                                 </ol>
-                            </div>
+                            </div> *@
 
                         </div>
                     </div>
                 </div>
                 <!-- end page title -->
 
-                <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title mb-0">Category List</h4>
+                            </div>
+                            <div class="card-body">
+                                <!-- Tabs -->
+                                <ul class="nav nav-tabs mb-3" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" data-bs-toggle="tab" href="#tab-visible"
+                                            role="tab">Recipe
+                                            Management</a>
+                                    </li>
 
-                    <!-- Tabs -->
-                    <ul class="nav nav-tabs mb-3" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-visible" role="tab">Recipe
-                                Management</a>
-                        </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#tab-manage" role="tab">Pending
+                                            Recipe
+                                        </a>
+                                    </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#tab-manage" role="tab">Pending Recipe
-                            </a>
-                        </li>
+                                </ul>
 
-                    </ul>
+                                <!-- Tab Content -->
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="tab-manage" role="tabpanel">
+                                        <div id="table-manage"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="tab-visible" role="tabpanel">
+                                        <div id="table-visible"></div>
+                                    </div>
+                                </div>
 
-                    <!-- Tab Content -->
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="tab-manage" role="tabpanel">
-                            <div id="table-manage"></div>
-                        </div>
-                        <div class="tab-pane fade" id="tab-visible" role="tabpanel">
-                            <div id="table-visible"></div>
+                            </div>
                         </div>
                     </div>
-
                 </div>
+
+
 
                 <!-- end row -->
 

@@ -951,6 +951,7 @@ namespace Food_Haven.Web.Controllers
 
             var viewModel = new manageOrderDetail
             {
+                userId = order.UserID,
                 OrderTracking = order.OrderTracking,
                 OrderID = order.ID,
                 Note = order.Note,
@@ -962,7 +963,9 @@ namespace Food_Haven.Web.Controllers
                 IDLogistics = order.OrderTracking,
                 NameCustomer = $"{getInfoCustomer.FirstName} {getInfoCustomer.LastName}",
                 EmailCustomer = getInfoCustomer.Email,
-                PhoneCustomer = getInfoCustomer.PhoneNumber,
+                PhoneCustomer = getInfoCustomer.PhoneNumber.StartsWith("0")
+                    ? "+(84) " + getInfoCustomer.PhoneNumber.Substring(1)
+                    : getInfoCustomer.PhoneNumber,
                 UserNameCus = getInfoCustomer.UserName,
                 ShippingAddress = order.DeliveryAddress,
                 ImageCus = getInfoCustomer.ImageUrl ?? "~/assets/imgs/theme/icons/icon-user.svg",

@@ -8,7 +8,8 @@ namespace Repository.ViewModels
 {
     public class manageOrderDetail
     {
-        public List<ManageOrderDetailInfo> ItemDetail { get; set; }=new List<ManageOrderDetailInfo>();
+        public string userId { get; set; } = "";
+        public List<ManageOrderDetailInfo> ItemDetail { get; set; } = new List<ManageOrderDetailInfo>();
         public string OrderTracking { get; set; }
         public Guid OrderID { get; set; }
         public string Note { get; set; }
@@ -22,7 +23,7 @@ namespace Repository.ViewModels
         public string EmailCustomer { get; set; }
         public string PhoneCustomer { get; set; }
         public string ShippingAddress { get; set; }
-        public string  UserNameCus { get; set; }
+        public string UserNameCus { get; set; }
         public string ImageCus { get; set; }
         public List<OrderStatusHistory> StatusHistories { get; set; } = new();
 

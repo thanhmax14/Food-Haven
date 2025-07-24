@@ -228,7 +228,7 @@
 
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Ecommerce</a></li>
+                                        <li class="breadcrumb-item"><a href="/seller/ManageOrder">Order History List</a></li>
                                         <li class="breadcrumb-item active">Order Details</li>
                                     </ol>
                                 </div>
@@ -244,16 +244,16 @@
                                 <div class="card-header">
                                     <div class="d-flex align-items-center">
                                         <h5 class="card-title flex-grow-1 mb-0">Order #@Model.OrderTracking</h5>
-                                        <div class="flex-shrink-0">
+                                        @* <div class="flex-shrink-0">
                                             <a href="apps-invoices-details.html" class="btn btn-success btn-sm"><i
                                                     class="ri-download-2-fill align-middle me-1"></i> Invoice</a>
-                                        </div>
+                                        </div> *@
                                     </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive table-card">
                                         <table class="table table-nowrap align-middle table-borderless mb-0">
-                                            <thead class="table-light text-muted">
+                                            <thead class="">
                                                 <tr>
                                                     <th scope="col">Product Details</th>
                                                     <th scope="col">Item Price</th>
@@ -297,12 +297,10 @@
                                                       <tr class="border-top border-top-dashed">
                                                     <td colspan="3" class="align-top">
                                                         <div class="p-2">
-                                                            <strong>Ghi chú đơn hàng:</strong><br />
+                                                            <strong>Order notes:</strong><br />
                                                             <span style="white-space: pre-line">
                                                               @Model.Note
                                                             </span>
-
-
                                                         </div>
                                                     </td>
                                                     <td colspan="2" class="fw-medium p-0">
@@ -337,12 +335,10 @@
                                                       <tr class="border-top border-top-dashed">
                                                     <td colspan="3" class="align-top">
                                                         <div class="p-2">
-                                                            <strong>Ghi chú đơn hàng:</strong><br />
+                                                            <strong>Order notes:</strong><br />
                                                             <span style="white-space: pre-line">
                                                              
                                                             </span>
-
-
                                                         </div>
                                                     </td>
                                                     <td colspan="2" class="fw-medium p-0">
@@ -576,10 +572,10 @@
                                         <h5 class="card-title flex-grow-1 mb-0"><i
                                                 class="mdi mdi-truck-fast-outline align-middle me-1 text-muted"></i>
                                             Logistics Details</h5>
-                                        <div class="flex-shrink-0">
+                                        @* <div class="flex-shrink-0">
                                             <a href="javascript:void(0);"
                                                 class="badge bg-primary-subtle text-primary fs-11">Track Order</a>
-                                        </div>
+                                        </div> *@
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -600,7 +596,7 @@
                                     <div class="d-flex">
                                         <h5 class="card-title flex-grow-1 mb-0">Customer Details</h5>
                                         <div class="flex-shrink-0">
-                                            <a href="javascript:void(0);" class="link-secondary">View Profile</a>
+                                            <a href="/Home/UserInformation/@Model.userId" target="_blank">View Profile</a>
                                         </div>
                                     </div>
                                 </div>
@@ -621,7 +617,7 @@
                                         <li><i
                                                 class="ri-mail-line me-2 align-middle text-muted fs-16"></i>@Model.EmailCustomer
                                         </li>
-                                        <li><i class="ri-phone-line me-2 align-middle text-muted fs-16"></i>+(84)
+                                        <li><i class="ri-phone-line me-2 align-middle text-muted fs-16"></i>
                                            @Model.PhoneCustomer </li>
                                     </ul>
                                 </div>
@@ -636,7 +632,7 @@
                                 <div class="card-body">
                                     <ul class="list-unstyled vstack gap-2 fs-13 mb-0">
                                         <li class="fw-medium fs-14">@Model.NameCustomer</li>
-                                        <li>+(84) @Model.PhoneCustomer</li>
+                                        <li>@Model.PhoneCustomer</li>
                                         <li style="white-space: pre-line">@Model.ShippingAddress</li>
                                       @*   <li>New York - 25645</li>
                                         <li>United States</li> *@
@@ -653,7 +649,7 @@
                                 <div class="card-body">
                                     <ul class="list-unstyled vstack gap-2 fs-13 mb-0">
                                         <li class="fw-medium fs-14">@Model.NameCustomer</li>
-                                        <li>+(84) @Model.PhoneCustomer</li>
+                                        <li>@Model.PhoneCustomer</li>
                                         <li style="white-space: pre-line">@Model.ShippingAddress</li>
                                         @*   <li>New York - 25645</li>
                                         <li>United States</li> *@
