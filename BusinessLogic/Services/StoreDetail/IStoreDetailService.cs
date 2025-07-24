@@ -49,5 +49,6 @@ namespace BusinessLogic.Services.StoreDetail
         Task<bool> IsStoreActiveByUserIdAsync(string userId);
         Task<StoreDetails> GetStoreByUserIdAsync(string userId);
         Task<ViewStoreDetailViewModel> GetStoreDetailAsync(Guid storeId);
+        Task<bool> IsUserSellerAsync(string userId);
     }
 }
