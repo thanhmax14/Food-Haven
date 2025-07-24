@@ -136,7 +136,7 @@
             <div class="container-fluid">
 
                 <!-- start page title -->
-                <div class="row">
+                @*<div class="row">
                     <div class="col-12">
                         <div
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
@@ -149,13 +149,13 @@
                                     @* <a class="dropdown-item" target="_blank" asp-controller="Seller" asp-action="ReplyFeedback" asp-route-id="@Model." *@
                                     @*    role="tab" aria-controls="address" aria-selected="true"> *@
                                     @*     <i class="fi-rs-marker mr-10"></i>Management Seller *@
-                                    @* </a> *@
+                                    @* </a> 
                                 </ol>
                             </div>
 
                         </div>
                     </div>
-                </div>
+                </div>*@
                 @Html.AntiForgeryToken()
                 
                 <!-- end page title -->
@@ -209,32 +209,32 @@
                                         {
                         name: "Actions",
                         width: "150px",
-                        formatter: (_, row) => {
-                            let status = row.cells[7].data; // Trạng thái Feedback (Active/Deactive)
-                            let feedbackId = row.cells[0].data; // Lấy ID của Feedback
-                            let reply = row.cells[6].data; // Lấy nội dung Reply
-                            let url = `/Seller/ReplyFeedback/${feedbackId}`; // Tạo URL động
+                                            formatter: (_, row) => {
+                        let status = row.cells[7].data; // Trạng thái Feedback (Active/Deactive)
+                        let feedbackId = row.cells[0].data; // Lấy ID của Feedback
+                        let reply = row.cells[6].data; // Lấy nội dung Reply
+                        let url = `/Seller/ReplyFeedback/${feedbackId}`; // Tạo URL động
 
-                            let actionText = status === "Active" ? "Hide" : "Show";
-                            let actionIcon = status === "Active" ? "btn btn-sm btn-danger" : "btn btn-sm btn-success";
+                        let actionText = status === "Active" ? "Hide" : "Show";
+                        let actionIcon = status === "Active" ? "btn btn-sm btn-danger" : "btn btn-sm btn-success";
+                        let eyeIcon = status === "Active" ? "ri-eye-off-line" : "ri-eye-line";
 
-                            let replyButton = reply !== "No reply" ? "" : `
-
-                                <a class="btn btn-sm btn-primary" target="_blank" href="${url}">Reply</a>
-                                `;
-                            return gridjs.html(`
-
-                                    <div class="d-flex gap-2">
-                                        ${replyButton}
-
-                                            <button class="toggle-feedback-btn ${actionIcon}"
-                                                data-feedbackid="${feedbackId}"
-                                                data-status="${status}">
-                                                ${actionText}
-                                            </button>
-                                    </div
-                            `);
-                        }
+                        let replyButton = reply !== "No reply" ? "" : `
+                            <a class="btn btn-sm btn-primary" target="_blank" href="${url}">
+                             <i class="ri-pencil-fill align-bottom me-1"></i> Reply
+                            </a>
+                            `;
+                        return gridjs.html(`
+                                <div class="d-flex gap-2">
+                                    ${replyButton}
+                                        <button class="toggle-feedback-btn ${actionIcon}"
+                                            data-feedbackid="${feedbackId}"
+                                            data-status="${status}">
+                                            <i class="${eyeIcon} align-bottom me-1"></i> ${actionText}
+                                        </button>
+                                </div
+                        `);
+                    }
                     }
                                 ],
                                 pagination: {

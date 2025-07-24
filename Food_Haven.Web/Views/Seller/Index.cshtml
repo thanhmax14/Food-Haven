@@ -2151,28 +2151,28 @@
                                             }
                                         }
 
-                                        function addThemeToggle() {
-                                            const themeToggle = document.createElement('button');
-                                            themeToggle.className = 'btn btn-sm btn-outline-secondary position-fixed';
-                                            themeToggle.style.top = '20px';
-                                            themeToggle.style.right = '20px';
-                                            themeToggle.style.zIndex = '1050';
-                                            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-                                            themeToggle.title = 'Toggle theme';
+                                        // function addThemeToggle() {
+                                        //     const themeToggle = document.createElement('button');
+                                        //     themeToggle.className = 'btn btn-sm btn-outline-secondary position-fixed';
+                                        //     themeToggle.style.top = '20px';
+                                        //     themeToggle.style.right = '20px';
+                                        //     themeToggle.style.zIndex = '1050';
+                                        //     themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                                        //     themeToggle.title = 'Toggle theme';
 
-                                            let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
-                                            applyTheme(currentTheme);
+                                        //     let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
+                                        //     applyTheme(currentTheme);
 
-                                            themeToggle.addEventListener('click', () => {
-                                                currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-                                                applyTheme(currentTheme);
-                                                themeToggle.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
-                                            });
+                                        //     themeToggle.addEventListener('click', () => {
+                                        //         currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+                                        //         applyTheme(currentTheme);
+                                        //         themeToggle.innerHTML = currentTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+                                        //     });
 
-                                            document.body.appendChild(themeToggle);
-                                        }
+                                        //     document.body.appendChild(themeToggle);
+                                        // }
 
-                                        addThemeToggle();
+                                        //addThemeToggle();
                                     }
 
                                     // Initialize everything when DOM is loaded
