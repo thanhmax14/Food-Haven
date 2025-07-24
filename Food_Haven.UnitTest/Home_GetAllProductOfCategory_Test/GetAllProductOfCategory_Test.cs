@@ -133,6 +133,7 @@ namespace Food_Haven.UnitTest.Home_GetAllProductOfCategory_Test
             // Arrange
             var catId = Guid.NewGuid();
             var storeId = Guid.NewGuid();
+            var productId = Guid.NewGuid();
 
             var category = new Categories
             {
@@ -152,7 +153,7 @@ namespace Food_Haven.UnitTest.Home_GetAllProductOfCategory_Test
 
             var product = new Product
             {
-                ID = Guid.NewGuid(),
+                ID = productId,
                 Name = "Milk",
                 StoreID = storeId,
                 CategoryID = catId,
@@ -167,19 +168,22 @@ namespace Food_Haven.UnitTest.Home_GetAllProductOfCategory_Test
 
             var price = new ProductTypes
             {
+                ID = Guid.NewGuid(),
+                ProductID = productId,
                 SellPrice = 15000
             };
 
             var images = new List<ProductImage>
     {
-        new ProductImage { ImageUrl = "milk.jpg" }
+        new ProductImage { ImageUrl = "milk.jpg", ProductID = productId }
     };
 
-            // Setup mocks from IBaseRepository
+            // Mock CategoryService.FindAsync
             _categoryServiceMock
                 .Setup(s => s.FindAsync(It.IsAny<Expression<Func<Categories, bool>>>()))
                 .ReturnsAsync(category);
 
+            // Mock ProductService.ListAsync
             _productServiceMock
                 .Setup(s => s.ListAsync(
                     It.IsAny<Expression<Func<Product, bool>>>(),
@@ -187,14 +191,26 @@ namespace Food_Haven.UnitTest.Home_GetAllProductOfCategory_Test
                     null))
                 .ReturnsAsync(new List<Product> { product });
 
+            // Mock ProductVariantService.ListAsync — FIXED PART
+            _productVariantServiceMock
+                .Setup(s => s.ListAsync(
+                    It.Is<Expression<Func<ProductTypes, bool>>>(expr =>
+                        expr.Compile().Invoke(new ProductTypes { ProductID = productId })),
+                    null,
+                    null))
+                .ReturnsAsync(new List<ProductTypes> { price });
+
+            // Mock ProductVariantService.FindAsync (optional fallback)
             _productVariantServiceMock
                 .Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>()))
                 .ReturnsAsync(price);
 
+            // Mock StoreDetailService.FindAsync
             _storeDetailServiceMock
                 .Setup(s => s.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
                 .ReturnsAsync(store);
 
+            // Mock ProductImageService.ListAsync
             _productImageServiceMock
                 .Setup(s => s.ListAsync(
                     It.IsAny<Expression<Func<ProductImage, bool>>>(),
@@ -214,10 +230,16 @@ namespace Food_Haven.UnitTest.Home_GetAllProductOfCategory_Test
 
             var productVM = model.ProductViewModel.First();
             Assert.AreEqual("Milk", productVM.Name);
-            Assert.AreEqual(15000, productVM.Price);
+
+            // ✅ Sửa chỗ này
+            Assert.AreEqual(15000, productVM.ProductTypes.First().SellPrice);
+
             Assert.AreEqual("milk.jpg", productVM.Img.First());
             Assert.AreEqual("Fresh Store", productVM.StoreName);
+
         }
+
+
 
         [Test]
         public async Task TC02_CategoryNotFound_ShouldReturnNotFound()
