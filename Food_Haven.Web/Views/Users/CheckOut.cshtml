@@ -447,9 +447,8 @@
                 <div class="col-lg-5">
                     <div class="border p-40 cart-totals ml-30 mb-50">
                         <div class="d-flex align-items-end justify-content-between mb-30">
-                            <h4>Your Order</h4>
-                            <h6 class="text-muted">Subtotal</h6>
-                            <h6 class="text-muted">Voucher: (@Model.voucher)</h6>
+                            <h4>Your Order  (@Model.itemCheck.Sum(X=>X.ItemQuantity))</h4>
+                          
                         </div>
                         <div class="divider-2 mb-30"></div>
                         <div class="table-responsive order_table checkout">
@@ -477,7 +476,7 @@
                                                     <h6 class="text-muted pl-20 pr-20">x @item.ItemQuantity</h6>
                                                 </td>
                                                 <td>
-                                                    <h4 class="text-brand">$@item.ItemPrice</h4>
+                                                    <h4 class="text-brand">₫@item.ItemPrice</h4>
                                                 </td>
                                             </tr>
                                         }
@@ -491,8 +490,46 @@
 
                                 </tbody>
                             </table>
+                            <div class="summary-box">
+                                <h6 class="text-muted">Subtotal: <span class="text-dark">₫@Model.Subtotal</span></h6>
+
+                                <h6 class="text-muted">
+                                    Voucher:
+                                    @if (string.IsNullOrWhiteSpace(Model.voucher))
+                                    {
+                                        <span class="text-danger">N/A</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success">(@Model.voucher) -₫@Model.discountamount</span>
+                                    }
+                                </h6>
+
+                                <h6 class="text-muted">Total: <span class="fw-semibold text-dark">₫@(Model.totalamount)</span></h6>
+                            </div>
+
                         </div>
                     </div>
+                    <style>
+                        .summary-box {
+                            border: 1px solid #dee2e6;
+                            padding: 16px;
+                            border-radius: 8px;
+                            background-color: #f8f9fa;
+                            max-width: 400px;
+                            font-family: 'Segoe UI', sans-serif;
+                        }
+
+                            .summary-box h6 {
+                                margin-bottom: 10px;
+                                font-size: 18px;
+                            }
+
+                            .summary-box span {
+                                float: right;
+                            }
+
+                    </style>
                     <div class="payment ml-30">
                         <h4 class="mb-30">Payment</h4>
                         <form id="paymentForm">
@@ -508,13 +545,13 @@
                                 </div>
                             </div>
                         </form>
-
+@* 
                         <div class="payment-logo d-flex">
                             <img class="mr-15" src="~/assets/imgs/theme/icons/payment-paypal.svg" alt="">
                             <img class="mr-15" src="~/assets/imgs/theme/icons/payment-visa.svg" alt="">
                             <img class="mr-15" src="~/assets/imgs/theme/icons/payment-master.svg" alt="">
                             <img src="~/assets/imgs/theme/icons/payment-zapper.svg" alt="">
-                        </div>
+                        </div> *@
 
                         <button id="submitPayment" type="button" class="btn btn-fill-out btn-block mt-30">
                             Place an Order <i class="fi-rs-sign-out ml-15"></i>
@@ -566,24 +603,14 @@
                                         if (response.haveUrl){
                                             window.location.href = response.redirectUrl;
                                         }else{
-                                                                   if (response.success) {
-                            new Notify({
-                                status: 'success',
-                                title: 'Success!',
-                                text: response.msg || 'Submitted successfully!',
-                                effect: 'fade',
-                                speed: 300,
-                                showIcon: true,
-                                showCloseButton: true,
-                                autoclose: true,
-                                autotimeout: 3000,
-                                position: 'right top'
-                            });
+                                                                                          if (response.success) {
+                          
+                            document.getElementById("preloader-active").style.display = "block";
                             setTimeout(function () {
                                 window.location.href = "/Users#orders";
-                            }, 3000);
-
-                        } else {
+                            }, 1000);
+                        }
+                         else {
                             new Notify({
                                 status: 'error',
                                 title: 'Failed',

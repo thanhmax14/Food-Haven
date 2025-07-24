@@ -260,7 +260,7 @@
                                             <div>
                                                 <button type="button" class="btn btn-success add-btn" id="create-btn"
                                                     data-bs-toggle="modal" data-bs-target="#showModal">
-                                                    <i class="ri-add-line align-bottom me-1"></i> Add
+                                                    <i class="ri-add-line"></i> Add
                                                 </button>
                                                 <button class="btn btn-soft-danger" onClick="deleteMultipleVoucher()">
                                                     <i class="ri-delete-bin-2-line"></i>
@@ -342,7 +342,7 @@
                 </div>
                 <!-- end row -->
                 <script>
-                    document.addEventListener("DOMContentLoaded", function () {
+                                 document.addEventListener("DOMContentLoaded", function () {
                         const form = document.getElementById("voucherForm");
                         const modalElement = document.getElementById("showModal");
                         const modalTitle = modalElement.querySelector(".modal-title");
@@ -392,31 +392,53 @@
                         // Add event listener for discount type change
                         document.getElementById("discountType").addEventListener("change", toggleMaxDiscountField);
 
-                        // Reset form function
+                        // Reset form function - IMPROVED
                         function resetForm() {
                             form.reset();
-                            editingId = null;
+                            editingId = null; // Clear editing ID
 
-                            // Reset Current Usage to 0 if empty
+                            // Reset all form fields to default values
                             document.getElementById("currentUsage").value = "0";
+                            document.getElementById("discountType").value = "Fixed"; // Set default discount type
+                            document.getElementById("isActive").value = "true"; // Set default active status
 
                             // Reset Max Discount field state
                             toggleMaxDiscountField();
 
-                            // Update modal title
+                            // Update modal title to Create
                             modalTitle.textContent = "Add Voucher";
 
+                            // Clear all error messages and validation states
                             form.querySelectorAll(".text-danger").forEach(e => {
                                 e.style.display = "none";
                                 e.textContent = "";
                             });
                             form.querySelectorAll("input, select").forEach(el => el.classList.remove("is-invalid"));
+
+                            // Clear Flatpickr instances
+                            const startDatePicker = document.getElementById("startDate")._flatpickr;
+                            const expirationDatePicker = document.getElementById("expirationDate")._flatpickr;
+                            if (startDatePicker) startDatePicker.clear();
+                            if (expirationDatePicker) expirationDatePicker.clear();
                         }
 
-                        // Reset form when modal is shown
-                        modalElement.addEventListener("show.bs.modal", function () {
-                            if (!editingId) {
+                        // FIXED: Handle modal show event properly
+                        modalElement.addEventListener("show.bs.modal", function (event) {
+                            const button = event.relatedTarget; // Button that triggered the modal
+
+                            // Check if this is a Create button (not Edit)
+                            if (!button || !button.classList.contains("edit-item-btn")) {
+                                // This is Create mode
                                 resetForm();
+                            }
+                            // If it's Edit mode, the edit button handler will set the form data
+                        });
+
+                        // ADDED: Handle modal hide event to ensure clean state
+                        modalElement.addEventListener("hide.bs.modal", function () {
+                            // Reset editing state when modal is closed
+                            if (editingId !== null) {
+                                editingId = null;
                             }
                         });
 
@@ -520,14 +542,16 @@
                                 }
                             }
 
-                            // 6. Validate Min Order Value (optional but must be positive if provided)
-                            if (minOrderValue && minOrderValue !== "") {
-                                const minValue = parseFloat(minOrderValue);
-                                if (isNaN(minValue) || minValue < 0) {
-                                    showError(document.getElementById("minOrderValue"), "Minimum order value must be a non-negative number");
-                                    isValid = false;
-                                }
-                            }
+                                               if (!minOrderValue || minOrderValue.trim() === "") {
+                        showError(document.getElementById("minOrderValue"), "Please enter a minimum order value");
+                        isValid = false;
+                    } else {
+                        const minValue = parseFloat(minOrderValue);
+                        if (isNaN(minValue) || minValue < 0) {
+                            showError(document.getElementById("minOrderValue"), "Minimum order value must be a non-negative number");
+                            isValid = false;
+                        }
+                    }
 
                             // 7. Validate Max Discount (required for Percent type, optional for Fixed)
                             if (discountType === "Percent") {
@@ -717,26 +741,31 @@
                                 data.forEach((item) => {
                                     const row = document.createElement("tr");
                                     row.innerHTML = `
-                                          <td><input class="form-check-input" type="checkbox" name="chk_child" data-id="${item.id}"></td>
-                                          <td class="code text-wrap">${item.code}</td>
-                                          <td class="discountAmount text-wrap" style="min-width: 100px;">${item.discountAmount}</td>
-                                          <td class="discountType text-wrap">${item.discountType}</td>
-                                          <td class="startDate text-wrap">${safeDate(item.startDate)}</td>
-                                          <td class="expirationDate text-wrap">${safeDate(item.expirationDate)}</td>
-                                          <td class="maxUsage text-wrap" style="min-width: 100px;">${item.maxUsage || 'N/A'}</td>
-                                          <td class="currentUsage text-wrap" style="min-width: 100px;">${item.currentUsage || 0}</td>
-                                          <td class="createdDate text-wrap">${safeDate(item.createdDate)}</td>
-                                          <td class="isActive">
-                                              <span class="badge ${item.isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} text-uppercase">
-                                                  ${item.isActive ? 'Active' : 'Inactive'}
-                                              </span>
-                                          </td>
-                                          <td>
-                                              <div class="d-flex gap-2">
-                                                  <button class="btn btn-sm btn-success edit-item-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#showModal">Edit</button>
-                                                  <button class="btn btn-sm btn-danger delete-item-btn" data-id="${item.id}" data-code="${item.code}" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">Remove</button>
-                                              </div>
-                                          </td>`;
+                                        <td><input class="form-check-input" type="checkbox" name="chk_child" data-id="${item.id}"></td>
+                                        <td class="code text-wrap">${item.code}</td>
+                                        <td class="discountAmount text-wrap" style="min-width: 100px;">${item.discountAmount}</td>
+                                        <td class="discountType text-wrap">${item.discountType}</td>
+                                        <td class="startDate text-wrap">${safeDate(item.startDate)}</td>
+                                        <td class="expirationDate text-wrap">${safeDate(item.expirationDate)}</td>
+                                        <td class="maxUsage text-wrap" style="min-width: 100px;">${item.maxUsage || 'N/A'}</td>
+                                        <td class="currentUsage text-wrap" style="min-width: 100px;">${item.currentUsage || 0}</td>
+                                        <td class="createdDate text-wrap">${safeDate(item.createdDate)}</td>
+                                        <td class="isActive">
+                                            <span class="badge ${item.isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} text-uppercase">
+                                                ${item.isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </td>
+                                                           <td>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-primary edit-item-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#showModal">
+                          <i class="ri-pencil-fill align-bottom me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-item-btn" data-id="${item.id}" data-code="${item.code}" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">
+                          <i class="ri-eye-line align-bottom me-1"></i>Remove
+                        </button>
+                      </div>
+                    </td>
+                    `;
                                     tbody.appendChild(row);
                                 });
 
@@ -767,12 +796,12 @@
                             }
                         }
 
-                        // Event delegation for edit and delete buttons
+                        // IMPROVED: Event delegation for edit and delete buttons
                         document.addEventListener("click", async function (e) {
                             // Handle edit button click
                             if (e.target.classList.contains("edit-item-btn")) {
                                 const id = e.target.dataset.id;
-                                editingId = id;
+                                editingId = id; // Set editing ID
 
                                 // Update modal title for edit
                                 modalTitle.textContent = "Edit Voucher";

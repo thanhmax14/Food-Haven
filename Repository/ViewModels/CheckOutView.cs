@@ -17,6 +17,9 @@ namespace Repository.ViewModels
 
         public string Note { get; set; } = "";
         public string voucher { get; set; } = "";
+        public decimal discountamount { get; set; } = 0;
+        public decimal totalamount { get; set; } = 0;
+        public decimal Subtotal { get; set; } = 0;
 
 
         /*        public string firstName { get; set; }

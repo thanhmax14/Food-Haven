@@ -21,6 +21,7 @@ using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
 using BusinessLogic.Services.TypeOfDishServices;
+using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Http;
@@ -68,6 +69,7 @@ namespace Food_Haven.UnitTest.Users_Index_Test
         private Mock<IStoreFollowersService> _storeFollowersServiceMock;
         private Mock<IStoreDetailService> _storeDetailServiceMock;
         private Mock<IHubContext<FollowHub>> _followHubContextMock;
+        private Mock<IVoucherServices> _voucherServiceMock;
 
         [SetUp]
         public void Setup()
@@ -99,6 +101,7 @@ namespace Food_Haven.UnitTest.Users_Index_Test
             _favoriteRecipeServiceMock = new Mock<IFavoriteRecipeService>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
             _storeDetailServiceMock = new Mock<IStoreDetailService>();
+            _voucherServiceMock = new Mock<IVoucherServices>();
             _followHubContextMock = new Mock<IHubContext<FollowHub>>();
 
             var context = new Mock<HttpContext>();
@@ -132,7 +135,8 @@ namespace Food_Haven.UnitTest.Users_Index_Test
                 _favoriteRecipeServiceMock.Object,
                 _storeFollowersServiceMock.Object,
                 _storeDetailServiceMock.Object,
-                _followHubContextMock.Object
+                _followHubContextMock.Object,
+                _voucherServiceMock.Object
             );
         }
 

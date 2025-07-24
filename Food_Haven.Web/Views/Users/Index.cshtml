@@ -2310,10 +2310,18 @@
             }
         }
 
-        // Cập nhật dữ liệu mỗi 5 giây
-        setInterval(fetchUpdatedData, 500);
+    const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .build();
 
-        // Gọi lần đầu tiên ngay lập tức (tuỳ chọn)
+        connection.on("ReceiveUpdate", function (data) {
+            console.log("Received update:", data);
+            fetchUpdatedData();
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
         fetchUpdatedData();
     });
 </script>

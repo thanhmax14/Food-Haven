@@ -376,14 +376,16 @@
                 </div>
                 <!-- end row -->
                 <script>
-                    document.addEventListener("DOMContentLoaded", function () {
+                                 document.addEventListener("DOMContentLoaded", function () {
                         const form = document.getElementById("voucherForm");
                         const modalElement = document.getElementById("showModal");
+                        const modalTitle = modalElement.querySelector(".modal-title");
                         const modalInstance = new bootstrap.Modal(modalElement);
                         const tbody = document.getElementById("voucherTableBody");
                         let editingId = null;
                         let voucherToDeleteId = null;
 
+                        // Initialize Flatpickr for date fields
                         flatpickr("#startDate", {
                             enableTime: true,
                             dateFormat: "Y-m-d H:i",
@@ -396,61 +398,319 @@
                             time_24hr: true
                         });
 
+                        // Function to toggle Max Discount field based on discount type
+                        function toggleMaxDiscountField() {
+                            const discountType = document.getElementById("discountType").value;
+                            const maxDiscountField = document.getElementById("scope");
+                            const maxDiscountLabel = maxDiscountField.closest('.col-md-6').querySelector('label');
+
+                            if (discountType === "Percent") {
+                                maxDiscountField.disabled = false;
+                                maxDiscountField.required = true;
+                                maxDiscountLabel.innerHTML = 'Max Discount <span class="text-danger">*</span>';
+                            } else {
+                                maxDiscountField.disabled = true;
+                                maxDiscountField.required = false;
+                                maxDiscountField.value = "";
+                                maxDiscountLabel.innerHTML = 'Max Discount';
+                                // Clear any error for this field
+                                const errorSpan = maxDiscountField.nextElementSibling;
+                                if (errorSpan && errorSpan.classList.contains("text-danger")) {
+                                    errorSpan.style.display = "none";
+                                    errorSpan.textContent = "";
+                                }
+                                maxDiscountField.classList.remove("is-invalid");
+                            }
+                        }
+
+                        // Add event listener for discount type change
+                        document.getElementById("discountType").addEventListener("change", toggleMaxDiscountField);
+
+                        // Reset form function - IMPROVED
                         function resetForm() {
                             form.reset();
-                            editingId = null;
+                            editingId = null; // Clear editing ID
+
+                            // Reset all form fields to default values
+                            document.getElementById("currentUsage").value = "0";
+                            document.getElementById("discountType").value = "Fixed"; // Set default discount type
+                            document.getElementById("isActive").value = "true"; // Set default active status
+
+                            // Reset Max Discount field state
+                            toggleMaxDiscountField();
+
+                            // Update modal title to Create
+                            modalTitle.textContent = "Add Voucher";
+
+                            // Clear all error messages and validation states
                             form.querySelectorAll(".text-danger").forEach(e => {
                                 e.style.display = "none";
                                 e.textContent = "";
                             });
                             form.querySelectorAll("input, select").forEach(el => el.classList.remove("is-invalid"));
+
+                            // Clear Flatpickr instances
+                            const startDatePicker = document.getElementById("startDate")._flatpickr;
+                            const expirationDatePicker = document.getElementById("expirationDate")._flatpickr;
+                            if (startDatePicker) startDatePicker.clear();
+                            if (expirationDatePicker) expirationDatePicker.clear();
                         }
 
-                        modalElement.addEventListener("show.bs.modal", resetForm);
+                        // FIXED: Handle modal show event properly
+                        modalElement.addEventListener("show.bs.modal", function (event) {
+                            const button = event.relatedTarget; // Button that triggered the modal
 
-                        function showError(input, message) {
-                            const span = input.nextElementSibling;
-                            input.classList.add("is-invalid");
-                            if (span && span.classList.contains("text-danger")) {
-                                span.textContent = message;
-                                span.style.display = "block";
+                            // Check if this is a Create button (not Edit)
+                            if (!button || !button.classList.contains("edit-item-btn")) {
+                                // This is Create mode
+                                resetForm();
                             }
+                            // If it's Edit mode, the edit button handler will set the form data
+                        });
+
+                        // ADDED: Handle modal hide event to ensure clean state
+                        modalElement.addEventListener("hide.bs.modal", function () {
+                            // Reset editing state when modal is closed
+                            if (editingId !== null) {
+                                editingId = null;
+                            }
+                        });
+
+                        // Helper function to show error
+                        function showError(element, message) {
+                            const errorSpan = element.nextElementSibling;
+                            if (errorSpan && errorSpan.classList.contains("text-danger")) {
+                                errorSpan.textContent = message;
+                                errorSpan.style.display = "block";
+                            }
+                            element.classList.add("is-invalid");
                         }
 
+                        // Enhanced validation function
                         function validateForm() {
                             let isValid = true;
-                            form.querySelectorAll(".text-danger").forEach(e => e.style.display = "none");
-                            form.querySelectorAll("input, select").forEach(el => el.classList.remove("is-invalid"));
 
-                            const requiredFields = ["code", "discountAmount", "startDate", "expirationDate"];
-                            requiredFields.forEach(id => {
-                                const input = document.getElementById(id);
-                                if (!input.value.trim()) {
-                                    showError(input, `${id} is required`);
+                            // Clear previous errors
+                            form.querySelectorAll(".text-danger").forEach(e => {
+                                e.style.display = "none";
+                                e.textContent = "";
+                            });
+                            form.querySelectorAll("input, select").forEach(el => {
+                                el.classList.remove("is-invalid");
+                            });
+
+                            // Get form values
+                            const code = document.getElementById("code").value.trim();
+                            const discountAmount = document.getElementById("discountAmount").value.trim();
+                            const startDate = document.getElementById("startDate").value.trim();
+                            const expirationDate = document.getElementById("expirationDate").value.trim();
+                            const minOrderValue = document.getElementById("minOrderValue").value.trim();
+                            const maxDiscount = document.getElementById("scope").value.trim();
+                            let currentUsage = document.getElementById("currentUsage").value.trim();
+                            const maxUsage = document.getElementById("maxUsage").value.trim();
+                            const discountType = document.getElementById("discountType").value;
+
+                            // Set current usage to 0 if empty
+                            if (!currentUsage || currentUsage === "") {
+                                currentUsage = "0";
+                                document.getElementById("currentUsage").value = "0";
+                            }
+
+                            // 1. Validate Code (required)
+                            if (!code) {
+                                showError(document.getElementById("code"), "Voucher code is required");
+                                isValid = false;
+                            } else if (code.length < 3) {
+                                showError(document.getElementById("code"), "Voucher code must be at least 3 characters");
+                                isValid = false;
+                            }
+
+                            // 2. Validate Discount Amount (required)
+                            if (!discountAmount) {
+                                showError(document.getElementById("discountAmount"), "Discount amount is required");
+                                isValid = false;
+                            } else {
+                                const discountValue = parseFloat(discountAmount);
+                                if (isNaN(discountValue) || discountValue <= 0) {
+                                    showError(document.getElementById("discountAmount"), "Discount amount must be a positive number");
+                                    isValid = false;
+                                } else if (discountType === "Percent" && discountValue > 100) {
+                                    showError(document.getElementById("discountAmount"), "Percentage discount cannot exceed 100%");
+                                    isValid = false;
+                                } else if (discountType === "Fixed" && discountValue > 1000000) {
+                                    showError(document.getElementById("discountAmount"), "Fixed discount amount is too large");
                                     isValid = false;
                                 }
-                            });
+                            }
+
+                            // 3. Validate Start Date (required)
+                            if (!startDate) {
+                                showError(document.getElementById("startDate"), "Start date is required");
+                                isValid = false;
+                            }
+
+                            // 4. Validate Expiration Date (required)
+                            if (!expirationDate) {
+                                showError(document.getElementById("expirationDate"), "Expiration date is required");
+                                isValid = false;
+                            }
+
+                            // 5. Validate date range (if both dates are provided)
+                            if (startDate && expirationDate) {
+                                const start = new Date(startDate);
+                                const end = new Date(expirationDate);
+
+                                if (start >= end) {
+                                    showError(document.getElementById("expirationDate"), "Expiration date must be after start date");
+                                    isValid = false;
+                                }
+
+                                // Check if start date is in the past (optional validation)
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                start.setHours(0, 0, 0, 0);
+
+                                if (start < today) {
+                                    showError(document.getElementById("startDate"), "Start date cannot be in the past");
+                                    isValid = false;
+                                }
+                            }
+
+                                               if (!minOrderValue || minOrderValue.trim() === "") {
+                        showError(document.getElementById("minOrderValue"), "Please enter a minimum order value");
+                        isValid = false;
+                    } else {
+                        const minValue = parseFloat(minOrderValue);
+                        if (isNaN(minValue) || minValue < 0) {
+                            showError(document.getElementById("minOrderValue"), "Minimum order value must be a non-negative number");
+                            isValid = false;
+                        }
+                    }
+
+                            // 7. Validate Max Discount (required for Percent type, optional for Fixed)
+                            if (discountType === "Percent") {
+                                if (!maxDiscount || maxDiscount === "") {
+                                    showError(document.getElementById("scope"), "Maximum discount is required for percentage discount");
+                                    isValid = false;
+                                } else {
+                                    const maxValue = parseFloat(maxDiscount);
+                                    if (isNaN(maxValue) || maxValue <= 0) {
+                                        showError(document.getElementById("scope"), "Maximum discount must be a positive number");
+                                        isValid = false;
+                                    }
+                                }
+                            } else if (discountType === "Fixed" && maxDiscount && maxDiscount !== "") {
+                                const maxValue = parseFloat(maxDiscount);
+                                if (isNaN(maxValue) || maxValue <= 0) {
+                                    showError(document.getElementById("scope"), "Maximum discount must be a positive number");
+                                    isValid = false;
+                                }
+                            }
+
+                            // 8. Validate Current Usage (must be non-negative)
+                            const currentValue = parseInt(currentUsage);
+                            if (isNaN(currentValue) || currentValue < 0) {
+                                showError(document.getElementById("currentUsage"), "Current usage must be a non-negative number");
+                                isValid = false;
+                            }
+
+                            // 9. Validate Max Usage (optional but must be positive if provided)
+                            if (maxUsage && maxUsage !== "") {
+                                const maxValue = parseInt(maxUsage);
+                                if (isNaN(maxValue) || maxValue <= 0) {
+                                    showError(document.getElementById("maxUsage"), "Maximum usage must be a positive number");
+                                    isValid = false;
+                                }
+
+                                // Check if current usage exceeds max usage
+                                if (!isNaN(currentValue) && currentValue > maxValue) {
+                                    showError(document.getElementById("currentUsage"), "Current usage cannot exceed maximum usage");
+                                    isValid = false;
+                                }
+                            }
+
+                            // 10. Business logic validation
+                            if (discountType === "Percent" && discountAmount && maxDiscount) {
+                                const discountValue = parseFloat(discountAmount);
+                                const maxValue = parseFloat(maxDiscount);
+
+                                if (!isNaN(discountValue) && !isNaN(maxValue)) {
+                                    // For percentage discount, max discount should make sense
+                                    if (minOrderValue) {
+                                        const minValue = parseFloat(minOrderValue);
+                                        if (!isNaN(minValue)) {
+                                            const calculatedDiscount = (minValue * discountValue) / 100;
+                                            if (calculatedDiscount > maxValue) {
+                                                showError(document.getElementById("scope"), "Maximum discount is too low for the minimum order value");
+                                                isValid = false;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
                             return isValid;
                         }
 
+                        // Real-time validation for individual fields
+                        function addRealTimeValidation() {
+                            const inputs = form.querySelectorAll("input, select");
+
+                            inputs.forEach(input => {
+                                input.addEventListener("blur", function () {
+                                    validateSingleField(this);
+                                });
+                            });
+                        }
+
+                        function validateSingleField(element) {
+                            const errorSpan = element.nextElementSibling;
+                            if (errorSpan && errorSpan.classList.contains("text-danger")) {
+                                errorSpan.style.display = "none";
+                                errorSpan.textContent = "";
+                            }
+                            element.classList.remove("is-invalid");
+
+                            // Special handling for current usage - set to 0 if empty
+                            if (element.id === "currentUsage" && (!element.value || element.value.trim() === "")) {
+                                element.value = "0";
+                            }
+
+                            // Basic validation for required fields
+                            if (element.hasAttribute("required") && !element.value.trim()) {
+                                if (errorSpan) {
+                                    errorSpan.textContent = "This field is required";
+                                    errorSpan.style.display = "block";
+                                }
+                                element.classList.add("is-invalid");
+                            }
+                        }
+
+                        // Form submission handler
                         form.addEventListener("submit", async function (e) {
                             e.preventDefault();
+
+                            // Ensure current usage is set to 0 if empty
+                            let currentUsageValue = document.getElementById("currentUsage").value.trim();
+                            if (!currentUsageValue || currentUsageValue === "") {
+                                currentUsageValue = "0";
+                                document.getElementById("currentUsage").value = "0";
+                            }
+
                             if (!validateForm()) return;
 
                             const data = {
                                 ID: editingId,
-                                Code: document.getElementById("code").value,
+                                Code: document.getElementById("code").value.trim(),
                                 DiscountAmount: parseFloat(document.getElementById("discountAmount").value),
                                 DiscountType: document.getElementById("discountType").value,
                                 StartDate: document.getElementById("startDate").value,
                                 ExpirationDate: document.getElementById("expirationDate").value,
-                                Scope: document.getElementById("scope").value,
-                                MaxUsage: parseInt(document.getElementById("maxUsage").value),
-                                CurrentUsage: parseInt(document.getElementById("currentUsage").value),
-                                MinOrderValue: parseFloat(document.getElementById("minOrderValue").value),
-                                IsActive: document.getElementById("isActive").value === "true",
-                                isPrivate: document.getElementById("isPrivate").value === "true"
+                                Scope: document.getElementById("scope").value.trim(),
+                                MaxUsage: document.getElementById("maxUsage").value ? parseInt(document.getElementById("maxUsage").value) : null,
+                                CurrentUsage: parseInt(currentUsageValue),
+                                MinOrderValue: document.getElementById("minOrderValue").value ? parseFloat(document.getElementById("minOrderValue").value) : null,
+                                IsActive: document.getElementById("isActive").value === "true"
                             };
 
                             const url = editingId ? "/Admin/UpdateVoucher" : "/Admin/CreateVoucher";
@@ -471,61 +731,95 @@
                                             if (input) showError(input, message);
                                         });
                                     } else {
-                                        Swal.fire({ icon: "error", title: "Error", text: result.error || "Unexpected error occurred." });
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Error",
+                                            text: result.error || "Unexpected error occurred."
+                                        });
                                     }
                                     return;
+                                } else {
+                                    Swal.fire({
+                                        title: editingId ? "Updated!" : "Created!",
+                                        text: `Voucher has been successfully ${editingId ? "updated" : "created"}.`,
+                                        icon: "success",
+                                        confirmButtonText: "OK",
+                                        customClass: { confirmButton: "btn btn-primary" },
+                                        buttonsStyling: false
+                                    });
                                 }
 
                                 modalInstance.hide();
                                 await loadVouchers();
                                 bindCheckAll();
                             } catch (err) {
-                                Swal.fire({ icon: "error", title: "Server Error", text: "Cannot connect to server." });
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Server Error",
+                                    text: "Cannot connect to server."
+                                });
                             }
                         });
 
+                        // Load vouchers function
                         async function loadVouchers() {
-                            const res = await fetch("/Admin/GetAllVoucher");
-                            const data = await res.json();
-                            tbody.innerHTML = "";
+                            try {
+                                const res = await fetch("/Admin/GetAllVoucher");
+                                const data = await res.json();
+                                tbody.innerHTML = "";
 
-                            function safeDate(str) {
-                                return (str && str.length >= 10) ? str : "";
+                                function safeDate(str) {
+                                    return (str && str.length >= 10) ? str : "";
+                                }
+
+                                data.forEach((item) => {
+                                    const row = document.createElement("tr");
+                                    row.innerHTML = `
+                                        <td><input class="form-check-input" type="checkbox" name="chk_child" data-id="${item.id}"></td>
+                                        <td class="code text-wrap">${item.code}</td>
+                                        <td class="discountAmount text-wrap" style="min-width: 100px;">${item.discountAmount}</td>
+                                        <td class="discountType text-wrap">${item.discountType}</td>
+                                        <td class="startDate text-wrap">${safeDate(item.startDate)}</td>
+                                        <td class="expirationDate text-wrap">${safeDate(item.expirationDate)}</td>
+                                        <td class="maxUsage text-wrap" style="min-width: 100px;">${item.maxUsage || 'N/A'}</td>
+                                        <td class="currentUsage text-wrap" style="min-width: 100px;">${item.currentUsage || 0}</td>
+                                        <td class="createdDate text-wrap">${safeDate(item.createdDate)}</td>
+                                        <td class="isActive">
+                                            <span class="badge ${item.isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} text-uppercase">
+                                                ${item.isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </td>
+                                                           <td>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-primary edit-item-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#showModal">
+                          <i class="ri-pencil-fill align-bottom me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-item-btn" data-id="${item.id}" data-code="${item.code}" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">
+                          <i class="ri-eye-line align-bottom me-1"></i>Remove
+                        </button>
+                      </div>
+                    </td>
+                    `;
+                                    tbody.appendChild(row);
+                                });
+
+                                // Initialize List.js for search and pagination
+                                new List("voucherList", {
+                                    valueNames: ["code", "discountAmount", "discountType", "startDate", "expirationDate", "createdDate", "maxUsage", "currentUsage", "isActive"],
+                                    page: 5,
+                                    pagination: true
+                                });
+                            } catch (error) {
+                                console.error("Error loading vouchers:", error);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: "Failed to load vouchers."
+                                });
                             }
-
-                            data.forEach((item) => {
-                                const row = document.createElement("tr");
-                                row.innerHTML = `
-                                                                    <td><input class="form-check-input" type="checkbox" name="chk_child" data-id="${item.id}"></td>
-                                                                    <td class="code text-wrap">${item.code}</td>
-                                                                    <td class="discountAmount text-wrap" style="min-width: 100px;">${item.discountAmount}</td>
-                                                                    <td class="discountType text-wrap">${item.discountType}</td>
-                                                                    <td class="startDate text-wrap">${safeDate(item.startDate)}</td>
-                                                                    <td class="expirationDate text-wrap">${safeDate(item.expirationDate)}</td>
-                                                                    <td class="maxUsage text-wrap" style="min-width: 100px;">${item.maxUsage}</td>
-                                                                    <td class="currentUsage text-wrap" style="min-width: 100px;">${item.currentUsage}</td>
-                                                                    <td class="createdDate text-wrap">${safeDate(item.createdDate)}</td>
-                                                                    <td class="isActive">
-                                                                        <span class="badge ${item.isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'} text-uppercase">
-                                                                            ${item.isActive ? 'Active' : 'Inactive'}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="d-flex gap-2">
-                                                                            <button class="btn btn-sm btn-success edit-item-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#showModal">Edit</button>
-                                                                            <button class="btn btn-sm btn-danger delete-item-btn" data-id="${item.id}" data-code="${item.code}" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">Remove</button>
-                                                                        </div>
-                                                                    </td>`;
-                                tbody.appendChild(row);
-                            });
-
-                            new List("voucherList", {
-                                valueNames: ["code", "discountAmount", "discountType", "startDate", "expirationDate", "createdDate", "maxUsage", "currentUsage", "isActive"],
-                                page: 10,
-                                pagination: true
-                            });
                         }
 
+                        // Bind check all functionality
                         function bindCheckAll() {
                             const checkAll = document.getElementById("checkAll");
                             if (checkAll) {
@@ -536,66 +830,113 @@
                             }
                         }
 
+                        // IMPROVED: Event delegation for edit and delete buttons
                         document.addEventListener("click", async function (e) {
+                            // Handle edit button click
                             if (e.target.classList.contains("edit-item-btn")) {
-                                resetForm();
                                 const id = e.target.dataset.id;
-                                const res = await fetch(`/Admin/GetVoucher/${id}`);
-                                const v = await res.json();
-                                editingId = v.id;
+                                editingId = id; // Set editing ID
 
-                                document.getElementById("code").value = v.code;
-                                document.getElementById("discountAmount").value = v.discountAmount;
-                                document.getElementById("discountType").value = v.discountType;
-                                document.getElementById("startDate").value = v.startDate;
-                                document.getElementById("expirationDate").value = v.expirationDate;
-                                document.getElementById("scope").value = v.scope;
-                                document.getElementById("maxUsage").value = v.maxUsage;
-                                document.getElementById("currentUsage").value = v.currentUsage;
-                                document.getElementById("minOrderValue").value = v.minOrderValue;
-                                document.getElementById("isActive").value = v.isActive.toString();
+                                // Update modal title for edit
+                                modalTitle.textContent = "Edit Voucher";
+
+                                try {
+                                    const res = await fetch(`/seller/GetVoucher/${id}`);
+                                    const v = await res.json();
+
+                                    // Populate form with existing data
+                                    document.getElementById("code").value = v.code || "";
+                                    document.getElementById("discountAmount").value = v.discountAmount || "";
+                                    document.getElementById("discountType").value = v.discountType || "Fixed";
+                                    document.getElementById("startDate").value = v.startDate || "";
+                                    document.getElementById("expirationDate").value = v.expirationDate || "";
+                                    document.getElementById("scope").value = v.scope || "";
+                                    document.getElementById("maxUsage").value = v.maxUsage || "";
+                                    document.getElementById("currentUsage").value = v.currentUsage || "0";
+                                    document.getElementById("minOrderValue").value = v.minOrderValue || "";
+                                    document.getElementById("isActive").value = v.isActive ? "true" : "false";
+
+                                    // Toggle Max Discount field based on discount type
+                                    toggleMaxDiscountField();
+
+                                    // Clear any existing errors
+                                    form.querySelectorAll(".text-danger").forEach(e => {
+                                        e.style.display = "none";
+                                        e.textContent = "";
+                                    });
+                                    form.querySelectorAll("input, select").forEach(el => el.classList.remove("is-invalid"));
+
+                                } catch (error) {
+                                    console.error("Error fetching voucher:", error);
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Error",
+                                        text: "Failed to load voucher data."
+                                    });
+                                }
                             }
 
+                            // Handle delete button click
                             if (e.target.classList.contains("delete-item-btn")) {
                                 voucherToDeleteId = e.target.dataset.id;
                                 const code = e.target.dataset.code;
-                                document.getElementById("voucherCodePreview").textContent = code;
+                                const previewElement = document.getElementById("voucherCodePreview");
+                                if (previewElement) {
+                                    previewElement.textContent = code;
+                                }
                             }
                         });
 
-                        document.getElementById("delete-record").addEventListener("click", async function () {
-                            if (!voucherToDeleteId) return;
+                        // Delete single voucher
+                        const deleteButton = document.getElementById("delete-record");
+                        if (deleteButton) {
+                            deleteButton.addEventListener("click", async function () {
+                                if (!voucherToDeleteId) return;
 
-                            const res = await fetch("/Admin/DeleteVoucher", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ id: voucherToDeleteId })
+                                try {
+                                    const res = await fetch("/Admin/DeleteVoucher", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ id: voucherToDeleteId })
+                                    });
+
+                                    if (res.ok) {
+                                        await loadVouchers();
+                                        bindCheckAll();
+                                        Swal.fire({
+                                            title: "Deleted!",
+                                            text: "Voucher has been successfully deleted.",
+                                            icon: "success",
+                                            confirmButtonText: "OK",
+                                            customClass: { confirmButton: "btn btn-primary" },
+                                            buttonsStyling: false
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: "Error",
+                                            text: "Something went wrong while deleting the voucher.",
+                                            icon: "error",
+                                            confirmButtonText: "Close"
+                                        });
+                                    }
+
+                                    voucherToDeleteId = null;
+                                    const deleteModal = document.getElementById("deleteRecordModal");
+                                    if (deleteModal) {
+                                        bootstrap.Modal.getInstance(deleteModal)?.hide();
+                                    }
+                                } catch (error) {
+                                    console.error("Error deleting voucher:", error);
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Error",
+                                        text: "Failed to delete voucher."
+                                    });
+                                }
                             });
+                        }
 
-                            if (res.ok) {
-                                await loadVouchers();
-                                bindCheckAll();
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: "Voucher has been successfully deleted.",
-                                    icon: "success",
-                                    confirmButtonText: "OK",
-                                    customClass: { confirmButton: "btn btn-primary" },
-                                    buttonsStyling: false
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: "Error",
-                                    text: "Something went wrong while deleting the voucher.",
-                                    icon: "error",
-                                    confirmButtonText: "Close"
-                                });
-                            }
-
-                            voucherToDeleteId = null;
-                            bootstrap.Modal.getInstance(document.getElementById("deleteRecordModal")).hide();
-                        });
-
+                        // Delete multiple vouchers function
                         window.deleteMultipleVoucher = async function () {
                             const checkboxes = document.querySelectorAll("input[name='chk_child']:checked");
                             if (checkboxes.length === 0) {
@@ -626,19 +967,24 @@
                             }).then(async (result) => {
                                 if (result.isConfirmed) {
                                     let allDeleted = true;
+                                    let failedCount = 0;
 
                                     for (const id of ids) {
-                                        const res = await fetch("/Admin/DeleteVoucher", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({ Id: id })
+                                        try {
+                                            const res = await fetch("/Admin/DeleteVoucher", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ Id: id })
+                                            });
 
-
-                                        });
-
-                                        if (!res.ok) {
+                                            if (!res.ok) {
+                                                allDeleted = false;
+                                                failedCount++;
+                                            }
+                                        } catch (error) {
+                                            console.error("Error deleting voucher:", error);
                                             allDeleted = false;
-                                            break; // Hoặc bạn có thể ghi log lỗi và tiếp tục
+                                            failedCount++;
                                         }
                                     }
 
@@ -655,22 +1001,35 @@
                                             buttonsStyling: false
                                         });
                                     } else {
+                                        const successCount = ids.length - failedCount;
                                         Swal.fire({
-                                            title: "Error",
-                                            text: "Some vouchers could not be deleted. Please try again.",
-                                            icon: "error",
+                                            title: failedCount === ids.length ? "Error" : "Partial Success",
+                                            text: failedCount === ids.length
+                                                ? "No vouchers could be deleted. Please try again."
+                                                : `${successCount} vouchers deleted successfully, ${failedCount} failed.`,
+                                            icon: failedCount === ids.length ? "error" : "warning",
                                             confirmButtonText: "Close"
                                         });
-                                    }
 
+                                        if (successCount > 0) {
+                                            await loadVouchers();
+                                            bindCheckAll();
+                                        }
+                                    }
                                 }
                             });
-                        }
+                        };
 
+                        // Initialize real-time validation
+                        addRealTimeValidation();
+
+                        // Initialize Max Discount field state
+                        toggleMaxDiscountField();
+
+                        // Initialize the page
                         loadVouchers().then(bindCheckAll);
                     });
                 </script>
-
 
 
 
@@ -693,18 +1052,41 @@
                                         <input type="number" class="form-control" id="discountAmount" required />
                                         <span class="text-danger" style="display:none"></span>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Expiration Date</label>
-                                        <input type="text" class="form-control flatpickr-input" id="expirationDate"
-                                            data-provider="flatpickr" readonly />
-                                        <span class="text-danger" style="display:none"></span>
-                                    </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label">Start Date</label>
                                         <input type="text" class="form-control flatpickr-input" id="startDate"
-                                            data-provider="flatpickr" readonly />
+                                               data-provider="flatpickr" readonly />
                                         <span class="text-danger" style="display:none"></span>
                                     </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Expiration Date</label>
+                                        <input type="text" class="form-control flatpickr-input" id="expirationDate"
+                                               data-provider="flatpickr" readonly />
+                                        <span class="text-danger" style="display:none"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Min Order Value</label>
+                                        <input type="number" class="form-control" id="minOrderValue" />
+                                        <span class="text-danger" style="display:none"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Discount </label>
+                                        <input type="text" class="form-control" id="scope" />
+                                        <span class="text-danger" style="display:none"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Current Usage</label>
+                                        <input type="number" class="form-control" id="currentUsage" />
+                                        <span class="text-danger" style="display:none"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Max Usage</label>
+                                        <input type="number" class="form-control" id="maxUsage" />
+                                        <span class="text-danger" style="display:none"></span>
+                                    </div>
+
                                     <div class="col-md-6">
                                         <label class="form-label">Discount Type</label>
                                         <select class="form-select" id="discountType">
@@ -714,36 +1096,8 @@
                                         <span class="text-danger" style="display:none"></span>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Scope</label>
-                                        <input type="text" class="form-control" id="scope" />
-                                        <span class="text-danger" style="display:none"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Max Usage</label>
-                                        <input type="number" class="form-control" id="maxUsage" />
-                                        <span class="text-danger" style="display:none"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Current Usage</label>
-                                        <input type="number" class="form-control" id="currentUsage" />
-                                        <span class="text-danger" style="display:none"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Min Order Value</label>
-                                        <input type="number" class="form-control" id="minOrderValue" />
-                                        <span class="text-danger" style="display:none"></span>
-                                    </div>
-                                    <div class="col-md-6">
                                         <label class="form-label">Active</label>
                                         <select class="form-select" id="isActive">
-                                            <option value="true">Yes</option>
-                                            <option value="false">No</option>
-                                        </select>
-                                        <span class="text-danger" style="display:none"></span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Private</label>
-                                        <select class="form-select" id="isPrivate">
                                             <option value="true">Yes</option>
                                             <option value="false">No</option>
                                         </select>
@@ -758,8 +1112,6 @@
                         </div>
                     </div>
                 </div>
-
-
 
                 <!-- Modal -->
                 <div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1" aria-hidden="true">
