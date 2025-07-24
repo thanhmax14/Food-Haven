@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -16,7 +17,6 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
-using Food_Haven.Web.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -28,12 +28,6 @@ using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
 {
     public class ManagerUser_Test
@@ -61,7 +55,7 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
 
-      private AdminController _controller;
+        private AdminController _controller;
 
         [SetUp]
         public void Setup()
@@ -109,7 +103,6 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
                 _storeServiceMock.Object,
                 _mapperMock.Object,
                 _webHostEnvironmentMock.Object,
-                null,
                 _balanceMock.Object,
                 _categoryServiceMock.Object,
                 _manageTransaction,
@@ -118,12 +111,12 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, 
+                _storeServiceMock.Object, // storeDetailService
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // duplicated param name, still passed
-                _storeReportMock.Object,
+                _storeReportMock.Object, // storeRepo
+                _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object
