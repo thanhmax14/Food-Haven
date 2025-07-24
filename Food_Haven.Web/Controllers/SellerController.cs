@@ -38,8 +38,6 @@ namespace Food_Haven.Web.Controllers
         private readonly IStoreDetailService _storeDetailService;
         private HttpClient client = null;
         private string _url;
-
-        private readonly StoreDetailsRepository _storeRepository;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IProductVariantService _variantService;
@@ -55,7 +53,7 @@ namespace Food_Haven.Web.Controllers
         private readonly ManageTransaction _manageTransaction;
 
 
-        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, StoreDetailsRepository storeRepository, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, ManageTransaction managetrans)
+        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, ManageTransaction managetrans)
         {
             _reviewService = reviewService;
             _userManager = userManager;
@@ -64,7 +62,6 @@ namespace Food_Haven.Web.Controllers
             client = new HttpClient();
             var contentype = new MediaTypeWithQualityHeaderValue("application/json");
             client.DefaultRequestHeaders.Accept.Add(contentype);
-            _storeRepository = storeRepository;
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
             _variantService = variantService;
@@ -661,7 +658,7 @@ namespace Food_Haven.Web.Controllers
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null) return Unauthorized();
 
-                bool isSeller = await _storeRepository.IsUserSellerAsync(user.Id);
+                bool isSeller = await _storeDetailService.IsUserSellerAsync(user.Id);
                 if (!isSeller)
                 {
                     ModelState.AddModelError("", "You do not have permission to create a store.");

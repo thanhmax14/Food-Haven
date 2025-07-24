@@ -41,7 +41,6 @@ namespace Food_Haven.Web.Controllers
         private HttpClient client = null;
         private string url;
         private readonly IStoreDetailService _storeService;
-        private readonly StoreDetailsRepository _storeRepository;
         private readonly IMapper _mapper;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ICategoryService _categoryService;
@@ -63,7 +62,7 @@ namespace Food_Haven.Web.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService,
-            IMapper mapper, IWebHostEnvironment webHostEnvironment, StoreDetailsRepository storeRepository, IBalanceChangeService balance,
+            IMapper mapper, IWebHostEnvironment webHostEnvironment, IBalanceChangeService balance,
             ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail,
             IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService,
             IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport,
@@ -81,7 +80,6 @@ namespace Food_Haven.Web.Controllers
             _userManager = userManager;
             _mapper = mapper;
             _webHostEnvironment = webHostEnvironment;
-            _storeRepository = storeRepository;
             _categoryService = categoryService;
             _managetrans = managetrans;
             _complaintService = complaintService;
