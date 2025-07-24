@@ -291,7 +291,7 @@
                                     name: "Action",
                                     formatter: (_, row) => {
                                         const id = row.cells[1].data;
-                                        const btn = `<a class="btn btn-sm btn-primary" href="http://localhost:5057/Admin/RecipeDetail?id=${id}">Details</a>`;
+                                        const btn = `<a class="btn btn-sm btn-primary" href="http://localhost:5057/Admin/RecipeDetail?id=${id}"><i class="ri-pencil-fill align-bottom me-1"></i> Details</a>`;
                                         return gridjs.html(btn);
                                     }
                                 }
@@ -362,9 +362,10 @@
 
                                         return gridjs.html(
                                             isActive
-                                                ? `<button class="btn btn-sm btn-danger" onclick="toggleVisibility('${id}', 'Hide')">Hide</button>`
-                                                : `<button class="btn btn-sm btn-success" onclick="toggleVisibility('${id}', 'Show')">Show</button>`
+                                                ? `<button class="btn btn-sm btn-danger" onclick="toggleVisibility('${id}', 'Hide')"><i class="ri-eye-off-line align-bottom me-1"></i> Hide</button>`
+                                                : `<button class="btn btn-sm btn-success" onclick="toggleVisibility('${id}', 'Show')"><i class="ri-eye-line align-bottom me-1"></i> Show</button>`
                                         );
+
                                     }
                                 }
 
