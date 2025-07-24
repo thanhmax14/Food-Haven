@@ -1,7 +1,6 @@
-﻿
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/apps-ecommerce-orders.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:20:44 GMT -->
@@ -72,7 +71,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -109,9 +108,9 @@
                             </a>
                         </li>
                         <li class="nav-item"></li>
-                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                            </a>
+                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                        </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -146,15 +145,16 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Orders</h4>
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Complaint List</h4>
 
-                            <div class="page-title-right">
+                            @* <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Ecommerce</a></li>
                                     <li class="breadcrumb-item active">Orders</li>
                                 </ol>
-                            </div>
+                            </div> *@
 
                         </div>
                     </div>
@@ -167,7 +167,7 @@
                             <div class="card-header border-0">
                                 <div class="row align-items-center gy-3">
                                     <div class="col-sm">
-                                        <h5 class="card-title mb-0">Manager Complant</h5>
+                                        <h5 class="card-title mb-0">Complaint List</h5>
                                     </div>
                                     <!-- <div class="col-sm-auto">
                                         <div class="d-flex gap-1 flex-wrap">
@@ -191,7 +191,8 @@
                                 <div>
                                     <ul class="nav nav-tabs nav-tabs-custom nav-success mb-3" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active py-3" data-bs-toggle="tab" href="#pending" role="tab">
+                                            <a class="nav-link active py-3" data-bs-toggle="tab" href="#pending"
+                                                role="tab">
                                                 <i class="ri-time-line me-1 align-bottom"></i> Pending
                                             </a>
                                         </li>
@@ -214,16 +215,24 @@
 
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="pending" role="tabpanel">
-                                            <div class="table-responsive table-card mb-1"><div id="pendingTable"></div></div>
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="pendingTable"></div>
+                                            </div>
                                         </div>
                                         <div class="tab-pane" id="warranty" role="tabpanel">
-                                            <div class="table-responsive table-card mb-1"><div id="warrantyTable"></div></div>
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="warrantyTable"></div>
+                                            </div>
                                         </div>
                                         <div class="tab-pane" id="refund" role="tabpanel">
-                                            <div class="table-responsive table-card mb-1"><div id="refundTable"></div></div>
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="refundTable"></div>
+                                            </div>
                                         </div>
                                         <div class="tab-pane" id="report" role="tabpanel">
-                                            <div class="table-responsive table-card mb-1"><div id="reportTable"></div></div>
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="reportTable"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -233,7 +242,8 @@
                             <!-- Grid.js Script -->
                             <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
                             <!-- Bootstrap JS -->
-                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                            <script
+                                src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
@@ -456,7 +466,7 @@
         </div>
     </div>
 
-   
+
     </div>
 
     <!-- JAVASCRIPT -->

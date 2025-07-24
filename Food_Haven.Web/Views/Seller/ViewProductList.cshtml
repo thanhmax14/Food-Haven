@@ -145,14 +145,14 @@
                     <div class="col-12">
                         <div
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Grid Js</h4>
+                            <h4 class="mb-sm-0">Product List</h4>
 
-                            <div class="page-title-right">
+                            @* <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
                                     <li class="breadcrumb-item active">Grid Js</li>
                                 </ol>
-                            </div>
+                            </div> *@
 
                         </div>
                     </div>
@@ -263,12 +263,12 @@
                                                     : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)">Show</button>`;
 
                                                 return gridjs.html(`
-                                                                                    <div class="d-flex flex-wrap gap-1">
-                                                                                        <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}">Edit</a>
-                                                                                        <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}">View Types</a>
-                                                                                        ${toggleButtonHtml}
-                                                                                    </div>
-                                                                                `);
+                                                                                            <div class="d-flex flex-wrap gap-1">
+                                                                                                <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}">Edit</a>
+                                                                                                <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}">View Types</a>
+                                                                                                ${toggleButtonHtml}
+                                                                                            </div>
+                                                                                        `);
                                             }
                                         }
                                     ],

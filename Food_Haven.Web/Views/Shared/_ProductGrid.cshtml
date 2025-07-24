@@ -28,8 +28,8 @@
                             alt="@product.Name" />
                         <img class="hover-img"
                             src="@(product.ProductImages?.Skip(1).FirstOrDefault()?.ImageUrl
-                                                                                                                                                                         ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
-                                                                                                                                                                         ?? "/assets/imgs/shop/product-5-2.jpg")"
+                                                                                                                                                                                                                                 ?? product.ProductImages?.FirstOrDefault()?.ImageUrl
+                                                                                                                                                                                                                                 ?? "/assets/imgs/shop/product-5-2.jpg")"
                             alt="@product.Name" />
                     </a>
                 </div>
@@ -78,14 +78,13 @@
                 </div>
                 <div>
                     <span class="font-small text-muted">
-                        By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = product.StoreID })">
+                        By <a href="@Url.Action("GetStoreDetail", "Home", new { id = product.StoreID })">
                             @product.StoreDetails?.Name
                         </a>
                     </span>
                     <br />
                     <span class="font-small text-muted">
-                        Category: <a
-                            href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = product.CategoryID })">
+                        Category: <a href="@Url.Action("GetAllProductOfCategory", "Home", new { id = product.CategoryID })">
                             @product.Categories?.Name
                         </a>
                     </span>

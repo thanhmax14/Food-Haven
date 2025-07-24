@@ -4,7 +4,7 @@
 
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -66,7 +66,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -78,17 +78,22 @@
                     <ul class="navbar-nav" id="navbar-nav">
                         <li class="menu-title"><span data-key="t-menu">Menu</span></li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="UserStatistics">
-                                <i class="ri-bar-chart-box-line"></i> <span>User and Seller Statistics</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Revenue">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Index">
                                 <i class=" ri-pie-chart-line"></i> <span>Revenue Statistics</span>
                             </a>
                         </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
+                            <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="Managercomplant">
+                            <i class="ri-error-warning-line"></i> <span>Order Complaint Reports From Seller</span>
+                        </a>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Index">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerUser">
                                 <i class="ri-account-circle-line"></i> <span>User Accounts</span>
                             </a>
                         </li>
@@ -97,15 +102,20 @@
                                 <i class="ri-user-add-line"></i> <span>Seller Registration Requests</span>
                             </a>
                         </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ViewStoreRegistration">
+                            <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
+                        </a>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link action" asp-controller="Admin" asp-action="ViewAdminStore">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewAdminStore">
                                 <i class="ri-store-2-line"></i> <span>Store</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewStoreRegistration">
-                                <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
-                            </a>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementReportStore">
+                            <i class="ri-alert-line"></i> <span>Store Reports From User</span>
+                        </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewCategories">
@@ -113,38 +123,37 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
-                                <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
-                            </a>
-                        </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link menu-link" href="">
-                                <i class="ri-alert-line"></i> <span>Store Reports Form User</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" href="">
-                                <i class="ri-error-warning-line"></i> <span>Order Complaintt Reports From Seller</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" href="">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementRecipe">
                                 <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" href="">
-                                <i class=" ri-chat-3-line"></i> <span>Chat</span>
-                            </a>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllIngredientTag">
+                            <i class=" ri-price-tag-3-line"></i> <span>Ingredient Tag</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllTypeOfDish">
+                            <i class="ri-restaurant-line"></i> <span>Type of Dish</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerVoucher">
+                            <i class=" ri-coupon-2-line"></i> <span>Voucher</span>
+                        </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Chat">
+                                <i class="ri-chat-3-line"></i> <span>Chat</span>
+                            </a>
+                        </li>
+                        <!--<li class="nav-item">
                             <a class="nav-link menu-link" href="">
                                 <i class="ri-notification-2-line"></i> <span>Notifications</span>
                             </a>
                         </li> -->
                     </ul>
                 </div>
-
             </div>
             <!-- Sidebar -->
         </div>
@@ -165,13 +174,15 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Store Details</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
-                                    <li class="breadcrumb-item active">Form Layout</li>
+                                    <li class="breadcrumb-item"><a href="/Admin/ViewStoreRegistration">Store
+                                            Registration List</a></li>
+                                    <li class="breadcrumb-item active">Store Details</li>
                                 </ol>
                             </div>
 
@@ -179,11 +190,11 @@
                     </div>
                 </div>
                 <!-- end page title -->
-                    <div class="col-xxl-12">
-                        <div class="card">
-                            <div class="card-header align-items-center d-flex">
-                                <h4 class="card-title mb-0 flex-grow-1">Store Information</h4>
-                            </div>
+                <div class="col-xxl-12">
+                    <div class="card">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Store Details</h4>
+                        </div>
                         <div class="border rounded p-3 mb-3">
                             <form method="post">
                                 <input type="hidden" name="ID" value="@Model.ID" />
@@ -199,21 +210,24 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">Store Owner</label>
-                                            <input type="text" class="form-control" value="@Model.StoreOwner" readonly />
+                                            <input type="text" class="form-control" value="@Model.StoreOwner"
+                                                readonly />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">Created Date</label>
-                                            <input type="text" class="form-control" value="@Model.CreatedDate.ToString("dd-MM-yyyy")" readonly />
+                                            <input type="text" class="form-control"
+                                                value="@Model.CreatedDate.ToString("dd-MM-yyyy")" readonly />
                                         </div>
                                     </div>
 
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">Modified Date</label>
-                                            <input type="text" class="form-control" value="@Model.ModifiedDate?.ToString("dd-MM-yyyy")" readonly />
+                                            <input type="text" class="form-control"
+                                                value="@Model.ModifiedDate?.ToString("dd-MM-yyyy")" readonly />
                                         </div>
                                     </div>
 
@@ -227,7 +241,8 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">Is Active</label>
-                                            <input type="text" class="form-control" value="@(Model.IsActive ? "Yes" : "No")" readonly />
+                                            <input type="text" class="form-control"
+                                                value="@(Model.IsActive ? "Yes" : "No")" readonly />
                                         </div>
                                     </div>
 
@@ -236,7 +251,8 @@
                                         <div class="col-md-12">
                                             <div class="mb-3">
                                                 <label class="form-label text-danger">Reject Note</label>
-                                                <input type="text" class="form-control text-danger" value="@Model.RejectNote" readonly />
+                                                <input type="text" class="form-control text-danger"
+                                                    value="@Model.RejectNote" readonly />
                                             </div>
                                         </div>
                                     }
@@ -244,7 +260,8 @@
                                     <div class="col-md-12">
                                         <div class="mb-3">
                                             <label class="form-label">Short Description</label>
-                                            <input type="text" class="form-control" value="@Model.ShortDescriptions" readonly />
+                                            <input type="text" class="form-control" value="@Model.ShortDescriptions"
+                                                readonly />
                                         </div>
                                     </div>
 
@@ -291,7 +308,8 @@
                                             <div>
                                                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                                                 {
-                                                    <img src="@Model.ImageUrl" alt="Store Image" class="img-fluid rounded" style="max-height: 200px;" />
+                                                    <img src="@Model.ImageUrl" alt="Store Image" class="img-fluid rounded"
+                                                        style="max-height: 200px;" />
                                                 }
                                                 else
                                                 {
@@ -303,27 +321,29 @@
 
                                     <div class="col-lg-12 text-end mt-3">
                                         <a href="/Admin/ViewStoreRegistration" class="btn btn-sm btn-secondary me-2">
-                                             Back to List
+                                            Back to List
                                         </a>
 
                                         @if (Model.Status.ToLower() != "approved")
                                         {
-                                            <button type="button" class="btn btn-sm btn-success me-2" onclick="updateStoreStatus('@Model.ID', 'Approved')">
-                                                 Accept
+                                            <button type="button" class="btn btn-sm btn-success me-2"
+                                                onclick="updateStoreStatus('@Model.ID', 'Approved')">
+                                                Accept
                                             </button>
                                         }
                                         @if (Model.Status.ToLower() == "pending")
                                         {
-                                            <button type="button" class="btn btn-sm btn-danger" onclick="updateStoreStatus('@Model.ID', 'Rejected')">
-                                                 Reject
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                onclick="updateStoreStatus('@Model.ID', 'Rejected')">
+                                                Reject
                                             </button>
                                         }
                                     </div>
                                 </div>
                             </form>
                         </div>
-                       </div>
                     </div>
+                </div>
 
                 <script>
                     function updateStoreStatus(storeId, newStatus) {
@@ -368,44 +388,44 @@
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
             </div>
-    <!-- end main content-->
-    </div>
-    <!-- END layout-wrapper -->
-    <!--start back-to-top-->
-    <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
-        <i class="ri-arrow-up-line"></i>
-    </button>
-    <!--end back-to-top-->
-    <!--preloader-->
-    <div id="preloader">
-        <div id="status">
-            <div class="spinner-border text-primary avatar-sm" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <!-- end main content-->
+        </div>
+        <!-- END layout-wrapper -->
+        <!--start back-to-top-->
+        <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+            <i class="ri-arrow-up-line"></i>
+        </button>
+        <!--end back-to-top-->
+        <!--preloader-->
+        <div id="preloader">
+            <div id="status">
+                <div class="spinner-border text-primary avatar-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
         </div>
-    </div>
 
 
 
 
-    <!-- JAVASCRIPT -->
-    <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="~/assetsAdmin/libs/simplebar/simplebar.min.js"></script>
-    <script src="~/assetsAdmin/libs/node-waves/waves.min.js"></script>
-    <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
-    <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
-    <script src="~/assetsAdmin/js/plugins.js"></script>
+        <!-- JAVASCRIPT -->
+        <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="~/assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+        <script src="~/assetsAdmin/libs/node-waves/waves.min.js"></script>
+        <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
+        <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+        <script src="~/assetsAdmin/js/plugins.js"></script>
 
-    <!-- prismjs plugin -->
-    <script src="~/assetsAdmin/libs/prismjs/prism.js"></script>
+        <!-- prismjs plugin -->
+        <script src="~/assetsAdmin/libs/prismjs/prism.js"></script>
 
-    <!-- gridjs js -->
-    <script src="~/assetsAdmin/libs/gridjs/gridjs.umd.js"></script>
-    <!-- gridjs init -->
-    <script src="~/assetsAdmin/js/pages/gridjs.init.js"></script>
+        <!-- gridjs js -->
+        <script src="~/assetsAdmin/libs/gridjs/gridjs.umd.js"></script>
+        <!-- gridjs init -->
+        <script src="~/assetsAdmin/js/pages/gridjs.init.js"></script>
 
-    <!-- App js -->
-    <script src="~/assetsAdmin/js/app.js"></script>
+        <!-- App js -->
+        <script src="~/assetsAdmin/js/app.js"></script>
 
 </body>
 

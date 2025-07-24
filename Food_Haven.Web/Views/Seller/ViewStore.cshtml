@@ -140,12 +140,12 @@
                             class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Store Details</h4>
 
-                            <div class="page-title-right">
+                            @* <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
                                     <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
                                     <li class="breadcrumb-item active">Form Layout</li>
                                 </ol>
-                            </div>
+                            </div> *@
 
                         </div>
                     </div>
@@ -180,12 +180,13 @@
                                         </div>
                                     }
                                     else if (storeStatus == "REJECTED")
-{
-    <div class="alert alert-danger text-center">
-        <p>Your store registration has been rejected.</p>
-        <a asp-action="ReRegisterStore" class="btn btn-warning mt-2">Register Store Again</a>
-    </div>
-}
+                                    {
+                                        <div class="alert alert-danger text-center">
+                                            <p>Your store registration has been rejected.</p>
+                                            <a asp-action="ReRegisterStore" class="btn btn-warning mt-2">Register Store
+                                                Again</a>
+                                        </div>
+                                    }
 
                                     else if (storeStatus == "APPROVED")
                                     {

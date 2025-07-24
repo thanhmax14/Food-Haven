@@ -95,7 +95,7 @@
                 </button>
             </div>
 
-            <div class="dropdown sidebar-user m-1 rounded">
+            @* <div class="dropdown sidebar-user m-1 rounded">
                 <button type="button" class="btn material-shadow-none" id="page-header-user-dropdown"
                     data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="d-flex align-items-center gap-2">
@@ -139,7 +139,7 @@
                             class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle"
                             data-key="t-logout">Logout</span></a>
                 </div>
-            </div>
+            </div> *@
             <div id="scrollbar">
                 <div class="container-fluid">
                     <div id="two-column-menu">
@@ -172,9 +172,9 @@
                             </a>
                         </li>
                         <li class="nav-item"></li>
-                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                            </a>
+                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                        </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -193,108 +193,109 @@
             <!-- Sidebar -->
         </div>
         <div class="sidebar-background"></div>
-        </div>
-        <!-- Left Sidebar End -->
-        <!-- Vertical Overlay-->
-        <div class="vertical-overlay"></div>
+    </div>
+    <!-- Left Sidebar End -->
+    <!-- Vertical Overlay-->
+    <div class="vertical-overlay"></div>
 
-        <!-- ============================================================== -->
-        <!-- Start right Content here -->
-        <!-- ============================================================== -->
-        <div class="main-content">
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
 
-            <div class="page-content">
-                <div class="container-fluid">
+        <div class="page-content">
+            <div class="container-fluid">
 
-                    <!-- start page title -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div
-                                class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                                <h4 class="mb-sm-0">Product Details</h4>
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Complaint Details</h4>
 
-                                <div class="page-title-right">
-                                    <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Ecommerce</a></li>
-                                        <li class="breadcrumb-item active">Product Details</li>
-                                    </ol>
-                                </div>
-
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a href="/seller/ManagerComplant">Complaint List</a>
+                                    </li>
+                                    <li class="breadcrumb-item active">Complaint Details</li>
+                                </ol>
                             </div>
+
                         </div>
                     </div>
-                    <!-- end page title -->
+                </div>
+                <!-- end page title -->
 
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row gx-lg-5">
-                                        <div class="col-xl-4 col-md-8 mx-auto">
-                                            <div class="product-img-slider sticky-side-div">
-                                                <div class="swiper product-thumbnail-slider p-2 rounded bg-light">
-                                                    <div class="swiper-wrapper">
-                                                        @if (Model.image.Any())
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row gx-lg-5">
+                                    <div class="col-xl-4 col-md-8 mx-auto">
+                                        <div class="product-img-slider sticky-side-div">
+                                            <div class="swiper product-thumbnail-slider p-2 rounded bg-light">
+                                                <div class="swiper-wrapper">
+                                                    @if (Model.image.Any())
+                                                    {
+                                                        foreach (var image in Model.image)
                                                         {
-                                                            foreach (var image in Model.image)
-                                                            {
-                                                                <div class="swiper-slide">
+                                                            <div class="swiper-slide">
+                                                                <img src="@image" alt="" class="img-fluid d-block" />
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                </div>
+                                                <div class="swiper-button-next material-shadow"></div>
+                                                <div class="swiper-button-prev material-shadow"></div>
+                                            </div>
+                                            <!-- end swiper thumbnail slide -->
+                                            <div class="swiper product-nav-slider mt-2">
+                                                <div class="swiper-wrapper">
+                                                    @if (Model.image.Any())
+                                                    {
+                                                        foreach (var image in Model.image)
+                                                        {
+                                                            <div class="swiper-slide">
+                                                                <div class="nav-slide-item">
                                                                     <img src="@image" alt="" class="img-fluid d-block" />
                                                                 </div>
-                                                            }
-                                                        }
-                                                       
-                                                    </div>
-                                                    <div class="swiper-button-next material-shadow"></div>
-                                                    <div class="swiper-button-prev material-shadow"></div>
-                                                </div>
-                                                <!-- end swiper thumbnail slide -->
-                                                <div class="swiper product-nav-slider mt-2">
-                                                    <div class="swiper-wrapper">
-                                                           @if (Model.image.Any())
-                                                        {
-                                                            foreach (var image in Model.image)
-                                                            {
-                                                                <div class="swiper-slide">
-                                                                    <div class="nav-slide-item">
-                                                                        <img src="@image" alt=""
-                                                                             class="img-fluid d-block" />
-                                                                    </div>
-                                                                </div>
+                                                            </div>
 
-                                                            }
                                                         }
-                                                       
-                                                    </div>
+                                                    }
+
                                                 </div>
-                                                <!-- end swiper nav slide -->
                                             </div>
+                                            <!-- end swiper nav slide -->
                                         </div>
-                                        <!-- end col -->
+                                    </div>
+                                    <!-- end col -->
 
-                                        <div class="col-xl-8">
-                                            <div class="mt-xl-0 mt-5">
-                                                <div class="d-flex">
-                                                    <div class="flex-grow-1">
-                                                        <h4>@Model.ProductName</h4>
-                                                        <div class="hstack gap-3 flex-wrap">
-                                                            <div class="text-muted">
-                                                                ProductType : <span class="text-body fw-medium">@Model.ProductType</span>
-                                                            </div>
-                                                            <div class="vr"></div>
-                                                            <div class="text-muted">Shop : <span
-                                                                    class="text-body fw-medium">@Model.NameShop</span>
-                                                            </div>
-                                                            <div class="vr"></div>
-                                                            <div class="text-muted">Date Complant : <span
-                                                                    class="text-body fw-medium">@Model.CreateDate</span>
-                                                            </div>
+                                    <div class="col-xl-8">
+                                        <div class="mt-xl-0 mt-5">
+                                            <div class="d-flex">
+                                                <div class="flex-grow-1">
+                                                    <h4>@Model.ProductName</h4>
+                                                    <div class="hstack gap-3 flex-wrap">
+                                                        <div class="text-muted">
+                                                            ProductType : <span
+                                                                class="text-body fw-medium">@Model.ProductType</span>
+                                                        </div>
+                                                        <div class="vr"></div>
+                                                        <div class="text-muted">Shop : <span
+                                                                class="text-body fw-medium">@Model.NameShop</span>
+                                                        </div>
+                                                        <div class="vr"></div>
+                                                        <div class="text-muted">Date Complant : <span
+                                                                class="text-body fw-medium">@Model.CreateDate</span>
                                                         </div>
                                                     </div>
-                                                   
                                                 </div>
 
-                                                <!-- <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+                                            </div>
+
+                                            <!-- <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
                                                     <div class="text-muted fs-16">
                                                         <span class="mdi mdi-star text-warning"></span>
                                                         <span class="mdi mdi-star text-warning"></span>
@@ -304,146 +305,163 @@
                                                     </div>
                                                     <div class="text-muted">( 5.50k Customer Review )</div>
                                                 </div> -->
-<div class="mt-3 d-flex align-items-center justify-content-between">
-    <!-- Trạng thái khiếu nại -->
-    <div>
-        <span class="fw-bold me-2">Status:</span>
-        <span class="badge 
+                                            <div class="mt-3 d-flex align-items-center justify-content-between">
+                                                <!-- Trạng thái khiếu nại -->
+                                                <div>
+                                                    <span class="fw-bold me-2">Status:</span>
+                                                    <span class="badge 
             @(Model.Status == "Pending" ? "bg-warning" :
-              Model.Status == "Refund" ? "bg-success" :
-              Model.Status == "Product Warranty" ? "bg-info" :
-              Model.Status == "Report to Admin" ? "bg-danger" :
-              "bg-secondary")">
-            @Model.Status
-        </span>
-    </div>
- 
-</div>
-
-
-                                                <div class="mt-3 d-flex align-items-center justify-content-between">
-                                                    <!-- Trạng thái khiếu nại -->
-                                                    <div>
-                                                        <span class="fw-bold me-2">Order Code:</span>
-                                                        <span class="badge bg-success">
-                                                            @Model.OrderTracking
-                                                        </span>
-                                                    </div>
-
+                                                                        Model.Status == "Refund" ? "bg-success" :
+                                                                        Model.Status == "Product Warranty" ? "bg-info" :
+                                                                        Model.Status == "Report to Admin" ? "bg-danger" :
+                                                                        "bg-secondary")">
+                                                        @Model.Status
+                                                    </span>
                                                 </div>
-                                                <!-- end row -->
 
-                                                <div class="mt-4 text-muted">
+                                            </div>
+
+
+                                            <div class="mt-3 d-flex align-items-center justify-content-between">
+                                                <!-- Trạng thái khiếu nại -->
+                                                <div>
+                                                    <span class="fw-bold me-2">Order Code:</span>
+                                                    <span class="badge bg-success">
+                                                        @Model.OrderTracking
+                                                    </span>
+                                                </div>
+
+                                            </div>
+                                            <!-- end row -->
+
+                                            <div class="mt-4 text-muted">
                                                 <h5 class="fs-14">Complaint from user (@Model.UserName) :</h5>
-                                                    <p>
-                                                        @Model.Description
-                                                    </p>
-                                                </div>
+                                                <p>
+                                                    @Model.Description
+                                                </p>
+                                            </div>
 
 
 
-                                              
-
-                                                <!-- product-content -->
-
-                                                <div class="mt-5">
-                                                    <div class="row gy-4 gx-0">
-                                                        <div class="col-lg-8">
-                                                            <div class="ps-lg-4">
 
 
-                                                                @if (!string.IsNullOrWhiteSpace(Model.SellerReply))
-                                                                {
-                                                         <div class="d-flex flex-wrap align-items-start gap-3 mb-3">
+                                            <!-- product-content -->
+
+                                            <div class="mt-5">
+                                                <div class="row gy-4 gx-0">
+                                                    <div class="col-lg-8">
+                                                        <div class="ps-lg-4">
+
+
+                                                            @if (!string.IsNullOrWhiteSpace(Model.SellerReply))
+                                                            {
+                                                                <div class="d-flex flex-wrap align-items-start gap-3 mb-3">
                                                                     <h5 class="fs-14">Response details:</h5>
                                                                 </div>
 
-                                                                <div class="me-lg-n3 pe-lg-4" data-simplebar style="max-height: 225px;">
+                                                                <div class="me-lg-n3 pe-lg-4" data-simplebar
+                                                                    style="max-height: 225px;">
                                                                     <ul class="list-unstyled mb-0">
                                                                         <li class="py-2">
                                                                             <!-- Phản hồi từ Seller -->
                                                                             <div class="bg-light rounded p-3 mt-2">
                                                                                 <div class="d-flex align-items-center mb-2">
-                                                                                    <div class="badge bg-info-subtle text-info me-2">
+                                                                                    <div
+                                                                                        class="badge bg-info-subtle text-info me-2">
                                                                                         Response from Shop
                                                                                     </div>
-                                                                                    <h6 class="fs-13 mb-0">@Model.NameShop  - @Model.DateReply</h6>
+                                                                                    <h6 class="fs-13 mb-0">@Model.NameShop -
+                                                                                        @Model.DateReply</h6>
                                                                                 </div>
                                                                                 <p class="text-muted mb-0 fst-italic">
-                                                                                   @Model.SellerReply
+                                                                                    @Model.SellerReply
                                                                                 </p>
                                                                             </div>
 
-                                                                          @if(!string.IsNullOrWhiteSpace(Model.AdminrReply)){
+                                                                            @if (!string.IsNullOrWhiteSpace(Model.AdminrReply))
+                                                                            {
                                                                                 <!-- Phản hồi từ Admin -->
-                                                                            <div class="bg-light rounded p-3 mt-2">
-                                                                                <div class="d-flex align-items-center mb-2">
-                                                                                    <div class="badge bg-danger-subtle text-danger me-2">
+                                                                                <div class="bg-light rounded p-3 mt-2">
+                                                                                    <div class="d-flex align-items-center mb-2">
+                                                                                        <div
+                                                                                            class="badge bg-danger-subtle text-danger me-2">
                                                                                             Response from Admin
+                                                                                        </div>
+                                                                                        <h6 class="fs-13 mb-0">Administrator -
+                                                                                            @Model.DateAdminCreate</h6>
                                                                                     </div>
-                                                                                        <h6 class="fs-13 mb-0">Administrator   - @Model.DateAdminCreate</h6>
+                                                                                    <p class="text-muted mb-0 fst-italic">
+                                                                                        @Model.AdminrReply
+                                                                                    </p>
                                                                                 </div>
-                                                                                <p class="text-muted mb-0 fst-italic">
-                                                                                   @Model.AdminrReply
-                                                                                </p>
-                                                                            </div>
-                                                                          }
+                                                                            }
                                                                         </li>
                                                                     </ul>
                                                                 </div>
-                                                                }
-                                                       
-                                                            </div>
-                                                        </div>
-                                                        <!-- end col -->
-                                                    </div>
-                                                </div>
-                                                <!-- Nếu Seller chưa phản hồi -->
-                                                @if (Model.Status == "Pending")
-                                                {
-                                                    <div class="mt-3">
-                                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal"
-                                                                data-bs-target="#resolveModal">
-                                                        Resolve Complaint
-                                                        </button>
-                                                    </div>
-                                                }
+                                                            }
 
-                                                <!-- Modal giải quyết khiếu nại -->
+                                                        </div>
+                                                    </div>
+                                                    <!-- end col -->
+                                                </div>
+                                            </div>
+                                            <!-- Nếu Seller chưa phản hồi -->
+                                            @if (Model.Status == "Pending")
+                                            {
+                                                <div class="mt-3">
+                                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                                                        data-bs-target="#resolveModal">
+                                                        Resolve Complaint
+                                                    </button>
+                                                </div>
+                                            }
+
+                                            <!-- Modal giải quyết khiếu nại -->
                                             <div class="modal fade" id="resolveModal" tabindex="-1"
-                                                 aria-labelledby="resolveModalLabel" aria-hidden="true">
+                                                aria-labelledby="resolveModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered">
                                                     <div class="modal-content border-0">
                                                         <div class="modal-header bg-light">
-                                                            <h5 class="modal-title" id="resolveModalLabel">Resolve Complaint</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            <h5 class="modal-title" id="resolveModalLabel">Resolve
+                                                                Complaint</h5>
+                                                            <button type="button" class="btn-close"
+                                                                data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
                                                             @Html.AntiForgeryToken()
                                                             <!-- Hidden input containing complaint ID -->
-                                                            <input type="hidden" id="complaintId" value="@Model.ComplantID" />
+                                                            <input type="hidden" id="complaintId"
+                                                                value="@Model.ComplantID" />
 
                                                             <div class="mb-3">
                                                                 <label class="form-label">Resolution Action</label>
-                                                                <select class="form-select" id="resolutionAction" required>
+                                                                <select class="form-select" id="resolutionAction"
+                                                                    required>
                                                                     <option value="">-- Select an action --</option>
                                                                     <option value="refund">Refund</option>
                                                                     <option value="warranty">Warranty</option>
                                                                     <option value="dispute">Dispute</option>
                                                                 </select>
-                                                                <span class="text-danger d-none" id="actionError">Please select a resolution action.</span>
+                                                                <span class="text-danger d-none" id="actionError">Please
+                                                                    select a resolution action.</span>
                                                             </div>
 
                                                             <div class="mb-3">
                                                                 <label class="form-label">Detailed Description</label>
-                                                                <textarea class="form-control" id="resolutionNote" rows="3"
-                                                                          placeholder="Enter resolution description..." required></textarea>
-                                                                <span class="text-danger d-none" id="noteError">Please enter a detailed description.</span>
+                                                                <textarea class="form-control" id="resolutionNote"
+                                                                    rows="3"
+                                                                    placeholder="Enter resolution description..."
+                                                                    required></textarea>
+                                                                <span class="text-danger d-none" id="noteError">Please
+                                                                    enter a detailed description.</span>
                                                             </div>
 
                                                             <div class="text-end">
-                                                                <button type="button" class="btn btn-success" id="btnResolveSubmit">
-                                                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                                <button type="button" class="btn btn-success"
+                                                                    id="btnResolveSubmit">
+                                                                    <span
+                                                                        class="spinner-border spinner-border-sm d-none"
+                                                                        role="status" aria-hidden="true"></span>
                                                                     <span class="btn-text">Confirm Resolution</span>
                                                                 </button>
                                                             </div>
@@ -453,30 +471,30 @@
                                                 </div>
                                             </div>
 
-                                                </div>
-
-                                            </div>
-                                            <!-- end card body -->
                                         </div>
-                                    </div>
-                                    <!-- end col -->
-                                </div>
-                                <!-- end row -->
-                            </div>
-                            <!-- end card body -->
-                        </div>
-                        <!-- end card -->
-                    </div>
-                    <!-- end col -->
-                </div>
-                <!-- end row -->
 
+                                    </div>
+                                    <!-- end card body -->
+                                </div>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+                    </div>
+                    <!-- end card body -->
+                </div>
+                <!-- end card -->
             </div>
-            <!-- container-fluid -->
+            <!-- end col -->
         </div>
-        <!-- End Page-content -->
-       
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <!-- end row -->
+
+    </div>
+    <!-- container-fluid -->
+    </div>
+    <!-- End Page-content -->
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -602,7 +620,7 @@
         </div>
     </div>
 
-    
+
     </div>
 
     <!-- JAVASCRIPT -->

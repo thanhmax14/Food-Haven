@@ -2,7 +2,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -62,12 +62,12 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
 
-           <div id="scrollbar">
+            <div id="scrollbar">
                 <div class="container-fluid">
                     <div id="two-column-menu">
                     </div>
@@ -170,16 +170,16 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Edit TypeOfDish</h4>
-
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Update Type Of Dish</h4>
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
-                                    <li class="breadcrumb-item active">Edit TypeOfDish</li>
+                                    <li class="breadcrumb-item"><a href="/Admin/GetAllTypeOfDish">Type Of Dish List</a>
+                                    </li>
+                                    <li class="breadcrumb-item active">Update Type Of Dish</li>
                                 </ol>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -189,19 +189,20 @@
                     <div class="col-xxl-12">
                         <div class="card">
                             <div class="card-header align-items-center d-flex">
-                                <h4 class="card-title mb-0 flex-grow-1">Edit TypeOfDish</h4>
+                                <h4 class="card-title mb-0 flex-grow-1">Edit Type Of Dish</h4>
                             </div>
 
                             <div class="card-body">
                                 <div class="live-preview">
-                                    <form method="post" asp-action="UpdateTypeOfDish" asp-controller="Admin" enctype="multipart/form-data">
+                                    <form method="post" asp-action="UpdateTypeOfDish" asp-controller="Admin"
+                                        enctype="multipart/form-data">
                                         <input type="hidden" asp-for="ID" />
 
                                         <div class="row">
                                             <!-- Tên danh mục -->
                                             <div class="col-md-12">
                                                 <div class="mb-3">
-                                                    <label asp-for="Name" class="form-label">TypeOfDish Name</label>
+                                                    <label asp-for="Name" class="form-label">Type Of Dish Name</label>
                                                     <input asp-for="Name" class="form-control" required />
                                                     <span asp-validation-for="Name" class="text-danger"></span>
                                                 </div>
@@ -215,8 +216,10 @@
 
 
                                             <div class="col-lg-12 text-end">
-                                                <a href="/Admin/GetAllTypeOfDish" class="btn btn-secondary px-4">Back To ListTypeOfDish</a>
-                                                <button type="submit" class="btn btn-primary px-4">Update TypeOfDish</button>
+                                                <a href="/Admin/GetAllTypeOfDish" class="btn btn-secondary px-4">Back To
+                                                    ListTypeOfDish</a>
+                                                <button type="submit" class="btn btn-primary px-4">Update
+                                                    TypeOfDish</button>
                                             </div>
                                         </div>
                                     </form>

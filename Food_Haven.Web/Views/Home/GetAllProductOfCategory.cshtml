@@ -68,11 +68,11 @@
                                         <div class="product-img product-img-zoom">
                                             <a href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">
                                                 <img class="default-img"
-                                                     src="@(item.Img?.FirstOrDefault() ?? "/assets/imgs/shop/product-5-1.jpg")"
-                                                     alt="@item.Name" />
+                                                    src="@(item.Img?.FirstOrDefault() ?? "/assets/imgs/shop/product-5-1.jpg")"
+                                                    alt="@item.Name" />
                                                 <img class="hover-img"
-                                                     src="@(item.Img.Skip(1).FirstOrDefault() ?? item.Img?.FirstOrDefault()?? "/assets/imgs/shop/product-5-2.jpg")"
-                                                     alt="@item.Name" />
+                                                    src="@(item.Img.Skip(1).FirstOrDefault() ?? item.Img?.FirstOrDefault() ?? "/assets/imgs/shop/product-5-2.jpg")"
+                                                    alt="@item.Name" />
                                             </a>
                                         </div>
                                         <div class="product-action-1">
@@ -80,14 +80,15 @@
 
                                             @if (item.isWish)
                                             {
-                                                <a aria-label="@(item.isWish ? "Remove wishlist" : "Add To Wishlist")" class="action-btn"
-                                                   onclick="AddWishlist(this, '@item.ID')">
+                                                <a aria-label="@(item.isWish ? "Remove wishlist" : "Add To Wishlist")"
+                                                    class="action-btn" onclick="AddWishlist(this, '@item.ID')">
                                                     <i class="fi-rs-heart@(item.isWish ? " text-danger" : "")"></i>
                                                 </a>
                                             }
                                             else
                                             {
-                                                <a aria-label="Add To Wishlist" class="action-btn" onclick="AddWishlist(this, '@item.ID')">
+                                                <a aria-label="Add To Wishlist" class="action-btn"
+                                                    onclick="AddWishlist(this, '@item.ID')">
                                                     <i class="fi-rs-heart"></i>
                                                 </a>
                                             }
@@ -97,10 +98,12 @@
                                         </div>
                                     </div>
                                     <div class="product-content-wrap">
-                                       @*  <div class="product-category">
+                                        @*  <div class="product-category">
                                             <a href="shop-grid-right.html">Snack</a>
                                         </div> *@
-                                        <h2><a href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">@item.Name</a></h2>
+                                        <h2><a
+                                                href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">@item.Name</a>
+                                        </h2>
                                         <div class="product-rate-cover">
                                             <div class="product-rate d-inline-block">
                                                 <div class="product-rating" style="width: @(averageRating * 20)%"></div>
@@ -109,13 +112,15 @@
                                         </div>
                                         <div>
                                             <span class="font-small text-muted">
-                                                By <a href="@Url.Action("GetStoreDetail", "Home", new { storeId = item.StoreId })">
+                                                By <a
+                                                    href="@Url.Action("GetStoreDetail", "Home", new { id = item.StoreId })">
                                                     @item.StoreName
                                                 </a>
                                             </span>
                                             <br />
                                             <span class="font-small text-muted">
-                                                Category: <a href="@Url.Action("GetAllProductOfCategory", "Home", new { categoryId = item.CateID })">
+                                                Category: <a
+                                                    href="@Url.Action("GetAllProductOfCategory", "Home", new { id = item.CateID })">
                                                     @item.CategoryName
                                                 </a>
                                             </span>
@@ -153,7 +158,8 @@
                                         <div class="product-card-bottom">
 
                                             <div class="add-cart">
-                                                <a class="add" href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">
+                                                <a class="add"
+                                                    href="@Url.Action("ProductDetail", "Home", new { id = item.ID })">
                                                     <i class="fi-rs-shopping-cart mr-5"></i>View Detail
                                                 </a>
                                             </div>

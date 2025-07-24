@@ -186,11 +186,21 @@ namespace Food_Haven.Web.Controllers
                 }
                 if (result.Succeeded)
                 {
+
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    string redirectUrl = ReturnUrl;
+
+                    if (roles.Contains("Admin"))
+                    {
+                        redirectUrl = "/Admin";
+                    }
+
                     return Ok(new
                     {
                         status = "success",
                         msg = "Login successful",
-                        redirectUrl = ReturnUrl
+                        redirectUrl = redirectUrl
                     });
                 }
             }
