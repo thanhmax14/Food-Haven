@@ -366,7 +366,10 @@
 
                                @if (Model.Categories != null && Model.Categories.Any())
 {
-    @foreach (var category in Model.Categories.Take(6))
+                                    @foreach (var category in Model.Categories
+                                                                    .Where(c => c.Products != null && c.Products.Any())
+                                                                    .OrderByDescending(c => c.Products.Count)
+                                                                    .Take(6))
     {
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="nav-tab-@category.ID" data-bs-toggle="tab"
@@ -409,9 +412,9 @@
                         <h5 class="section-title style-1 mb-30">Category</h5>
                         <ul>
                             @foreach (var category in Model.Categories
-                                                        .Where(c => c.Products != null && c.Products.Any()) // Filter categories with products
-                                                        .OrderByDescending(c => c.Products.Count) // Sort by the number of products (optional)
-                                                        .Take(5)) // Take the top 5 categories with the most products
+                                                        .Where(c => c.Products != null && c.Products.Any())
+                                                        .OrderByDescending(c => c.Products.Count) 
+                                                        .Take(5))
                             {
                                 <li>
                                     <a href="/Home/GetAllProductOfCategory/@category.ID"

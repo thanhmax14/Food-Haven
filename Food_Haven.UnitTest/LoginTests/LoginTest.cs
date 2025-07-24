@@ -147,6 +147,8 @@ namespace Food_Haven.UnitTest.LoginTests
 
             _userManagerMock.Setup(u => u.FindByEmailAsync(userInput))
                             .ReturnsAsync(userInput.Contains("@") ? user : null);
+            _userManagerMock.Setup(u => u.GetRolesAsync(user))
+                .ReturnsAsync(new List<string> { "Admin" });
 
             _userManagerMock.Setup(u => u.IsEmailConfirmedAsync(user)).ReturnsAsync(true);
             _userManagerMock.Setup(u => u.CheckPasswordAsync(user, password)).ReturnsAsync(true);

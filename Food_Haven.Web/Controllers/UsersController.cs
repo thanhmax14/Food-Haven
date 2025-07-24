@@ -46,7 +46,8 @@ using BusinessLogic.Services.Message; // nhớ import
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using BusinessLogic.Services.RecipeReviewReviews;
 using BusinessLogic.Services.FavoriteFavoriteRecipes;
-using BusinessLogic.Services.StoreFollowers; // nhớ import
+using BusinessLogic.Services.StoreFollowers;
+using BusinessLogic.Services.VoucherServices; // nhớ import
 
 namespace Food_Haven.Web.Controllers
 {
@@ -82,8 +83,9 @@ namespace Food_Haven.Web.Controllers
         private readonly IFavoriteRecipeService _iFavoriteRecipe;
         private readonly IStoreFollowersService _storeFollowersService;
         private readonly IStoreDetailService _storeDetailService;
+        private readonly IVoucherServices _voucherServices;
 
-        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe, IStoreFollowersService storeFollowersService, IStoreDetailService storeDetailService, IHubContext<FollowHub> hubContext1)
+        public UsersController(UserManager<AppUser> userManager, HttpClient client, IBalanceChangeService balance, IHttpContextAccessor httpContextAccessor, IProductService product, ICartService cart, IProductVariantService productWarian, IProductImageService img, IOrdersServices order, IOrderDetailService orderDetailService, PayOS payos, ManageTransaction managetrans, IReviewService review, IRecipeService recipeService, ICategoryService categoryService, IIngredientTagService ingredientTagService, ITypeOfDishService typeOfDishService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, IMessageImageService messageImageService, IMessageService messageService, IHubContext<ChatHub> hubContext, IRecipeReviewService recipeReviewService, IFavoriteRecipeService iFavoriteRecipe, IStoreFollowersService storeFollowersService, IStoreDetailService storeDetailService, IHubContext<FollowHub> hubContext1, IVoucherServices voucherServices)
         {
             _userManager = userManager;
             this.client = client;
@@ -113,6 +115,7 @@ namespace Food_Haven.Web.Controllers
             _storeFollowersService = storeFollowersService;
             _storeDetailService = storeDetailService;
             _hubContext1 = hubContext1;
+            _voucherServices = voucherServices;
         }
 
         [HttpGet]
@@ -380,7 +383,7 @@ namespace Food_Haven.Web.Controllers
 
                 });
                 await this._balance.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                 return Json(new ErroMess { success = true, msg = $"{url}" }); ;
             }
             catch (System.Exception exception)
@@ -485,12 +488,19 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new ErroMess { msg = "You must update your personal information before making a purchase!" });
             }
+             var temStoreid=Guid.Empty;
             var listItem = new List<ListItems>();
             foreach (var id in productIds)
             {
                 var product = await _productWarian.GetAsyncById(id);
                 if (product == null)
                 {
+                    return Json(new ErroMess { msg = "The selected product does not exist!" });
+                }
+                var temp = await _product.FindAsync(u => u.ID == product.ProductID);
+                if (temp == null)
+                {
+                    temStoreid = temp.StoreID;
                     return Json(new ErroMess { msg = "The selected product does not exist!" });
                 }
                 var checkcart = await this._cart.FindAsync(u => u.UserID == user.Id && u.ProductTypesID == id);
@@ -531,10 +541,39 @@ namespace Food_Haven.Web.Controllers
                 firstName = user.FirstName,
                 lastName = user.LastName,
                 phone = user.PhoneNumber,
-                itemCheck = listItem
+                itemCheck = listItem,
+                discountamount = 0,
+                Subtotal = listItem.Sum(x => x.ItemPrice * x.ItemQuantity),
+                totalamount = listItem.Sum(x => x.ItemPrice * x.ItemQuantity),
             };
             if (!string.IsNullOrWhiteSpace(voucherCode))
             {
+                var Voucher = await _voucherServices.FindAsync(u => u.Code.ToLower() ==voucherCode.ToLower());
+                if( Voucher == null)
+                {
+                    return Json(new ErroMess { msg = "Voucher code does not exist!" });
+                }
+                if( Voucher.IsActive == false)
+                {
+                    return Json(new ErroMess { msg = "Voucher code is not active!" });
+                }
+                if(Voucher.ExpirationDate < DateTime.Now)
+                {
+                    return Json(new ErroMess { msg = "Voucher code has expired!" });
+                }
+                if(!Voucher.IsGlobal && Voucher.StoreID != temStoreid)
+                {
+                    return Json(new ErroMess { msg = "Voucher code is not applicable for this store!" });
+                }
+                decimal discount = Voucher.DiscountType == "Percent"
+                ? listItem.Sum(x => x.ItemPrice * x.ItemQuantity) * Voucher.DiscountAmount / 100
+                : Voucher.DiscountAmount;
+
+                if (Voucher.MaxDiscountAmount.HasValue)
+                    discount = Math.Min(discount, Voucher.MaxDiscountAmount.Value);
+                temInfo.discountamount = discount;
+                var finalAmount = listItem.Sum(x => x.ItemPrice * x.ItemQuantity) - discount;
+                temInfo.totalamount= finalAmount;
                 temInfo.voucher = voucherCode;
             }
 
@@ -1161,7 +1200,7 @@ namespace Food_Haven.Web.Controllers
                 await _productWarian.SaveChangesAsync();
                 await _order.SaveChangesAsync();
                 await _balance.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                 return Json(new { success = true, message = "The order has been cancelled and refunded successfully." });
             }
             catch (Exception ex)
@@ -2388,6 +2427,7 @@ namespace Food_Haven.Web.Controllers
                 {
                     await _balance.AddAsync(temDongTien);
                     await _balance.SaveChangesAsync();
+                    await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                 }
                 catch
                 {

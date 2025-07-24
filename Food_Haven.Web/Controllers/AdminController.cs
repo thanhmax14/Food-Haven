@@ -1206,23 +1206,26 @@ namespace Food_Haven.Web.Controllers
                 var now = DateTime.Now;
 
                 var data = _voucher.GetAll()
-                    .Where(v => v.IsGlobal)
-                    .Select(v => new
-                    {
-                        id = v.ID,
-                        code = v.Code,
-                        discountAmount = v.DiscountAmount,
-                        discountType = v.DiscountType,
-                        createdDate = v.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                        startDate = v.StartDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                        expirationDate = v.ExpirationDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                        maxUsage = v.MaxUsage,
-                        currentUsage = v.CurrentUsage,
-                        isActive = v.IsActive,
-                        scope = v.MaxDiscountAmount,
-                        minOrderValue = v.MinOrderValue
-                    })
-                    .ToList();
+      .Where(v => v.IsGlobal)
+      .AsEnumerable() // Đổi sang client-side
+      .Select(v => new
+      {
+          id = v.ID,
+          code = v.Code,
+          discountAmount = v.DiscountAmount,
+          discountType = v.DiscountType,
+          createdDate = v.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss"),
+          startDate = v.StartDate.ToString("yyyy-MM-dd HH:mm:ss"),
+          expirationDate = v.ExpirationDate.ToString("yyyy-MM-dd HH:mm:ss"),
+          maxUsage = v.MaxUsage,
+          currentUsage = v.CurrentUsage,
+          isActive = v.IsActive,
+          scope = v.MaxDiscountAmount,
+          minOrderValue = v.MinOrderValue
+      })
+      .OrderByDescending(v => v.createdDate)
+      .ToList();
+
 
                 return Json(data);
             }
@@ -1266,6 +1269,13 @@ namespace Food_Haven.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateVoucher([FromBody] VoucherViewModel v)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { error = "You are not logged in!" });
+
+            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+            if (store == null)
+                return Json(new { error = "Store not found." });
             var errors = new Dictionary<string, string>();
 
             if (string.IsNullOrWhiteSpace(v.Code))
@@ -1290,80 +1300,7 @@ namespace Food_Haven.Web.Controllers
                     errors["startDate"] = "Start date must be before expiration date.";
             }
 
-            if (string.IsNullOrWhiteSpace(v.Scope))
-                errors["isPrivate"] = "isPrivate is required.";
-
-            if (v.MaxUsage < 0)
-                errors["maxUsage"] = "Max usage must be 0 or greater.";
-
-            if (v.CurrentUsage < 0)
-                errors["currentUsage"] = "Current usage must be 0 or greater.";
-            else if (v.CurrentUsage > v.MaxUsage)
-                errors["currentUsage"] = "Current usage cannot exceed max usage.";
-
-            if (v.MinOrderValue < 0)
-                errors["minOrderValue"] = "Minimum order value must be 0 or greater.";
-
-            if (errors.Any())
-                return BadRequest(new { success = false, fieldErrors = errors });
-
-            try
-            {
-                var entity = new Voucher
-                {
-                    ID = Guid.NewGuid(),
-                    Code = v.Code,
-                    DiscountAmount = v.DiscountAmount,
-                    DiscountType = v.DiscountType,
-                    StartDate = startDate,
-                    ExpirationDate = expirationDate,
-                    MaxDiscountAmount = decimal.Parse(v.Scope),
-                    MaxUsage = v.MaxUsage,
-                    CurrentUsage = v.CurrentUsage,
-                    MinOrderValue = v.MinOrderValue,
-                    IsActive = v.IsActive,
-                    CreatedDate = DateTime.Now,
-                    IsGlobal = true
-                };
-
-                await _voucher.AddAsync(entity);
-                await _voucher.SaveChangesAsync();
-
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Server error: " + ex.Message });
-            }
-        }
-        [HttpPost]
-        public async Task<IActionResult> UpdateVoucher([FromBody] VoucherViewModel v)
-        {
-            var errors = new Dictionary<string, string>();
-
-            if (string.IsNullOrWhiteSpace(v.Code))
-                errors["code"] = "Code is required.";
-
-            if (v.DiscountAmount <= 0)
-                errors["discountAmount"] = "Discount amount must be greater than 0.";
-
-            if (string.IsNullOrWhiteSpace(v.DiscountType) ||
-                (v.DiscountType != "Fixed" && v.DiscountType != "Percent"))
-                errors["discountType"] = "Discount type must be Fixed or Percent.";
-
-            if (!DateTime.TryParse(v.StartDate, out var startDate))
-                errors["startDate"] = "Start date is invalid or missing.";
-
-            if (!DateTime.TryParse(v.ExpirationDate, out var expirationDate))
-                errors["expirationDate"] = "Expiration date is invalid or missing.";
-
-            if (!errors.ContainsKey("startDate") && !errors.ContainsKey("expirationDate"))
-            {
-                if (startDate >= expirationDate)
-                    errors["startDate"] = "Start date must be before expiration date.";
-            }
-
-            if (string.IsNullOrWhiteSpace(v.Scope))
+            if (string.IsNullOrWhiteSpace(v.Scope) && v.DiscountType != "Fixed")
                 errors["scope"] = "Scope is required.";
 
             if (v.MaxUsage < 0)
@@ -1379,6 +1316,107 @@ namespace Food_Haven.Web.Controllers
 
             if (errors.Any())
                 return BadRequest(new { success = false, fieldErrors = errors });
+            decimal temp;
+            decimal? result;
+            if (decimal.TryParse(v.Scope, out temp))
+            {
+                result = temp;
+            }
+            else
+            {
+                result = null;
+            }
+
+
+            try
+            {
+                var entity = new Voucher
+                {
+                    ID = Guid.NewGuid(),
+                    Code = v.Code.ToUpper(),
+                    DiscountAmount = v.DiscountAmount,
+                    DiscountType = v.DiscountType,
+                    StartDate = startDate,
+                    ExpirationDate = expirationDate,
+                    MaxDiscountAmount = result,
+                    MaxUsage = v.MaxUsage,
+                    CurrentUsage = v.CurrentUsage,
+                    MinOrderValue = v.MinOrderValue,
+                    IsActive = v.IsActive,
+                    CreatedDate = DateTime.Now,
+                    IsGlobal=true
+                };
+
+                await _voucher.AddAsync(entity);
+                await _voucher.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Server error: " + ex.Message });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateVoucher([FromBody] VoucherViewModel v)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Json(new { error = "You are not logged in!" });
+
+            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+            if (store == null)
+                return Json(new { error = "Store not found." });
+            var errors = new Dictionary<string, string>();
+
+            if (string.IsNullOrWhiteSpace(v.Code))
+                errors["code"] = "Code is required.";
+
+            if (v.DiscountAmount <= 0)
+                errors["discountAmount"] = "Discount amount must be greater than 0.";
+
+            if (string.IsNullOrWhiteSpace(v.DiscountType) ||
+                (v.DiscountType != "Fixed" && v.DiscountType != "Percent"))
+                errors["discountType"] = "Discount type must be Fixed or Percent.";
+
+            if (!DateTime.TryParse(v.StartDate, out var startDate))
+                errors["startDate"] = "Start date is invalid or missing.";
+
+            if (!DateTime.TryParse(v.ExpirationDate, out var expirationDate))
+                errors["expirationDate"] = "Expiration date is invalid or missing.";
+
+            if (!errors.ContainsKey("startDate") && !errors.ContainsKey("expirationDate"))
+            {
+                if (startDate >= expirationDate)
+                    errors["startDate"] = "Start date must be before expiration date.";
+            }
+
+            if (string.IsNullOrWhiteSpace(v.Scope) && v.DiscountType != "Fixed")
+                errors["scope"] = "Scope is required.";
+
+            if (v.MaxUsage < 0)
+                errors["maxUsage"] = "Max usage must be 0 or greater.";
+
+            if (v.CurrentUsage < 0)
+                errors["currentUsage"] = "Current usage must be 0 or greater.";
+            else if (v.CurrentUsage > v.MaxUsage)
+                errors["currentUsage"] = "Current usage cannot exceed max usage.";
+
+            if (v.MinOrderValue < 0)
+                errors["minOrderValue"] = "Minimum order value must be 0 or greater.";
+
+            if (errors.Any())
+                return BadRequest(new { success = false, fieldErrors = errors });
+            decimal temp;
+            decimal? result;
+            if (decimal.TryParse(v.Scope, out temp))
+            {
+                result = temp;
+            }
+            else
+            {
+                result = null;
+            }
 
             try
             {

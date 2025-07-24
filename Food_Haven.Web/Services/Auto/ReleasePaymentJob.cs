@@ -5,8 +5,10 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.VoucherServices;
+using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Models;
 using Net.payOS;
 using Quartz;
@@ -26,8 +28,8 @@ namespace Food_Haven.Web.Services.Auto
         private readonly IVoucherServices _voucher;
         private readonly IProductVariantService _producttype;
         private readonly PayOS _payos;
-
-        public ReleasePaymentJob(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> usermanager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos)
+        private readonly IHubContext<ChatHub> _hubContext;
+        public ReleasePaymentJob(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> usermanager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos, IHubContext<ChatHub> hubContext = null)
         {
             _order = order;
             _orderdetail = orderdetail;
@@ -38,6 +40,7 @@ namespace Food_Haven.Web.Services.Auto
             _voucher = voucher;
             _producttype = producttype;
             _payos = payos;
+            _hubContext = hubContext;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -111,6 +114,7 @@ namespace Food_Haven.Web.Services.Auto
                         await _balance.SaveChangesAsync();
 
                         Console.WriteLine($"[RULE 1] Đơn {order.ID} đã huỷ do pending quá 1 giờ.");
+                        await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                         continue;
                     }
 
@@ -176,6 +180,7 @@ namespace Food_Haven.Web.Services.Auto
                         await _order.UpdateAsync(order);
                         await _order.SaveChangesAsync();
                         Console.WriteLine($"[RULE 2] Đơn {order.ID} đã huỷ do 'PREPARING IN KITCHEN' quá 2 giờ.");
+                        await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                         continue;
                     }
 
@@ -229,7 +234,7 @@ namespace Food_Haven.Web.Services.Auto
                                         await _order.UpdateAsync(order);
                                         await _balance.SaveChangesAsync();
                                         await _order.SaveChangesAsync();
-
+                                        await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                                         Console.WriteLine($"[RULE 3.1] Đơn {order.ID} bị hủy do tranh chấp quá 3 ngày không phản hồi.");
                                         hasAnyActiveComplaint = true;
                                         break; // dừng xử lý đơn này
@@ -278,7 +283,7 @@ namespace Food_Haven.Web.Services.Auto
                                 await _order.UpdateAsync(order);
                                 await _balance.SaveChangesAsync();
                                 await _order.SaveChangesAsync();
-
+                                await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                                 Console.WriteLine($"[RULE 3] Đơn {order.ID} đã cộng tiền sau 3 ngày delivered và không có tranh chấp.");
                             }
                         }
@@ -369,6 +374,7 @@ namespace Food_Haven.Web.Services.Auto
                             await _producttype.SaveChangesAsync();
                             await _order.UpdateAsync(order);
                             await _order.SaveChangesAsync();
+                            await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                         }
                         catch (Exception ex)
                         {

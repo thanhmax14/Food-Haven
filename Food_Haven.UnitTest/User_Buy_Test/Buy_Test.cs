@@ -26,24 +26,27 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using MockQueryable;
+using Microsoft.EntityFrameworkCore;
 using Models;
+using Models.DBContext;
 using Moq;
 using Net.payOS;
+using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
-
-namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
+using System.Text;
+using System.Threading.Tasks;
+namespace Food_Haven.UnitTest.User_Buy_Test
 {
-    public class UpdateProfile_Test
+    public class Buy_Test
     {
-        private UsersController _controller;
-
-        // Mocks and real instances for constructor dependencies
         private Mock<UserManager<AppUser>> _userManagerMock;
-        private Mock<HttpClient> _httpClientMock;
-        private Mock<IBalanceChangeService> _balanceChangeServiceMock;
+        private Mock<IBalanceChangeService> _balanceMock;
         private Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private Mock<IProductService> _productServiceMock;
         private Mock<ICartService> _cartServiceMock;
@@ -51,8 +54,6 @@ namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IOrdersServices> _ordersServiceMock;
         private Mock<IOrderDetailService> _orderDetailServiceMock;
-        private PayOS _payOS; // Real instance
-        private ManageTransaction _manageTransaction; // Real instance
         private Mock<IReviewService> _reviewServiceMock;
         private Mock<IRecipeService> _recipeServiceMock;
         private Mock<ICategoryService> _categoryServiceMock;
@@ -64,19 +65,26 @@ namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
         private Mock<IMessageImageService> _messageImageServiceMock;
         private Mock<IMessageService> _messageServiceMock;
         private Mock<IHubContext<ChatHub>> _chatHubContextMock;
+        private Mock<IHubContext<FollowHub>> _followHubContextMock;
         private Mock<IRecipeReviewService> _recipeReviewServiceMock;
         private Mock<IFavoriteRecipeService> _favoriteRecipeServiceMock;
         private Mock<IStoreFollowersService> _storeFollowersServiceMock;
         private Mock<IStoreDetailService> _storeDetailServiceMock;
-        private Mock<IHubContext<FollowHub>> _followHubContextMock;
+        private HttpClient _httpClient; // Không cần mock, có thể dùng real object
+        private PayOS _payos;
+        private ManageTransaction _manageTransaction;
         private Mock<IVoucherServices> _voucherServiceMock;
 
+        // Controller instance
+        private UsersController _controller;
         [SetUp]
         public void Setup()
         {
-            _userManagerMock = new Mock<UserManager<AppUser>>(Mock.Of<IUserStore<AppUser>>(), null, null, null, null, null, null, null, null);
-            _httpClientMock = new Mock<HttpClient>();
-            _balanceChangeServiceMock = new Mock<IBalanceChangeService>();
+            _userManagerMock = new Mock<UserManager<AppUser>>(
+                new Mock<IUserStore<AppUser>>().Object,
+                null, null, null, null, null, null, null, null);
+
+            _balanceMock = new Mock<IBalanceChangeService>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
             _productServiceMock = new Mock<IProductService>();
             _cartServiceMock = new Mock<ICartService>();
@@ -84,8 +92,6 @@ namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
             _productImageServiceMock = new Mock<IProductImageService>();
             _ordersServiceMock = new Mock<IOrdersServices>();
             _orderDetailServiceMock = new Mock<IOrderDetailService>();
-            _payOS = new PayOS("client-id", "api-key", "https://callback.url"); // Real instance
-            _manageTransaction = null; // Real instance (adjust constructor if needed)
             _reviewServiceMock = new Mock<IReviewService>();
             _recipeServiceMock = new Mock<IRecipeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
@@ -97,20 +103,34 @@ namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
             _messageImageServiceMock = new Mock<IMessageImageService>();
             _messageServiceMock = new Mock<IMessageService>();
             _chatHubContextMock = new Mock<IHubContext<ChatHub>>();
+            _followHubContextMock = new Mock<IHubContext<FollowHub>>();
             _recipeReviewServiceMock = new Mock<IRecipeReviewService>();
             _favoriteRecipeServiceMock = new Mock<IFavoriteRecipeService>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
             _storeDetailServiceMock = new Mock<IStoreDetailService>();
             _voucherServiceMock = new Mock<IVoucherServices>();
-            _followHubContextMock = new Mock<IHubContext<FollowHub>>();
+            _httpClient = new HttpClient();
+            _payos = new PayOS("client-id", "api-key", "https://callback.url");
+            var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
+     .UseInMemoryDatabase(databaseName: "TestDb")
+     .Options;
 
-            var context = new Mock<HttpContext>();
-            _httpContextAccessorMock.Setup(_ => _.HttpContext).Returns(context.Object);
+            var dbContext = new FoodHavenDbContext(options);
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            manageTransactionMock
+                .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
+                .Returns<Func<Task>>(async (func) =>
+                {
+                    await func();
+                    return true;
+                });
+
+
 
             _controller = new UsersController(
                 _userManagerMock.Object,
-                _httpClientMock.Object,
-                _balanceChangeServiceMock.Object, // Removed null
+                _httpClient,
+                _balanceMock.Object,
                 _httpContextAccessorMock.Object,
                 _productServiceMock.Object,
                 _cartServiceMock.Object,
@@ -118,8 +138,8 @@ namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
                 _productImageServiceMock.Object,
                 _ordersServiceMock.Object,
                 _orderDetailServiceMock.Object,
-                _payOS,
-                _manageTransaction, // Use real ManageTransaction instance
+                _payos,
+                _manageTransaction,
                 _reviewServiceMock.Object,
                 _recipeServiceMock.Object,
                 _categoryServiceMock.Object,
@@ -135,111 +155,19 @@ namespace Food_Haven.UnitTest.Users_UpdateProfile_Test
                 _favoriteRecipeServiceMock.Object,
                 _storeFollowersServiceMock.Object,
                 _storeDetailServiceMock.Object,
-                _followHubContextMock.Object,
-                _voucherServiceMock.Object
+                _followHubContextMock.Object, _voucherServiceMock.Object
             );
-        }
 
-        [TearDown]
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+        }
+          [TearDown]
         public void TearDown()
         {
+            _httpClient?.Dispose();
             _controller?.Dispose();
         }
-
-        [Test]
-        public async Task UpdateProfile_UserNotFound_ReturnsJsonError()
-        {
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync((AppUser)null);
-
-            var obj = new IndexUserViewModels { userView = new UsersViewModel() };
-            var result = await _controller.UpdateProfile(obj);
-
-            Assert.IsInstanceOf<JsonResult>(result);
-            var json = (JsonResult)result;
-            Assert.IsTrue(json.Value.ToString().Contains("User not found"));
-        }
-
-        [Test]
-        public async Task UpdateProfile_InvalidPhoneNumber_ReturnsJsonError()
-        {
-            var user = new AppUser { Id = "1" };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-
-            var obj = new IndexUserViewModels { userView = new UsersViewModel { PhoneNumber = "123" } };
-            var result = await _controller.UpdateProfile(obj);
-
-            Assert.IsInstanceOf<JsonResult>(result);
-            var json = (JsonResult)result;
-            Assert.IsTrue(json.Value.ToString().Contains("Phone number must be exactly 10 digits"));
-        }
-
-        [Test]
-        public async Task UpdateProfile_ExistingPhoneNumber_ReturnsJsonError()
-        {
-            var user = new AppUser { Id = "1" };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-
-            var obj = new IndexUserViewModels { userView = new UsersViewModel { PhoneNumber = "0123456789" } };
-
-            var userStore = new List<AppUser> { new AppUser { Id = "2", PhoneNumber = "0123456789" } };
-            var usersMock = userStore.AsQueryable().BuildMock(); // trả về IMock<IQueryable<AppUser>>
-
-            _userManagerMock.Setup(x => x.Users).Returns(usersMock); // KHÔNG dùng .Object
-
-            var result = await _controller.UpdateProfile(obj);
-
-            Assert.IsInstanceOf<JsonResult>(result);
-            var json = (JsonResult)result;
-            Assert.IsTrue(json.Value.ToString().Contains("Phone number already exists"));
-        }
-
-        [Test]
-        public async Task UpdateProfile_BirthdayGreaterThanToday_ReturnsJsonError()
-        {
-            var user = new AppUser { Id = "1" };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-
-            var obj = new IndexUserViewModels { userView = new UsersViewModel { Birthday = DateTime.Today.AddDays(1) } };
-            var result = await _controller.UpdateProfile(obj);
-
-            Assert.IsInstanceOf<JsonResult>(result);
-            var json = (JsonResult)result;
-            Assert.IsTrue(json.Value.ToString().Contains("Date of birth cannot be greater than the current date"));
-        }
-
-        [Test]
-        public async Task UpdateProfile_Success_ReturnsJsonSuccess()
-        {
-            var user = new AppUser { Id = "1" };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-
-            var obj = new IndexUserViewModels
-            {
-                userView = new UsersViewModel
-                {
-                    PhoneNumber = "0123456789",
-                    Birthday = DateTime.Today,
-                    Email = "test@example.com",
-                    Address = "Test Address",
-                    FirstName = "Test",
-                    LastName = "User"
-                }
-            };
-
-            var userStore = new List<AppUser>().AsQueryable();
-            var usersMock = userStore.BuildMock(); // Sử dụng BuildMock() để mock async
-
-            _userManagerMock.Setup(x => x.Users).Returns(usersMock);
-
-            var identityResult = IdentityResult.Success;
-            _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(identityResult);
-
-            var result = await _controller.UpdateProfile(obj);
-
-            Assert.IsInstanceOf<JsonResult>(result);
-            var json = (JsonResult)result;
-            Assert.IsTrue(json.Value.ToString().Contains("Profile updated successfully"));
-        }
-
     }
 }

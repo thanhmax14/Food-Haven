@@ -5,7 +5,9 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.VoucherServices;
+using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Models;
 using Net.payOS;
 using Quartz;
@@ -26,8 +28,9 @@ namespace Food_Haven.Web.Services.Auto
         private readonly IVoucherServices _voucher;
         private readonly IProductVariantService _producttype;
         private readonly PayOS _payos;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public ReleasePaymentDeposit(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> userManager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos)
+        public ReleasePaymentDeposit(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> userManager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos, IHubContext<ChatHub> hubContext)
         {
             _order = order;
             _orderdetail = orderdetail;
@@ -38,6 +41,7 @@ namespace Food_Haven.Web.Services.Auto
             _voucher = voucher;
             _producttype = producttype;
             _payos = payos;
+            _hubContext = hubContext;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -73,6 +77,7 @@ namespace Food_Haven.Web.Services.Auto
                             case "CANCELLED":
                                 deposit.IsComplete = true;
                                 deposit.Description = "Deposit CANCELLED";
+
                                 break;
                             case "EXPIRED":
                                 deposit.IsComplete = true;
@@ -90,7 +95,7 @@ namespace Food_Haven.Web.Services.Auto
                                 Console.WriteLine($"[Quartz] ⚠️ Trạng thái không xác định: {status} cho Deposit: {deposit.ID}");
                                 break;
                         }
-
+                        await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                         await _balance.UpdateAsync(deposit);
                         await _balance.SaveChangesAsync();
                     }

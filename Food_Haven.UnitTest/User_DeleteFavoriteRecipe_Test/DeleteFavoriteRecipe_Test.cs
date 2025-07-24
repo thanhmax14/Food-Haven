@@ -48,7 +48,7 @@ namespace Food_Haven.UnitTest.User_DeleteFavoriteRecipe_Test
                 null, null, _httpContextAccessorMock.Object, null, null, null, null, null, null,
                 null, null, null, _recipeServiceMock.Object, null, null, _typeOfDishServiceMock.Object,
                 null, null, null, null, null, _hubContextMock.Object, null, _favoriteRecipeServiceMock.Object,
-                null, null, _hubContext1Mock.Object
+                null, null, _hubContext1Mock.Object,null
             );
         }
 

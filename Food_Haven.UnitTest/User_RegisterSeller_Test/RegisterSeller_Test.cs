@@ -19,13 +19,16 @@ using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
 using BusinessLogic.Services.TypeOfDishServices;
+using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Models;
+using Models.DBContext;
 using Moq;
 using Net.payOS;
 using Newtonsoft.Json;
@@ -43,206 +46,234 @@ namespace Food_Haven.UnitTest.User_RegisterSeller_Test
     [TestFixture]
     public class RegisterSeller_Test
     {
-        private UsersController _controller;
-
-        private Mock<UserManager<AppUser>> _userManagerMock;
-        private Mock<HttpClient> _httpClientMock;
-        private Mock<IBalanceChangeService> _balanceChangeServiceMock;
-        private Mock<IHttpContextAccessor> _httpContextAccessorMock;
-        private Mock<IProductService> _productServiceMock;
-        private Mock<ICartService> _cartServiceMock;
-        private Mock<IProductVariantService> _productVariantServiceMock;
-        private Mock<IProductImageService> _productImageServiceMock;
-        private Mock<IOrdersServices> _ordersServiceMock;
-        private Mock<IOrderDetailService> _orderDetailServiceMock;
-        private PayOS _payOS;
-        private ManageTransaction _manageTransaction;
-        private Mock<IReviewService> _reviewServiceMock;
-        private Mock<IRecipeService> _recipeServiceMock;
-        private Mock<ICategoryService> _categoryServiceMock;
-        private Mock<IIngredientTagService> _ingredientTagServiceMock;
-        private Mock<ITypeOfDishService> _typeOfDishServiceMock;
-        private Mock<IComplaintImageServices> _complaintImageServicesMock;
-        private Mock<IComplaintServices> _complaintServicesMock;
-        private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
-        private Mock<IMessageImageService> _messageImageServiceMock;
-        private Mock<IMessageService> _messageServiceMock;
-        private Mock<IHubContext<ChatHub>> _chatHubContextMock;
-        private Mock<IRecipeReviewService> _recipeReviewServiceMock;
-        private Mock<IFavoriteRecipeService> _favoriteRecipeServiceMock;
-        private Mock<IStoreFollowersService> _storeFollowersServiceMock;
-        private Mock<IStoreDetailService> _storeDetailServiceMock;
-        private Mock<IHubContext<FollowHub>> _followHubContextMock;
-
-        [SetUp]
-        public void Setup()
+        public class Buy_Test
         {
-            _userManagerMock = new Mock<UserManager<AppUser>>(Mock.Of<IUserStore<AppUser>>(), null, null, null, null, null, null, null, null);
-            _httpClientMock = new Mock<HttpClient>();
-            _balanceChangeServiceMock = new Mock<IBalanceChangeService>();
-            _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-            _productServiceMock = new Mock<IProductService>();
-            _cartServiceMock = new Mock<ICartService>();
-            _productVariantServiceMock = new Mock<IProductVariantService>();
-            _productImageServiceMock = new Mock<IProductImageService>();
-            _ordersServiceMock = new Mock<IOrdersServices>();
-            _orderDetailServiceMock = new Mock<IOrderDetailService>();
-            _payOS = new PayOS("client-id", "api-key", "https://callback.url");
-            _manageTransaction = null;
-            _reviewServiceMock = new Mock<IReviewService>();
-            _recipeServiceMock = new Mock<IRecipeService>();
-            _categoryServiceMock = new Mock<ICategoryService>();
-            _ingredientTagServiceMock = new Mock<IIngredientTagService>();
-            _typeOfDishServiceMock = new Mock<ITypeOfDishService>();
-            _complaintImageServicesMock = new Mock<IComplaintImageServices>();
-            _complaintServicesMock = new Mock<IComplaintServices>();
-            _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
-            _messageImageServiceMock = new Mock<IMessageImageService>();
-            _messageServiceMock = new Mock<IMessageService>();
-            _chatHubContextMock = new Mock<IHubContext<ChatHub>>();
-            _recipeReviewServiceMock = new Mock<IRecipeReviewService>();
-            _favoriteRecipeServiceMock = new Mock<IFavoriteRecipeService>();
-            _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
-            _storeDetailServiceMock = new Mock<IStoreDetailService>();
-            _followHubContextMock = new Mock<IHubContext<FollowHub>>();
+            private Mock<UserManager<AppUser>> _userManagerMock;
+            private Mock<IBalanceChangeService> _balanceMock;
+            private Mock<IHttpContextAccessor> _httpContextAccessorMock;
+            private Mock<IProductService> _productServiceMock;
+            private Mock<ICartService> _cartServiceMock;
+            private Mock<IProductVariantService> _productVariantServiceMock;
+            private Mock<IProductImageService> _productImageServiceMock;
+            private Mock<IOrdersServices> _ordersServiceMock;
+            private Mock<IOrderDetailService> _orderDetailServiceMock;
+            private Mock<IReviewService> _reviewServiceMock;
+            private Mock<IRecipeService> _recipeServiceMock;
+            private Mock<ICategoryService> _categoryServiceMock;
+            private Mock<IIngredientTagService> _ingredientTagServiceMock;
+            private Mock<ITypeOfDishService> _typeOfDishServiceMock;
+            private Mock<IComplaintImageServices> _complaintImageServicesMock;
+            private Mock<IComplaintServices> _complaintServicesMock;
+            private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
+            private Mock<IMessageImageService> _messageImageServiceMock;
+            private Mock<IMessageService> _messageServiceMock;
+            private Mock<IHubContext<ChatHub>> _chatHubContextMock;
+            private Mock<IHubContext<FollowHub>> _followHubContextMock;
+            private Mock<IRecipeReviewService> _recipeReviewServiceMock;
+            private Mock<IFavoriteRecipeService> _favoriteRecipeServiceMock;
+            private Mock<IStoreFollowersService> _storeFollowersServiceMock;
+            private Mock<IStoreDetailService> _storeDetailServiceMock;
+            private HttpClient _httpClient; // Không cần mock, có thể dùng real object
+            private PayOS _payos;
+            private ManageTransaction _manageTransaction;
+            private Mock<IVoucherServices> _voucherServiceMock;
 
-            _controller = new UsersController(
-                _userManagerMock.Object,
-                _httpClientMock.Object,
-                _balanceChangeServiceMock.Object,
-                _httpContextAccessorMock.Object,
-                _productServiceMock.Object,
-                _cartServiceMock.Object,
-                _productVariantServiceMock.Object,
-                _productImageServiceMock.Object,
-                _ordersServiceMock.Object,
-                _orderDetailServiceMock.Object,
-                _payOS,
-                _manageTransaction,
-                _reviewServiceMock.Object,
-                _recipeServiceMock.Object,
-                _categoryServiceMock.Object,
-                _ingredientTagServiceMock.Object,
-                _typeOfDishServiceMock.Object,
-                _complaintImageServicesMock.Object,
-                _complaintServicesMock.Object,
-                _recipeIngredientTagServiceMock.Object,
-                _messageImageServiceMock.Object,
-                _messageServiceMock.Object,
-                _chatHubContextMock.Object,
-                _recipeReviewServiceMock.Object,
-                _favoriteRecipeServiceMock.Object,
-                _storeFollowersServiceMock.Object,
-                _storeDetailServiceMock.Object,
-                _followHubContextMock.Object
-            );
-        }
-        [TearDown]
-        public void TearDown()
-        {
-            _controller?.Dispose();
-        }
-        [Test]
-        public async Task RegisterSeller_ValidUserNotSeller_ReturnsSuccess()
-        {
-            var user = new AppUser
+            // Controller instance
+            private UsersController _controller;
+            [SetUp]
+            public void Setup()
             {
-                Id = Guid.NewGuid().ToString(),
-                UserName = "testuser",
-                Address = "123 Test St",
-                PhoneNumber = "1234567890",
-                Birthday = DateTime.Now.AddYears(-20),
-                FirstName = "John",
-                LastName = "Doe",
-                RequestSeller = "0"
-            };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-            _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
+                _userManagerMock = new Mock<UserManager<AppUser>>(
+                    new Mock<IUserStore<AppUser>>().Object,
+                    null, null, null, null, null, null, null, null);
 
-            var model = new IndexUserViewModels();
-            var result = await _controller.RegisterSeller(model) as JsonResult;
+                _balanceMock = new Mock<IBalanceChangeService>();
+                _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+                _productServiceMock = new Mock<IProductService>();
+                _cartServiceMock = new Mock<ICartService>();
+                _productVariantServiceMock = new Mock<IProductVariantService>();
+                _productImageServiceMock = new Mock<IProductImageService>();
+                _ordersServiceMock = new Mock<IOrdersServices>();
+                _orderDetailServiceMock = new Mock<IOrderDetailService>();
+                _reviewServiceMock = new Mock<IReviewService>();
+                _recipeServiceMock = new Mock<IRecipeService>();
+                _categoryServiceMock = new Mock<ICategoryService>();
+                _ingredientTagServiceMock = new Mock<IIngredientTagService>();
+                _typeOfDishServiceMock = new Mock<ITypeOfDishService>();
+                _complaintImageServicesMock = new Mock<IComplaintImageServices>();
+                _complaintServicesMock = new Mock<IComplaintServices>();
+                _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
+                _messageImageServiceMock = new Mock<IMessageImageService>();
+                _messageServiceMock = new Mock<IMessageService>();
+                _chatHubContextMock = new Mock<IHubContext<ChatHub>>();
+                _followHubContextMock = new Mock<IHubContext<FollowHub>>();
+                _recipeReviewServiceMock = new Mock<IRecipeReviewService>();
+                _favoriteRecipeServiceMock = new Mock<IFavoriteRecipeService>();
+                _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
+                _storeDetailServiceMock = new Mock<IStoreDetailService>();
+                _voucherServiceMock = new Mock<IVoucherServices>();
+                _httpClient = new HttpClient();
+                _payos = new PayOS("client-id", "api-key", "https://callback.url");
+                var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
+         .UseInMemoryDatabase(databaseName: "TestDb")
+         .Options;
 
-            Assert.IsNotNull(result);
-            var json = JsonConvert.SerializeObject(result.Value);
-            dynamic response = JsonConvert.DeserializeObject<dynamic>(json);
-            Assert.IsTrue((bool)response.success);
-            Assert.AreEqual("Register Seller successfully", (string)response.message);
-        }
+                var dbContext = new FoodHavenDbContext(options);
+                var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+                manageTransactionMock
+                    .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
+                    .Returns<Func<Task>>(async (func) =>
+                    {
+                        await func();
+                        return true;
+                    });
 
-        [Test]
-        public async Task RegisterSeller_ValidUserAlreadySeller_ReturnsError()
-        {
-            // Arrange
-            var user = new AppUser
+
+
+                _controller = new UsersController(
+                    _userManagerMock.Object,
+                    _httpClient,
+                    _balanceMock.Object,
+                    _httpContextAccessorMock.Object,
+                    _productServiceMock.Object,
+                    _cartServiceMock.Object,
+                    _productVariantServiceMock.Object,
+                    _productImageServiceMock.Object,
+                    _ordersServiceMock.Object,
+                    _orderDetailServiceMock.Object,
+                    _payos,
+                    _manageTransaction,
+                    _reviewServiceMock.Object,
+                    _recipeServiceMock.Object,
+                    _categoryServiceMock.Object,
+                    _ingredientTagServiceMock.Object,
+                    _typeOfDishServiceMock.Object,
+                    _complaintImageServicesMock.Object,
+                    _complaintServicesMock.Object,
+                    _recipeIngredientTagServiceMock.Object,
+                    _messageImageServiceMock.Object,
+                    _messageServiceMock.Object,
+                    _chatHubContextMock.Object,
+                    _recipeReviewServiceMock.Object,
+                    _favoriteRecipeServiceMock.Object,
+                    _storeFollowersServiceMock.Object,
+                    _storeDetailServiceMock.Object,
+                    _followHubContextMock.Object, _voucherServiceMock.Object
+                );
+
+                _controller.ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext()
+                };
+            }
+            [TearDown]
+            public void TearDown()
             {
-                Id = Guid.NewGuid().ToString(),
-                UserName = "testuser",
-                Address = "123 Test St",
-                PhoneNumber = "1234567890",
-                Birthday = DateTime.Now.AddYears(-20),
-                FirstName = "John",
-                LastName = "Doe",
-                RequestSeller = "1" // đã là người bán
-            };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-
-            var model = new IndexUserViewModels();
-
-            // Act
-            var result = await _controller.RegisterSeller(model) as JsonResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-
-            // Dùng JObject để truy xuất các trường trả về
-            var json = JsonConvert.SerializeObject(result.Value);
-            var jObject = JObject.Parse(json);
-
-            Assert.IsFalse((bool)jObject["success"]);
-            Assert.AreEqual("You are already a seller.", (string)jObject["message"]);
-        }
-
-
-
-
-        [Test]
-        public async Task RegisterSeller_UserNotAuthenticated_ReturnsRedirectToLogin()
-        {
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync((AppUser)null);
-            var model = new IndexUserViewModels();
-
-            var result = await _controller.RegisterSeller(model) as JsonResult;
-
-            Assert.IsNotNull(result);
-            var json = JsonConvert.SerializeObject(result.Value);
-            dynamic response = JsonConvert.DeserializeObject<dynamic>(json);
-            Assert.IsFalse((bool)response.success);
-        }
-
-        [Test]
-        public async Task RegisterSeller_UserWithIncompleteData_ReturnsError()
-        {
-            var user = new AppUser
+                _httpClient?.Dispose();
+                _controller?.Dispose();
+            }
+            [Test]
+            public async Task RegisterSeller_ValidUserNotSeller_ReturnsSuccess()
             {
-                Id = Guid.NewGuid().ToString(),
-                UserName = "testuser",
-                Address = null,
-                PhoneNumber = "1234567890",
-                Birthday = DateTime.Now.AddYears(-20),
-                FirstName = "John",
-                LastName = "Doe",
-                RequestSeller = "0"
-            };
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-            var model = new IndexUserViewModels();
+                var user = new AppUser
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    UserName = "testuser",
+                    Address = "123 Test St",
+                    PhoneNumber = "1234567890",
+                    Birthday = DateTime.Now.AddYears(-20),
+                    FirstName = "John",
+                    LastName = "Doe",
+                    RequestSeller = "0"
+                };
+                _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+                _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
 
-            var result = await _controller.RegisterSeller(model) as JsonResult;
+                var model = new IndexUserViewModels();
+                var result = await _controller.RegisterSeller(model) as JsonResult;
 
-            Assert.IsNotNull(result);
-            var json = JsonConvert.SerializeObject(result.Value);
-            dynamic response = JsonConvert.DeserializeObject<dynamic>(json);
-            Assert.IsFalse((bool)response.success);
-            Assert.AreEqual("Please complete all required information before registering as a seller.", (string)response.message);
+                Assert.IsNotNull(result);
+                var json = JsonConvert.SerializeObject(result.Value);
+                dynamic response = JsonConvert.DeserializeObject<dynamic>(json);
+                Assert.IsTrue((bool)response.success);
+                Assert.AreEqual("Register Seller successfully", (string)response.message);
+            }
+
+            [Test]
+            public async Task RegisterSeller_ValidUserAlreadySeller_ReturnsError()
+            {
+                // Arrange
+                var user = new AppUser
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    UserName = "testuser",
+                    Address = "123 Test St",
+                    PhoneNumber = "1234567890",
+                    Birthday = DateTime.Now.AddYears(-20),
+                    FirstName = "John",
+                    LastName = "Doe",
+                    RequestSeller = "1" // đã là người bán
+                };
+                _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+
+                var model = new IndexUserViewModels();
+
+                // Act
+                var result = await _controller.RegisterSeller(model) as JsonResult;
+
+                // Assert
+                Assert.IsNotNull(result);
+
+                // Dùng JObject để truy xuất các trường trả về
+                var json = JsonConvert.SerializeObject(result.Value);
+                var jObject = JObject.Parse(json);
+
+                Assert.IsFalse((bool)jObject["success"]);
+                Assert.AreEqual("You are already a seller.", (string)jObject["message"]);
+            }
+
+
+
+
+            [Test]
+            public async Task RegisterSeller_UserNotAuthenticated_ReturnsRedirectToLogin()
+            {
+                _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync((AppUser)null);
+                var model = new IndexUserViewModels();
+
+                var result = await _controller.RegisterSeller(model) as JsonResult;
+
+                Assert.IsNotNull(result);
+                var json = JsonConvert.SerializeObject(result.Value);
+                dynamic response = JsonConvert.DeserializeObject<dynamic>(json);
+                Assert.IsFalse((bool)response.success);
+            }
+
+            [Test]
+            public async Task RegisterSeller_UserWithIncompleteData_ReturnsError()
+            {
+                var user = new AppUser
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    UserName = "testuser",
+                    Address = null,
+                    PhoneNumber = "1234567890",
+                    Birthday = DateTime.Now.AddYears(-20),
+                    FirstName = "John",
+                    LastName = "Doe",
+                    RequestSeller = "0"
+                };
+                _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+                var model = new IndexUserViewModels();
+
+                var result = await _controller.RegisterSeller(model) as JsonResult;
+
+                Assert.IsNotNull(result);
+                var json = JsonConvert.SerializeObject(result.Value);
+                dynamic response = JsonConvert.DeserializeObject<dynamic>(json);
+                Assert.IsFalse((bool)response.success);
+                Assert.AreEqual("Please complete all required information before registering as a seller.", (string)response.message);
+            }
         }
     }
 }

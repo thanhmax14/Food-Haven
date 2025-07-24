@@ -1,31 +1,33 @@
-﻿using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Text;
-using AutoMapper;
+﻿using AutoMapper;
+using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
+using BusinessLogic.Services.ComplaintImages;
+using BusinessLogic.Services.Complaints;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
+using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.VoucherServices;
+using Food_Haven.Web.Hubs;
+using Food_Haven.Web.Services;
+using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Models;
+using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-using Microsoft.EntityFrameworkCore;
-using BusinessLogic.Services.VoucherServices;
-using BusinessLogic.Services.ProductImages;
-using Food_Haven.Web.Services;
-using MailKit.Search;
-using BusinessLogic.Services.ComplaintImages;
-using BusinessLogic.Services.Complaints;
-using Repository.BalanceChange;
-using BusinessLogic.Hash;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -51,9 +53,11 @@ namespace Food_Haven.Web.Controllers
         private readonly IComplaintImageServices _complaintImageServices;
         private readonly IComplaintServices _complaintService;
         private readonly ManageTransaction _manageTransaction;
+        private readonly IHubContext<ChatHub> _hubContext;
 
 
-        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, ManageTransaction managetrans)
+
+        public SellerController(IReviewService reviewService, UserManager<AppUser> userManager, IProductService productService, IStoreDetailService storeDetailService, IMapper mapper, IWebHostEnvironment webHostEnvironment, IProductVariantService variantService, IOrdersServices order, IBalanceChangeService balance, IOrderDetailService orderDetail, IStoreDetailService storedetail, IProductService product, IVoucherServices voucher, IProductImageService productImageService, IComplaintImageServices complaintImageServices, IComplaintServices complaintService, ManageTransaction managetrans, IHubContext<ChatHub> hubContext)
         {
             _reviewService = reviewService;
             _userManager = userManager;
@@ -75,6 +79,7 @@ namespace Food_Haven.Web.Controllers
             _complaintImageServices = complaintImageServices;
             _complaintService = complaintService;
             _manageTransaction = managetrans;
+            _hubContext = hubContext;
         }
         public async Task<IActionResult> FeedbackList()
         {
@@ -1045,7 +1050,7 @@ namespace Food_Haven.Web.Controllers
                 await _variantService.SaveChangesAsync();
                 await _order.SaveChangesAsync();
                 await _balance.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                 return Json(new { success = true, message = "Order has been cancelled successfully." });
 
             }
@@ -1330,7 +1335,7 @@ namespace Food_Haven.Web.Controllers
                         //   await _order.SaveChangesAsync();
                         await _balance.SaveChangesAsync();
 
-
+                        await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                         mess = "The order has been refunded and cancelled successfully.";
 
                     }
