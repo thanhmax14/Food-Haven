@@ -327,20 +327,7 @@
                     </script>
                 }
 
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <script>document.write(new Date().getFullYear())</script> © EasyFood.
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-end d-none d-sm-block">
-                                    Design & Develop by EasyFood
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+                @await Html.PartialAsync("_Footer_Admin_Seller")
             </div>
             <!-- end main content-->
             <!-- END layout-wrapper -->

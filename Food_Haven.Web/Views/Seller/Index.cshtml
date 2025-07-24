@@ -348,7 +348,7 @@
             <!-- LOGO -->
             <div class="navbar-brand-box">
                 <!-- Dark Logo-->
-                <a class="logo logo-dark">
+                <a href="/" class="logo logo-dark">
                     <span class="logo-sm">
                         <img src="~/assetsAdmin/images/logo-sm.svg" alt="" height="22">
                     </span>
@@ -357,7 +357,7 @@
                     </span>
                 </a>
                 <!-- Light Logo-->
-                <a class="logo logo-light">
+                <a href="/" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="~/assetsAdmin/images/logo-sm.svg" alt="" height="22">
                     </span>
@@ -2791,20 +2791,7 @@
             </div>
             <!-- End Page-content -->
 
-            <footer class="footer">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <script>document.write(new Date().getFullYear())</script> © Velzon.
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="text-sm-end d-none d-sm-block">
-                                Design & Develop by Themesbrand
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            @await Html.PartialAsync("_Footer_Admin_Seller")
         </div>
         <!-- end main content-->
 
