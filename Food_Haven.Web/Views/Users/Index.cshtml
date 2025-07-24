@@ -272,8 +272,8 @@
                                                 <i class="fi-rs-shopping-bag mr-10"></i>Orders
                                             </a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="order-details-tab" data-bs-toggle="tab" href="#order-details" role="tab" aria-controls="order-details" aria-selected="false" style="display: none;">
+                                        <li class="nav-item" style="display: none;">
+                                            <a class="nav-link" id="order-details-tab" data-bs-toggle="tab" href="#order-details" role="tab" aria-controls="order-details" aria-selected="false" >
                                                 <i class="fi-rs-shopping-bag mr-10"></i>Order Details
                                             </a>
                                         </li>
@@ -297,11 +297,11 @@
                                         }
                                         else
                                         {
-                                            <li class="nav-item">
-                                                <a class="nav-link" id="address-tab" target="_blank" asp-controller="Seller" asp-action="viewstore"
+                                            <li class="nav-item" style="display: none;">
+                                                @* <a class="nav-link" id="address-tab" target="_blank" asp-controller="Seller" asp-action="viewstore"
                                                    role="tab" aria-controls="address" aria-selected="true">
                                                     <i class="fi-rs-marker mr-10"></i>Management Seller
-                                                </a>
+                                                </a> *@
                                             </li>
                                         }
                                         @* <li class="nav-item">
@@ -329,7 +329,7 @@
                                         </a>
                                         </li>*@
                                         <li class="nav-item">
-                                            <a class="nav-link" href="page-login.html">
+                                            <a class="nav-link" href="/home/logout">
                                                 <i class="fi-rs-sign-out mr-10"></i>Logout
                                             </a>
                                         </li>
@@ -1332,7 +1332,7 @@
                                          aria-labelledby="account-detail-tab">
                                         <div class="card">
                                             <div class="card-header">
-                                                <h5>Account Details</h5>
+                                                <h3>Account Details</h3>
                                             </div>
                                             <div class="card-body">
                                                 <form id="updateProfileForm">
@@ -1415,7 +1415,7 @@
 
                                                 <div class="row mb-4">
                                                     <div class="col-md-12">
-                                                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#depositModal">
+                                                        <button class="btn btn-success mr-10" data-bs-toggle="modal" data-bs-target="#depositModal">
                                                             <i class="fas fa-wallet me-1"></i> Deposit
                                                         </button>
                                                         <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#withdrawModal">
@@ -1472,7 +1472,7 @@
                                                                             <input class="form-check-input" type="radio" name="withdrawType" checked>
                                                                             <label class="form-check-label">Bank transfer</label>
                                                                         </div>
-                                                                        <label class="form-label mt-3">Ngân Hàng</label>
+                                                                        <label class="form-label mt-3">Bank Name</label>
                                                                         <select class="form-control" id="bankSelect" style="width:100%"></select>
                                                                         <label class="form-label mt-3">Recipient account name</label>
                                                                         <input type="text" class="form-control" id="nameAcc" placeholder="Account holder name">
@@ -1490,9 +1490,9 @@
 
                                                 </div>
                                                 <!-- Transactions List -->
-                                                <div class="card mt-4 w-100">
+                                                <div class="card w-100">
                                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                                        <h5>Transactions List</h5>
+                                                        <h3>Transactions List</h3>
                                                     </div>
                                                     <div class="card-body w-100" id="Exampletable">
                                                     </div>
@@ -2509,7 +2509,7 @@
                 .then(feedbackList => {
                     new gridjs.Grid({
                         columns: [
-                            { name: "STT", width: "60px" },
+                            { name: "No", width: "100px" },
                             { name: "ProductName", width: "150px" },
                             { name: "Comment", width: "350px" },
                             { name: "Comment Date", width: "180px" },
