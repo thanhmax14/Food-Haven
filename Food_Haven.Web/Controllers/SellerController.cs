@@ -2588,6 +2588,103 @@ namespace Food_Haven.Web.Controllers
             return View(model); // 👈 Không redirect nữa
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetOrderStatuses()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { error = "You are not logged in!" });
+
+                var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
+                if (store == null)
+                    return Json(new { error = "Store not found!" });
+
+                var products = await _product.ListAsync(p => p.StoreID == store.ID);
+                if (!products.Any())
+                    return Json(new { success = true, data = new List<object>() });
+
+                var productIds = products.Select(p => p.ID).ToList();
+                var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+                if (!productTypes.Any())
+                    return Json(new { success = true, data = new List<object>() });
+
+                var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+                var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
+                if (!orderDetails.Any())
+                    return Json(new { success = true, data = new List<object>() });
+
+                var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
+                var orders = await _order.ListAsync(o => orderIds.Contains(o.ID));
+
+                if (!orders.Any())
+                    return Json(new { success = true, data = new List<object>() });
+
+                var result = orders.Select(o => new
+                {
+                    orderId = o.OrderTracking,
+                    status = o.Status
+                }).ToList();
+
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetComplaintStatusByOrderDetailId()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return Json(new { error = "You are not logged in!" });
+
+                var getStore = await _storedetail.FindAsync(s => s.UserID == user.Id);
+                if (getStore == null)
+                    return Json(new { error = "Store not found!" });
+
+                // Tìm các sản phẩm thuộc store của user
+                var products = await _product.ListAsync(p => p.StoreID == getStore.ID);
+                if (!products.Any())
+                    return Json(new { error = "No products found for store!" });
+
+                var productIds = products.Select(p => p.ID).ToList();
+
+                var productTypes = await _variantService.ListAsync(pt => productIds.Contains(pt.ProductID));
+                if (!productTypes.Any())
+                    return Json(new { error = "No product types found!" });
+
+                var productTypeIds = productTypes.Select(pt => pt.ID).ToList();
+
+                // Tìm OrderDetail phù hợp với OrderDetailId và có ProductTypesID thuộc store
+                var orderDetails = await _orderDetail.ListAsync(od => productTypeIds.Contains(od.ProductTypesID));
+
+                if (orderDetails == null)
+                    return Json(new { error = "Order detail not found or does not belong to your store!" });
+                var orderDetailId = orderDetails.Select(pt => pt.ID).ToList();
+                // Lấy complaint tương ứng với OrderDetail
+                var complaint = await _complaintService.ListAsync(c => orderDetailId.Contains(c.OrderDetailID));
+
+                if (complaint == null)
+                    return Json(new { error = "Complaint not found for this order detail!" });
+
+                var result = complaint.Select(o => new
+                {
+                    status = o.Status
+                }).ToList();
+
+                return Json(new { success = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+            }
+        }
 
     }
 }
