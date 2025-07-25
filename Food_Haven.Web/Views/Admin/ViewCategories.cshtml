@@ -249,12 +249,12 @@
                                         let isActive = row.cells[8].data;   // isActive is now at index 8
 
                                         let toggleBtn = isActive
-                                            ? `<button class="btn btn-sm btn-danger toggle-category-btn" data-id="${categoryId}" data-active="false">Hide</button>`
-                                            : `<button class="btn btn-sm btn-success toggle-category-btn" data-id="${categoryId}" data-active="true">Show</button>`;
+                                            ? `<button class="btn btn-sm btn-danger toggle-category-btn" data-id="${categoryId}" data-active="false"><i class="ri-eye-off-line align-bottom me-1"></i> Hide</button>`
+                                            : `<button class="btn btn-sm btn-success toggle-category-btn" data-id="${categoryId}" data-active="true"><i class="ri-eye-line align-bottom me-1"></i> Show</button>`;
 
                                         return gridjs.html(`
                     <div class="d-flex gap-1">
-                        <a href="/Admin/UpdateCategory/${categoryId}" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="/Admin/UpdateCategory/${categoryId}" class="btn btn-sm btn-primary"><i class="ri-pencil-fill align-bottom me-1"></i> Edit</a>
                         ${toggleBtn}
                     </div>
                 `);

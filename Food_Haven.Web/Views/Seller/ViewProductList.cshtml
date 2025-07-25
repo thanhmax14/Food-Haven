@@ -259,13 +259,18 @@
                                                 let isActive = row.cells[8].data;   // Adjusted index due to STT column
 
                                                 let toggleButtonHtml = isActive
-                                                    ? `<button class="btn btn-sm btn-danger me-1" onclick="toggleProductStatus('${productId}', false)">Hide</button>`
-                                                    : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)">Show</button>`;
+                                                    ? `<button class="btn btn-sm btn-danger me-1" onclick="toggleProductStatus('${productId}', false)"><i class="ri-eye-off-line align-bottom me-1"></i> Hide</button>`
+                                                    : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)"><i class="ri-eye-line align-bottom me-1"></i> Show</button>`;
 
                                                 return gridjs.html(`
                                                                                             <div class="d-flex flex-wrap gap-1">
+<<<<<<< Updated upstream
                                                                                                 <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}">Edit</a>
                                                                                                 <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}">View Types</a>
+=======
+                                                                                                <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}"><i class="ri-pencil-fill align-bottom me-1"></i> Edit</a>
+                                                                                                <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}"><i class="ri-pencil-fill align-bottom me-1"></i> View Types</a>
+>>>>>>> Stashed changes
                                                                                                 ${toggleButtonHtml}
                                                                                             </div>
                                                                                         `);

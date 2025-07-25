@@ -252,8 +252,8 @@
                                         let isActive = row.cells[11].data;
 
                                         let actionButton = isActive
-                                            ? `<button class="btn btn-sm btn-danger toggle-store-btn" data-id="${storeId}" data-active="true">Hide</button>`
-                                            : `<button class="btn btn-sm btn-success toggle-store-btn" data-id="${storeId}" data-active="false">Show</button>`;
+                                            ? `<button class="btn btn-sm btn-danger toggle-store-btn" data-id="${storeId}" data-active="true"><i class="ri-eye-off-line align-bottom me-1"></i> Hide</button>`
+                                            : `<button class="btn btn-sm btn-success toggle-store-btn" data-id="${storeId}" data-active="false"><i class="ri-eye-line align-bottom me-1"></i> </button>`;
 
                                         return gridjs.html(`<div class="d-flex gap-1">${actionButton}</div>`);
                                     }
