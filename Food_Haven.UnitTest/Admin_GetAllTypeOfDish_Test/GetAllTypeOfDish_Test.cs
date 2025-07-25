@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -24,13 +23,20 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
-using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Food_Haven.UnitTest.Admin_GetAllTypeOfDish_Test
 {
-    public class ManagerUser_Test
+    [TestFixture]
+    public class GetAllTypeOfDish_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -127,58 +133,54 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         {
             _controller?.Dispose();
         }
+
         [Test]
-        public async Task ManagerUser_ReturnsView_WithUserList()
-        {
-            var admin = new AppUser { UserName = "admin" };
-            var users = new List<AppUser>
-    {
-        new AppUser { UserName = "user1", Email = "user1@example.com", IsBannedByAdmin = false },
-        new AppUser { UserName = "user2", Email = "user2@example.com", IsBannedByAdmin = true }
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user1"), "Admin")).ReturnsAsync(false);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user2"), "Admin")).ReturnsAsync(false);
-
-            var result = await _controller.ManagerUser() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count); // Không bỏ user nào vì không phải Admin
-        }
-        [Test]
-        public async Task ManagerUser_ReturnsView_WithEmptyUserList()
+        public async Task GetAllTypeOfDish_ReturnsViewWithOrderedList()
         {
             // Arrange
-            var admin = new AppUser { UserName = "admin" };
-
-            // Chỉ có admin trong danh sách, không có user nào cần quản lý
-            var users = new List<AppUser>
-    {
-        admin
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "admin"), "Admin")).ReturnsAsync(true); // chính là admin
+            var typeOfDishList = new List<TypeOfDish>
+            {
+                new TypeOfDish { ID = Guid.NewGuid(), Name = "Dish A", IsActive = true, CreatedDate = new DateTime(2024, 5, 1) },
+                new TypeOfDish { ID = Guid.NewGuid(), Name = "Dish B", IsActive = false, CreatedDate = new DateTime(2024, 6, 1) },
+                new TypeOfDish { ID = Guid.NewGuid(), Name = "Dish C", IsActive = true, CreatedDate = new DateTime(2024, 4, 1) }
+            };
+            _typeOfDishServiceMock.Setup(s => s.ListAsync()).ReturnsAsync(typeOfDishList);
 
             // Act
-            var result = await _controller.ManagerUser() as ViewResult;
+            var result = await _controller.GetAllTypeOfDish();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            var model = viewResult.Model as List<TypeOfDishViewModel>;
             Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count); // Không có user nào ngoài admin
+            Assert.AreEqual(3, model.Count);
+            // Check order: newest first
+            Assert.AreEqual("Dish B", model[0].Name);
+            Assert.AreEqual("Dish A", model[1].Name);
+            Assert.AreEqual("Dish C", model[2].Name);
+            // Check mapping
+            Assert.AreEqual(typeOfDishList[1].ID, model[0].ID);
+            Assert.AreEqual(typeOfDishList[0].ID, model[1].ID);
+            Assert.AreEqual(typeOfDishList[2].ID, model[2].ID);
         }
+        [Test]
+        public async Task GetAllTypeOfDish_ReturnsViewWithEmptyList_WhenNoData()
+        {
+            // Arrange
+            var emptyList = new List<TypeOfDish>();
+            _typeOfDishServiceMock.Setup(s => s.ListAsync()).ReturnsAsync(emptyList);
 
+            // Act
+            var result = await _controller.GetAllTypeOfDish();
+
+            // Assert
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            var model = viewResult.Model as List<TypeOfDishViewModel>;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(0, model.Count);
+        }
 
     }
 }
