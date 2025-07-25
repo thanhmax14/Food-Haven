@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -19,18 +18,26 @@ using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using Models.DBContext;
 using Moq;
-using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 using Repository.ViewModels;
-namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
+
+namespace Food_Haven.UnitTest.Admin_ManagementSeller_Test
 {
-    public class ManagerUser_Test
+    public class ManagementSeller_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -127,58 +134,85 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         {
             _controller?.Dispose();
         }
+
         [Test]
-        public async Task ManagerUser_ReturnsView_WithUserList()
-        {
-            var admin = new AppUser { UserName = "admin" };
-            var users = new List<AppUser>
-    {
-        new AppUser { UserName = "user1", Email = "user1@example.com", IsBannedByAdmin = false },
-        new AppUser { UserName = "user2", Email = "user2@example.com", IsBannedByAdmin = true }
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user1"), "Admin")).ReturnsAsync(false);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user2"), "Admin")).ReturnsAsync(false);
-
-            var result = await _controller.ManagerUser() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count); // Không bỏ user nào vì không phải Admin
-        }
-        [Test]
-        public async Task ManagerUser_ReturnsView_WithEmptyUserList()
+        public async Task ManagementSeller_AdminLoggedIn_ReturnsViewWithFilteredUsers()
         {
             // Arrange
-            var admin = new AppUser { UserName = "admin" };
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            var sellerUser = new AppUser
+            {
+                UserName = "seller1",
+                Id = "seller-id",
+                RequestSeller = "1",
+                Email = "seller1@email.com",
+                Address = "123 St",
+                Birthday = new System.DateTime(2000, 1, 1),
+                ImageUrl = "img.jpg",
+                IsProfileUpdated = true,
+                ModifyUpdate = System.DateTime.Now,
+                PhoneNumber = "0123456789",
+                IsBannedByAdmin = false
+            };
+            var users = new List<AppUser> { adminUser, sellerUser }.AsQueryable();
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
+            _userManagerMock.Setup(m => m.Users).Returns(users);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<AppUser>(), "Admin")).ReturnsAsync((AppUser u, string role) => u.UserName == "admin");
 
-            // Chỉ có admin trong danh sách, không có user nào cần quản lý
-            var users = new List<AppUser>
-    {
-        admin
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "admin"), "Admin")).ReturnsAsync(true); // chính là admin
+            // Mock HttpContext
+            var httpContext = new DefaultHttpContext();
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
             // Act
-            var result = await _controller.ManagerUser() as ViewResult;
+            var result = await _controller.ManagementSeller();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count); // Không có user nào ngoài admin
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<UsersViewModel>>(viewResult.Model);
+            var model = viewResult.Model as List<UsersViewModel>;
+            Assert.AreEqual(1, model.Count); // Only sellerUser should be in the list
+            Assert.AreEqual("seller1", model[0].UserName);
+            Assert.AreEqual("admin", model[0].UserNameAdmin);
         }
 
+        [Test]
+        public async Task ManagementSeller_AdminLoggedIn_ReturnsViewWithEmptyList()
+        {
+            // Arrange
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+
+            // Danh sách user không ai có RequestSeller == "1"
+            var otherUser = new AppUser
+            {
+                UserName = "normaluser",
+                Id = "user-id",
+                RequestSeller = "0", // Không phải seller
+                Email = "user@email.com"
+            };
+            var users = new List<AppUser> { adminUser, otherUser }.AsQueryable();
+
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
+            _userManagerMock.Setup(m => m.Users).Returns(users);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(It.IsAny<AppUser>(), "Admin")).ReturnsAsync((AppUser u, string role) => u.UserName == "admin");
+
+            // Mock HttpContext
+            var httpContext = new DefaultHttpContext();
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+            // Act
+            var result = await _controller.ManagementSeller();
+
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<UsersViewModel>>(viewResult.Model);
+            var model = viewResult.Model as List<UsersViewModel>;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(0, model.Count); // Không có seller nào thỏa điều kiện
+        }
 
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -19,18 +18,23 @@ using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
-using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
-using Repository.ViewModels;
-namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
 {
-    public class ManagerUser_Test
+    public class GetVoucher_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -127,58 +131,63 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         {
             _controller?.Dispose();
         }
+
         [Test]
-        public async Task ManagerUser_ReturnsView_WithUserList()
-        {
-            var admin = new AppUser { UserName = "admin" };
-            var users = new List<AppUser>
-    {
-        new AppUser { UserName = "user1", Email = "user1@example.com", IsBannedByAdmin = false },
-        new AppUser { UserName = "user2", Email = "user2@example.com", IsBannedByAdmin = true }
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user1"), "Admin")).ReturnsAsync(false);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user2"), "Admin")).ReturnsAsync(false);
-
-            var result = await _controller.ManagerUser() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count); // Không bỏ user nào vì không phải Admin
-        }
-        [Test]
-        public async Task ManagerUser_ReturnsView_WithEmptyUserList()
+        public async Task GetVoucher_ReturnsJson_WhenVoucherExists()
         {
             // Arrange
-            var admin = new AppUser { UserName = "admin" };
-
-            // Chỉ có admin trong danh sách, không có user nào cần quản lý
-            var users = new List<AppUser>
-    {
-        admin
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "admin"), "Admin")).ReturnsAsync(true); // chính là admin
+            var voucherId = Guid.NewGuid();
+            var voucher = new Voucher
+            {
+                ID = voucherId,
+                Code = "VOUCHER1",
+                DiscountAmount = 100,
+                DiscountType = "Fixed",
+                StartDate = new DateTime(2024, 1, 1),
+                ExpirationDate = new DateTime(2024, 12, 31),
+                MaxDiscountAmount = 200,
+                MaxUsage = 10,
+                CurrentUsage = 2,
+                MinOrderValue = 50,
+                IsActive = true
+            };
+            _voucherMock.Setup(x => x.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Voucher, bool>>>()))
+                .ReturnsAsync(voucher);
 
             // Act
-            var result = await _controller.ManagerUser() as ViewResult;
+            var result = await _controller.GetVoucher(voucherId);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count); // Không có user nào ngoài admin
+            Assert.IsInstanceOf<JsonResult>(result);
+            var json = (JsonResult)result;
+            var data = json.Value;
+            var type = data.GetType();
+            Assert.AreEqual(voucherId, type.GetProperty("id")?.GetValue(data));
+            Assert.AreEqual("VOUCHER1", type.GetProperty("code")?.GetValue(data));
+            Assert.AreEqual(100, type.GetProperty("discountAmount")?.GetValue(data));
+            Assert.AreEqual("Fixed", type.GetProperty("discountType")?.GetValue(data));
+            Assert.AreEqual("2024-01-01", type.GetProperty("startDate")?.GetValue(data));
+            Assert.AreEqual("2024-12-31", type.GetProperty("expirationDate")?.GetValue(data));
+            Assert.AreEqual(10, type.GetProperty("maxUsage")?.GetValue(data));
+            Assert.AreEqual(2, type.GetProperty("currentUsage")?.GetValue(data));
+            Assert.AreEqual(true, type.GetProperty("isActive")?.GetValue(data));
+            Assert.AreEqual(200, type.GetProperty("scope")?.GetValue(data));
+            Assert.AreEqual(50, type.GetProperty("minOrderValue")?.GetValue(data));
         }
 
+        [Test]
+        public async Task GetVoucher_ReturnsNotFound_WhenVoucherDoesNotExist()
+        {
+            // Arrange
+            _voucherMock.Setup(x => x.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Voucher, bool>>>()))
+                .ReturnsAsync((Voucher)null);
+            var id = Guid.NewGuid();
 
+            // Act
+            var result = await _controller.GetVoucher(id);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundResult>(result);
+        }
     }
 }

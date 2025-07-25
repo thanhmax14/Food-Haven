@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -24,13 +23,19 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
-using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Food_Haven.UnitTest.Admin_ManagementRecipe_Test
 {
-    public class ManagerUser_Test
+    public class ManagementRecipe_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -128,57 +133,56 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
             _controller?.Dispose();
         }
         [Test]
-        public async Task ManagerUser_ReturnsView_WithUserList()
-        {
-            var admin = new AppUser { UserName = "admin" };
-            var users = new List<AppUser>
-    {
-        new AppUser { UserName = "user1", Email = "user1@example.com", IsBannedByAdmin = false },
-        new AppUser { UserName = "user2", Email = "user2@example.com", IsBannedByAdmin = true }
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user1"), "Admin")).ReturnsAsync(false);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user2"), "Admin")).ReturnsAsync(false);
-
-            var result = await _controller.ManagerUser() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count); // Không bỏ user nào vì không phải Admin
-        }
-        [Test]
-        public async Task ManagerUser_ReturnsView_WithEmptyUserList()
+        public async Task ManagementRecipe_AdminLoggedIn_ReturnsViewWithRecipeList()
         {
             // Arrange
-            var admin = new AppUser { UserName = "admin" };
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
 
-            // Chỉ có admin trong danh sách, không có user nào cần quản lý
-            var users = new List<AppUser>
-    {
-        admin
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "admin"), "Admin")).ReturnsAsync(true); // chính là admin
+            var recipes = new List<Recipe>
+            {
+                new Recipe { ID = System.Guid.NewGuid(), Title = "Recipe1", TotalTime = "30m", ThumbnailImage = "img1.jpg", IsActive = true, status = "Active", ModifiedDate = System.DateTime.Now, UserID = "admin-id" }
+            };
+            _recipeServiceMock.Setup(r => r.ListAsync()).ReturnsAsync(recipes);
+            _userManagerMock.Setup(m => m.FindByIdAsync("admin-id")).ReturnsAsync(adminUser);
 
             // Act
-            var result = await _controller.ManagerUser() as ViewResult;
+            var result = await _controller.ManagementRecipe();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count); // Không có user nào ngoài admin
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<RecipeViewModels>>(viewResult.Model);
+            var model = viewResult.Model as List<RecipeViewModels>;
+            Assert.AreEqual(1, model.Count);
+            Assert.AreEqual("admin", model[0].Username);
         }
 
+      
+        [Test]
+        public async Task ManagementRecipe_AdminLoggedIn_ReturnsViewWithEmptyList()
+        {
+            // Arrange
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
+            _userManagerMock.Setup(m => m.FindByIdAsync("admin-id")).ReturnsAsync(adminUser);
+
+            var emptyRecipeList = new List<Recipe>();
+            _recipeServiceMock.Setup(r => r.ListAsync()).ReturnsAsync(emptyRecipeList);
+
+            // Act
+            var result = await _controller.ManagementRecipe();
+
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<RecipeViewModels>>(viewResult.Model);
+            var model = viewResult.Model as List<RecipeViewModels>;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(0, model.Count);
+        }
 
     }
 }

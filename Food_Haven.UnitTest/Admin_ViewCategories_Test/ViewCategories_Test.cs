@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -24,13 +23,19 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
-using Newtonsoft.Json.Linq;
+using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Food_Haven.UnitTest.Admin_ViewCategories_Test
 {
-    public class ManagerUser_Test
+    public class ViewCategories_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -127,58 +132,49 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         {
             _controller?.Dispose();
         }
+
         [Test]
-        public async Task ManagerUser_ReturnsView_WithUserList()
-        {
-            var admin = new AppUser { UserName = "admin" };
-            var users = new List<AppUser>
-    {
-        new AppUser { UserName = "user1", Email = "user1@example.com", IsBannedByAdmin = false },
-        new AppUser { UserName = "user2", Email = "user2@example.com", IsBannedByAdmin = true }
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user1"), "Admin")).ReturnsAsync(false);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user2"), "Admin")).ReturnsAsync(false);
-
-            var result = await _controller.ManagerUser() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count); // Không bỏ user nào vì không phải Admin
-        }
-        [Test]
-        public async Task ManagerUser_ReturnsView_WithEmptyUserList()
+        public async Task ViewCategories_ReturnsViewWithCategories()
         {
             // Arrange
-            var admin = new AppUser { UserName = "admin" };
-
-            // Chỉ có admin trong danh sách, không có user nào cần quản lý
-            var users = new List<AppUser>
-    {
-        admin
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "admin"), "Admin")).ReturnsAsync(true); // chính là admin
+            var categories = new List<CategoryListViewModel>
+            {
+                new CategoryListViewModel { ID = System.Guid.NewGuid(), Name = "Category 1", Number = 1, Commission = 10, IsActive = true },
+                new CategoryListViewModel { ID = System.Guid.NewGuid(), Name = "Category 2", Number = 2, Commission = 15, IsActive = false }
+            };
+            _categoryServiceMock.Setup(x => x.GetCategoriesAsync()).ReturnsAsync(categories);
 
             // Act
-            var result = await _controller.ManagerUser() as ViewResult;
+            var result = await _controller.ViewCategories();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count); // Không có user nào ngoài admin
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = (ViewResult)result;
+            Assert.IsInstanceOf<List<CategoryListViewModel>>(viewResult.Model);
+            var model = (List<CategoryListViewModel>)viewResult.Model;
+            Assert.AreEqual(2, model.Count);
+            Assert.AreEqual("Category 1", model[0].Name);
+            Assert.AreEqual("Category 2", model[1].Name);
         }
 
+        [Test]
+        public async Task ViewCategories_ReturnsViewWithEmptyList()
+        {
+            // Arrange
+            var emptyCategories = new List<CategoryListViewModel>(); // Trả về danh sách rỗng
+            _categoryServiceMock.Setup(x => x.GetCategoriesAsync()).ReturnsAsync(emptyCategories);
+
+            // Act
+            var result = await _controller.ViewCategories();
+
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = (ViewResult)result;
+            Assert.IsInstanceOf<List<CategoryListViewModel>>(viewResult.Model);
+            var model = (List<CategoryListViewModel>)viewResult.Model;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(0, model.Count); // Danh sách rỗng
+        }
 
     }
 }

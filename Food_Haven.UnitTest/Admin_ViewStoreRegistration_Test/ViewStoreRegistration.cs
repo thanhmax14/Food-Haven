@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
@@ -19,18 +18,32 @@ using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
-using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Moq;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Food_Haven.Web.Controllers;
 using Repository.ViewModels;
-namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
+using Models; // Add this for AppUser
+
+namespace Food_Haven.UnitTest.Admin_ViewStoreRegistration_Test
 {
-    public class ManagerUser_Test
+    public class ViewStoreRegistration
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -127,58 +140,58 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         {
             _controller?.Dispose();
         }
+
         [Test]
-        public async Task ManagerUser_ReturnsView_WithUserList()
-        {
-            var admin = new AppUser { UserName = "admin" };
-            var users = new List<AppUser>
-    {
-        new AppUser { UserName = "user1", Email = "user1@example.com", IsBannedByAdmin = false },
-        new AppUser { UserName = "user2", Email = "user2@example.com", IsBannedByAdmin = true }
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user1"), "Admin")).ReturnsAsync(false);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "user2"), "Admin")).ReturnsAsync(false);
-
-            var result = await _controller.ManagerUser() as ViewResult;
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count); // Không bỏ user nào vì không phải Admin
-        }
-        [Test]
-        public async Task ManagerUser_ReturnsView_WithEmptyUserList()
+        public async Task ViewStoreRegistration_AdminLoggedIn_ReturnsViewWithStores()
         {
             // Arrange
-            var admin = new AppUser { UserName = "admin" };
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            var stores = new List<StoreViewModel> { new StoreViewModel { UserID = "user1", UserName = "store1" } };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _storeServiceMock.Setup(s => s.GetStoreRegistrationRequestsAsync()).ReturnsAsync(stores);
 
-            // Chỉ có admin trong danh sách, không có user nào cần quản lý
-            var users = new List<AppUser>
-    {
-        admin
-    };
-
-            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(admin);
-            _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.Users).Returns(users.AsQueryable());
-            _userManagerMock.Setup(x => x.IsInRoleAsync(It.Is<AppUser>(u => u.UserName == "admin"), "Admin")).ReturnsAsync(true); // chính là admin
+            // Mock HttpContext for TempData
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            _controller.TempData = tempData;
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
             // Act
-            var result = await _controller.ManagerUser() as ViewResult;
+            var result = await _controller.ViewStoreRegistration();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("~/Views/Admin/ManagerUser.cshtml", result.ViewName);
-            var model = result.Model as List<UsersViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count); // Không có user nào ngoài admin
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<StoreViewModel>>(viewResult.Model);
+            var model = viewResult.Model as List<StoreViewModel>;
+            Assert.AreEqual(1, model.Count);
+            Assert.AreEqual("store1", model[0].UserName);
         }
 
+        [Test]
+        public async Task ViewStoreRegistration_NoStores_SetsTempDataMessage()
+        {
+            // Arrange
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _storeServiceMock.Setup(s => s.GetStoreRegistrationRequestsAsync()).ReturnsAsync(new List<StoreViewModel>());
 
+            // Mock HttpContext for TempData
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            _controller.TempData = tempData;
+            _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
+            // Act
+            var result = await _controller.ViewStoreRegistration();
+
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<StoreViewModel>>(viewResult.Model);
+            var model = viewResult.Model as List<StoreViewModel>;
+            Assert.AreEqual(0, model.Count);
+        }
     }
 }
