@@ -15,7 +15,7 @@ namespace Repository.ViewModels
         public string ShortDescriptions { get; set; }
 
         [Required(ErrorMessage = "Long description cannot be blank!")]
-        [StringLength(500, ErrorMessage = "Long description must not exceed 500 characters.")]
+        [StringLength(2000, ErrorMessage = "Long description must not exceed 2000 characters.")]
         public string LongDescriptions { get; set; }
 
         [Required(ErrorMessage = "Address cannot be blank!")]
@@ -26,7 +26,7 @@ namespace Repository.ViewModels
             ErrorMessage = "Phone number must be in the format: 0xxxxxxxxx or +84xxxxxxxxx")]
         public string Phone { get; set; }
         public string Img { get; set; }  // Hình ảnh cửa hàng
-        public string? Status { get; set; } = "PENDING"; // Trạng thái mặc định
+        public string? Status { get; set; } = "Pending"; // Trạng thái mặc định
         public bool IsActive { get; set; } = true; // Mặc định chưa hoạt động
         public DateTime CreatedDate { get; set; } = DateTime.Now; // Ngày tạo mặc định
         public DateTime? ModifiedDate { get; set; }
