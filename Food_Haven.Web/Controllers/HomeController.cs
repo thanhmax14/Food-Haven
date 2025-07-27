@@ -535,7 +535,8 @@ namespace Food_Haven.Web.Controllers
                         Name = item.Name,
                         CreatedDate = item.CreatedDate,
                         Commission = item.Commission,
-                        Img = item.ImageUrl,
+                        Img = !string.IsNullOrEmpty(item.ImageUrl) ? "/uploads/" + item.ImageUrl : "/uploads/default.png",
+                        // Img = item.ImageUrl,
                         ModifiedDate = item.ModifiedDate,
 
                     });

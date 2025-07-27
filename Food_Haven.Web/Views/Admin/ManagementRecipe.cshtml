@@ -214,7 +214,7 @@
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4 class="card-title mb-0">Category List</h4>
+                                <h4 class="card-title mb-0">Recipes List</h4>
                             </div>
                             <div class="card-body">
                                 <!-- Tabs -->
@@ -235,10 +235,10 @@
 
                                 <!-- Tab Content -->
                                 <div class="tab-content">
-                                    <div class="tab-pane fade show active" id="tab-manage" role="tabpanel">
+                                    <div class="tab-pane fade" id="tab-manage" role="tabpanel">
                                         <div id="table-manage"></div>
                                     </div>
-                                    <div class="tab-pane fade" id="tab-visible" role="tabpanel">
+                                    <div class="tab-pane fade show active" id="tab-visible" role="tabpanel">
                                         <div id="table-visible"></div>
                                     </div>
                                 </div>
@@ -266,17 +266,17 @@
 
                         new gridjs.Grid({
                             columns: [
-                                { name: "STT" },
+                                { name: "No", width: 100 },
                                 { name: "ID", hidden: true },
                                 { name: "Username" },
-                                { name: "Title" },
+                                { name: "Title", width: 450 },
                                 { name: "TotalTime" },
                                 {
                                     name: "Thumbnail",
                                     formatter: cell => gridjs.html(`<img src="${cell}" width="50" height="50">`)
                                 },
                                 {
-                                    name: "Status",
+                                    name: "Status", width: 150,
                                     formatter: cell => {
                                         const color = {
                                             pending: "bg-warning-subtle text-warning",
@@ -287,7 +287,7 @@
                                     }
                                 },
                                 {
-                                    name: "IsActive",
+                                    name: "IsActive", width: 150,
                                     formatter: cell => {
                                         const isActive = cell === true || cell === "true";
                                         return gridjs.html(
@@ -330,10 +330,10 @@
                         // Table 2: Hide / Show
                         new gridjs.Grid({
                             columns: [
-                                { name: "STT" },
+                                { name: "No", width: 100 },
                                 { name: "ID", hidden: true },
                                 { name: "Username" },
-                                { name: "Title" },
+                                { name: "Title", width: 450 },
                                 { name: "Total Time" },
                                 {
                                     name: "Thumbnail",
@@ -342,7 +342,7 @@
                                     )
                                 },
                                 {
-                                    name: "Status",
+                                    name: "Status", width: 150,
                                     formatter: cell => {
                                         const value = (cell || "").toLowerCase();
                                         const map = {
@@ -355,7 +355,7 @@
                                     }
                                 },
                                 {
-                                    name: "IsActive",
+                                    name: "IsActive", width: 150,
                                     formatter: cell => {
                                         const isActive = cell === true || cell === "true";
                                         return gridjs.html(
