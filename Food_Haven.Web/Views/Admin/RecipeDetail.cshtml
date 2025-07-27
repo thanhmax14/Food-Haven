@@ -32,7 +32,7 @@
     <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
-    <style>
+    @* <style>
         /* Đồng bộ màu nền toàn bộ phần content */
         .main-content,
         .page-content,
@@ -52,7 +52,7 @@
         .gridjs-table {
             background-color: #ffffff !important;
         }
-    </style>
+    </style> *@
     <style>
         .multi-select-container {
             border: 1px solid #ccc;
@@ -78,7 +78,7 @@
             border: 1px solid #ced4da !important;
             border-radius: 6px;
             padding: 8px 12px;
-            background-color: #fff;
+            @* background-color: #fff; *@
             outline: none;
             box-shadow: none;
             margin-bottom: 10px;
@@ -96,14 +96,14 @@
             border: 1px solid transparent;
         }
 
-        .item:hover {
+        @* .item:hover {
             background-color: #eee;
-        }
+        } *@
 
         .item.selected {
-            background-color: #2f00ff;
+            background-color: #405189;
             color: white;
-            border-color: #007bff;
+            @* border-color: black; *@
         }
     </style>
 </head>
@@ -264,174 +264,204 @@
                     </div>
                 </div>
                 <!-- end page title -->
+
                 <div class="row">
-                    <!-- Title -->
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Title" class="form-label">Title</label>
-                        <input asp-for="Title" class="form-control" readonly />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
+                    <div class="col-xxl-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="live-preview">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Title" class="form-label">Title</label>
+                                                <input asp-for="Title" class="form-control" readonly />
+                                                <span asp-validation-for="Title" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <!-- Title -->
+                                        @* <div class="col-md-6 mb-3">
 
-                    <!-- Servings -->
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Servings" class="form-label">Servings</label>
-                        <input asp-for="Servings" class="form-control" readonly />
-                        <span asp-validation-for="Servings" class="text-danger"></span>
-                    </div>
+                                </div> *@
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Servings" class="form-label">Servings</label>
+                                                <input asp-for="Servings" class="form-control" readonly />
+                                                <span asp-validation-for="Servings" class="text-danger"></span>
+                                            </div>
+                                        </div>
 
-                    <!-- Short Description -->
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="ShortDescriptions" class="form-label">Short Description</label>
-                        <textarea asp-for="ShortDescriptions" class="form-control" readonly></textarea>
-                        <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
-                    </div>
+                                        <!-- Servings -->
+                                        @* <div class="col-md-6 mb-3">
+                                    
+                                </div> *@
 
-                    <!-- Category -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" name="CateID" disabled>
-                            <option value="" readonly>Choose...</option>
-                            @foreach (var cate in Model.Categories)
-                            {
-                                <option value="@cate.ID" selected="@(cate.ID == Model.CateID ? "selected" : null)">
-                                    @cate.Name
-                                </option>
-                            }
-                        </select>
-                    </div>
+                                        <!-- Short Description -->
+                                        <div class="col-md-12 mb-3">
+                                            <label asp-for="ShortDescriptions" class="form-label">Short
+                                                Description</label>
+                                            <textarea asp-for="ShortDescriptions" class="form-control"
+                                                readonly></textarea>
+                                            <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
+                                        </div>
 
-
-                    <!-- Type of Dish -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Type of Dish</label>
-                        <select class="form-select" name="TypeOfDishID" disabled>
-                            <option value="">Choose...</option>
-                            @foreach (var dish in Model.typeOfDishes)
-                            {
-                                <option value="@dish.ID" selected="@(dish.ID == Model.TypeOfDishID ? "selected" : null)">
-                                    @dish.Name
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-
-                    <!-- Difficulty -->
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="DifficultyLevel" class="form-label">Difficulty Level</label>
-                        <select asp-for="DifficultyLevel" class="form-select" disabled>
-                            <option value="">-- Select --</option>
-                            <option value="Easy">Easy</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Hard">Hard</option>
-                        </select>
-                    </div>
-
-                    <!-- IsActive -->
-                    <div class="col-md-6 mb-3 form-check mt-4">
-                        <input asp-for="IsActive" class="form-check-input" readonly />
-                        <label asp-for="IsActive" class="form-check-label">Is Active</label>
-                    </div>
+                                        <!-- Category -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Category</label>
+                                            <select class="form-select" name="CateID" disabled>
+                                                <option value="" readonly>Choose...</option>
+                                                @foreach (var cate in Model.Categories)
+                                                {
+                                                    <option value="@cate.ID"
+                                                        selected="@(cate.ID == Model.CateID ? "selected" : null)">
+                                                        @cate.Name
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
 
 
-                    <!-- Time -->
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="PreparationTime" class="form-label">Preparation Time</label>
-                        <input asp-for="PreparationTime" class="form-control" readonly />
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="CookTime" class="form-label">Cooking Time</label>
-                        <input asp-for="CookTime" class="form-control" readonly />
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="TotalTime" class="form-label">Total Time</label>
-                        <input asp-for="TotalTime" class="form-control" readonly />
-                    </div>
+                                        <!-- Type of Dish -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Type of Dish</label>
+                                            <select class="form-select" name="TypeOfDishID" disabled>
+                                                <option value="">Choose...</option>
+                                                @foreach (var dish in Model.typeOfDishes)
+                                                {
+                                                    <option value="@dish.ID"
+                                                        selected="@(dish.ID == Model.TypeOfDishID ? "selected" : null)">
+                                                        @dish.Name
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
 
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label">Ingredient Tags</label>
-                        <input type="text" id="searchAll" placeholder="Search..." class="search-input mb-2" disabled />
 
-                        <div class="multi-select-container" style="pointer-events: none;">
-                            <div class="multi-select-column">
-                                <div class="header">Available</div>
-                                <div id="availableList" class="items-list"></div>
-                            </div>
-                            <div class="multi-select-column">
-                                <div class="header">Selected</div>
-                                <div id="selectedList" class="items-list"></div>
-                            </div>
-                        </div>
+                                        <!-- Difficulty -->
+                                        <div class="col-md-6 mb-3">
+                                            <label asp-for="DifficultyLevel" class="form-label">Difficulty Level</label>
+                                            <select asp-for="DifficultyLevel" class="form-select" disabled>
+                                                <option value="">-- Select --</option>
+                                                <option value="Easy">Easy</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="Hard">Hard</option>
+                                            </select>
+                                        </div>
 
-                        <select id="IngredientTags" name="SelectedIngredientTags" multiple hidden></select>
-                    </div>
+                                        <!-- IsActive -->
+                                        <div class="col-md-6 mb-3 form-check mt-4">
+                                            <input asp-for="IsActive" class="form-check-input" readonly />
+                                            <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                                        </div>
 
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label">Ingredient</label>
-                        <div class="bg-white border p-3" style="min-height: 200px; pointer-events: none;">
-                            @Html.Raw(Model.Ingredient ?? "<p>Enter ingredients here...</p>")
-                        </div>
-                        <input type="hidden" name="Ingredient" id="IngredientHidden" />
-                    </div>
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label">Cooking Steps</label>
-                        <div class="bg-white border p-3" style="min-height: 200px; pointer-events: none;">
-                            @Html.Raw(Model.CookingStep ?? "<p>Enter cooking steps here...</p>")
-                        </div>
-                        <input type="hidden" name="CookingStep" id="CookingStepHidden" />
-                    </div>
 
-                    <!-- Current Image -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Thumbnail Image</label>
-                        <div class="border p-3 rounded bg-light">
-                            <img src="@Model.ThumbnailImage" alt="Thumbnail" class="img-fluid rounded mx-auto d-block"
-                                style="max-width: 100%; height: auto;" />
-                        </div>
-                    </div>
+                                        <!-- Time -->
+                                        <div class="col-md-4 mb-3">
+                                            <label asp-for="PreparationTime" class="form-label">Preparation Time</label>
+                                            <input asp-for="PreparationTime" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label asp-for="CookTime" class="form-label">Cooking Time</label>
+                                            <input asp-for="CookTime" class="form-control" readonly />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label asp-for="TotalTime" class="form-label">Total Time</label>
+                                            <input asp-for="TotalTime" class="form-control" readonly />
+                                        </div>
 
-                    <!-- Nút Accept / Reject -->
-                    <div class="col-md-12 d-flex justify-content-end gap-2 mt-4">
-                        <button type="button" class="btn btn-primary"
-                            onclick="window.location.href='/Admin/ManagementRecipe'">Back To List</button>
+                                        <div class="col-md-12 mb-3">
+                                            <label class="form-label">Ingredient Tags</label>
+                                            <input type="text" id="searchAll" placeholder="Search..."
+                                                class="search-input mb-2" disabled />
 
-                        <button type="button" class="btn btn-success" onclick="submitWithAjax('Approved')">
-                            <i class="ri-eye-line align-bottom me-1"></i> Accept Recipe
-                        </button>
-                        <button type="button" class="btn btn-danger" onclick="openRejectModal()">
-                            <i class="ri-eye-off-line align-bottom me-1"></i> Reject Recipe
-                        </button>
-                    </div>
-                    <!-- Reject Reason Modal -->
-                    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
+                                            <div class="multi-select-container" style="pointer-events: none;">
+                                                <div class="multi-select-column">
+                                                    <div class="header">Available</div>
+                                                    <div id="availableList" class="items-list"></div>
+                                                </div>
+                                                <div class="multi-select-column">
+                                                    <div class="header">Selected</div>
+                                                    <div id="selectedList" class="items-list"></div>
+                                                </div>
+                                            </div>
 
-                                <div class="modal-header bg-danger text-white">
-                                    <h5 class="modal-title" id="rejectModalLabel">Reject Recipe</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                                            <select id="IngredientTags" name="SelectedIngredientTags" multiple
+                                                hidden></select>
+                                        </div>
+
+                                        <div class="col-md-12 mb-3">
+                                            <label class="form-label">Ingredient</label>
+                                            <div class="border p-3"
+                                                style="min-height: 200px; pointer-events: none;">
+                                                @Html.Raw(Model.Ingredient ?? "<p>Enter ingredients here...</p>")
+                                            </div>
+                                            <input type="hidden" name="Ingredient" id="IngredientHidden" />
+                                        </div>
+                                        <div class="col-md-12 mb-3">
+                                            <label class="form-label">Cooking Steps</label>
+                                            <div class="border p-3"
+                                                style="min-height: 200px; pointer-events: none;">
+                                                @Html.Raw(Model.CookingStep ?? "<p>Enter cooking steps here...</p>")
+                                            </div>
+                                            <input type="hidden" name="CookingStep" id="CookingStepHidden" />
+                                        </div>
+
+                                        <!-- Current Image -->
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Thumbnail Image</label>
+                                            <div class="border p-3 rounded">
+                                                <img src="@Model.ThumbnailImage" alt="Thumbnail"
+                                                    class="img-fluid rounded mx-auto d-block"
+                                                    style="max-width: 100%; height: auto;" />
+                                            </div>
+                                        </div>
+
+                                        <!-- Nút Accept / Reject -->
+                                        <div class="col-md-12 d-flex justify-content-end gap-2 mt-4">
+                                            <button type="button" class="btn btn-primary"
+                                                onclick="window.location.href='/Admin/ManagementRecipe'">Back To
+                                                List</button>
+
+                                            <button type="button" class="btn btn-success"
+                                                onclick="submitWithAjax('Approved')">
+                                                <i class="ri-eye-line align-bottom me-1"></i> Accept Recipe
+                                            </button>
+                                            <button type="button" class="btn btn-danger" onclick="openRejectModal()">
+                                                <i class="ri-eye-off-line align-bottom me-1"></i> Reject Recipe
+                                            </button>
+                                        </div>
+                                        <!-- Reject Reason Modal -->
+                                        <div class="modal fade" id="rejectModal" tabindex="-1"
+                                            aria-labelledby="rejectModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title" id="rejectModalLabel">Reject Recipe</h5>
+                                                        <button type="button" class="btn-close btn-close-white"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <label for="rejectReason" class="form-label">Reason for
+                                                            rejection:</label>
+                                                        <textarea class="form-control" id="rejectReason" rows="4"
+                                                            placeholder="Enter your reason here..."></textarea>
+                                                    </div>
+                                                    <div class="modal-footer">
+
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-danger"
+                                                            onclick="confirmReject()">Reject</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                    <label for="rejectReason" class="form-label">Reason for rejection:</label>
-                                    <textarea class="form-control" id="rejectReason" rows="4"
-                                        placeholder="Enter your reason here..."></textarea>
-                                </div>
-                                <div class="modal-footer">
-
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancel</button>
-                                    <button type="button" class="btn btn-danger"
-                                        onclick="confirmReject()">Reject</button>
-                                </div>
                             </div>
                         </div>
                     </div>
-
-
-
-
                 </div>
 
                 <!-- end row -->
