@@ -293,7 +293,8 @@
                                                         <a href="/Seller/ViewProductList?storeid=@Model.StoreID"
                                                             class="btn btn-sm btn-secondary px-3">Back to List</a>
                                                         <button type="submit" id="submitBtn"
-                                                            class="btn btn-sm btn-success px-3"><i class="ri-add-line"></i> Create Product</button>
+                                                            class="btn btn-sm btn-success px-3"><i class="ri-add-line"></i>
+                                                            Create Product</button>
                                                     </div>
                                                 </div>
                                             </form>
@@ -362,12 +363,9 @@
                                     title: 'Image limit exceeded!',
                                     text: `You can only select up to 4 gallery images.`,
                                 });
-                                galleryInput.value = ''; // reset
                                 return;
                             }
-
                             renderGalleryPreviews(newFiles);
-                            galleryInput.value = ''; // reset to allow same files to be re-selected
                         });
 
                         function renderGalleryPreviews(files) {

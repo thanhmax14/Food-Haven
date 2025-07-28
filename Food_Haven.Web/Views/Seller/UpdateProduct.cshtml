@@ -4,7 +4,7 @@
     var mainImage = Model.ExistingImages?.FirstOrDefault();
     var totalImages = Model.ExistingImages?.Count ?? 0;
     var galleryImages = Model.ExistingImages?.Where(i => i != Model.ExistingMainImage).ToList() ?? new List<string>();
-    string storeStatusText = ViewBag.StoreStatusText as string ?? "Pending";
+    string storeStatusText = ViewBag.StoreStatusText as string ?? "Approved";
 }
 
 <!doctype html>
@@ -300,8 +300,9 @@
                                                 <div class="col-lg-12 text-end">
                                                     <a href="/Seller/ViewProductList?storeid=@Model.StoreID"
                                                         class="btn btn-sm btn-secondary px-3">Back To Products</a>
-                                                    <button type="submit" id="submitBtn"
-                                                        class="btn btn-sm btn-primary px-3"><i class="ri-pencil-fill align-bottom me-1"></i> Update Product</button>
+                                                    <button type="submit" id="submitBtn" class="btn btn-sm btn-primary px-3"><i
+                                                            class="ri-pencil-fill align-bottom me-1"></i> Update
+                                                        Product</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -354,7 +355,7 @@
                                 text: 'Your product has been successfully updated.',
                                 timer: 2000,
                                 showConfirmButton: false
-                                                                    });
+                                                                                        });
                             </text>
                     }
                 </script>
