@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Net.Http.Headers;
+using System.Security.Claims;
+using AutoMapper;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.ComplaintImages;
@@ -12,8 +14,6 @@ using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Hubs;
-using Food_Haven.Web.Services;
-using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,12 +22,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Repository.BalanceChange;
-using Repository.StoreDetails;
 using Repository.ViewModels;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -105,8 +100,11 @@ namespace Food_Haven.Web.Controllers
                 var products = await _productService.ListAsync(p => p.StoreID == storeId);
                 var productIds = products.Select(p => p.ID).ToList();
 
-                // Lấy các review thuộc những sản phẩm này
-                var reviews = await _reviewService.ListAsync(r => productIds.Contains(r.ProductID));
+                // Lấy các review thuộc những sản phẩm này và sắp xếp: chưa reply trước, sau đó theo ngày comment cũ nhất
+                var reviews = (await _reviewService.ListAsync(r => productIds.Contains(r.ProductID)))
+                                .OrderBy(r => !string.IsNullOrEmpty(r.Reply)) // chưa reply = ưu tiên
+                                .ThenBy(r => r.CommentDate)
+                                .ToList();
 
                 foreach (var review in reviews)
                 {
