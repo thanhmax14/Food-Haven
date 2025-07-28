@@ -1,5 +1,9 @@
 ﻿@model Repository.ViewModels.ReivewViewModel
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
 @using System.Text.Json
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"

@@ -9,6 +9,7 @@ namespace Repository.ViewModels
         public string? Comment { get; set; }
         public DateTime CommentDate { get; set; } = DateTime.Now;
         [Required(ErrorMessage = "Reply cannot be empty")]
+        [StringLength(500, ErrorMessage = "Reply cannot exceed 500 characters")]
         public string? Reply { get; set; }
 
 
