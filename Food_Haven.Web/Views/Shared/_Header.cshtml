@@ -279,6 +279,11 @@
                                                     Account
                                                 </a>
                                             </li>
+                                            <li>
+                                                <a asp-controller="Users" asp-action="MyViewRecipe">
+													<i class="fi fi-rs-label mr-10"></i>My Recipes
+                                                </a>
+                                            </li>
                                             @{
                                                 // var user = await UserManager.GetUserAsync(User);
                                                 var isSeller = user != null && await UserManager.IsInRoleAsync(user, "Seller");
