@@ -27,8 +27,4 @@
 		<ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
 		<ProjectReference Include="..\Food_Haven.Web\Food_Haven.Web.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="NewFolder\" />
-	</ItemGroup>
 </Project>
