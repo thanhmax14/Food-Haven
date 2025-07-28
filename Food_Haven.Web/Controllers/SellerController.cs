@@ -585,7 +585,7 @@ namespace Food_Haven.Web.Controllers
             model.Categories = categories.Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
-                Text = c.Name
+                Text = c.Name + $" - ({c.Commission}%)"
             }).ToList();
             var store = await _storeDetailService.GetStoreByUserIdAsync(userId); // để lấy StoreID
             ViewBag.ProductID = productId;
