@@ -1,13 +1,6 @@
-﻿using Models.DBContext;
-using Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Models.DBContext;
 using Repository.BaseRepository;
-using Repository.Categorys;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Repository.ViewModels;
 
 namespace Repository.StoreDetails
@@ -91,6 +84,9 @@ namespace Repository.StoreDetails
         public async Task<List<StoreViewModel>> GetStoreRegistrationRequestsAsync()
         {
             var stores = await _context.StoreDetails
+                .OrderBy(s => s.Status != "PENDING") // PENDING lên trước
+                .ThenBy(s => s.Status != "REJECTED") // REJECTED tiếp theo
+                .ThenBy(s => s.CreatedDate)          // Ngày tạo sớm nhất lên trước
                 .Join(
                     _context.Users,
                     s => s.UserID,
