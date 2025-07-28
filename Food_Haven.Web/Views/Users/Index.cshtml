@@ -909,12 +909,13 @@
 
                                                     {
                                                         name: "Actions",
+                                                        width: "150px",
                                                         formatter: (_, row) => {
                                                             const orderId = row.cells[1]?.data;
                                                             const isPay = row.cells[11]?.data;
                                                             const linkPay = row.cells[12]?.data;
 
-                                                            console.log("Debug:", row.cells.map(c => c.data)); // kiểm tra chính xác
+                                                            //console.log("Debug:", row.cells.map(c => c.data)); // kiểm tra chính xác
 
                                                             if (isPay === true && linkPay && linkPay.trim() !== '') {
                                                                 return gridjs.html(`
@@ -989,7 +990,7 @@
 
                                                             detailsGrid = new gridjs.Grid({
                                                                 columns: [
-                                                                    { name: "STT", width: "60px" },
+                                                                    { name: "STT", width: "60px", hidden: true },
                                                                     { name: "Product Name", width: "250px" },
                                                                     { name: "Product Price", width: "150px" },
                                                                     { name: "Total Price", width: "150px" },
