@@ -1474,165 +1474,79 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewRecipe(int? page)
         {
-            var user = await _userManager.GetUserAsync(User);
-            ViewBag.UserId = user?.Id;
-
-            int pageNumber = page ?? 1;
-            int pageSize = 5;
-
-            // Lấy dữ liệu 1 lần
-            var allRecipes = await _recipeService.ListAsync();
-            var allTypeOfDishes = await _typeOfDishService.ListAsync();
-
-            // Lọc recipe đã duyệt
-            var approvedRecipes = allRecipes
-                .Where(r => r.IsActive && r.status.Equals("Accept", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            // Tạo từ điển TypeOfDishID -> Name
-            var typeDict = allTypeOfDishes.ToDictionary(t => t.ID, t => t.Name);
-
-            // Tạo list RecipeViewModels
-            var recipeViewModels = approvedRecipes.Select(r =>
+            try
             {
-                typeDict.TryGetValue(r.TypeOfDishID, out var typeName);
+                var user = await _userManager.GetUserAsync(User);
+                ViewBag.UserId = user?.Id;
 
-                return new RecipeViewModels
+                int pageNumber = page ?? 1;
+                int pageSize = 5;
+
+                var allRecipes = await _recipeService.ListAsync();
+                var allTypeOfDishes = await _typeOfDishService.ListAsync();
+
+                var approvedRecipes = allRecipes
+                    .Where(r => r.IsActive && r.status.Equals("Accept", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                var typeDict = allTypeOfDishes.ToDictionary(t => t.ID, t => t.Name);
+
+                var recipeViewModels = approvedRecipes.Select(r =>
                 {
-                    ID = r.ID,
-                    Title = r.Title,
-                    ShortDescriptions = r.ShortDescriptions,
-                    PreparationTime = r.PreparationTime,
-                    CookTime = r.CookTime,
-                    TotalTime = r.TotalTime,
-                    DifficultyLevel = r.DifficultyLevel,
-                    Servings = r.Servings,
-                    CreatedDate = r.CreatedDate,
-                    IsActive = r.IsActive,
-                    CateID = r.CateID,
-                    ThumbnailImage = r.ThumbnailImage,
-                    TypeOfDishName = typeName,
-                    CookingStep = r.CookingStep,
-                    Ingredient = r.Ingredient
+                    typeDict.TryGetValue(r.TypeOfDishID, out var typeName);
+
+                    return new RecipeViewModels
+                    {
+                        ID = r.ID,
+                        Title = r.Title,
+                        ShortDescriptions = r.ShortDescriptions,
+                        PreparationTime = r.PreparationTime,
+                        CookTime = r.CookTime,
+                        TotalTime = r.TotalTime,
+                        DifficultyLevel = r.DifficultyLevel,
+                        Servings = r.Servings,
+                        CreatedDate = r.CreatedDate,
+                        IsActive = r.IsActive,
+                        CateID = r.CateID,
+                        ThumbnailImage = r.ThumbnailImage,
+                        TypeOfDishName = typeName,
+                        CookingStep = r.CookingStep,
+                        Ingredient = r.Ingredient
+                    };
+                }).ToList();
+
+                var pagedList = recipeViewModels.ToPagedList(pageNumber, pageSize);
+
+                var usedTypeOfDishCounts = approvedRecipes
+                    .GroupBy(r => r.TypeOfDishID)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var filteredTypeOfDishes = allTypeOfDishes
+                    .Where(t => t.IsActive && usedTypeOfDishCounts.ContainsKey(t.ID))
+                    .Select(t => new TypeOfDishViewModel
+                    {
+                        ID = t.ID,
+                        Name = t.Name,
+                        IsActive = t.IsActive,
+                        CreatedDate = t.CreatedDate,
+                        ModifiedDate = t.ModifiedDate,
+                        Recipes = t.Recipes,
+                        RecipeCount = usedTypeOfDishCounts[t.ID]
+                    })
+                    .ToList();
+
+                var viewModel = new MyViewRecipePageViewModel
+                {
+                    Recipes = pagedList,
+                    TypeOfDishForSidebar = filteredTypeOfDishes
                 };
-            }).ToList();
 
-            var pagedList = recipeViewModels.ToPagedList(pageNumber, pageSize);
-
-            // Đếm số recipe theo TypeOfDish
-            var usedTypeOfDishCounts = approvedRecipes
-                .GroupBy(r => r.TypeOfDishID)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            // Tạo TypeOfDishViewModel kèm RecipeCount
-            var filteredTypeOfDishes = allTypeOfDishes
-    .Where(t => t.IsActive && usedTypeOfDishCounts.ContainsKey(t.ID)) // lọc thêm IsActive == true
-    .Select(t => new TypeOfDishViewModel
-    {
-        ID = t.ID,
-        Name = t.Name,
-        IsActive = t.IsActive,
-        CreatedDate = t.CreatedDate,
-        ModifiedDate = t.ModifiedDate,
-        Recipes = t.Recipes,
-        RecipeCount = usedTypeOfDishCounts[t.ID]
-    })
-    .ToList();
-
-
-            var viewModel = new MyViewRecipePageViewModel
-            {
-                Recipes = pagedList,
-                TypeOfDishForSidebar = filteredTypeOfDishes
-            };
-
-            return View(viewModel);
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> MyViewRecipe(int? page)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Home");
-
-            int pageNumber = page ?? 1;
-            int pageSize = 5;
-
-            // Lấy tất cả công thức
-            var allRecipes = await _recipeService.ListAsync();
-            var ingredientTags = await _ingredientTagService.ListAsync();
-            var allTypeOfDishes = await _typeOfDishService.ListAsync();
-            var userRecipes = allRecipes.Where(r => r.UserID == user.Id).ToList();
-
-            var recipes = new List<RecipeViewModels>();
-
-            foreach (var item in userRecipes)
-            {
-                var typeOfDish = allTypeOfDishes.FirstOrDefault(t => t.ID == item.TypeOfDishID);
-
-                var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
-                      .ListAsync(rt => rt.RecipeID == item.ID, null, include => include.Include(x => x.IngredientTag)))
-                      .ToList();
-
-                recipes.Add(new RecipeViewModels
-                {
-                    ID = item.ID,
-                    Title = item.Title,
-                    ShortDescriptions = item.ShortDescriptions,
-                    PreparationTime = item.PreparationTime,
-                    CookTime = item.CookTime,
-                    TotalTime = item.TotalTime,
-                    DifficultyLevel = item.DifficultyLevel,
-                    Servings = item.Servings,
-                    CreatedDate = item.CreatedDate,
-                    IsActive = item.IsActive,
-                    CateID = item.CateID,
-                    ThumbnailImage = item.ThumbnailImage,
-                    TypeOfDishName = typeOfDish?.Name,
-                    CookingStep = item.CookingStep,
-                    Ingredient = item.Ingredient,
-                    TypeOfDishID = item.TypeOfDishID,
-                    UserID = item.UserID,
-                    IngredientTags = selectedTags.Select(x => x.IngredientTag).ToList(),
-                    SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(),
-                    status = item.status,
-                    RejectNote = item.RejectNote
-                });
+                return View(viewModel);
             }
-
-            // Tính số lượng recipe theo từng loại món
-            var usedTypeOfDishCounts = userRecipes
-                .GroupBy(r => r.TypeOfDishID)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            // Tạo danh sách TypeOfDishViewModel cho sidebar
-            var filteredTypeOfDishes = allTypeOfDishes
-                .Where(t => usedTypeOfDishCounts.ContainsKey(t.ID))
-                .Select(t => new TypeOfDishViewModel
-                {
-                    ID = t.ID,
-                    Name = t.Name,
-                    IsActive = t.IsActive,
-                    CreatedDate = t.CreatedDate,
-                    ModifiedDate = t.ModifiedDate,
-                    Recipes = t.Recipes,
-                    RecipeCount = usedTypeOfDishCounts[t.ID]
-                })
-                .ToList();
-
-            // Trả về ViewModel
-            var viewModel = new MyViewRecipePageViewModel
+            catch (Exception ex)
             {
-                Recipes = recipes.ToPagedList(pageNumber, pageSize),
-                Categories = (await _categoryService.ListAsync()).ToList(),
-                TypeOfDishes = allTypeOfDishes.ToList(),
-                IngredientTags = ingredientTags.ToList(),
-                TypeOfDishForSidebar = filteredTypeOfDishes
-            };
-
-            return View(viewModel);
+                return StatusCode(500, $"An unknown error occurred: {ex.Message}");
+            }
         }
 
 
@@ -1641,73 +1555,83 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> RecipeDetail(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            var recipe = await _recipeService.GetAsyncById(id); // Tối ưu thay vì duyệt List
-            if (recipe == null) return NotFound();
-
-            var typeOfDish = await _typeOfDishService.GetAsyncById(recipe.TypeOfDishID);
-
-            // Lấy tất cả review theo RecipeID
-            var reviews = await _recipeReviewService.ListAsync(x => x.RecipeID == id);
-            var reviewViewModel = new List<RecipeReviewViewModel>();
-            var recipeOwner = await _userManager.FindByIdAsync(recipe.UserID);
-            var reviewRecipe = await _recipeReviewService.ListAsync();
-            var reviewRecipeCount = (await _recipeReviewService.ListAsync(r => r.RecipeID == id)).Count();
-            double averageRating = reviews.Any() ? Math.Round(reviews.Average(r => r.Rating), 1) : 0;
-
-            foreach (var r in reviews)
+            try
             {
-                var reviewer = await _userManager.FindByIdAsync(r.UserID);
+                var user = await _userManager.GetUserAsync(User);
+                var recipe = await _recipeService.GetAsyncById(id);
+                if (recipe == null)
+                    return NotFound();
 
-                reviewViewModel.Add(new RecipeReviewViewModel
+                var typeOfDish = await _typeOfDishService.GetAsyncById(recipe.TypeOfDishID);
+
+                var reviews = await _recipeReviewService.ListAsync(x => x.RecipeID == id);
+                var reviewViewModel = new List<RecipeReviewViewModel>();
+                var recipeOwner = await _userManager.FindByIdAsync(recipe.UserID);
+                var reviewRecipeCount = reviews.Count();
+                double averageRating = reviews.Any() ? Math.Round(reviews.Average(r => r.Rating), 1) : 0;
+
+                foreach (var r in reviews)
                 {
-                    ID = r.ID,
-                    Comment = r.Comment,
-                    Reply = r.Reply,
-                    CreatedDate = r.CreatedDate,
-                    ReplyDate = r.ReplyDate,
-                    Rating = r.Rating,
-                    IsActive = r.IsActive,
-                    RecipeID = r.RecipeID,
-                    UserID = reviewer?.UserName ?? "Ẩn danh"
-                });
-            }
-            bool isFavorite = false;
-            if (user != null)
-            {
-                var fav = await _iFavoriteRecipe.FindAsync(f => f.UserID == user.Id && f.RecipeID == id);
-                isFavorite = fav != null;
-            }
-            var recipeViewModel = new RecipeViewModels
-            {
-                ID = recipe.ID,
-                Title = recipe.Title,
-                ShortDescriptions = recipe.ShortDescriptions,
-                PreparationTime = recipe.PreparationTime,
-                CookTime = recipe.CookTime,
-                TotalTime = recipe.TotalTime,
-                DifficultyLevel = recipe.DifficultyLevel,
-                Servings = recipe.Servings,
-                CreatedDate = recipe.CreatedDate,
-                IsActive = recipe.IsActive,
-                CateID = recipe.CateID,
-                ThumbnailImage = recipe.ThumbnailImage,
-                TypeOfDishName = typeOfDish?.Name,
-                CookingStep = recipe.CookingStep,
-                Ingredient = recipe.Ingredient,
-                Username = user?.UserName,
-                Email = user?.Email,
-                RecipeReviewViewModels = reviewViewModel,
-                RecipeOwnerUserName = recipeOwner?.UserName ?? "Ẩn danh",
-                IsFavorite = isFavorite,
-                ReviewCount = reviewRecipeCount,
-                AverageRating = averageRating,
-                ImageUrl = recipeOwner.ImageUrl,
-                UserID = recipeOwner.Id,
-            };
+                    var reviewer = await _userManager.FindByIdAsync(r.UserID);
+                    reviewViewModel.Add(new RecipeReviewViewModel
+                    {
+                        ID = r.ID,
+                        Comment = r.Comment,
+                        Reply = r.Reply,
+                        CreatedDate = r.CreatedDate,
+                        ReplyDate = r.ReplyDate,
+                        Rating = r.Rating,
+                        IsActive = r.IsActive,
+                        RecipeID = r.RecipeID,
+                        UserID = reviewer?.UserName ?? "Ẩn danh"
+                    });
+                }
 
-            return View(recipeViewModel);
+                bool isFavorite = false;
+                if (user != null)
+                {
+                    var fav = await _iFavoriteRecipe.FindAsync(f => f.UserID == user.Id && f.RecipeID == id);
+                    isFavorite = fav != null;
+                }
+
+                var recipeViewModel = new RecipeViewModels
+                {
+                    ID = recipe.ID,
+                    Title = recipe.Title,
+                    ShortDescriptions = recipe.ShortDescriptions,
+                    PreparationTime = recipe.PreparationTime,
+                    CookTime = recipe.CookTime,
+                    TotalTime = recipe.TotalTime,
+                    DifficultyLevel = recipe.DifficultyLevel,
+                    Servings = recipe.Servings,
+                    CreatedDate = recipe.CreatedDate,
+                    IsActive = recipe.IsActive,
+                    CateID = recipe.CateID,
+                    ThumbnailImage = recipe.ThumbnailImage,
+                    TypeOfDishName = typeOfDish?.Name,
+                    CookingStep = recipe.CookingStep,
+                    Ingredient = recipe.Ingredient,
+                    Username = user?.UserName,
+                    Email = user?.Email,
+                    RecipeReviewViewModels = reviewViewModel,
+                    RecipeOwnerUserName = recipeOwner?.UserName ?? "Ẩn danh",
+                    IsFavorite = isFavorite,
+                    ReviewCount = reviewRecipeCount,
+                    AverageRating = averageRating,
+                    ImageUrl = recipeOwner?.ImageUrl,
+                    UserID = recipeOwner?.Id,
+                };
+
+                return View(recipeViewModel);
+            }
+            catch (Exception ex)
+            {
+                // Có thể log lỗi ở đây nếu cần: _logger.LogError(ex, "Error in RecipeDetail");
+
+                return StatusCode(500, $"An unknown error occurred: {ex.Message}");
+            }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> ToggleRecipeVisibility(Guid ID, bool isActive)
