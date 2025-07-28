@@ -621,31 +621,45 @@ namespace Food_Haven.Web.Controllers
                 orderBy: x => x.OrderByDescending(p => p.CreatedDate)
             );
 
-            foreach (var product in products)
+               foreach (var product in products)
             {
-                var price = await _productvarian.FindAsync(v => v.ProductID == product.ID && v.IsActive);
-                var category = await _categoryService.FindAsync(c => c.ID == product.CategoryID);
-                var imageList = await _productimg.ListAsync(i => i.ProductID == product.ID);
-                var imageUrls = imageList.Select(i => i.ImageUrl).ToList();
-
-                productList.Add(new ProductsViewModel
+                var price = await _productvarian.ListAsync(v => v.ProductID == product.ID && v.IsActive);
+                if (price.Any())
                 {
-                    ID = product.ID,
-                    Name = product.Name,
-                    CateID = product.CategoryID,
-                    CategoryName = category?.Name,
-                    StoreId = product.StoreID,
-                    StoreName = storeDetails.Name,
-                    Price = price?.SellPrice ?? 0,
-                    Img = imageUrls,
-                    IsActive = product.IsActive,
-                    IsOnSale = product.IsOnSale,
-                    ShortDescription = product.ShortDescription,
-                    LongDescription = product.LongDescription,
-                    ManufactureDate = product.ManufactureDate,
-                    CreatedDate = product.CreatedDate,
-                    ModifiedDate = product.ModifiedDate
-                });
+                    var getCate = await this._categoryService.FindAsync(c => c.ID == product.CategoryID);
+                    var reviews = await _reviewService.ListAsync(r => r.ProductID == product.ID);
+                    var store = await _storeDetailService.FindAsync(s => s.ID == product.StoreID);
+                    var imageList = await _productimg.ListAsync(i => i.ProductID == product.ID);
+                    var imageUrls = imageList.Select(i => i.ImageUrl).ToList();
+                    var flag = false;
+                    var checkwwith = await this._wishlist.FindAsync(x => x.UserID == User.FindFirstValue(ClaimTypes.NameIdentifier) && x.ProductID == product.ID);
+                    if (checkwwith != null)
+                    {
+                        flag = true;
+                    }
+                    var productVM = new ProductsViewModel
+                    {
+                        ID = product.ID,
+                        Name = product.Name,
+                        CateID = product.CategoryID,
+                        CategoryName = getCate.Name,
+                        StoreId = product.StoreID,
+                        StoreName = store?.Name,
+                        ProductTypes = price.ToList(),
+                        Img = imageUrls,
+                        IsActive = product.IsActive,
+                        IsOnSale = product.IsOnSale,
+                        ShortDescription = product.ShortDescription,
+                        LongDescription = product.LongDescription,
+                        ManufactureDate = product.ManufactureDate,
+                        CreatedDate = product.CreatedDate,
+                        ModifiedDate = product.ModifiedDate,
+                        Reviews = reviews.ToList(),
+                        isWish = flag,
+                    };
+
+                    productList.Add(productVM);
+                }
             }
 
             // 4. Chuẩn bị ViewModel chi tiết cửa hàng
