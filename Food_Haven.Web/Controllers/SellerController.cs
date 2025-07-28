@@ -1585,7 +1585,14 @@ namespace Food_Haven.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(v.Code))
                 errors["code"] = "Code is required.";
-
+            else
+            {
+               if(v.Code.Length < 3 || v.Code.Length > 20)
+                    errors["code"] = "Code must be between 3 and 20 characters.";
+                else if (await _voucher.FindAsync
+                    (x => x.Code == v.Code.ToUpper() && x.StoreID == store.ID)!=null)
+                    errors["code"] = "Code already exists for this store.";
+            }
             if (v.DiscountAmount <= 0)
                 errors["discountAmount"] = "Discount amount must be greater than 0.";
 

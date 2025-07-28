@@ -1277,10 +1277,16 @@ namespace Food_Haven.Web.Controllers
             if (store == null)
                 return Json(new { error = "Store not found." });
             var errors = new Dictionary<string, string>();
-
             if (string.IsNullOrWhiteSpace(v.Code))
                 errors["code"] = "Code is required.";
-
+            else
+            {
+                if (v.Code.Length < 3 || v.Code.Length > 20)
+                    errors["code"] = "Code must be between 3 and 20 characters.";
+                else if (await _voucher.FindAsync
+                    (x => x.Code.ToUpper() == v.Code.ToUpper()) != null)
+                    errors["code"] = "Code already exists .";
+            }
             if (v.DiscountAmount <= 0)
                 errors["discountAmount"] = "Discount amount must be greater than 0.";
 
