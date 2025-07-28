@@ -305,7 +305,11 @@
                                     {
                                         name: "IsBanByadmin",
                                         width: "180px",
-                                        formatter: (value) => value ? "Disable" : "Active"
+                                        formatter: function (value) {
+                                            let statusText = value ? "Disabled" : "Active";
+                                            let statusClass = value ? "bg-danger-subtle text-danger" : "bg-success-subtle text-success";
+                                            return gridjs.html(`<span class="badge status-badge ${statusClass}">${statusText}</span>`);
+                                        }
                                     },
                                     {
                                         name: "Actions",
