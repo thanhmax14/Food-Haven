@@ -2060,7 +2060,7 @@ namespace Food_Haven.Web.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error: " + ex.Message });
+                return Json(new { success = false, message = "Error" });
             }
         }
 
