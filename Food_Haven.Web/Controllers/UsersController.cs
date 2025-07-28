@@ -1552,87 +1552,92 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> MyViewRecipe(int? page)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Home");
-
-            int pageNumber = page ?? 1;
-            int pageSize = 5;
-
-            // Lấy tất cả công thức
-            var allRecipes = await _recipeService.ListAsync();
-            var ingredientTags = await _ingredientTagService.ListAsync();
-            var allTypeOfDishes = await _typeOfDishService.ListAsync();
-            var userRecipes = allRecipes.Where(r => r.UserID == user.Id).ToList();
-
-            var recipes = new List<RecipeViewModels>();
-
-            foreach (var item in userRecipes)
+            try
             {
-                var typeOfDish = allTypeOfDishes.FirstOrDefault(t => t.ID == item.TypeOfDishID);
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                    return RedirectToAction("Login", "Home");
 
-                var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
-                      .ListAsync(rt => rt.RecipeID == item.ID, null, include => include.Include(x => x.IngredientTag)))
-                      .ToList();
+                int pageNumber = page ?? 1;
+                int pageSize = 5;
 
-                recipes.Add(new RecipeViewModels
+                var allRecipes = await _recipeService.ListAsync();
+                var ingredientTags = await _ingredientTagService.ListAsync();
+                var allTypeOfDishes = await _typeOfDishService.ListAsync();
+                var userRecipes = allRecipes.Where(r => r.UserID == user.Id).ToList();
+
+                var recipes = new List<RecipeViewModels>();
+
+                foreach (var item in userRecipes)
                 {
-                    ID = item.ID,
-                    Title = item.Title,
-                    ShortDescriptions = item.ShortDescriptions,
-                    PreparationTime = item.PreparationTime,
-                    CookTime = item.CookTime,
-                    TotalTime = item.TotalTime,
-                    DifficultyLevel = item.DifficultyLevel,
-                    Servings = item.Servings,
-                    CreatedDate = item.CreatedDate,
-                    IsActive = item.IsActive,
-                    CateID = item.CateID,
-                    ThumbnailImage = item.ThumbnailImage,
-                    TypeOfDishName = typeOfDish?.Name,
-                    CookingStep = item.CookingStep,
-                    Ingredient = item.Ingredient,
-                    TypeOfDishID = item.TypeOfDishID,
-                    UserID = item.UserID,
-                    IngredientTags = selectedTags.Select(x => x.IngredientTag).ToList(),
-                    SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(),
-                    status = item.status,
-                    RejectNote = item.RejectNote
-                });
+                    var typeOfDish = allTypeOfDishes.FirstOrDefault(t => t.ID == item.TypeOfDishID);
+
+                    var selectedTags = (await _recipeIngredientTagIngredientTagIngredientTagSerivce
+                        .ListAsync(rt => rt.RecipeID == item.ID, null, include => include.Include(x => x.IngredientTag)))
+                        .ToList();
+
+                    recipes.Add(new RecipeViewModels
+                    {
+                        ID = item.ID,
+                        Title = item.Title,
+                        ShortDescriptions = item.ShortDescriptions,
+                        PreparationTime = item.PreparationTime,
+                        CookTime = item.CookTime,
+                        TotalTime = item.TotalTime,
+                        DifficultyLevel = item.DifficultyLevel,
+                        Servings = item.Servings,
+                        CreatedDate = item.CreatedDate,
+                        IsActive = item.IsActive,
+                        CateID = item.CateID,
+                        ThumbnailImage = item.ThumbnailImage,
+                        TypeOfDishName = typeOfDish?.Name,
+                        CookingStep = item.CookingStep,
+                        Ingredient = item.Ingredient,
+                        TypeOfDishID = item.TypeOfDishID,
+                        UserID = item.UserID,
+                        IngredientTags = selectedTags.Select(x => x.IngredientTag).ToList(),
+                        SelectedIngredientTags = selectedTags.Select(x => x.IngredientTagID).ToList(),
+                        status = item.status,
+                        RejectNote = item.RejectNote
+                    });
+                }
+
+                var usedTypeOfDishCounts = userRecipes
+                    .GroupBy(r => r.TypeOfDishID)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                var filteredTypeOfDishes = allTypeOfDishes
+                    .Where(t => usedTypeOfDishCounts.ContainsKey(t.ID))
+                    .Select(t => new TypeOfDishViewModel
+                    {
+                        ID = t.ID,
+                        Name = t.Name,
+                        IsActive = t.IsActive,
+                        CreatedDate = t.CreatedDate,
+                        ModifiedDate = t.ModifiedDate,
+                        Recipes = t.Recipes,
+                        RecipeCount = usedTypeOfDishCounts[t.ID]
+                    })
+                    .ToList();
+
+                var viewModel = new MyViewRecipePageViewModel
+                {
+                    Recipes = recipes.ToPagedList(pageNumber, pageSize),
+                    Categories = (await _categoryService.ListAsync()).ToList(),
+                    TypeOfDishes = allTypeOfDishes.ToList(),
+                    IngredientTags = ingredientTags.ToList(),
+                    TypeOfDishForSidebar = filteredTypeOfDishes
+                };
+
+                return View(viewModel);
             }
-
-            // Tính số lượng recipe theo từng loại món
-            var usedTypeOfDishCounts = userRecipes
-                .GroupBy(r => r.TypeOfDishID)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            // Tạo danh sách TypeOfDishViewModel cho sidebar
-            var filteredTypeOfDishes = allTypeOfDishes
-                .Where(t => usedTypeOfDishCounts.ContainsKey(t.ID))
-                .Select(t => new TypeOfDishViewModel
-                {
-                    ID = t.ID,
-                    Name = t.Name,
-                    IsActive = t.IsActive,
-                    CreatedDate = t.CreatedDate,
-                    ModifiedDate = t.ModifiedDate,
-                    Recipes = t.Recipes,
-                    RecipeCount = usedTypeOfDishCounts[t.ID]
-                })
-                .ToList();
-
-            // Trả về ViewModel
-            var viewModel = new MyViewRecipePageViewModel
+            catch (Exception ex)
             {
-                Recipes = recipes.ToPagedList(pageNumber, pageSize),
-                Categories = (await _categoryService.ListAsync()).ToList(),
-                TypeOfDishes = allTypeOfDishes.ToList(),
-                IngredientTags = ingredientTags.ToList(),
-                TypeOfDishForSidebar = filteredTypeOfDishes
-            };
-
-            return View(viewModel);
+                TempData["ErrorMessage"] = "An error occurred while loading your recipes. Please try again later.";
+                return RedirectToAction("Error", "Home");
+            }
         }
+
 
         [AllowAnonymous]
         [HttpGet]
