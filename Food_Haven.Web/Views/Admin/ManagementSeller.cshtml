@@ -306,8 +306,8 @@
                                 <input type="hidden" id="reject-user-email" />
                                 <div class="mb-3">
                                     <label for="admin-username" class="form-label">UserName (Admin):</label>
-                                    <input type="text" class="form-control" id="admin-username"
-                                        value="@ViewBag.AdminUserName" readonly />
+                                  <input type="text" class="form-control" id="reject-username" readonly />
+
                                 </div>
                                 <div class="mb-3">
                                     <label for="RejectNote" class="form-label">Reason:</label>
@@ -354,21 +354,26 @@
                                             return gridjs.html(statuses[value] || '<span class="badge bg-dark">Unknown</span>');
                                         }
                                     },
-                                    {
-                                        name: "Actions",
-                                        width: "200px",
-                                        formatter: (_, row) => {
-                                            let userEmail = row.cells[1].data;
-                                            let requestStatus = parseInt(row.cells[5].data);
+                                  {
+    name: "Actions",
+    width: "200px",
+    formatter: (_, row) => {
+        let userEmail = row.cells[1].data;   // cột Email
+        let username = row.cells[0].data;    // cột UserName
+        let requestStatus = parseInt(row.cells[5].data); // cột RequestSeller
 
-                                            let actionButtons = "";
+        let actionButtons = "";
 
-                                            if (requestStatus === 1) {
-                                                actionButtons = `
-                <button class="btn btn-sm btn-success me-2 accept-btn" data-useremail="${userEmail}" data-action="accept">
-                 <i class="ri-eye-line align-bottom me-1"></i> Accpet
+        if (requestStatus === 1) {
+            actionButtons = `
+                <button class="btn btn-sm btn-success me-2 accept-btn"
+                        data-useremail="${userEmail}"
+                        data-action="accept">
+                    <i class="ri-eye-line align-bottom me-1"></i> Accept
                 </button>
-                <button class="btn btn-sm btn-danger reject-btn" data-useremail="${userEmail}" data-action="reject">
+                <button class="btn btn-sm btn-danger reject-btn"
+                        data-useremail="${userEmail}"
+                        data-username="${username}">
                     <i class="ri-eye-off-line align-bottom me-1"></i> Reject
                 </button>
             `;
@@ -377,19 +382,21 @@
                 <button class="btn btn-sm btn-success accept-btn"
                         data-useremail="${userEmail}"
                         data-action="accept">
+
                          <i class="ri-eye-line align-bottom me-1"></i>
+
                     Accept
                 </button>
             `;
-                                            }
+        }
 
-                                            return gridjs.html(`
+        return gridjs.html(`
             <div class="d-flex flex-wrap gap-2">
                 ${actionButtons}
             </div>
         `);
-                                        }
-                                    }
+    }
+}
 
                                 ],
                                 pagination: { enabled: true, limit: 10, summary: true },
@@ -459,71 +466,72 @@
                             });
 
 
-                            // Khi bấm nút Reject → mở modal
-                            $(document).on("click", ".reject-btn", function () {
-                                let userEmail = $(this).data("useremail");
+                           // Khi bấm nút Reject → mở modal và hiển thị đúng thông tin
+$(document).on("click", ".reject-btn", function () {
+    let userEmail = $(this).data("useremail");
+    let username = $(this).data("username");
 
-                                $("#reject-user-email").val(userEmail);
-                                $("#reject-reason").val("");
-                                $("#admin-username-modal").val("@ViewBag.AdminUserName");
+    $("#reject-user-email").val(userEmail);
+    $("#reject-username").val(username);
+    $("#RejectNote").val(""); // reset lý do cũ
 
-                                const modal = new bootstrap.Modal(document.getElementById("rejectReasonModal"));
-                                modal.show();
-                            });
+    const modal = new bootstrap.Modal(document.getElementById("rejectReasonModal"));
+    modal.show();
+});
 
+// Khi bấm Confirm trong modal
+$(document).on("click", "#confirm-reject-btn", function () {
+    let email = $("#reject-user-email").val();
+    let reason = $("#RejectNote").val();
 
-                            // Khi bấm Confirm trong modal
-                            $(document).on("click", "#confirm-reject-btn", function () {
-                                let email = $("#reject-user-email").val();         // input chứa email
-                                let reason = $("#RejectNote").val();               // textarea chứa lý do từ chối
+    if (!reason || reason.trim() === "") {
+        Swal.fire({
+            title: "Warning!",
+            text: "Please provide a reason for rejection.",
+            icon: "warning",
+            confirmButtonColor: "#ffc107"
+        });
+        return;
+    }
 
-                                if (!reason || reason.trim() === "") {
-                                    Swal.fire({
-                                        title: "Warning!",
-                                        text: "Please provide a reason for rejection.",
-                                        icon: "warning",
-                                        confirmButtonColor: "#ffc107"
-                                    });
-                                    return;
-                                }
+    $.ajax({
+        url: "/Admin/RejectSeller",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            Email: email,
+            RejectNote: reason
+        }),
+        success: function (response) {
+            if (response.success) {
+                Swal.fire({
+                    title: "Rejected!",
+                    text: response.message,
+                    icon: "success",
+                    confirmButtonColor: "#28a745"
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    title: "Error!",
+                    text: response.message,
+                    icon: "error",
+                    confirmButtonColor: "#dc3545"
+                });
+            }
+        },
+        error: function () {
+            Swal.fire({
+                title: "Error!",
+                text: "Cannot connect to the server!",
+                icon: "error",
+                confirmButtonColor: "#dc3545"
+            });
+        }
+    });
+});
 
-                                $.ajax({
-                                    url: "/Admin/RejectSeller",                   // action trong controller
-                                    type: "POST",
-                                    contentType: "application/json",
-                                    data: JSON.stringify({
-                                        Email: email,
-                                        RejectNote: reason                        // thuộc tính phải trùng với model
-                                    }),
-                                    success: function (response) {
-                                        if (response.success) {
-                                            Swal.fire({
-                                                title: "Rejected!",
-                                                text: response.message,
-                                                icon: "success",
-                                                confirmButtonColor: "#28a745"
-                                            }).then(() => {
-                                                location.reload();
-                                            });
-                                        } else {
-                                            Swal.fire({
-                                                title: "Error!",
-                                                text: response.message,
-                                                icon: "error",
-                                                confirmButtonColor: "#dc3545"
-                                            });
-                                        }
-                                    },
-                                    error: function () {
-                                        Swal.fire({
-                                            title: "Error!",
-                                            text: "Cannot connect to the server!",
-                                            icon: "error",
-                                            confirmButtonColor: "#dc3545"
-                                        });
-                                    }
-                                });
-                            });
 
 
 
