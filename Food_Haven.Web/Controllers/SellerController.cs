@@ -319,105 +319,105 @@ namespace Food_Haven.Web.Controllers
             return View(storeData);
         }
 
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStore(Guid id, StoreViewModel model, IFormFile? ImgFile)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+        // [Authorize]
+        // [HttpPost]
+        // [ValidateAntiForgeryToken]
+        // public async Task<IActionResult> UpdateStore(Guid id, StoreViewModel model, IFormFile? ImgFile)
+        // {
+        //     if (!ModelState.IsValid)
+        //     {
+        //         return View(model);
+        //     }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+        //     var user = await _userManager.GetUserAsync(User);
+        //     if (user == null) return Unauthorized();
 
-            var existingStore = await _storeDetailService.GetStoreByIdAsync(id);
-            if (existingStore == null)
-            {
-                ModelState.AddModelError("", "\r\n23 / 5.000\r\nStore not found");
-                return View(model);
-            }
+        //     var existingStore = await _storeDetailService.GetStoreByIdAsync(id);
+        //     if (existingStore == null)
+        //     {
+        //         ModelState.AddModelError("", "\r\n23 / 5.000\r\nStore not found");
+        //         return View(model);
+        //     }
 
-            string imgPath = existingStore.ImageUrl;
+        //     string imgPath = existingStore.ImageUrl;
 
-            if (ImgFile != null && ImgFile.Length > 0)
-            {
-                string[] allowedExtensions = { ".png", ".jpeg", ".jpg" };
-                string extension = Path.GetExtension(ImgFile.FileName).ToLower();
+        //     if (ImgFile != null && ImgFile.Length > 0)
+        //     {
+        //         string[] allowedExtensions = { ".png", ".jpeg", ".jpg" };
+        //         string extension = Path.GetExtension(ImgFile.FileName).ToLower();
 
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported");
-                    return View(model);
-                }
+        //         if (!allowedExtensions.Contains(extension))
+        //         {
+        //             ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported");
+        //             return View(model);
+        //         }
 
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
+        //         string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+        //         if (!Directory.Exists(uploadsFolder))
+        //         {
+        //             Directory.CreateDirectory(uploadsFolder);
+        //         }
 
-                string uniqueFileName = $"{Guid.NewGuid()}{extension}";
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+        //         string uniqueFileName = $"{Guid.NewGuid()}{extension}";
+        //         string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await ImgFile.CopyToAsync(fileStream);
-                }
+        //         using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //         {
+        //             await ImgFile.CopyToAsync(fileStream);
+        //         }
 
-                imgPath = "/uploads/" + uniqueFileName;
-            }
+        //         imgPath = "/uploads/" + uniqueFileName;
+        //     }
 
-            var success = await _storeDetailService.UpdateStoreAsync(id, model.Name, model.LongDescriptions,
-                                                            model.ShortDescriptions, model.Address,
-                                                            model.Phone, imgPath);
+        //     var success = await _storeDetailService.UpdateStoreAsync(id, model.Name, model.LongDescriptions,
+        //                                                     model.ShortDescriptions, model.Address,
+        //                                                     model.Phone, imgPath);
 
-            if (!success)
-            {
-                ModelState.AddModelError("", "Store update failed!");
-                return View(model);
-            }
+        //     if (!success)
+        //     {
+        //         ModelState.AddModelError("", "Store update failed!");
+        //         return View(model);
+        //     }
 
-            // Gán lại giá trị ảnh sau cập nhật (nếu có ảnh mới)
-            model.Img = imgPath;
-            model.ModifiedDate = DateTime.Now;
+        //     // Gán lại giá trị ảnh sau cập nhật (nếu có ảnh mới)
+        //     model.Img = imgPath;
+        //     model.ModifiedDate = DateTime.Now;
 
-            ViewBag.Success = "Store update successful!";
-            return View(model);
-        }
+        //     ViewBag.Success = "Store update successful!";
+        //     return View(model);
+        // }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> UpdateStore(Guid id)
-        {
-            var store = await _storeDetailService.GetStoreByIdAsync(id);
-            if (store == null)
-            {
-                return NotFound();
-            }
+        // [Authorize]
+        // [HttpGet]
+        // public async Task<IActionResult> UpdateStore(Guid id)
+        // {
+        //     var store = await _storeDetailService.GetStoreByIdAsync(id);
+        //     if (store == null)
+        //     {
+        //         return NotFound();
+        //     }
 
-            var isActive = await _storeDetailService.IsStoreActiveAsync(id);
-            if (!isActive)
-            {
-                ViewBag.StoreLocked = true;
-                return View(); // Không truyền model vì không được chỉnh sửa
-            }
+        //     var isActive = await _storeDetailService.IsStoreActiveAsync(id);
+        //     if (!isActive)
+        //     {
+        //         ViewBag.StoreLocked = true;
+        //         return View(); // Không truyền model vì không được chỉnh sửa
+        //     }
 
-            var model = new StoreViewModel
-            {
-                Name = store.Name,
-                CreatedDate = store.CreatedDate,
-                ModifiedDate = DateTime.Now,
-                LongDescriptions = store.LongDescriptions,
-                ShortDescriptions = store.ShortDescriptions,
-                Address = store.Address,
-                Phone = store.Phone,
-                Img = store.ImageUrl // Giữ ảnh cũ
-            };
+        //     var model = new StoreViewModel
+        //     {
+        //         Name = store.Name,
+        //         CreatedDate = store.CreatedDate,
+        //         ModifiedDate = DateTime.Now,
+        //         LongDescriptions = store.LongDescriptions,
+        //         ShortDescriptions = store.ShortDescriptions,
+        //         Address = store.Address,
+        //         Phone = store.Phone,
+        //         Img = store.ImageUrl // Giữ ảnh cũ
+        //     };
 
-            return View(model);
-        }
+        //     return View(model);
+        // }
 
         [HttpPost]
         public IActionResult ClearSuccessMessage()
@@ -2685,6 +2685,94 @@ namespace Food_Haven.Web.Controllers
                 return Json(new { success = false, msg = "An error occurred: " + ex.Message });
             }
         }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStore(Guid id, StoreViewModel model, IFormFile? ImgFile)
+        {
+            // if (!ModelState.IsValid)
+            // {
+            //     return View(model);
+            // }
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            // Lấy thông tin cửa hàng hiện tại để giữ nguyên ảnh cũ nếu không upload ảnh mới
+            var existingStore = await _storedetail.GetStoreByIdAsync(id);
+            if (existingStore == null)
+            {
+                ModelState.AddModelError("", "Không tìm thấy cửa hàng.");
+                return View(model);
+            }
+
+            string imgPath = existingStore.ImageUrl; // Giữ ảnh cũ nếu không có ảnh mới
+
+            if (ImgFile != null && ImgFile.Length > 0)
+            {
+                string[] allowedExtensions = { ".png", ".jpeg", ".jpg" };
+                string extension = Path.GetExtension(ImgFile.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError("Img", "Chỉ hỗ trợ file ảnh (.png, .jpeg, .jpg)");
+                    return View(model);
+                }
+
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                string uniqueFileName = $"{Guid.NewGuid()}{extension}";
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImgFile.CopyToAsync(fileStream);
+                }
+
+                imgPath = "/uploads/" + uniqueFileName; // Cập nhật đường dẫn ảnh mới
+            }
+
+            // Cập nhật cửa hàng
+            var success = await _storedetail.UpdateStoreAsync(id, model.Name, model.LongDescriptions,
+                                                                model.ShortDescriptions, model.Address,
+                                                                model.Phone, imgPath);
+
+            if (!success)
+            {
+                ModelState.AddModelError("", "Cập nhật cửa hàng thất bại.");
+                return View(model);
+            }
+
+            return RedirectToAction("ViewStore");
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> UpdateStore(Guid id)
+        {
+            var store = await _storedetail.GetStoreByIdAsync(id);
+            if (store == null)
+            {
+                return NotFound();
+            }
+
+            var model = new StoreViewModel
+            {
+                Name = store.Name,
+                CreatedDate = store.CreatedDate,
+                ModifiedDate = DateTime.Now,
+                LongDescriptions = store.LongDescriptions,
+                ShortDescriptions = store.ShortDescriptions,
+                Address = store.Address,
+                Phone = store.Phone,
+                Img = store.ImageUrl // Giữ ảnh cũ
+            };
+
+            return View(model);
+        }
     }
 }
