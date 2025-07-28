@@ -179,14 +179,13 @@
 
 
                 <script>
-
                     document.addEventListener("DOMContentLoaded", function () {
                         if (document.getElementById("table-feedback")) {
                             var reviews = @Html.Raw(JsonSerializer.Serialize(Model, new JsonSerializerOptions { PropertyNamingPolicy = null }));
 
                             new gridjs.Grid({
                                 columns: [
-                                    { name: "ID", hidden: true }, // Cột ID bị ẩn
+                                    { name: "ID", hidden: true },
                                     { name: "Product Name", width: "150px" },
                                     { name: "User Name", width: "150px" },
                                     { name: "Comment", width: "250px" },
@@ -199,41 +198,41 @@
                                         formatter: (cell, row) => {
                                             let statusClass = {
                                                 "Active": "bg-success-subtle text-success",
-                                                "Disabled": "bg-danger-subtle text-danger"
+                                                "Deactive": "bg-danger-subtle text-danger"
                                             }[cell] || "bg-secondary-subtle text-secondary";
 
                                             return gridjs.html(`<span id="row-${row.cells[0].data}" class="badge ${statusClass}">${cell}</span>`);
                                         }
-                                    }
-                                    ,
+                                    },
                                     {
                                         name: "Actions",
                                         width: "150px",
                                         formatter: (_, row) => {
-                                            let status = row.cells[7].data; // Trạng thái Feedback (Active/Deactive)
-                                            let feedbackId = row.cells[0].data; // Lấy ID của Feedback
-                                            let reply = row.cells[6].data; // Lấy nội dung Reply
-                                            let url = `/Seller/ReplyFeedback/${feedbackId}`; // Tạo URL động
+                                            let status = row.cells[7].data;
+                                            let feedbackId = row.cells[0].data;
+                                            let reply = row.cells[6].data;
+                                            let url = `/Seller/ReplyFeedback/${feedbackId}`;
 
                                             let actionText = status === "Active" ? "Hide" : "Show";
                                             let actionIcon = status === "Active" ? "btn btn-sm btn-danger" : "btn btn-sm btn-success";
                                             let eyeIcon = status === "Active" ? "ri-eye-off-line" : "ri-eye-line";
 
                                             let replyButton = reply !== "No reply" ? "" : `
-                            <a class="btn btn-sm btn-primary" target="_blank" href="${url}">
-                             <i class="ri-pencil-fill align-bottom me-1"></i> Reply
-                            </a>
-                            `;
+                                                <a class="btn btn-sm btn-primary" target="_blank" href="${url}">
+                                                    <i class="ri-pencil-fill align-bottom me-1"></i> Reply
+                                                </a>
+                                            `;
+
                                             return gridjs.html(`
-                                <div class="d-flex gap-2">
-                                    ${replyButton}
-                                        <button class="toggle-feedback-btn ${actionIcon}"
-                                            data-feedbackid="${feedbackId}"
-                                            data-status="${status}">
-                                            <i class="${eyeIcon} align-bottom me-1"></i> ${actionText}
-                                        </button>
-                                </div
-                        `);
+                                                <div class="d-flex gap-2">
+                                                    ${replyButton}
+                                                    <button class="toggle-feedback-btn ${actionIcon}"
+                                                        data-feedbackid="${feedbackId}"
+                                                        data-status="${status}">
+                                                        <i class="${eyeIcon} align-bottom me-1"></i> ${actionText}
+                                                    </button>
+                                                </div>
+                                            `);
                                         }
                                     }
                                 ],
@@ -246,7 +245,7 @@
                                 sort: true,
                                 search: true,
                                 data: reviews.map(review => [
-                                    review.ID, // Cột ID (bị ẩn)
+                                    review.ID,
                                     review.ProductName,
                                     review.Username,
                                     review.Comment,
@@ -274,134 +273,86 @@
                     });
 
                     function showFeedback(feedbackId) {
-                        var token = $("input[name='__RequestVerificationToken']").val();
-                        var id = feedbackId;
-
-                        console.log("Debug - feedbackId:", feedbackId);
-
-                        $.ajax({
-                            url: "/Seller/Show",
-                            method: "POST",
-                            dataType: "JSON",
-                            data: {
-                                id: feedbackId,
-                                __RequestVerificationToken: token
-                            },
-                            success: function (response) {
-                                if (response.success) {
-
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Success!',
-                                        text: response.msg || 'Send successfully!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 1500);
-                                } else {
-                                    new Notify({
-                                        status: 'error',
-                                        title: 'Failure',
-                                        text: response.msg || 'Send failed!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                }
-                            },
-                            error: function () {
-                                new Notify({
-                                    status: 'error',
-                                    title: 'Failure',
-                                    text: 'Send failed!',
-                                    effect: 'fade',
-                                    speed: 300,
-                                    showIcon: true,
-                                    showCloseButton: true,
-                                    autoclose: true,
-                                    autotimeout: 3000,
-                                    position: 'right top'
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: 'Do you want to show this feedback?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#28a745',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Yes, show it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var token = $("input[name='__RequestVerificationToken']").val();
+                                $.ajax({
+                                    url: "/Seller/Show",
+                                    method: "POST",
+                                    dataType: "JSON",
+                                    data: {
+                                        id: feedbackId,
+                                        __RequestVerificationToken: token
+                                    },
+                                    success: function (response) {
+                                        if (response.success) {
+                                            Swal.fire({
+                                                title: "Success!",
+                                                text: response.msg || "Feedback is now visible.",
+                                                icon: "success",
+                                                timer: 1500,
+                                                showConfirmButton: false
+                                            }).then(() => location.reload());
+                                        } else {
+                                            Swal.fire("Error!", response.msg || "Failed to update feedback status.", "error");
+                                        }
+                                    },
+                                    error: function () {
+                                        Swal.fire("Error!", "An unexpected error occurred.", "error");
+                                    }
                                 });
                             }
                         });
-
                     }
-
 
                     function hideFeedback(feedbackId) {
-                        var token = $("input[name='__RequestVerificationToken']").val();
-                        var id = feedbackId;
-
-                        console.log("Debug - feedbackId:", feedbackId);
-
-                        $.ajax({
-                            url: "/Seller/Hidden",
-                            method: "POST",
-                            dataType: "JSON",
-                            data: {
-                                id: feedbackId,
-                                __RequestVerificationToken: token
-                            },
-                            success: function (response) {
-                                if (response.success) {
-                                    new Notify({
-                                        status: 'success',
-                                        title: 'Success!',
-                                        text: response.msg || 'Send successfully!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 1500);
-                                } else {
-                                    new Notify({
-                                        status: 'error',
-                                        title: 'Failure',
-                                        text: response.msg || 'Send failed!',
-                                        effect: 'fade',
-                                        speed: 300,
-                                        showIcon: true,
-                                        showCloseButton: true,
-                                        autoclose: true,
-                                        autotimeout: 3000,
-                                        position: 'right top'
-                                    });
-                                }
-                            },
-                            error: function () {
-                                new Notify({
-                                    status: 'error',
-                                    title: 'Failure',
-                                    text: 'Send failed!',
-                                    effect: 'fade',
-                                    speed: 300,
-                                    showIcon: true,
-                                    showCloseButton: true,
-                                    autoclose: true,
-                                    autotimeout: 3000,
-                                    position: 'right top'
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: 'Do you want to hide this feedback?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#dc3545',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Yes, hide it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var token = $("input[name='__RequestVerificationToken']").val();
+                                $.ajax({
+                                    url: "/Seller/Hidden",
+                                    method: "POST",
+                                    dataType: "JSON",
+                                    data: {
+                                        id: feedbackId,
+                                        __RequestVerificationToken: token
+                                    },
+                                    success: function (response) {
+                                        if (response.success) {
+                                            Swal.fire({
+                                                title: "Success!",
+                                                text: response.msg || "Feedback has been hidden.",
+                                                icon: "success",
+                                                timer: 1500,
+                                                showConfirmButton: false
+                                            }).then(() => location.reload());
+                                        } else {
+                                            Swal.fire("Error!", response.msg || "Failed to update feedback status.", "error");
+                                        }
+                                    },
+                                    error: function () {
+                                        Swal.fire("Error!", "An unexpected error occurred.", "error");
+                                    }
                                 });
                             }
                         });
                     }
-
                 </script>
 
 
@@ -468,6 +419,9 @@
     <link rel="stylesheet" href="~/assets/cute-alert/style.css" />
     <link href="~/assets/sweetalert2/default.css" rel="stylesheet" />
     <script src="~/assets/simple-notify/simple-notify.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </body>
 
 
