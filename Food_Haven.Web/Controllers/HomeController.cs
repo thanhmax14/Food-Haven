@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
@@ -621,7 +620,7 @@ namespace Food_Haven.Web.Controllers
                 orderBy: x => x.OrderByDescending(p => p.CreatedDate)
             );
 
-               foreach (var product in products)
+            foreach (var product in products)
             {
                 var price = await _productvarian.ListAsync(v => v.ProductID == product.ID && v.IsActive);
                 if (price.Any())
@@ -703,7 +702,8 @@ namespace Food_Haven.Web.Controllers
                 Commission = category.Commission,
                 CreatedDate = category.CreatedDate,
                 ModifiedDate = category.ModifiedDate,
-                Img = category.ImageUrl,
+                Img = !string.IsNullOrEmpty(category.ImageUrl) ? "/uploads/" + category.ImageUrl : "/uploads/default.png",
+                //Img = category.ImageUrl,
                 ProductViewModel = new List<ProductsViewModel>(),
                 StoreDetailViewModel = new List<StoreDetailsViewModels>()
             };

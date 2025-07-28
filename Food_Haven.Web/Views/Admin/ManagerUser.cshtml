@@ -299,9 +299,16 @@
                                 columns: [
                                     { name: "UserName", width: "140" },
                                     { name: "Email", width: "150px" },
-                                    { name: "PhoneNumber", width: "220px", formatter: (e) => gridjs.html(`<a href="#">${e}</a>`) },
+                                    {
+                                        name: "PhoneNumber",
+                                        width: "220px",
+                                        formatter: (e) => gridjs.html(`<a href="#">${e}</a>`)
+                                    },
                                     { name: "Address", width: "250px" },
-                                    { name: "Birthday", width: "180px" },
+                                    {
+                                        name: "Birthday",
+                                        width: "180px"
+                                    },
                                     {
                                         name: "IsBanByadmin",
                                         width: "180px",
@@ -315,33 +322,30 @@
                                         name: "Actions",
                                         width: "220px",
                                         formatter: (_, row) => {
-                                            let userEmail = row.cells[1].data; // Email người dùng
-                                            let isBanned = row.cells[5].data;  // Trạng thái bị ban
+                                            let userEmail = row.cells[1].data;
+                                            let isBanned = row.cells[5].data;
 
-                                            // Nút Edit
                                             let editButton = `
-            <button class="btn btn-sm btn-primary me-2 edit-user-btn" data-useremail="${userEmail}">
-                <i class="ri-pencil-fill align-bottom me-1"></i> Edit
-            </button>`;
+                                                <button class="btn btn-sm btn-primary me-2 edit-user-btn" data-useremail="${userEmail}">
+                                                    <i class="ri-pencil-fill align-bottom me-1"></i> Edit
+                                                </button>`;
 
-                                            // Nút Ban/Unban
                                             let banButton = isBanned
                                                 ? `<button class="btn btn-sm btn-success toggle-ban-btn" data-useremail="${userEmail}" data-ban="false">
-                   <i class="ri-eye-line align-bottom me-1"></i> Unban
-               </button>`
+                                                       <i class="ri-eye-line align-bottom me-1"></i> Unban
+                                                   </button>`
                                                 : `<button class="btn btn-sm btn-danger toggle-ban-btn" data-useremail="${userEmail}" data-ban="true">
-<i class="ri-eye-off-line align-bottom me-1"></i> Ban
-               </button>`;
+                                                       <i class="ri-eye-off-line align-bottom me-1"></i> Ban
+                                                   </button>`;
 
                                             return gridjs.html(`
-            <div class="d-flex flex-wrap gap-2">
-                ${editButton}
-                ${banButton}
-            </div>
-        `);
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    ${editButton}
+                                                    ${banButton}
+                                                </div>
+                                            `);
                                         }
                                     }
-
                                 ],
                                 pagination: { enabled: true, limit: 10, summary: true },
                                 sort: true,
@@ -360,13 +364,25 @@
                                 let target = e.target.closest(".toggle-ban-btn");
                                 if (target) {
                                     let userEmail = target.getAttribute("data-useremail");
-                                    let isBan = target.getAttribute("data-ban") === "false";
+                                    let isBan = target.getAttribute("data-ban") === "true";
 
-                                    if (isBan) {
-                                        showUser(userEmail);
-                                    } else {
-                                        toggleUserBan(userEmail, isBan);
-                                    }
+                                    Swal.fire({
+                                        title: `Are you sure?`,
+                                        text: isBan ? "Do you want to ban this user?" : "Do you want to unban this user?",
+                                        icon: "warning",
+                                        showCancelButton: true,
+                                        confirmButtonColor: isBan ? "#dc3545" : "#28a745",
+                                        cancelButtonColor: "#6c757d",
+                                        confirmButtonText: isBan ? "Yes, ban!" : "Yes, unban!"
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            if (isBan) {
+                                                toggleUserBan(userEmail, true);
+                                            } else {
+                                                showUser(userEmail);
+                                            }
+                                        }
+                                    });
                                 }
 
                                 let editButton = e.target.closest(".edit-user-btn");
@@ -388,16 +404,14 @@
                                 if (response.success) {
                                     Swal.fire({
                                         icon: "success",
-                                        title: "Thành công!",
+                                        title: "Success!",
                                         text: response.message,
                                         confirmButtonText: "OK"
-                                    }).then(() => {
-                                        location.reload();
-                                    });
+                                    }).then(() => location.reload());
                                 } else {
                                     Swal.fire({
                                         icon: "error",
-                                        title: "Lỗi!",
+                                        title: "Error!",
                                         text: response.message,
                                         confirmButtonText: "OK"
                                     });
@@ -406,8 +420,8 @@
                             error: function () {
                                 Swal.fire({
                                     icon: "error",
-                                    title: "Lỗi!",
-                                    text: "Có lỗi xảy ra khi gửi yêu cầu!",
+                                    title: "Error!",
+                                    text: "An error occurred while sending the request!",
                                     confirmButtonText: "OK"
                                 });
                             }
@@ -424,16 +438,14 @@
                                 if (response.success) {
                                     Swal.fire({
                                         icon: "success",
-                                        title: "Thành công!",
+                                        title: "Success!",
                                         text: response.message,
                                         confirmButtonText: "OK"
-                                    }).then(() => {
-                                        location.reload();
-                                    });
+                                    }).then(() => location.reload());
                                 } else {
                                     Swal.fire({
                                         icon: "error",
-                                        title: "Lỗi!",
+                                        title: "Error!",
                                         text: response.message,
                                         confirmButtonText: "OK"
                                     });
@@ -442,8 +454,8 @@
                             error: function () {
                                 Swal.fire({
                                     icon: "error",
-                                    title: "Lỗi!",
-                                    text: "Có lỗi xảy ra khi gửi yêu cầu!",
+                                    title: "Error!",
+                                    text: "An error occurred while sending the request!",
                                     confirmButtonText: "OK"
                                 });
                             }
