@@ -8,6 +8,7 @@
 <html class="no-js" lang="en">
 
 <head>
+    <link rel="shortcut icon" href="~/assetsAdmin/images/favicon.svg">
     <meta charset="utf-8" />
     <title>Nest - Multipurpose eCommerce HTML Template</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
@@ -21,7 +22,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="~/assets/imgs/theme/favicon.svg" />
     <!-- Template CSS -->
     <link rel="stylesheet" href="~/assets/css/main.css?v=6.0" />
-
+    @Html.Raw(" <link href='https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons/css/all/all.css' rel='stylesheet'>")
 
    @*  admin css *@
 
@@ -66,13 +67,13 @@
                                             <h5 class="mb-4">Chats</h5>
                                         </div>
                                         <div class="flex-shrink-0">
-                                            <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Add Contact">
+                                           @*  <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Add Contact">
 
                                                 <!-- Button trigger modal -->
                                                 <button type="button" class="btn btn-soft-success btn-sm material-shadow-none">
                                                     <i class="ri-add-line align-bottom"></i>
                                                 </button>
-                                            </div>
+                                            </div> *@
                                         </div>
                                     </div>
                                     <div class="search-box">
@@ -99,15 +100,12 @@
                                         <div class="chat-room-list pt-3" data-simplebar>
                                             <div class="d-flex align-items-center px-4 mb-2">
                                                 <div class="flex-grow-1">
-                                                    <h4 class="mb-0 fs-11 text-muted text-uppercase">Direct Messages</h4>
+                                                    <h4 class="mb-0 fs-11 text-muted text-uppercase">List Messages</h4>
                                                 </div>
                                                 <div class="flex-shrink-0">
                                                     <div data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="New Message">
 
-                                                        <!-- Button trigger modal -->
-                                                        <button type="button" class="btn btn-soft-success btn-sm shadow-none material-shadow">
-                                                            <i class="ri-add-line align-bottom"></i>
-                                                        </button>
+                                                        
                                                     </div>
                                                 </div>
                                             </div>
@@ -119,7 +117,7 @@
                                             </div>
 
                                             <div class="d-flex align-items-center px-4 mt-4 pt-2 mb-2">
-                                                <div class="flex-grow-1">
+                                               @*  <div class="flex-grow-1">
                                                     <h4 class="mb-0 fs-11 text-muted text-uppercase">Channels</h4>
                                                 </div>
                                                 <div class="flex-shrink-0">
@@ -129,7 +127,7 @@
                                                             <i class="ri-add-line align-bottom"></i>
                                                         </button>
                                                     </div>
-                                                </div>
+                                                </div> *@
                                             </div>
 
                                             <div class="chat-message-list">
@@ -175,7 +173,7 @@
                                                                             <span class="user-status"></span>
                                                                         </div>
                                                                         <div class="flex-grow-1 overflow-hidden">
-                                                                            <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username" data-bs-toggle="offcanvas" href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">Lisa Parker</a></h5>
+                                                                            <h5 class="text-truncate mb-0 fs-16"><a class="text-reset username"></a></h5>
                                                                             <p id="active-user-status-text" class="text-truncate text-muted fs-14 mb-0 userStatus"><small></small></p>
                                                                         </div>
                                                                     </div>
@@ -200,7 +198,7 @@
                                                                     </div>
                                                                 </li>
 
-                                                                <li class="list-inline-item d-none d-lg-inline-block m-0">
+                                                             @*    <li class="list-inline-item d-none d-lg-inline-block m-0">
                                                                     <button type="button" class="btn btn-ghost-secondary btn-icon material-shadow-none" data-bs-toggle="offcanvas" data-bs-target="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info icon-sm"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                                                     </button>
@@ -218,7 +216,7 @@
                                                                             <a class="dropdown-item" href="#"><i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i> Delete</a>
                                                                         </div>
                                                                     </div>
-                                                                </li>
+                                                                </li> *@
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -919,8 +917,7 @@
                         </a>
                         <div class="dropdown-menu">
                             <a class="dropdown-item reply-message" href="#"><i class="ri-reply-line me-2"></i>Reply</a>
-                            <a class="dropdown-item copy-message" href="#"><i class="ri-file-copy-line me-2"></i>Copy</a>
-                            <a class="dropdown-item delete-item" href="#"><i class="ri-delete-bin-5-line me-2"></i>Delete</a>
+                            <a class="dropdown-item copy-message" href="#"><i class="ri-file-copy-line me-2"></i>Copy</a> 
                         </div>
                     </div>
                 `;

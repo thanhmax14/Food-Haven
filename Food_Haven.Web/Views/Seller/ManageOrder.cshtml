@@ -15,8 +15,8 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="~/assetsAdmin/images/favicon.svg">
 
-    <!-- Sweet Alert css-->
-    <link href="~/assetsAdmin/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <!-- gridjs css -->
+    <link rel="stylesheet" href="~/assetsAdmin/libs/gridjs/theme/mermaid.min.css">
 
     <!-- Layout config Js -->
     <script src="~/assetsAdmin/js/layout.js"></script>
@@ -28,20 +28,33 @@
     <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="/~/assetsAdmin/libs/gridjs/gridjs.umd.js">
-    <link rel="stylesheet" href="/~/assetsAdmin/libs/gridjs/theme/mermaid.min.css">
-    <!-- Grid.js CSS -->
-    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-    <!-- Bootstrap CSS -->
-    <!-- Remix Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-    <!-- Lord Icon -->
-    <script src="https://cdn.lordicon.com/libs/mssddfmo/lord-icon-2.1.0.js"></script>
+    <style>
+        /* Đồng bộ màu nền toàn bộ phần content */
+        @* .main-content,
+        .page-content,
+        .card-body,
+        .tab-content,
+        .gridjs-wrapper {
+            background-color: #ffffff !important;
+            /* hoặc đổi sang #f3f3f9 nếu bạn thích nền xám nhẹ */
+        } *@
+        /* Nếu muốn lược bỏ bóng của card (tùy template) */
+        .card-body {
+            box-shadow: none !important;
+        }
+
+        /* Chỉnh màu bảng nếu Grid.js vẫn lệch */
+        @* .gridjs-table {
+            background-color: #ffffff !important;
+        } *@
+    </style>
 
 </head>
 
 <body>
+    <style>
 
+    </style>
     <!-- Begin page -->
     <div id="layout-wrapper">
 
@@ -187,56 +200,94 @@
 
                             <div class="card-body pt-0">
                                 <div>
-                                    <ul class="nav nav-tabs nav-tabs-custom nav-success mb-3" role="tablist">
-                                        <!-- Existing tabs... -->
+                                    <ul class="nav nav-tabs mb-3" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Pending active" data-bs-toggle="tab" href="#pending" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 active" data-bs-toggle="tab" href="#all" role="tab" aria-selected="true">
+                                                <i class="ri-list-check-2 me-1 align-bottom"></i> All
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link py-3 Pending" data-bs-toggle="tab" href="#pending" role="tab">
                                                 <i class="ri-time-line me-1 align-bottom"></i> Pending
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Preparing" data-bs-toggle="tab" href="#preparing" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 Preparing" data-bs-toggle="tab" href="#preparing" role="tab">
                                                 <i class="ri-restaurant-line me-1 align-bottom"></i> Preparing
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Delivering" data-bs-toggle="tab" href="#delivering" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 Delivering" data-bs-toggle="tab" href="#delivering" role="tab">
                                                 <i class="ri-truck-line me-1 align-bottom"></i> Delivering
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 Confirmed" data-bs-toggle="tab" href="#confirmed" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 Confirmed" data-bs-toggle="tab" href="#confirmed" role="tab">
                                                 <i class="ri-checkbox-circle-line me-1 align-bottom"></i> Confirmed
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 CancelledUser" data-bs-toggle="tab" href="#cancelledUser" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 CancelledUser" data-bs-toggle="tab" href="#cancelledUser" role="tab">
                                                 <i class="ri-close-circle-line me-1 align-bottom"></i> Cancelled by User
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 CancelledShop" data-bs-toggle="tab" href="#cancelledShop" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 CancelledShop" data-bs-toggle="tab" href="#cancelledShop" role="tab">
                                                 <i class="ri-store-3-line me-1 align-bottom"></i> Cancelled by Shop
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link py-3 FailedDelivery" data-bs-toggle="tab" href="#failedDelivery" role="tab" aria-selected="false">
+                                            <a class="nav-link py-3 FailedDelivery" data-bs-toggle="tab" href="#failedDelivery" role="tab">
                                                 <i class="ri-error-warning-line me-1 align-bottom"></i> Delivery Failed
                                             </a>
                                         </li>
                                     </ul>
 
 
-                                    <div class="tab-content">
-                                        <div class="tab-pane active" id="pending" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="pendingTable"></div></div></div>
-                                        <div class="tab-pane" id="preparing" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="preparingTable"></div></div></div>
-                                        <div class="tab-pane" id="delivering" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="deliveringTable"></div></div></div>
-                                        <div class="tab-pane" id="confirmed" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="confirmedTable"></div></div></div>
-                                        <div class="tab-pane" id="cancelledUser" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="cancelledUserTable"></div></div></div>
-                                        <div class="tab-pane" id="cancelledShop" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="cancelledShopTable"></div></div></div>
-                                        <div class="tab-pane" id="failedDelivery" role="tabpanel"><div class="table-responsive table-card mb-1"><div id="failedDeliveryTable"></div></div></div>
 
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="all" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="allTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="pending" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="pendingTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="preparing" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="preparingTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="delivering" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="deliveringTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="confirmed" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="confirmedTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="cancelledUser" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="cancelledUserTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="cancelledShop" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="cancelledShopTable"></div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="failedDelivery" role="tabpanel">
+                                            <div class="table-responsive table-card mb-1">
+                                                <div id="failedDeliveryTable"></div>
+                                            </div>
+                                        </div>
                                     </div>
+
                                 </div>
                             </div>
 
@@ -342,36 +393,24 @@
                                                     ...item,
                                                     stt: index + 1 // ✅ Reset STT cho từng bảng
                                                 })),
-                                                sort: true,
-                                                pagination: { enabled: true, limit: 5 },
-                                                search: true,
-                                                language: {
-                                                    search: {
-                                                        placeholder: ''
-                                                    },
-                                                    pagination: {
-                                                        previous: 'Previous',
-                                                        next: 'Next',
-                                                        showing: 'Showing',
-                                                        results: () => 'orders'
-                                                    },
-                                                    loading: 'Loading...',
-                                                    noRecordsFound: 'No orders found.'
-                                                }
-
-                                            }).render(document.getElementById(elementId));
+                                                                                    pagination: { enabled: true, limit: 10 },
+                                    search: true,
+                                    sort: true
+                                }).render(document.getElementById(elementId));
                                         }
 
 
-                                        const statusMappings = {
-                                            "pendingTable": "PENDING",
-                                            "preparingTable": "PREPARING IN KITCHEN",
-                                            "deliveringTable": "DELIVERING",
-                                            "confirmedTable": "CONFIRMED",
-                                            "cancelledUserTable": "CANCELLED BY USER",
-                                            "cancelledShopTable": "CANCELLED BY SHOP",
-                                            "failedDeliveryTable": "DELIVERY FAILED"
-                                        };
+                                    const statusMappings = {
+                                    "allTable": null,
+                                    "pendingTable": "PENDING",
+                                    "preparingTable": "PREPARING IN KITCHEN",
+                                    "deliveringTable": "DELIVERING",
+                                    "confirmedTable": "CONFIRMED",
+                                    "cancelledUserTable": "CANCELLED BY USER",
+                                    "cancelledShopTable": "CANCELLED BY SHOP",
+                                    "failedDeliveryTable": "DELIVERY FAILED"
+                                };
+
 
                                         Object.entries(statusMappings).forEach(([elementId, status]) => {
                                             const container = document.getElementById(elementId);
@@ -402,6 +441,8 @@
             </div>
             <!-- container-fluid -->
         </div>
+
+
         <!-- End Page-content -->
         <!-- <div class="modal fade flip show" id="deleteOrder" tabindex="-1" style="display: block;" aria-modal="true"
             role="dialog">
@@ -470,41 +511,7 @@
 
     <!-- App js -->
     <script src="~/assetsAdmin/js/app.js"></script>
-    <style>
-        /* Màu số phân trang là đen */
-        .gridjs .gridjs-pages button {
-            color: #000 !important;
-        }
-
-        /* Đậm hơn khi đang chọn */
-        .gridjs .gridjs-pages .gridjs-currentPage {
-            font-weight: bold;
-            text-decoration: underline;
-        }
-
-        /* Tùy chọn nút nhỏ */
-        .gridjs .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 4px;
-        }
-/* 
-        input.gridjs-input {
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            background-color: #fff !important;
-            border: 1px solid #d2d6dc !important;
-            border-radius: 5px !important;
-            font-size: 14px !important;
-            line-height: 1.45 !important;
-            outline: none !important;
-            padding: 0 0 32.4px 14px !important;
-        } */
-
-
-    </style>
-
+  
 </body>
 
 
