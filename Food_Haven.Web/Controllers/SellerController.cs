@@ -1134,10 +1134,6 @@ namespace Food_Haven.Web.Controllers
             var getOrder = await _order.FindAsync(u => u.ID == getOrderDetail.OrderID);
             if (getOrder == null)
                 return NotFound("Order not found.");
-
-            var getStore = await _storedetail.FindAsync(u => u.UserID == user.Id);
-            if (getStore == null)
-                return NotFound("Store not found.");
             var getProductType = await this._variantService.FindAsync(u => u.ID == getOrderDetail.ProductTypesID);
             if (getProductType == null)
                 return NotFound("Productype not found.");
@@ -1147,7 +1143,9 @@ namespace Food_Haven.Web.Controllers
             var getUser = await _userManager.FindByIdAsync(getOrder.UserID);
             if (getUser == null)
                 return NotFound("User not found.");
-
+            var getStore = await _storedetail.FindAsync(u => u.ID == getProduct.StoreID);
+            if (getStore == null)
+                return NotFound("Store not found.");
             var model = new ComplantDetailViewmodels();
             model.Status = getComplaint.Status;
             model.CreateDate = getComplaint.CreatedDate;
