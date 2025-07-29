@@ -36,7 +36,7 @@ namespace Models
         public ICollection<Recipe> Recipes { get; set; }
         public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
         public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
-
+        public ICollection<RecipeViewHistory> RecipeViewHistories { get; set; }
 
     }
 }
