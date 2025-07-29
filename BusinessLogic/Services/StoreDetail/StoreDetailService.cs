@@ -95,7 +95,7 @@ namespace BusinessLogic.Services.StoreDetail
             storeDetails.Phone = phone;
             storeDetails.ImageUrl = img;
             storeDetails.ModifiedDate = DateTime.Now;
-
+            storeDetails.Status = "Pending";
             await _repository.UpdateAsync(storeDetails);
             return true;
         }

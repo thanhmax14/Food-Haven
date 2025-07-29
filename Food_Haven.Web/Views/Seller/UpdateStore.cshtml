@@ -429,41 +429,33 @@
                 </script>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
-                    @if (ViewBag.Success != null)
+                    @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'success',
+                                title: 'Store Updated!',
+                                text: 'Your store has been successfully updated.',
+                                showConfirmButton: false,
+                                timer: 2000
+                                    }).then(() => {
+                                    window.location.href = '/Seller/ViewStore';
+                                    });
+                            </text>
+                    }
+                </script>
+
+                <script>
+                        @if (TempData["UpdateSuccess"] != null && (bool)TempData["UpdateSuccess"])
                         {
                             <text>
                                 Swal.fire({
                                     icon: 'success',
                                 title: 'Success',
-                                text: '@ViewBag.Success',
+                                text: 'Your store has been successfully updated!',
                                 showConfirmButton: false,
-                                timer: 2000, // tự động đóng sau 2 giây
-                                                            });
-                            </text>
-                    }
-                </script>
-                <script>
-                        @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
-                        {
-                            <text>
-                                Swal.fire({
-                                    icon: 'success',
-                                title: 'Product Updated!',
-                                text: 'Your product has been successfully updated.',
-                                timer: 2000,
-                                showConfirmButton: false
-                                                            });
-                            </text>
-                    }
-
-                        @if (ViewBag.UpdateError != null)
-                        {
-                            <text>
-                                Swal.fire({
-                                    icon: 'error',
-                                title: 'Update Failed',
-                                text: '@ViewBag.UpdateError'
-                                                            });
+                                timer: 2000
+                                                    });
                             </text>
                     }
                 </script>
