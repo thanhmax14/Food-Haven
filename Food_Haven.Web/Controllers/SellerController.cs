@@ -574,7 +574,10 @@ namespace Food_Haven.Web.Controllers
             }
 
             // ✅ Gọi từ Service thay vì dùng _context
-            model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(productId);
+            //model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(productId);
+            model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(productId);
+            model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(productId); // lấy riêng ảnh chính
+
 
             var isStoreActive = await _productService.IsStoreActiveByProductIdAsync(productId);
             ViewBag.IsStoreActive = isStoreActive;
@@ -623,8 +626,11 @@ namespace Food_Haven.Web.Controllers
                 ViewBag.UpdateSuccess = false;
             }
 
+            // model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
+            // model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
             model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
             model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
+
             model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
             {
                 Value = c.ID.ToString(),
@@ -656,66 +662,66 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateStore(StoreViewModel model, IFormFile? ImgFile)
         {
-            if (ModelState.IsValid)
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized();
+            // if (ModelState.IsValid)
+            // {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
 
-                bool isSeller = await _storeDetailService.IsUserSellerAsync(user.Id);
-                if (!isSeller)
+            bool isSeller = await _storeDetailService.IsUserSellerAsync(user.Id);
+            if (!isSeller)
+            {
+                ModelState.AddModelError("", "You do not have permission to create a store.");
+                return View(model);
+            }
+
+            var storeEntity = _mapper.Map<StoreDetails>(model);
+            storeEntity.UserID = user.Id;
+            storeEntity.Status = "Pending";
+            storeEntity.IsActive = true;
+            storeEntity.CreatedDate = DateTime.Now;
+            storeEntity.ModifiedDate = null;
+
+            storeEntity.LongDescriptions = model.LongDescriptions?.Trim();
+            storeEntity.ShortDescriptions = model.ShortDescriptions?.Trim();
+            storeEntity.Address = model.Address?.Trim();
+            storeEntity.Phone = model.Phone?.Trim();
+
+            if (ImgFile != null && ImgFile.Length > 0)
+            {
+                string[] allowedExtensions = { ".png", ".jpeg", ".jpg" };
+                string extension = Path.GetExtension(ImgFile.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(extension))
                 {
-                    ModelState.AddModelError("", "You do not have permission to create a store.");
+                    ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported.");
                     return View(model);
                 }
 
-                var storeEntity = _mapper.Map<StoreDetails>(model);
-                storeEntity.UserID = user.Id;
-                storeEntity.Status = "Pending";
-                storeEntity.IsActive = true;
-                storeEntity.CreatedDate = DateTime.Now;
-                storeEntity.ModifiedDate = null;
-
-                storeEntity.LongDescriptions = model.LongDescriptions?.Trim();
-                storeEntity.ShortDescriptions = model.ShortDescriptions?.Trim();
-                storeEntity.Address = model.Address?.Trim();
-                storeEntity.Phone = model.Phone?.Trim();
-
-                if (ImgFile != null && ImgFile.Length > 0)
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploadsFolder))
                 {
-                    string[] allowedExtensions = { ".png", ".jpeg", ".jpg" };
-                    string extension = Path.GetExtension(ImgFile.FileName).ToLower();
-
-                    if (!allowedExtensions.Contains(extension))
-                    {
-                        ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported.");
-                        return View(model);
-                    }
-
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-
-                    string uniqueFileName = Guid.NewGuid().ToString() + extension;
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImgFile.CopyToAsync(fileStream);
-                    }
-
-                    storeEntity.ImageUrl = "/uploads/" + uniqueFileName;
+                    Directory.CreateDirectory(uploadsFolder);
                 }
 
-                await _storeDetailService.AddStoreAsync(storeEntity, user.Id);
+                string uniqueFileName = Guid.NewGuid().ToString() + extension;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // 🟢 Dùng Session thay vì TempData
-                HttpContext.Session.SetString("SuccessMessage", "Store registration successful! Please wait for admin approval.");
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImgFile.CopyToAsync(fileStream);
+                }
 
-                return RedirectToAction("ViewStore"); // Điều hướng sau khi tạo thành công
+                storeEntity.ImageUrl = "/uploads/" + uniqueFileName;
             }
-            return View(model);
+
+            await _storeDetailService.AddStoreAsync(storeEntity, user.Id);
+
+            // 🟢 Dùng Session thay vì TempData
+            HttpContext.Session.SetString("SuccessMessage", "Store registration successful! Please wait for admin approval.");
+
+            return RedirectToAction("ViewStore"); // Điều hướng sau khi tạo thành công
+            // }
+            //return View(model);
         }
 
         public async Task<IActionResult> ViewProductType(Guid productId)
@@ -1583,10 +1589,10 @@ namespace Food_Haven.Web.Controllers
                 errors["code"] = "Code is required.";
             else
             {
-               if(v.Code.Length < 3 || v.Code.Length > 20)
+                if (v.Code.Length < 3 || v.Code.Length > 20)
                     errors["code"] = "Code must be between 3 and 20 characters.";
                 else if (await _voucher.FindAsync
-                    (x => x.Code == v.Code.ToUpper() && x.StoreID == store.ID)!=null)
+                    (x => x.Code == v.Code.ToUpper() && x.StoreID == store.ID) != null)
                     errors["code"] = "Code already exists for this store.";
             }
             if (v.DiscountAmount <= 0)
@@ -2503,7 +2509,7 @@ namespace Food_Haven.Web.Controllers
                 Phone = store.Phone,
                 Img = store.ImageUrl,
                 Status = "Pending",
-                IsActive = false,
+                IsActive = true,
                 UserID = store.UserID,
                 UserName = user.UserName
             };
@@ -2568,7 +2574,7 @@ namespace Food_Haven.Web.Controllers
                     await imageFile.CopyToAsync(stream);
                 }
 
-                model.Img = fileName;
+                model.Img = "/uploads/" + fileName;
             }
 
             // Cập nhật thông tin
@@ -2583,7 +2589,7 @@ namespace Food_Haven.Web.Controllers
             store.Address = model.Address;
             store.ImageUrl = model.Img;
             store.Status = "Pending";
-            store.IsActive = false;
+            store.IsActive = true;
             store.ModifiedDate = DateTime.Now;
 
             await _storedetail.UpdateAsync(store);
@@ -2594,7 +2600,8 @@ namespace Food_Haven.Web.Controllers
             model.ModifiedDate = store.ModifiedDate;
 
             ViewBag.SuccessMessage = "Store registration updated. Waiting for approval.";
-            return View(model); // 👈 Không redirect nữa
+            //return View(model); // 👈 Không redirect nữa
+            return RedirectToAction("ViewStore");
         }
 
         [HttpGet]

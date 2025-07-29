@@ -3,7 +3,7 @@
 @{
     var mainImage = Model.ExistingImages?.FirstOrDefault();
     var totalImages = Model.ExistingImages?.Count ?? 0;
-    var galleryImages = Model.ExistingImages?.Where(i => i != Model.ExistingMainImage).ToList() ?? new List<string>();
+    var galleryImages = Model.ExistingImages?.ToList() ?? new List<string>();
     string storeStatusText = ViewBag.StoreStatusText as string ?? "Approved";
 }
 
@@ -267,9 +267,8 @@
                                                             </div>
                                                             <div class="avatar-lg">
                                                                 <div class="avatar-title bg-light rounded">
-                                                                    <img src="@Model.ExistingImages?.FirstOrDefault()"
-                                                                        id="product-img" class="avatar-md h-auto"
-                                                                        style="object-fit: cover;" />
+                                                                    <img src="@Model.ExistingMainImage" id="product-img"
+                                                                        class="avatar-md h-auto" style="object-fit: cover;" />
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -316,7 +315,6 @@
 
 
 
-
                 <style>
                     .existing-image {
                         max-width: 100px;
@@ -355,7 +353,7 @@
                                 text: 'Your product has been successfully updated.',
                                 timer: 2000,
                                 showConfirmButton: false
-                                                                                        });
+                                    });
                             </text>
                     }
                 </script>

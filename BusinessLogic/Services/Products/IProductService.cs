@@ -31,7 +31,7 @@ namespace BusinessLogic.Services.Products
             Expression<Func<Product, bool>> filter = null,
             Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
             Func<IQueryable<Product>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Product, object>> includeProperties = null);
-        Task<bool>  CreateProductAsync(ProductViewModel model, string userId, List<ProductImageViewModel> images);
+        Task<bool> CreateProductAsync(ProductViewModel model, string userId, List<ProductImageViewModel> images);
         Task<Guid> GetCurrentStoreIDAsync(string userId);
         Task<List<ProductListViewModel>> GetAllProductsAsync(Guid storeId);
         List<ProductIndexViewModel> GetProductsByStoreId(Guid storeId);
@@ -45,5 +45,7 @@ namespace BusinessLogic.Services.Products
         Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId);
         Task<List<Categories>> GetActiveCategoriesAsync();
         Task<Product> FindWithStoreAndUserAsync(Guid id);
+        Task<List<string>> GetGalleryImageUrlsByProductIdAsync(Guid productId);
+        Task<string> GetMainImageUrlsByProductIdAsync(Guid productId);
     }
 }
