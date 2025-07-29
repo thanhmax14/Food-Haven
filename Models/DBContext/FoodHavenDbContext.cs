@@ -14,7 +14,7 @@ namespace Models.DBContext
         public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
         }
-*/
+
 
         public DbSet<IngredientTag> IngredientTag { get; set; }
         public DbSet<TypeOfDish> TypeOfDish { get; set; }
