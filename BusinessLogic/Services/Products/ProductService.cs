@@ -26,7 +26,7 @@ namespace BusinessLogic.Services.Products
         private readonly ProductsRepository _repositorys;
         private readonly IWebHostEnvironment _env;
         private readonly FoodHavenDbContext _context;
-        public ProductService(IProductsRepository repository,FoodHavenDbContext context, IMapper mapper, CategoryRepository categoryRepository, ProductImageRepository productImageRepository, ProductsRepository repositorys, IWebHostEnvironment env)
+        public ProductService(IProductsRepository repository, FoodHavenDbContext context, IMapper mapper, CategoryRepository categoryRepository, ProductImageRepository productImageRepository, ProductsRepository repositorys, IWebHostEnvironment env)
         {
             _context = context;
             _repository = repository;
@@ -216,7 +216,7 @@ namespace BusinessLogic.Services.Products
 
         public List<ProductIndexViewModel> GetProductsByCurrentUser(string userId)
         {
-            return  _repositorys.GetProductsByCurrentUser(userId);
+            return _repositorys.GetProductsByCurrentUser(userId);
         }
         public async Task<bool?> IsStoreActiveByProductIdAsync(Guid productId)
         {
@@ -238,6 +238,14 @@ namespace BusinessLogic.Services.Products
                 .Include(p => p.StoreDetails)
                 .ThenInclude(sd => sd.AppUser)
                 .FirstOrDefaultAsync(p => p.ID == id);
+        }
+        public async Task<List<string>> GetGalleryImageUrlsByProductIdAsync(Guid productId)
+        {
+            return await _repositorys.GetGalleryImageUrlsByProductIdAsync(productId);
+        }
+        public async Task<string> GetMainImageUrlsByProductIdAsync(Guid productId)
+        {
+            return await _repositorys.GetMainImageUrlByProductIdAsync(productId);
         }
     }
 }

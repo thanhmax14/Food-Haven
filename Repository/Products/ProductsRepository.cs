@@ -417,5 +417,20 @@ namespace Repository.Products
 
             return await UpdateStatusAsync(productId, newStatus);
         }
+        public async Task<List<string>> GetGalleryImageUrlsByProductIdAsync(Guid productId)
+        {
+            return await _context.ProductImages
+                .Where(p => p.ProductID == productId && !p.IsMain) // chỉ lấy ảnh phụ
+                .Select(p => p.ImageUrl)
+                .ToListAsync();
+        }
+        public async Task<string> GetMainImageUrlByProductIdAsync(Guid productId)
+        {
+            return await _context.ProductImages
+                .Where(p => p.ProductID == productId && p.IsMain)
+                .Select(p => p.ImageUrl)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }
