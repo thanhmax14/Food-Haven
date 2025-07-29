@@ -345,16 +345,17 @@
                         }
 
                         function updateUIAfterToggle(button, isActive) {
-                            // Cập nhật lại nút
+                            // Cập nhật trạng thái active
                             button.dataset.active = isActive;
                             button.classList.remove("btn-success", "btn-danger");
 
+                            // Thêm icon và nội dung tương ứng
                             if (isActive) {
                                 button.classList.add("btn-danger");
-                                button.textContent = "Hide";
+                                button.innerHTML = '<i class="ri-eye-off-line align-bottom me-1"></i>Hide';
                             } else {
                                 button.classList.add("btn-success");
-                                button.textContent = "Show";
+                                button.innerHTML = '<i class="ri-eye-line align-bottom me-1"></i>Show';
                             }
 
                             // Cập nhật badge trạng thái
