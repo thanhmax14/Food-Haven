@@ -841,7 +841,7 @@
                                 modalTitle.textContent = "Edit Voucher";
 
                                 try {
-                                    const res = await fetch(`/seller/GetVoucher/${id}`);
+                                    const res = await fetch(`/Admin/GetVoucher/${id}`);
                                     const v = await res.json();
 
                                     // Populate form with existing data
