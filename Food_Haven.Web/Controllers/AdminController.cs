@@ -1270,11 +1270,7 @@ namespace Food_Haven.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new { error = "You are not logged in!" });
-
-            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
-            if (store == null)
-                return Json(new { error = "Store not found." });
+                return Json(new { error = "You are not logged in!" });   
             var errors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(v.Code))
                 errors["code"] = "Code is required.";
@@ -1363,15 +1359,9 @@ namespace Food_Haven.Web.Controllers
             }
         }
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> UpdateVoucher([FromBody] VoucherViewModel v)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return Json(new { error = "You are not logged in!" });
-
-            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
-            if (store == null)
-                return Json(new { error = "Store not found." });
             var errors = new Dictionary<string, string>();
 
             if (string.IsNullOrWhiteSpace(v.Code))
@@ -1399,6 +1389,7 @@ namespace Food_Haven.Web.Controllers
             if (string.IsNullOrWhiteSpace(v.Scope) && v.DiscountType != "Fixed")
                 errors["scope"] = "Scope is required.";
 
+
             if (v.MaxUsage < 0)
                 errors["maxUsage"] = "Max usage must be 0 or greater.";
 
@@ -1422,7 +1413,6 @@ namespace Food_Haven.Web.Controllers
             {
                 result = null;
             }
-
             try
             {
                 var entity = await _voucher.FindAsync(x => x.ID == v.ID);
@@ -1434,7 +1424,7 @@ namespace Food_Haven.Web.Controllers
                 entity.DiscountType = v.DiscountType;
                 entity.StartDate = startDate;
                 entity.ExpirationDate = expirationDate;
-                entity.MaxDiscountAmount = decimal.Parse(v.Scope);
+                entity.MaxDiscountAmount = result;
                 entity.MaxUsage = v.MaxUsage;
                 entity.CurrentUsage = v.CurrentUsage;
                 entity.MinOrderValue = v.MinOrderValue;
