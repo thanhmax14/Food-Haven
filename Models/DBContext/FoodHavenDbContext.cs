@@ -14,7 +14,7 @@ namespace Models.DBContext
         public FoodHavenDbContext(DbContextOptions<FoodHavenDbContext> options) : base(options)
         {
         }
-
+*/
 
         public DbSet<IngredientTag> IngredientTag { get; set; }
         public DbSet<TypeOfDish> TypeOfDish { get; set; }
@@ -290,7 +290,17 @@ new TypeOfDish
                 .WithMany(m => m.Replies)
                 .HasForeignKey(m => m.RepliedToMessageId)
                 .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<RecipeViewHistory>()
+       .HasOne(h => h.AppUser)
+       .WithMany(u => u.RecipeViewHistories)
+       .HasForeignKey(h => h.UserID)
+       .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<RecipeViewHistory>()
+                .HasOne(h => h.ExpertRecipe)
+                .WithMany(r => r.ViewHistories)
+                .HasForeignKey(h => h.ExpertRecipeId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
 
@@ -302,7 +312,7 @@ new TypeOfDish
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-       => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+        => optionsBuilder.UseSqlServer("Server=tcp:foodhaven.database.windows.net,1433;Initial Catalog=FoodHaven;Persist Security Info=False;User ID=giahuy;Password=Xinchao123@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
 
     }
