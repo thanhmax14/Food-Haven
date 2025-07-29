@@ -2536,11 +2536,17 @@ namespace Food_Haven.Web.Controllers
                 ModelState.AddModelError("Address", "Address is required.");
 
             // Nếu không có ảnh cũ và cũng không upload ảnh mới → lỗi
-            if (string.IsNullOrEmpty(model.Img) && (imageFile == null || imageFile.Length == 0))
-                ModelState.AddModelError("Img", "Please upload an image.");
+            bool hasOldImage = !string.IsNullOrEmpty(model.Img);
+            bool hasNewImage = imageFile != null && imageFile.Length > 0;
 
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!hasOldImage && !hasNewImage)
+            {
+                ModelState.AddModelError("Img", "Please upload an image.");
+            }
+
+
+            // if (!ModelState.IsValid)
+            //     return View(model);
 
             // Upload ảnh mới nếu có
             if (imageFile != null && imageFile.Length > 0)
@@ -2705,7 +2711,7 @@ namespace Food_Haven.Web.Controllers
             var existingStore = await _storedetail.GetStoreByIdAsync(id);
             if (existingStore == null)
             {
-                ModelState.AddModelError("", "Không tìm thấy cửa hàng.");
+                ModelState.AddModelError("", "No store found.");
                 return View(model);
             }
 
@@ -2718,7 +2724,7 @@ namespace Food_Haven.Web.Controllers
 
                 if (!allowedExtensions.Contains(extension))
                 {
-                    ModelState.AddModelError("Img", "Chỉ hỗ trợ file ảnh (.png, .jpeg, .jpg)");
+                    ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported.");
                     return View(model);
                 }
 
@@ -2746,10 +2752,12 @@ namespace Food_Haven.Web.Controllers
 
             if (!success)
             {
-                ModelState.AddModelError("", "Cập nhật cửa hàng thất bại.");
+                ModelState.AddModelError("", "Store update failed.");
                 return View(model);
             }
 
+            //ViewBag.UpdateSuccess = true;
+            //return View(model); // Trả về lại trang UpdateStore để hiển thị thông báo
             return RedirectToAction("ViewStore");
         }
 
