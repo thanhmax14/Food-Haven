@@ -565,14 +565,21 @@ namespace Food_Haven.Web.Controllers
                 {
                     return Json(new ErroMess { msg = "Voucher code is not applicable for this store!" });
                 }
-                decimal discount = Voucher.DiscountType == "Percent"
-                ? listItem.Sum(x => x.ItemPrice * x.ItemQuantity) * Voucher.DiscountAmount / 100
-                : Voucher.DiscountAmount;
+               decimal subtotal = listItem.Sum(x => x.ItemPrice * x.ItemQuantity);
 
-                if (Voucher.MaxDiscountAmount.HasValue)
-                    discount = Math.Min(discount, Voucher.MaxDiscountAmount.Value);
-                temInfo.discountamount = discount;
-                var finalAmount = listItem.Sum(x => x.ItemPrice * x.ItemQuantity) - discount;
+decimal discount = Voucher.DiscountType == "Percent"
+    ? subtotal * Voucher.DiscountAmount / 100
+    : Voucher.DiscountAmount;
+
+if (Voucher.MaxDiscountAmount.HasValue)
+    discount = Math.Min(discount, Voucher.MaxDiscountAmount.Value);
+
+// Không cho phép giảm quá tổng đơn
+discount = Math.Min(discount, subtotal);
+
+temInfo.discountamount = discount;
+var finalAmount = subtotal - discount;
+
                 temInfo.totalamount= finalAmount;
                 temInfo.voucher = voucherCode;
             }
