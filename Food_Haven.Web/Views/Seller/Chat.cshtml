@@ -1359,7 +1359,7 @@
                                     </div>
                                     <div class="flex-grow-1 overflow-hidden">
                                         <p class="text-truncate mb-0">${user.name || 'Unknown User'}</p>
-                                        <small class="text-muted userStatus">${user.status === 'online' ? 'Đang hoạt động' : `Hoạt động ${getTimeAgo(user.lastSeen || new Date())}`}</small>
+                                        <small class="text-muted userStatus">${user.status === 'online' ? 'Active now' : `Active ${getTimeAgo(user.lastSeen || new Date())}`}</small>
                                     </div>
                                     ${user.messagecount ? `<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">${user.messagecount}</span></div>` : ''}
                                 </div>
@@ -1431,11 +1431,11 @@
                     // ✅ Cập nhật trạng thái ban đầu của user được chọn
                     const user = users.find(u => u.id === otherUserId);
                     if (user) {
-                        const statusText = user.status === 'online' ? 'online' : `offline ${user.lastSeen || 'một lúc trước'}`;
+                        const statusText = user.status === 'online' ? 'online' : `offline ${user.lastSeen || 'ago'}`;
                         updateActiveUserStatus(statusText, otherUserId);
                     } else {
                         // Mặc định là offline nếu không tìm thấy thông tin user
-                        updateActiveUserStatus('offline một lúc trước', otherUserId);
+                        updateActiveUserStatus('offline ago', otherUserId);
                     }
 
                     // Handle reply card
@@ -1833,13 +1833,13 @@
                         const userStatusText = parent.querySelector('.userStatus');
                         if (userStatusText) {
                             if (isOnline) {
-                                userStatusText.textContent = "Đang hoạt động";
+                                userStatusText.textContent = "Active now";
                             } else {
                                 const lastSeenTime = statusText.replace("offline ", "");
                                 let timeAgo = getTimeAgo(lastSeenTime);
-                                if (timeAgo.toLowerCase().includes("invalid")) timeAgo = "một lúc trước";
+                                if (timeAgo.toLowerCase().includes("invalid")) timeAgo = "ago";
 
-                                userStatusText.textContent = `Hoạt động ${timeAgo}`;
+                                userStatusText.textContent = `Active ${timeAgo}`;
                             }
                         }
                     }
@@ -1869,17 +1869,17 @@
             const statusTextElement = document.querySelector('#active-user-status-text small');
             if (statusTextElement) {
                 if (statusText.includes("online")) {
-                    statusTextElement.textContent = "Đang hoạt động";
+                    statusTextElement.textContent = "Active now";
                 } else {
                     // Hiển thị thời gian offline
                     let lastSeen = getTimeAgo(statusText.replace('offline ', ''));
 
                     // Nếu kết quả là 'không xác định' hoặc 'Invalid Date' → fallback
                     if (lastSeen === "không xác định" || lastSeen.toLowerCase().includes("invalid")) {
-                        lastSeen = "một lúc trước";
+                        lastSeen = "ago";
                     }
 
-                    statusTextElement.textContent = `Hoạt động ${lastSeen}`;
+                    statusTextElement.textContent = `Active ${lastSeen}`;
 
                 }
             }
@@ -2059,11 +2059,11 @@
             return v.toString(16);
         });
     }
-    function getTimeAgo(lastSeenString) {
-        if (!lastSeenString) return "một lúc trước";
+           function getTimeAgo(lastSeenString) {
+        if (!lastSeenString) return "a moment ago";
 
         const lastSeen = new Date(lastSeenString);
-        if (isNaN(lastSeen)) return "một lúc trước"; // ⬅️ ✅ fallback ở đây luôn
+        if (isNaN(lastSeen)) return "a moment ago"; // ⬅️ ✅ fallback here as well
 
         const now = new Date();
         const diffMs = now - lastSeen;
@@ -2072,12 +2072,12 @@
         const diffHour = Math.floor(diffMin / 60);
         const diffDay = Math.floor(diffHour / 24);
 
-        if (diffSec < 60) return "vừa xong";
-        if (diffMin < 60) return `${diffMin} phút trước`;
-        if (diffHour < 24) return `${diffHour} giờ trước`;
-        if (diffDay < 7) return `${diffDay} ngày trước`;
+        if (diffSec < 60) return "just now";
+        if (diffMin < 60) return `${diffMin} minute(s) ago`;
+        if (diffHour < 24) return `${diffHour} hour(s) ago`;
+        if (diffDay < 7) return `${diffDay} day(s) ago`;
 
-        return lastSeen.toLocaleDateString('vi-VN');
+        return lastSeen.toLocaleDateString('en-US');
     }
 
 
