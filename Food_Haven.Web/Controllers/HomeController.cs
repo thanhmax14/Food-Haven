@@ -2133,7 +2133,7 @@ namespace Food_Haven.Web.Controllers
             var productTypes = await _productvarian.ListAsync(p => p.ProductID == id);
 
             //var reviews = (await _reviewService.ListAsync(r => r.ProductID == id)).ToList();
-            var reviews = (await _reviewService.ListAsync(r => r.ProductID == id && r.Status == false)).ToList();
+            var reviews = (await _reviewService.ListAsync(r => r.ProductID == id && r.Status == true)).ToList();
 
             foreach (var r in reviews)
             {
