@@ -2130,7 +2130,9 @@ namespace Food_Haven.Web.Controllers
             var productImages = await _productimg.ListAsync(p => p.ProductID == id);
             var productTypes = await _productvarian.ListAsync(p => p.ProductID == id);
 
-            var reviews = (await _reviewService.ListAsync(r => r.ProductID == id)).ToList();
+            //var reviews = (await _reviewService.ListAsync(r => r.ProductID == id)).ToList();
+            var reviews = (await _reviewService.ListAsync(r => r.ProductID == id && r.Status == false)).ToList();
+
             foreach (var r in reviews)
             {
                 r.AppUser = await _userManager.FindByIdAsync(r.UserID);
@@ -2186,7 +2188,9 @@ namespace Food_Haven.Web.Controllers
 
             // Bước 5: Lấy dữ liệu phụ
             var sameImages = await _productimg.ListAsync(i => sameProductIds.Contains(i.ProductID));
-            var sameReviews = await _reviewService.ListAsync(r => sameProductIds.Contains(r.ProductID));
+            //var sameReviews = await _reviewService.ListAsync(r => sameProductIds.Contains(r.ProductID));
+            var sameReviews = await _reviewService.ListAsync(r => sameProductIds.Contains(r.ProductID) && r.Status == false);
+
             var sameWishlists = !string.IsNullOrEmpty(userId)
                 ? await _wishlist.ListAsync(w => sameProductIds.Contains(w.ProductID) && w.UserID == userId)
                 : new List<Wishlist>();
