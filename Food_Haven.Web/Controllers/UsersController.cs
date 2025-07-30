@@ -514,7 +514,7 @@ namespace Food_Haven.Web.Controllers
                     return Json(new ErroMess { msg = "The quantity you wish to buy exceeds the available stock!" });
                 }
 
-                var getImg = await this._img.FindAsync(u => u.ProductID == id && u.IsMain);
+                var getImg = await this._img.FindAsync(u => u.ProductID == product.ProductID && u.IsMain);
 
                 var img = "https://nest-frontend-v6.vercel.app/assets/imgs/shop/product-1-1.jpg";
                 if (getImg != null)
@@ -528,7 +528,7 @@ namespace Food_Haven.Web.Controllers
                     ItemImage = img,
                     ItemPrice = getQuatity.SellPrice,
                     ItemQuantity = checkcart.Quantity,
-                    productID = product.ID,
+                    productID = product.ProductID,
 
                 });
 
