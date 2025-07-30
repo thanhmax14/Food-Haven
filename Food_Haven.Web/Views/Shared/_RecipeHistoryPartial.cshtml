@@ -4,8 +4,8 @@
 {
     <div class="empty-history text-center">
         <i class="fas fa-clock fa-2x mb-2 text-muted"></i>
-        <h5>Chưa có lịch sử xem</h5>
-        <p class="text-muted">Các recipe bạn đã xem sẽ xuất hiện ở đây</p>
+        <h5>No viewing history</h5>
+        <p class="text-muted">Recipes you have viewed will appear here</p>
     </div>
 }
 else
@@ -34,7 +34,7 @@ else
                         {
                             <div class="mb-2">
                                 <small class="text-success fw-bold">
-                                    <i class="fas fa-check-circle me-1"></i>Nguyên liệu phù hợp:
+                                    <i class="fas fa-check-circle me-1"></i>Suitable materials:
                                 </small>
                                 @foreach (var ing in matched)
                                 {
@@ -52,7 +52,7 @@ else
 
                         <div class="mb-2">
                             <small class="text-muted">
-                                <i class="fas fa-list me-1"></i>Tất cả nguyên liệu:
+                                <i class="fas fa-list me-1"></i>All ingredients:
                                 @allIngredients
                             </small>
                         </div>
@@ -63,7 +63,7 @@ else
                     {
                         <div class="mb-2">
                             <small class="text-muted">
-                                <i class="fas fa-link me-1"></i>Nguồn:
+                                <i class="fas fa-link me-1"></i>Source:
                                 @{
                                     var source = recipe.Source;
                                     if (Uri.IsWellFormedUriString(source, UriKind.Absolute))
@@ -87,7 +87,7 @@ else
 
                 <div class="ms-3 text-nowrap">
                     <a href="/Recipe/Details/@recipe.ID" class="btn btn-sm btn-outline-primary view-history-recipe" data-history-index="@index">
-                        <i class="fas fa-eye me-1"></i>Xem lại
+                        <i class="fas fa-eye me-1"></i>Review
                     </a>
                     <button class="btn btn-sm btn-outline-danger ms-1 delete-history-item" data-history-index="@index">
                         <i class="fas fa-trash"></i>

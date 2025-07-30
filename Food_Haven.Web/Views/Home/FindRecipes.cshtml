@@ -323,12 +323,12 @@
                          <ul class="nav nav-tabs mb-0" id="mainTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab">
-                                <i class="fas fa-magic me-2"></i>Tạo Recipe
+                                <i class="ml-10 fas fa-magic me-2"></i>Craete Recipe
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
-                                <i class="fas fa-history me-2"></i>Lịch sử xem <span id="historyCount" class="badge bg-light text-dark ms-1">0</span>
+                                    <i class="ml-10 fas fa-history me-2"></i>History View Recip<span id="historyCount" class="badge bg-light text-dark ms-1">0</span>
                             </button>
                         </li>
                     </ul>
@@ -352,7 +352,7 @@
                                     <div class="card-body">
                                         <div id="selected-Ingredients" class="d-flex flex-wrap gap-2 align-items-center" style="min-height: 60px;">
                                             <div class="text-muted w-100 text-center">
-                                                <i class="fas fa-hand-pointer me-2"></i>Chọn ít nhất 2 nguyên liệu để bắt đầu
+                                                <i class="fas fa-hand-pointer me-2"></i>Choose at least 2 ingredients to start
                                             </div>
                                         </div>
                                     </div>
@@ -376,17 +376,17 @@
                             <div class="tab-pane fade" id="history" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h4 class="mb-0">
-                                        <i class="fas fa-history me-2"></i>Lịch sử xem Recipe
+                                        <i class="fas fa-history me-2"></i>Recipe View History
                                     </h4>
                                     <button id="btn-clear-history" class="btn btn-outline-danger btn-sm">
-                                        <i class="fas fa-trash me-2"></i>Xóa lịch sử
+                                        <i class="fas fa-trash me-2"></i>Clear history
                                     </button>
                                 </div>
 
                                 <div id="historyList" data-loaded="false">
                                     <div class="text-center my-4">
                                         <div class="spinner-border text-secondary" role="status"></div>
-                                        <p class="mt-2">Đang tải lịch sử...</p>
+                                        <p class="mt-2">Loading history...</p>
                                     </div>
                                 </div>
                             </div>
@@ -621,7 +621,7 @@
                                                     $("#results").html(html);
                                                 },
                                                 error: function () {
-                                                    $("#results").html('<div class="alert alert-danger">Lỗi khi tìm công thức!</div>');
+                                                    $("#results").html('<div class="alert alert-danger">Error finding formula!</div>');
                                                 },
                                                 complete: function () {
                                                     $('#customLoading').fadeOut(100);
@@ -722,14 +722,14 @@
             $historyList.html(`
                 <div class="text-center my-4">
                     <div class="spinner-border text-secondary" role="status"></div>
-                    <p class="mt-2">Đang tải lịch sử...</p>
+                    <p class="mt-2">Loading history...</p>
                 </div>
             `);
 
             $.get('/Home/LoadRecipeViewHistory', function (html) {
                 $historyList.html(html);
             }).fail(function () {
-                $historyList.html('<div class="alert alert-danger text-center mt-3">Không thể tải lịch sử.</div>');
+                $historyList.html('<div class="alert alert-danger text-center mt-3">Unable to load history.</div>');
             });
         });
     });
