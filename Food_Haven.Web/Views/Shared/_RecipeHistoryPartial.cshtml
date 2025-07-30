@@ -4,8 +4,8 @@
 {
     <div class="empty-history text-center">
         <i class="fas fa-clock fa-2x mb-2 text-muted"></i>
-        <h5>Chưa có lịch sử xem</h5>
-        <p class="text-muted">Các recipe bạn đã xem sẽ xuất hiện ở đây</p>
+        <h5>No view history yet</h5>
+        <p class="text-muted">Recipes you've viewed will appear here</p>
     </div>
 }
 else
@@ -19,7 +19,7 @@ else
                 <div class="flex-grow-1">
                     <h6 class="recipe-Title mb-1">@recipe.Title</h6>
 
-                    @* ✅ Hiển thị nguyên liệu phù hợp (tối đa 3) *@
+                    @* ✅ Display up to 3 matching ingredients *@
                     @if (!string.IsNullOrEmpty(item.MatchedIngredients))
                     {
                         var matched = item.MatchedIngredients
@@ -34,7 +34,7 @@ else
                         {
                             <div class="mb-2">
                                 <small class="text-success fw-bold">
-                                    <i class="fas fa-check-circle me-1"></i>Nguyên liệu phù hợp:
+                                    <i class="fas fa-check-circle me-1"></i>Matched ingredients:
                                 </small>
                                 @foreach (var ing in matched)
                                 {
@@ -44,7 +44,7 @@ else
                         }
                     }
 
-                    @* ✅ Hiển thị tất cả nguyên liệu dạng danh sách, không dấu ngoặc *@
+                    @* ✅ Display all ingredients in list form (no brackets) *@
                     @if (!string.IsNullOrEmpty(recipe.Ingredients))
                     {
                         var allIngredients = recipe.NER
@@ -52,29 +52,18 @@ else
 
                         <div class="mb-2">
                             <small class="text-muted">
-                                <i class="fas fa-list me-1"></i>Tất cả nguyên liệu:
+                                <i class="fas fa-list me-1"></i>All ingredients:
                                 @allIngredients
                             </small>
                         </div>
                     }
 
-                    @* ✅ Hiển thị nguồn có link nếu là URL, còn không chỉ là text *@
-                    @if (!string.IsNullOrEmpty(recipe.Source))
+                    @* ✅ Show source as link if URL, else plain text *@
+                    @if (!string.IsNullOrEmpty(recipe.Link))
                     {
                         <div class="mb-2">
                             <small class="text-muted">
-                                <i class="fas fa-link me-1"></i>Nguồn:
-                                @{
-                                    var source = recipe.Source;
-                                    if (Uri.IsWellFormedUriString(source, UriKind.Absolute))
-                                    {
-                                        <a href="@source" target="_blank">@source</a>
-                                    }
-                                    else
-                                    {
-                                        @source
-                                    }
-                                }
+                                Source: <a href="https://@recipe.Link" target="_blank">View</a>
                             </small>
                         </div>
                     }
@@ -86,10 +75,13 @@ else
                 </div>
 
                 <div class="ms-3 text-nowrap">
-                    <a href="/Recipe/Details/@recipe.ID" class="btn btn-sm btn-outline-primary view-history-recipe" data-history-index="@index">
-                        <i class="fas fa-eye me-1"></i>Xem lại
+                    <a href="javascript:void(0)"
+                       class="btn btn-sm btn-outline-primary view-history-recipe"
+                       data-id="@recipe.ID">
+                        <i class="fas fa-eye me-1"></i>View again
                     </a>
-                    <button class="btn btn-sm btn-outline-danger ms-1 delete-history-item" data-history-index="@index">
+
+                    <button class="btn btn-sm btn-outline-danger ms-1 delete-history-item" data-id="@item.ID">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -99,7 +91,146 @@ else
         index++;
     }
 
-    <nav aria-label="Lịch sử phân trang">
+    <nav aria-label="Pagination">
         <ul class="pagination justify-content-center mt-4" id="pagination"></ul>
     </nav>
 }
+<script>
+    $(document).on('click', '.view-history-recipe', function () {
+        let recipeId = $(this).data('id');
+
+        $.ajax({
+            url: '/Home/GetRecipeById',
+            method: 'GET',
+            data: { id: recipeId },
+            success: function (r) {
+                // ✅ Assign for downloading
+                window.selectedRecipe = r;
+
+                let txt =
+                    r.title + "\n\n" +
+                    "Ingredients:\n" + parseIngredients(r.ingredients) + "\n\n" +
+                    "Instructions:\n" + parseDirections(r.directions);
+
+                $("#modalTitle").text(r.title);
+                $("#modalRecipeBody").text(txt);
+                lastRecipeTxt = txt;
+
+                var myModal = new bootstrap.Modal(document.getElementById('recipeModal'));
+                myModal.show();
+            },
+            error: function () {
+                alert("Failed to load recipe!");
+            }
+        });
+    });
+
+    (() => {
+        const itemsPerPage = 5;
+        const items = document.querySelectorAll(".history-item");
+        const totalPages = Math.ceil(items.length / itemsPerPage);
+        const pagination = document.getElementById("pagination");
+        let currentPage = 1;
+
+        function showPage(page) {
+            currentPage = page;
+            items.forEach((item, index) => {
+                item.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? "block" : "none";
+            });
+        }
+
+        function updateActivePage() {
+            document.querySelectorAll("#pagination .page-item").forEach(el => el.classList.remove("active"));
+            const btns = document.querySelectorAll("#pagination .page-item.numbered");
+            if (btns[currentPage - 1]) btns[currentPage - 1].classList.add("active");
+        }
+
+        function createPagination() {
+            if (!pagination || items.length <= itemsPerPage) return;
+
+            pagination.innerHTML = "";
+
+            // Previous button
+            const prevLi = document.createElement("li");
+            prevLi.className = "page-item";
+            const prevBtn = document.createElement("button");
+            prevBtn.className = "page-link";
+            prevBtn.innerHTML = `<i class="fas fa-chevron-left"></i>`;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    showPage(currentPage - 1);
+                    updateActivePage();
+                }
+            };
+            prevLi.appendChild(prevBtn);
+            pagination.appendChild(prevLi);
+
+            // Numbered buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement("li");
+                li.className = "page-item numbered" + (i === 1 ? " active" : "");
+                const btn = document.createElement("button");
+                btn.className = "page-link";
+                btn.textContent = i;
+                btn.addEventListener("click", () => {
+                    showPage(i);
+                    updateActivePage();
+                });
+                li.appendChild(btn);
+                pagination.appendChild(li);
+            }
+
+            // Next button
+            const nextLi = document.createElement("li");
+            nextLi.className = "page-item";
+            const nextBtn = document.createElement("button");
+            nextBtn.className = "page-link";
+            nextBtn.innerHTML = `<i class="fas fa-chevron-right"></i>`;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    showPage(currentPage + 1);
+                    updateActivePage();
+                }
+            };
+            nextLi.appendChild(nextBtn);
+            pagination.appendChild(nextLi);
+        }
+
+        showPage(currentPage);
+        createPagination();
+    })();
+            $(document).on('click', '.delete-history-item', function () {
+        let id = $(this).data('id');
+        Swal.fire({
+            title: 'Delete this item?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete',
+            confirmButtonColor: '#d33'
+        }).then(result => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Home/DeleteViewHistoryItem',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function () {
+                        // Xóa phần tử khỏi DOM
+                        $(`.delete-history-item[data-id="${id}"]`).closest('.history-item').remove();
+
+                        // Ẩn nút clear nếu không còn item nào
+                        if ($('.history-item').length === 0) {
+                            $('#btn-clear-history').hide();
+                        }
+
+                        Swal.fire('Deleted!', 'Item removed.', 'success');
+                    },
+                    error: function () {
+                        Swal.fire('Error!', 'Failed to delete item.', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+
+</script>

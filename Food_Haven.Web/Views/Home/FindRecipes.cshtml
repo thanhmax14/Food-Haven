@@ -30,12 +30,16 @@
     <!-- Icons Css -->
     <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
     <style>
-        .nav-tabs > .nav-link:first-child {
+        .nav-tabs .nav-item:first-child .nav-link {
             margin-left: 0 !important;
             padding-left: 5px !important;
             padding-top: 15px !important;
             padding-bottom: 15px !important;
             padding-right: 24px !important;
+        }
+
+        .nav-tabs .nav-link:first-child {
+            padding-left: 16px !important;
         }
 
         #history-tab {
@@ -321,16 +325,17 @@
                         <h2>Food Haven Recipe Generator</h2>
                         <hr />
                          <ul class="nav nav-tabs mb-0" id="mainTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab">
-                                <i class="fas fa-magic me-2"></i>Tạo Recipe
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
-                                <i class="fas fa-history me-2"></i>Lịch sử xem <span id="historyCount" class="badge bg-light text-dark ms-1">0</span>
-                            </button>
-                        </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab">
+                                    <i class="fas fa-magic me-2"></i>Generate Recipe
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                                    <i class="fas fa-history me-2"></i>View History <span id="historyCount" class="badge bg-light text-dark ms-1">0</span>
+                                </button>
+                            </li>
+
                     </ul>
 
                         <div class="tab-content p-4">
@@ -352,7 +357,8 @@
                                     <div class="card-body">
                                         <div id="selected-Ingredients" class="d-flex flex-wrap gap-2 align-items-center" style="min-height: 60px;">
                                             <div class="text-muted w-100 text-center">
-                                                <i class="fas fa-hand-pointer me-2"></i>Chọn ít nhất 2 nguyên liệu để bắt đầu
+                                                <i class="fas fa-hand-pointer me-2"></i>Select at least 2 ingredients to get started
+
                                             </div>
                                         </div>
                                     </div>
@@ -376,17 +382,20 @@
                             <div class="tab-pane fade" id="history" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h4 class="mb-0">
-                                        <i class="fas fa-history me-2"></i>Lịch sử xem Recipe
+                                        <i class="fas fa-history me-2"></i>Recipe view history
+
                                     </h4>
                                     <button id="btn-clear-history" class="btn btn-outline-danger btn-sm">
-                                        <i class="fas fa-trash me-2"></i>Xóa lịch sử
+                                        <i class="fas fa-trash me-2"></i>Delete history
+
                                     </button>
                                 </div>
 
                                 <div id="historyList" data-loaded="false">
                                     <div class="text-center my-4">
                                         <div class="spinner-border text-secondary" role="status"></div>
-                                        <p class="mt-2">Đang tải lịch sử...</p>
+                                        <p class="mt-2">Loading history...</p>
+
                                     </div>
                                 </div>
                             </div>
@@ -431,87 +440,25 @@
                         </div>
 
                         @section scripts {
-                            <script>
-                                (() => {
-                                    const itemsPerPage = 5;
-                                    const items = document.querySelectorAll(".history-item");
-                                    const totalPages = Math.ceil(items.length / itemsPerPage);
-                                    const pagination = document.getElementById("pagination");
-                                    let currentPage = 1;
-
-                                    function showPage(page) {
-                                        currentPage = page;
-                                        items.forEach((item, index) => {
-                                            item.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? "block" : "none";
-                                        });
-                                    }
-
-                                    function updateActivePage() {
-                                        document.querySelectorAll("#pagination .page-item").forEach(el => el.classList.remove("active"));
-                                        const btns = document.querySelectorAll("#pagination .page-item.numbered");
-                                        if (btns[currentPage - 1]) btns[currentPage - 1].classList.add("active");
-                                    }
-
-                                    function createPagination() {
-                                        if (!pagination || items.length <= itemsPerPage) return;
-
-                                        pagination.innerHTML = "";
-
-                                        // Previous button
-                                        const prevLi = document.createElement("li");
-                                        prevLi.className = "page-item";
-                                        const prevBtn = document.createElement("button");
-                                        prevBtn.className = "page-link";
-                                        prevBtn.innerHTML = `<i class="fas fa-chevron-left"></i>`;
-                                        prevBtn.onclick = () => {
-                                            if (currentPage > 1) {
-                                                showPage(currentPage - 1);
-                                                updateActivePage();
-                                            }
-                                        };
-                                        prevLi.appendChild(prevBtn);
-                                        pagination.appendChild(prevLi);
-
-                                        // Numbered buttons
-                                        for (let i = 1; i <= totalPages; i++) {
-                                            const li = document.createElement("li");
-                                            li.className = "page-item numbered" + (i === 1 ? " active" : "");
-                                            const btn = document.createElement("button");
-                                            btn.className = "page-link";
-                                            btn.textContent = i;
-                                            btn.addEventListener("click", () => {
-                                                showPage(i);
-                                                updateActivePage();
-                                            });
-                                            li.appendChild(btn);
-                                            pagination.appendChild(li);
-                                        }
-
-                                        // Next button
-                                        const nextLi = document.createElement("li");
-                                        nextLi.className = "page-item";
-                                        const nextBtn = document.createElement("button");
-                                        nextBtn.className = "page-link";
-                                        nextBtn.innerHTML = `<i class="fas fa-chevron-right"></i>`;
-                                        nextBtn.onclick = () => {
-                                            if (currentPage < totalPages) {
-                                                showPage(currentPage + 1);
-                                                updateActivePage();
-                                            }
-                                        };
-                                        nextLi.appendChild(nextBtn);
-                                        pagination.appendChild(nextLi);
-                                    }
-
-                                    showPage(currentPage);
-                                    createPagination();
-                                })();
-                            </script>
+                          
 
     
 
                             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+                            .<script>
+                                 $(document).ready(function () {
+                                     // Xử lý modal backdrop bị giữ lại
+                                     $('#recipeModal').on('hidden.bs.modal', function () {
+                                         $('.modal-backdrop').remove();        // Xoá lớp nền mờ
+                                         $('body').removeClass('modal-open');  // Cho phép cuộn trang lại
+                                     });
+
+                                     // (các xử lý khác như .view-history-recipe, ajax... ở đây)
+                                 });
+                            </script>
+
                             <script>
+
                                         let availableIngredients = [];
                                         let filteredIngredients = [];
                                         let selectedIngredients = [];
@@ -621,7 +568,8 @@
                                                     $("#results").html(html);
                                                 },
                                                 error: function () {
-                                                    $("#results").html('<div class="alert alert-danger">Lỗi khi tìm công thức!</div>');
+                                                   $("#results").html('<div class="alert alert-danger">Error while searching for recipes!</div>');
+
                                                 },
                                                 complete: function () {
                                                     $('#customLoading').fadeOut(100);
@@ -643,6 +591,20 @@
                                     $("#modalTitle").text(r.Title);
                                     $("#modalRecipeBody").text(txt);
                                     lastRecipeTxt = txt;
+                                                                 $.ajax({
+                                    url: '@Url.Action("AddViewHistory", "Home")',
+                                    method: 'POST',
+                                    data: {
+                                        recipeId: r.ID,
+                                        matchedIngredients: selectedIngredients.join(', ')
+                                    },
+                                    success: function () {
+                                        console.log("Lưu lịch sử thành công");
+                                    },
+                                    error: function () {
+                                        console.warn("Lỗi khi lưu lịch sử");
+                                    }
+                                });
                                     var myModal = new bootstrap.Modal(document.getElementById('recipeModal'));
                                     myModal.show();
                                 });
@@ -717,20 +679,64 @@
     $(document).ready(function () {
         $('#history-tab').on('shown.bs.tab', function () {
             const $historyList = $('#historyList');
+            const $clearBtn = $('#btn-clear-history');
 
-            // Hiển thị spinner
+            // Show loading
             $historyList.html(`
                 <div class="text-center my-4">
                     <div class="spinner-border text-secondary" role="status"></div>
-                    <p class="mt-2">Đang tải lịch sử...</p>
+                    <p class="mt-2">Loading view history...</p>
                 </div>
             `);
 
             $.get('/Home/LoadRecipeViewHistory', function (html) {
                 $historyList.html(html);
+
+                // Check if any history item exists
+                if ($historyList.find('.history-item').length > 0) {
+                    $clearBtn.show();
+                } else {
+                    $clearBtn.hide();
+                }
             }).fail(function () {
-                $historyList.html('<div class="alert alert-danger text-center mt-3">Không thể tải lịch sử.</div>');
+                $historyList.html('<div class="alert alert-danger text-center mt-3">Failed to load view history.</div>');
+                $clearBtn.hide();
+            });
+        });
+
+        // Xử lý khi bấm nút "Delete history"
+        $('#btn-clear-history').click(function () {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Delete all view history?',
+                text: 'This action cannot be undone!',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete all',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Home/DeleteAllViewHistory',
+                        type: 'POST',
+                        success: function () {
+                           $('#historyList').html(`
+        <div class="empty-history text-center">
+            <i class="fas fa-clock fa-2x mb-2 text-muted"></i>
+            <h5>No view history yet</h5>
+            <p class="text-muted">Recipes you've viewed will appear here</p>
+        </div>
+    `);
+
+                            $('#btn-clear-history').hide();
+                            Swal.fire('Deleted!', 'Your view history has been deleted.', 'success');
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Failed to delete history.', 'error');
+                        }
+                    });
+                }
             });
         });
     });
+
 </script>

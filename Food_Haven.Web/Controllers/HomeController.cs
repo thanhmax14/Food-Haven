@@ -2386,6 +2386,80 @@ namespace Food_Haven.Web.Controllers
                 lastAccess = user.LastAccess.ToString("o") // ISO 8601 string
             });
         }
+        [HttpPost]
+        public async Task<IActionResult> AddViewHistory(Guid recipeId, string matchedIngredients)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var existing = await _recipeViewHistoryServices.FindAsync(
+                h => h.UserID == user.Id && h.ExpertRecipeId == recipeId);
+
+            if (existing != null)
+            {
+                existing.ViewedAt = DateTime.UtcNow;
+                existing.MatchedIngredients = matchedIngredients;
+                await _recipeViewHistoryServices.UpdateAsync(existing);
+            }
+            else
+            {
+                var newItem = new RecipeViewHistory
+                {
+                    ID = Guid.NewGuid(),
+                    UserID = user.Id,
+                    ExpertRecipeId = recipeId,
+                    ViewedAt = DateTime.UtcNow,
+                    MatchedIngredients = matchedIngredients
+                };
+                await _recipeViewHistoryServices.AddAsync(newItem);
+            }
+
+            await _recipeViewHistoryServices.SaveChangesAsync();
+            return Ok();
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetRecipeById(Guid id)
+        {
+            var recipe = await _expertRecipeServices.GetAsyncById(id);
+            if (recipe == null) return NotFound();
+
+            return Json(new
+            {
+                recipe.ID,
+                recipe.Title,
+                recipe.Ingredients,
+                recipe.Directions
+            });
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteViewHistoryItem(Guid id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var item = await _recipeViewHistoryServices.FindAsync(h => h.ID == id && h.UserID == user.Id);
+            if (item == null) return NotFound();
+
+            await _recipeViewHistoryServices.DeleteAsync(item);
+            await _recipeViewHistoryServices.SaveChangesAsync();
+
+            return Ok();
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteAllViewHistory()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var items = await _recipeViewHistoryServices.ListAsync(h => h.UserID == user.Id);
+            foreach (var item in items)
+            {
+                await _recipeViewHistoryServices.DeleteAsync(item);
+            }
+
+            await _recipeViewHistoryServices.SaveChangesAsync();
+            return Ok();
+        }
 
     }
     public class HomeViewModel
