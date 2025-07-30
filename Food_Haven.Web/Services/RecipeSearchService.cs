@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using Food_Haven.Web.Models;
+using Models;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -155,5 +156,60 @@ namespace Food_Haven.Web.Services
             }
             return list;
         }
+        public List<Recipegenare> LoadRecipesFromCsv(int skip, int limit)
+        {
+            var list = new List<Recipegenare>();
+            if (!File.Exists(_csvPath)) return list;
+
+            using var reader = new StreamReader(_csvPath);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            csv.Read();
+            csv.ReadHeader();
+
+            int index = 0;
+            while (csv.Read())
+            {
+                if (index++ < skip) continue; // tăng index ở đây luôn, gọn gàng
+
+                if (list.Count >= limit) break;
+
+                try
+                {
+                    var recipe = new Recipegenare
+                    {
+                        title = csv.GetField("title"),
+                        ingredients = csv.GetField("ingredients"),
+                        directions = csv.GetField("directions"),
+                        link = csv.GetField("link"),
+                        source = csv.GetField("source"),
+                        NER = csv.GetField("NER")
+                    };
+                    list.Add(recipe);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️ Error at line {index + 1}: {ex.Message}");
+                }
+            }
+
+            return list;
+        }
+
+
+
+        public ExpertRecipe MapToExpertRecipe(Recipegenare r)
+        {
+            return new ExpertRecipe
+            {
+                ID = Guid.NewGuid(),
+                Title = r.title,
+                Ingredients = r.ingredients,
+                Directions = r.directions,
+                Link = r.link,
+                Source = r.source,
+                NER = r.NER
+            };
+        }
+
     }
 }

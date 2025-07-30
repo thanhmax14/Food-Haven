@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Nest - Multipurpose eCommerce HTML Template</title>
+    <Title>Nest - Multipurpose eCommerce HTML Template</Title>
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="" />
+    <meta property="og:Title" content="" />
     <meta property="og:type" content="" />
     <meta property="og:url" content="" />
     <meta property="og:image" content="" />
@@ -29,6 +29,19 @@
     <link rel="stylesheet" href="~/assets/js/gridjs/theme/mermaid.min.css">
     <!-- Icons Css -->
     <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        .nav-tabs > .nav-link:first-child {
+            margin-left: 0 !important;
+            padding-left: 5px !important;
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
+            padding-right: 24px !important;
+        }
+
+        #history-tab {
+            padding-bottom: 11px;
+        }
+    </style>
 </head>
 
 
@@ -253,7 +266,7 @@
                     box-shadow: 0 15px 35px rgba(0,0,0,0.1);
                 }
 
-            .recipe-title {
+            .recipe-Title {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
@@ -324,10 +337,10 @@
                             <!-- Tab Tạo Recipe -->
                             <div class="tab-pane fade show active" id="generator" role="tabpanel">
                                 <div class="card mb-3">
-                                    <div class="card-header fw-bold">Available ingredients</div>
+                                    <div class="card-header fw-bold">Available Ingredients</div>
                                     <div class="card-body pb-2">
                                         <input type="text" id="search-ingredient" class="form-control mb-2" placeholder="Search ingredient..." autocomplete="off" />
-                                        <div id="available-ingredients"
+                                        <div id="available-Ingredients"
                                              class="d-flex flex-wrap gap-2"
                                              style="max-height: 300px; overflow-y: auto; min-height:60px; border:1px solid #e3e3e3; border-radius:8px;">
                                         </div>
@@ -335,9 +348,9 @@
                                 </div>
 
                                 <div class="card mb-3">
-                                    <div class="card-header fw-bold">Selected ingredients <small class="text-muted">(Click to remove)</small></div>
+                                    <div class="card-header fw-bold">Selected Ingredients <small class="text-muted">(Click to remove)</small></div>
                                     <div class="card-body">
-                                        <div id="selected-ingredients" class="d-flex flex-wrap gap-2 align-items-center" style="min-height: 60px;">
+                                        <div id="selected-Ingredients" class="d-flex flex-wrap gap-2 align-items-center" style="min-height: 60px;">
                                             <div class="text-muted w-100 text-center">
                                                 <i class="fas fa-hand-pointer me-2"></i>Chọn ít nhất 2 nguyên liệu để bắt đầu
                                             </div>
@@ -359,6 +372,7 @@
                             </div>
 
                             <!-- Tab Lịch sử -->
+                            <!-- Tab lịch sử -->
                             <div class="tab-pane fade" id="history" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h4 class="mb-0">
@@ -369,57 +383,15 @@
                                     </button>
                                 </div>
 
-                              @*   <div id="historyList">
-                                    <div class="empty-history">
-                                        <i class="fas fa-clock"></i>
-                                        <h5>Chưa có lịch sử xem</h5>
-                                        <p>Các recipe bạn đã xem sẽ xuất hiện ở đây</p>
+                                <div id="historyList" data-loaded="false">
+                                    <div class="text-center my-4">
+                                        <div class="spinner-border text-secondary" role="status"></div>
+                                        <p class="mt-2">Đang tải lịch sử...</p>
                                     </div>
-                                </div> *@
-                                <div id="historyList">
-                                    @for (var i = 0; i < 20; i++)
-                                    {
-                                        <div class="history-item p-3 mb-3 rounded-3" data-history-index="@i">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div class="flex-grow-1">
-                                                    <h6 class="recipe-title mb-1">Thịt bò xào lúc lắc @i</h6>
-                                                    <div class="mb-2">
-                                                        <small class="text-success fw-bold">
-                                                            <i class="fas fa-check-circle me-1"></i>Nguyên liệu phù hợp:
-                                                        </small>
-                                                        <span class="badge bg-success me-1">Thịt bò</span>
-                                                    </div>
-                                                    <div>
-                                                        <small class="text-muted">
-                                                            <i class="fas fa-list me-1"></i>Tất cả nguyên liệu: Thịt bò, Hành tây, Tỏi, Dầu ăn, Ớt
-                                                        </small>
-                                                    </div>
-                                                    <div class="history-time">
-                                                        <i class="fas fa-eye me-1"></i>Đã xem vừa xong
-                                                    </div>
-                                                </div>
-                                                <div class="ms-3">
-                                                    <button class="btn btn-sm btn-outline-primary view-history-recipe" data-history-index="@i">
-                                                        <i class="fas fa-eye me-1"></i>Xem lại
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-danger ms-1 delete-history-item" data-history-index="@i">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
                                 </div>
-
-                                <!-- Pagination controls -->
-                                <nav>
-                                    <ul class="pagination justify-content-center" id="pagination">
-                                       
-                                    </ul>
-                                </nav>
-
-
                             </div>
+
+
                         </div>
                         <!-- Ingredients selection -->
                    
@@ -431,7 +403,7 @@
                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                 <div class="modal-content" style="background:#fff8cc; font-family: 'Fira Mono', 'Consolas', monospace;">
                                     <div class="modal-header" style="border:none;">
-                                        <h5 class="modal-title fw-bold" id="modalTitle"></h5>
+                                        <h5 class="modal-Title fw-bold" id="modalTitle"></h5>
                                         <button type="button" class="btn-close fs-3" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body" style="white-space:pre-line; max-height: 700px; overflow-y: auto; text-align:left; padding-left:32px;padding-right:32px;">
@@ -460,79 +432,83 @@
 
                         @section scripts {
                             <script>
-    const itemsPerPage = 5;
-    const items = document.querySelectorAll(".history-item");
-    const totalPages = Math.ceil(items.length / itemsPerPage);
-    const pagination = document.getElementById("pagination");
-    let currentPage = 1;
+                                (() => {
+                                    const itemsPerPage = 5;
+                                    const items = document.querySelectorAll(".history-item");
+                                    const totalPages = Math.ceil(items.length / itemsPerPage);
+                                    const pagination = document.getElementById("pagination");
+                                    let currentPage = 1;
 
-    function showPage(page) {
-        currentPage = page;
-        items.forEach((item, index) => {
-            item.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? "block" : "none";
-        });
-    }
+                                    function showPage(page) {
+                                        currentPage = page;
+                                        items.forEach((item, index) => {
+                                            item.style.display = (index >= (page - 1) * itemsPerPage && index < page * itemsPerPage) ? "block" : "none";
+                                        });
+                                    }
 
-    function updateActivePage() {
-        document.querySelectorAll("#pagination .page-item").forEach(el => el.classList.remove("active"));
-        const btns = document.querySelectorAll("#pagination .page-item.numbered");
-        if (btns[currentPage - 1]) btns[currentPage - 1].classList.add("active");
-    }
+                                    function updateActivePage() {
+                                        document.querySelectorAll("#pagination .page-item").forEach(el => el.classList.remove("active"));
+                                        const btns = document.querySelectorAll("#pagination .page-item.numbered");
+                                        if (btns[currentPage - 1]) btns[currentPage - 1].classList.add("active");
+                                    }
 
-    function createPagination() {
-        pagination.innerHTML = "";
+                                    function createPagination() {
+                                        if (!pagination || items.length <= itemsPerPage) return;
 
-        // Previous button
-        const prevLi = document.createElement("li");
-        prevLi.className = "page-item";
-        const prevBtn = document.createElement("button");
-        prevBtn.className = "page-link";
-        prevBtn.innerHTML = `<i class="fas fa-chevron-left"></i>`;
-        prevBtn.onclick = () => {
-            if (currentPage > 1) {
-                showPage(currentPage - 1);
-                updateActivePage();
-            }
-        };
-        prevLi.appendChild(prevBtn);
-        pagination.appendChild(prevLi);
+                                        pagination.innerHTML = "";
 
-        // Numbered buttons
-        for (let i = 1; i <= totalPages; i++) {
-            const li = document.createElement("li");
-            li.className = "page-item numbered" + (i === 1 ? " active" : "");
-            const btn = document.createElement("button");
-            btn.className = "page-link";
-            btn.textContent = i;
-            btn.addEventListener("click", () => {
-                showPage(i);
-                updateActivePage();
-            });
-            li.appendChild(btn);
-            pagination.appendChild(li);
-        }
+                                        // Previous button
+                                        const prevLi = document.createElement("li");
+                                        prevLi.className = "page-item";
+                                        const prevBtn = document.createElement("button");
+                                        prevBtn.className = "page-link";
+                                        prevBtn.innerHTML = `<i class="fas fa-chevron-left"></i>`;
+                                        prevBtn.onclick = () => {
+                                            if (currentPage > 1) {
+                                                showPage(currentPage - 1);
+                                                updateActivePage();
+                                            }
+                                        };
+                                        prevLi.appendChild(prevBtn);
+                                        pagination.appendChild(prevLi);
 
-        // Next button
-        const nextLi = document.createElement("li");
-        nextLi.className = "page-item";
-        const nextBtn = document.createElement("button");
-        nextBtn.className = "page-link";
-        nextBtn.innerHTML = `<i class="fas fa-chevron-right"></i>`;
-        nextBtn.onclick = () => {
-            if (currentPage < totalPages) {
-                showPage(currentPage + 1);
-                updateActivePage();
-            }
-        };
-        nextLi.appendChild(nextBtn);
-        pagination.appendChild(nextLi);
-    }
+                                        // Numbered buttons
+                                        for (let i = 1; i <= totalPages; i++) {
+                                            const li = document.createElement("li");
+                                            li.className = "page-item numbered" + (i === 1 ? " active" : "");
+                                            const btn = document.createElement("button");
+                                            btn.className = "page-link";
+                                            btn.textContent = i;
+                                            btn.addEventListener("click", () => {
+                                                showPage(i);
+                                                updateActivePage();
+                                            });
+                                            li.appendChild(btn);
+                                            pagination.appendChild(li);
+                                        }
 
-    // Init
-    showPage(currentPage);
-    createPagination();
-</script>
+                                        // Next button
+                                        const nextLi = document.createElement("li");
+                                        nextLi.className = "page-item";
+                                        const nextBtn = document.createElement("button");
+                                        nextBtn.className = "page-link";
+                                        nextBtn.innerHTML = `<i class="fas fa-chevron-right"></i>`;
+                                        nextBtn.onclick = () => {
+                                            if (currentPage < totalPages) {
+                                                showPage(currentPage + 1);
+                                                updateActivePage();
+                                            }
+                                        };
+                                        nextLi.appendChild(nextBtn);
+                                        pagination.appendChild(nextLi);
+                                    }
 
+                                    showPage(currentPage);
+                                    createPagination();
+                                })();
+                            </script>
+
+    
 
                             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
                             <script>
@@ -562,15 +538,15 @@
                                             filteredIngredients.forEach(ing => {
                                                 html += `<button class="btn btn-secondary-primary mb-2 ing-btn" data-ing="${ing}" type="button">${ing}</button>`;
                                             });
-                                            $("#available-ingredients").html(html);
+                                            $("#available-Ingredients").html(html);
                                         }
 
                                         function renderSelectedIngredients() {
                                             let html = '';
                                             selectedIngredients.forEach(ing => {
-                                                html += `<span class="badge bg-success p-2 me-1 selected-ing" data-ing="${ing}" style="cursor:pointer;" title="Click to remove">${ing} <i class="fas fa-times ms-1"></i></span>`;
+                                                html += `<span class="badge bg-success p-2 me-1 selected-ing" data-ing="${ing}" style="cursor:pointer;" Title="Click to remove">${ing} <i class="fas fa-times ms-1"></i></span>`;
                                             });
-                                            $("#selected-ingredients").html(html);
+                                            $("#selected-Ingredients").html(html);
                                             setGenerateBtnState();
                                         }
 
@@ -638,7 +614,7 @@
                                                 url: '@Url.Action("FindRecipes")',
                                                 method: 'POST',
                                                 data: {
-                                                    ingredients: selectedIngredients,
+                                                    Ingredients: selectedIngredients,
                                                     limit: limit
                                                 },
                                                 success: function (html) {
@@ -659,12 +635,12 @@
                                     let r = window.recipeResultArray[idx];
                                     window.selectedRecipe = r; // Để sử dụng đúng khi tải file
                                     let txt =
-                                        r.title + "\n\n" +
+                                        r.Title + "\n\n" +
                                         "Ingredients:\n" +
-                                        parseIngredients(r.ingredients) + "\n\n" +
+                                        parseIngredients(r.Ingredients) + "\n\n" +
                                         "Instructions:\n" +
-                                        parseDirections(r.directions);
-                                    $("#modalTitle").text(r.title);
+                                        parseDirections(r.Directions);
+                                    $("#modalTitle").text(r.Title);
                                     $("#modalRecipeBody").text(txt);
                                     lastRecipeTxt = txt;
                                     var myModal = new bootstrap.Modal(document.getElementById('recipeModal'));
@@ -673,22 +649,22 @@
 
 
 
-                                        function parseIngredients(ingredients) {
-                                            if (!ingredients) return "";
+                                        function parseIngredients(Ingredients) {
+                                            if (!Ingredients) return "";
                                             try {
-                                                let arr = JSON.parse(ingredients);
+                                                let arr = JSON.parse(Ingredients);
                                                 return arr.map(x => '- ' + x).join('\n');
                                             } catch {
-                                                return ingredients.split(',').map(x => '- ' + x.trim()).join('\n');
+                                                return Ingredients.split(',').map(x => '- ' + x.trim()).join('\n');
                                             }
                                         }
-                                        function parseDirections(directions) {
-                                            if (!directions) return "";
+                                        function parseDirections(Directions) {
+                                            if (!Directions) return "";
                                             try {
-                                                let arr = JSON.parse(directions);
+                                                let arr = JSON.parse(Directions);
                                                 return arr.map((x, i) => (i + 1) + '. ' + x).join('\n');
                                             } catch {
-                                                return directions;
+                                                return Directions;
                                             }
                                         }
                             </script>
@@ -737,3 +713,24 @@
 </body>
 
 </html>
+<script>
+    $(document).ready(function () {
+        $('#history-tab').on('shown.bs.tab', function () {
+            const $historyList = $('#historyList');
+
+            // Hiển thị spinner
+            $historyList.html(`
+                <div class="text-center my-4">
+                    <div class="spinner-border text-secondary" role="status"></div>
+                    <p class="mt-2">Đang tải lịch sử...</p>
+                </div>
+            `);
+
+            $.get('/Home/LoadRecipeViewHistory', function (html) {
+                $historyList.html(html);
+            }).fail(function () {
+                $historyList.html('<div class="alert alert-danger text-center mt-3">Không thể tải lịch sử.</div>');
+            });
+        });
+    });
+</script>

@@ -1,16 +1,19 @@
 ﻿using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text.Json;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -62,10 +65,13 @@ namespace Food_Haven.Web.Controllers
         private readonly IStoreReportServices _storeReport;
         private readonly IStoreFollowersService _storeFollowersService;
         private readonly RecipeSearchService _service;
+        private readonly IExpertRecipeServices _expertRecipeServices;
+        private readonly IRecipeViewHistoryServices _recipeViewHistoryServices;
         public bool IsTesting { get; set; } = false;
 
         public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
-, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService, RecipeSearchService service)
+, IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService, RecipeSearchService service,
+            IExpertRecipeServices expertRecipeServices, IRecipeViewHistoryServices recipeViewHistoryServices)
 
         {
             _recipeService = recipeService;
@@ -91,6 +97,8 @@ namespace Food_Haven.Web.Controllers
             _storeReport = storeReport;
             _storeFollowersService = storeFollowersService;
             _service = service;
+            this._expertRecipeServices = expertRecipeServices;
+            _recipeViewHistoryServices = recipeViewHistoryServices;
         }
 
 
@@ -1790,26 +1798,103 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAvailableIngredients()
         {
+            var allRecipes = await _expertRecipeServices.ListAsync();
+            var ingredientFrequency = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            var ingredients = await Task.Run(() => _service.GetUniqueIngredients(100));
-            return Json(ingredients);
+            foreach (var recipe in allRecipes)
+            {
+                if (!string.IsNullOrWhiteSpace(recipe.NER))
+                {
+                    try
+                    {
+                        var nerList = JsonSerializer.Deserialize<List<string>>(recipe.NER);
+                        var uniquePerRecipe = new HashSet<string>();
+
+                        foreach (var ing in nerList)
+                        {
+                            var cleaned = ing?.Trim().ToLower();
+
+                            // Bỏ qua nguyên liệu không hợp lệ
+                            if (string.IsNullOrWhiteSpace(cleaned)) continue;
+                            if (cleaned.Length < 2) continue;
+                            if (cleaned.Any(c => "!@#$%^&*+=[]{}|\\<>?/~`".Contains(c))) continue;
+                            if (cleaned.StartsWith("'s") || cleaned.StartsWith(",") || cleaned.All(char.IsSymbol)) continue;
+
+                            // Tránh đếm lặp nguyên liệu trong cùng 1 món
+                            if (uniquePerRecipe.Add(cleaned))
+                            {
+                                if (ingredientFrequency.ContainsKey(cleaned))
+                                    ingredientFrequency[cleaned]++;
+                                else
+                                    ingredientFrequency[cleaned] = 1;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            // Chọn 100 nguyên liệu phổ biến nhất
+            var topIngredients = ingredientFrequency
+                .OrderByDescending(x => x.Value)
+                .Take(100)
+                .Select(x => x.Key)
+                .OrderBy(x => x) // Sắp xếp ABC cho dễ hiển thị
+                .ToList();
+
+            return Json(topIngredients);
         }
+
 
         [HttpPost]
         public async Task<ActionResult> FindRecipes(List<string> ingredients, int limit = 5)
         {
             if (ingredients == null || ingredients.Count == 0)
-            {
                 return BadRequest("You must enter at least 1 recipe");
-            }
-            var recipes = await Task.Run(() => _service.FindRecipesByIngredients(ingredients, limit));
 
-            return PartialView("_RecipeResults", recipes);
+            var allRecipes = await _expertRecipeServices.ListAsync();
+            var results = new List<ExpertRecipe>();
+            var normalizedInput = ingredients.Select(i => i.Trim().ToLower()).ToList();
+
+            foreach (var recipe in allRecipes)
+            {
+                if (string.IsNullOrWhiteSpace(recipe.NER)) continue;
+
+                try
+                {
+                    var nerList = JsonSerializer.Deserialize<List<string>>(recipe.NER)
+                        .Select(x => x.Trim().ToLower())
+                        .ToList();
+
+                    if (normalizedInput.All(sel => nerList.Contains(sel)))
+                    {
+                        results.Add(recipe);
+                        if (results.Count >= limit)
+                            break;
+                    }
+                }
+                catch { }
+            }
+
+            return PartialView("_RecipeResults", results);
         }
 
+
         [HttpGet]
-        public IActionResult FindRecipes()
+        public async Task<IActionResult> FindRecipes()
         {
+            int skip = await _expertRecipeServices.CountAsync(); // bạn đã có 10000 bản
+            int limit = 100;
+
+            var recipes = _service.LoadRecipesFromCsv(skip, limit);
+
+            foreach (var recipe in recipes)
+            {
+                var entity = _service.MapToExpertRecipe(recipe);
+                await _expertRecipeServices.AddAsync(entity);
+            }
+
+            await _expertRecipeServices.SaveChangesAsync();
             return View();
         }
         public async Task<IActionResult> Index()
@@ -2263,6 +2348,22 @@ namespace Food_Haven.Web.Controllers
             }
 
             return RedirectToAction("NotFoundPage");
+        }
+        [HttpGet]
+        public async Task<IActionResult> LoadRecipeViewHistory()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var history = await _recipeViewHistoryServices.ListAsync(
+                filter: h => h.UserID == user.Id,
+                orderBy: q => q.OrderByDescending(h => h.ViewedAt),
+                includeProperties: q => q.Include(x => x.ExpertRecipe)
+            );
+
+            var topHistory = history.Take(50); // Lấy tối đa 50 lịch sử gần nhất
+
+            return PartialView("_RecipeHistoryPartial", topHistory);
         }
 
     }
