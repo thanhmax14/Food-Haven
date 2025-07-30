@@ -1,17 +1,36 @@
 ﻿using AutoMapper;
+using BusinessLogic.Hash;
 using BusinessLogic.Mapper;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using BusinessLogic.Services.ComplaintImages;
+using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.ExpertRecipes;
+using BusinessLogic.Services.FavoriteFavoriteRecipes;
+using BusinessLogic.Services.Message;
+using BusinessLogic.Services.MessageImages;
+using BusinessLogic.Services.OrderDetailService;
+using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.ProductVariantVariants;
+using BusinessLogic.Services.RecipeReviewReviews;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.StoreFollowers;
+using BusinessLogic.Services.StoreReports;
+using BusinessLogic.Services.VoucherServices;
+using BusinessLogic.Services.Wishlists;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Net.payOS;
+using Repository.BalanceChange;
+using Repository.MessageImages;
+using Repository.Messages;
+using Repository.OrdersRepository;
 using Repository.StoreDetails;
 using System;
 using System.Collections.Generic;
@@ -19,23 +38,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static BusinessLogic.EmailServices.EmailService;
-using BusinessLogic.Services.Wishlists;
-using BusinessLogic.Hash;
-using Repository.BalanceChange;
-using BusinessLogic.Services.Orders;
-using Repository.OrdersRepository;
-using BusinessLogic.Services.OrderDetailService;
-using BusinessLogic.Services.VoucherServices;
-using BusinessLogic.Services.ComplaintImages;
-using BusinessLogic.Services.Complaints;
-using Repository.MessageImages;
-using Repository.Messages;
-using BusinessLogic.Services.MessageImages;
-using BusinessLogic.Services.Message;
-using BusinessLogic.Services.RecipeReviewReviews;
-using BusinessLogic.Services.StoreReports;
-using BusinessLogic.Services.FavoriteFavoriteRecipes;
-using BusinessLogic.Services.StoreFollowers;
 
 namespace BusinessLogic.Config
 {
@@ -67,6 +69,8 @@ namespace BusinessLogic.Config
             services.AddScoped<IStoreReportServices, StoreReportServices>();
             services.AddScoped<IFavoriteRecipeService, FavoriteRecipeService>();
             services.AddScoped<IStoreFollowersService, StoreFollowersService>();
+            services.AddScoped<IExpertRecipeServices, ExpertRecipeServices>();
+            services.AddScoped<IRecipeViewHistoryServices, RecipeViewHistoryServices>();
 
 
 

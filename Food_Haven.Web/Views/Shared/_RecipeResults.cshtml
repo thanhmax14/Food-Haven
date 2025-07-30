@@ -1,8 +1,10 @@
-﻿@model List<Food_Haven.Web.Models.Recipegenare>
+﻿@model List<ExpertRecipe>
 @using System.Text.Json
+@using Models
 @{
     var resultArrayJson = JsonSerializer.Serialize(Model);
 }
+
 @if (Model == null || !Model.Any())
 {
     <div class="alert alert-warning">
@@ -40,34 +42,41 @@ else
                             var r = Model[i];
                             var ingredientsPreview = "";
                             var stepsCount = 0;
+
                             try
                             {
-                                var ingredients = JsonSerializer.Deserialize<List<string>>(r.ingredients);
+                                var ingredients = JsonSerializer.Deserialize<List<string>>(r.Ingredients);
                                 ingredientsPreview = string.Join(", ", ingredients.Take(3));
                                 if (ingredients.Count > 3)
                                     ingredientsPreview += $", ... (+{ingredients.Count - 3} more)";
                             }
                             catch
                             {
-                                ingredientsPreview = r.ingredients.Length > 50 ? r.ingredients.Substring(0, 50) + "..." : r.ingredients;
+                                ingredientsPreview = r.Ingredients.Length > 50
+                                ? r.Ingredients.Substring(0, 50) + "..."
+                                : r.Ingredients;
                             }
+
                             try
                             {
-                                var directions = JsonSerializer.Deserialize<List<string>>(r.directions);
+                                var directions = JsonSerializer.Deserialize<List<string>>(r.Directions);
                                 stepsCount = directions.Count;
                             }
                             catch
                             {
-                                stepsCount = r.directions.Split('.').Length;
+                                stepsCount = r.Directions.Split('.').Length;
                             }
+
                             <tr>
                                 <td>@(i + 1)</td>
                                 <td>
-                                    <strong>@r.title</strong>
-                                    @if (!string.IsNullOrEmpty(r.source))
+                                    <strong>@r.Title</strong>
+                                    @if (!string.IsNullOrEmpty(r.Source))
                                     {
-                                        <br>
-                                        <small class="text-muted">Source: <a href='https://@r.link' target="_blank">View</a></small>
+                                        <br />
+                                        <small class="text-muted">
+                                            Source: <a href="https://@r.Link" target="_blank">View</a>
+                                        </small>
                                     }
                                 </td>
                                 <td>
