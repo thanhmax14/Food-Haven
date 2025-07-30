@@ -528,7 +528,8 @@ namespace Food_Haven.Web.Controllers
                     ItemImage = img,
                     ItemPrice = getQuatity.SellPrice,
                     ItemQuantity = checkcart.Quantity,
-                    productID = product.ProductID,
+                    productID = id,
+                    ProductDailid=product.ProductID
 
                 });
 
@@ -833,6 +834,7 @@ var finalAmount = subtotal - discount;
                         var addedDetails = new List<OrderDetail>();
                         var temOrderDeyail = new List<OrderDetail>();
                         decimal totelPrice = 0;
+
                         foreach (var id in buyRequest.Products)
                         {
                             var checkcart = await this._cart.FindAsync(u => u.UserID == buyRequest.UserID && u.ProductTypesID == id.Key);
@@ -852,7 +854,25 @@ var finalAmount = subtotal - discount;
                                 return Json(new ErroMess { msg = "A product is not in your cart!" });
                             }
                         }
+                        var flasg =false;
+                        if (!string.IsNullOrWhiteSpace(billingInfo.voucher))
+                        {
+                            flasg = true;
+                            var v = await _voucherServices.FindAsync(x => x.Code.ToLower() == billingInfo.voucher.ToLower() && x.IsActive);
+                            if (v == null)
+                                return Json(new { message = "Invalid voucher" });
 
+                            if (totelPrice < v.MinOrderValue)
+                                return Json(new { message = "Order does not meet the minimum requirement" });
+
+                            decimal discount = v.DiscountType == "Percent"
+                                ? totelPrice * v.DiscountAmount / 100
+                                : v.DiscountAmount;
+
+                            if (v.MaxDiscountAmount.HasValue)
+                                discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+                            totelPrice = Math.Max(0, totelPrice - discount);
+                        }
                         var orderID = Guid.NewGuid();
                         if (await _balance.CheckMoney(user.Id, totelPrice) == false)
                         {
@@ -934,7 +954,15 @@ var finalAmount = subtotal - discount;
                             StartTime = DateTime.Now,
                             Description = "Purchase order: " + orderID
                         };
-
+                        if (flasg)
+                        {
+                            var infoVoucher = await _voucherServices.FindAsync(u => u.Code.ToLower() == billingInfo.voucher.ToLower() && u.IsActive);
+                            if (infoVoucher != null)
+                            {
+                                order.VoucherID= infoVoucher.ID;    
+                            }
+                        }
+                            
                         if (await _balance.CheckMoney(user.Id, totelPrice))
                         {
                             try

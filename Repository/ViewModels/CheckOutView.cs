@@ -32,5 +32,6 @@ namespace Repository.ViewModels
         public int ItemQuantity { get; set; }
         public decimal ItemPrice { get; set; }
         public Guid productID { get; set; }
+        public Guid? ProductDailid { get; set; }
     }
 }
