@@ -2371,6 +2371,21 @@ namespace Food_Haven.Web.Controllers
 
             return PartialView("_RecipeHistoryPartial", topHistory);
         }
+        [HttpGet("api/user/status/{userId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUserStatus(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            var isOnline = ChatHub.IsUserOnline(userId);
+
+            return Ok(new
+            {
+                isOnline,
+                lastAccess = user.LastAccess.ToString("o") // ISO 8601 string
+            });
+        }
 
     }
     public class HomeViewModel

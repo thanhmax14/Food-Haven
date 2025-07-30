@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Food_Haven.Web.Hubs
 {
-    [Authorize]
+    [AllowAnonymous]
     public class ChatHub : Hub
     {
         private readonly UserManager<AppUser> _userManager;
@@ -23,7 +23,7 @@ namespace Food_Haven.Web.Hubs
             _messageImageService = messageImageService;
             _messageService = messageService;
         }
-
+        [AllowAnonymous]
         public override async Task OnConnectedAsync()
         {
             var userId = Context.UserIdentifier;
@@ -39,11 +39,12 @@ namespace Food_Haven.Web.Hubs
 
             await base.OnConnectedAsync();
         }
+        [AllowAnonymous]
         public static bool IsUserOnline(string userId)
         {
             return _userConnections.ContainsKey(userId);
         }
-
+        [AllowAnonymous]
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var userId = Context.UserIdentifier;

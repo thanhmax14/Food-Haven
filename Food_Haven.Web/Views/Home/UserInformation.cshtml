@@ -97,7 +97,9 @@
                                              class="rounded-circle mb-3"
                                              style="width: 100px; height: 100px; object-fit: cover;" />
                                         <h4>@Model.UserName</h4>
-                                        <p>online/offline</p>
+                   
+                                        <p id="user-status-@Model.UserId">...</p>
+
                                         <div class="d-flex gap-2 @(Model.HasStore && Model.StoreId != null ? "" : "justify-content-center")">
                                             @if (Model.HasStore && Model.StoreId != null)
                                             {
@@ -212,6 +214,76 @@
     <!-- Template  JS -->
     <script src="~/assets/js/main.js?v=6.0"></script>
     <script src="~/assets/js/shop.js?v=6.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify@latest/dist/simple-notify.min.js"></script>
+    <script>
+        // Initialize SignalR connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .build();
+
+        // Function to update status into a <p> element
+        function updateUserStatus(userId, statusText) {
+            const el = document.getElementById(`user-status-${userId}`);
+            if (el) {
+                el.innerText = statusText;
+                el.className = statusText.includes("Online") ? "text-success" : "text-muted";
+            }
+        }
+
+        // Convert lastAccess → "x minutes ago"
+        function getTimeAgo(lastSeenString) {
+            if (!lastSeenString) return "a moment ago";
+            const lastSeen = new Date(lastSeenString);
+            if (isNaN(lastSeen)) return "a moment ago";
+
+            const now = new Date();
+            const diffSec = Math.floor((now - lastSeen) / 1000);
+
+            if (diffSec < 60) return "just now";
+            if (diffSec < 3600) return `${Math.floor(diffSec / 60)} minute(s) ago`;
+            if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} hour(s) ago`;
+            return lastSeen.toLocaleDateString("en-US");
+        }
+
+        // Listen for "UserOnline" event
+        connection.on("UserOnline", function (userId) {
+            if (userId === "@Model.UserId") {
+                updateUserStatus(userId, "🟢 Online");
+            }
+        });
+
+        // Listen for "UserOffline" event
+        connection.on("UserOffline", function (userId, lastSeen) {
+            if (userId === "@Model.UserId") {
+                const ago = getTimeAgo(lastSeen);
+                updateUserStatus(userId, `🔴 Offline (${ago})`);
+            }
+        });
+
+        // Call API to fetch initial user status
+        async function fetchInitialStatus(userId) {
+            try {
+                const res = await fetch(`/api/user/status/${userId}`);
+                const data = await res.json();
+
+                if (data.isOnline) {
+                    updateUserStatus(userId, "🟢 Online");
+                } else {
+                    const ago = getTimeAgo(data.lastAccess);
+                    updateUserStatus(userId, `🔴 Offline (${ago})`);
+                }
+            } catch (error) {
+                updateUserStatus(userId, "Unable to check status");
+            }
+        }
+
+        // Start connection and fetch initial status
+        connection.start().then(() => {
+            const userId = "@Model.UserId";
+            fetchInitialStatus(userId);
+        });
+    </script>
 
 
 </body>
