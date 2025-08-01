@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
-using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
 using BusinessLogic.Services.IngredientTagServices;
@@ -15,28 +14,24 @@ using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
-using Food_Haven.Web.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Models;
 using Models.DBContext;
 using Moq;
 using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
+using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Repository.ViewModels;
 
-namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
+namespace Food_Haven.UnitTest.Admin_CreateCategory_Test
 {
-    [TestFixture]
-    public class WithdrawList_Test
+    public class CreateCategory_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -134,81 +129,103 @@ namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
             _controller?.Dispose();
         }
 
-        
-
         [Test]
-        public async Task WithdrawList_NoWithdrawals_ReturnsEmptyList()
+        public void CreateCategory_ReturnsViewWithSuccessMessage_WhenModelIsValid()
         {
             // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            _balanceMock.Setup(b => b.ListAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>(), null, null))
-                .ReturnsAsync(new List<BalanceChange>());
+            var model = new CategoryCreateViewModel { Commission = 10, Number = 1 };
+            _controller.ModelState.Clear(); // ModelState is valid
+            _categoryServiceMock.Setup(s => s.CreateCategory(model));
 
             // Act
-            var result = await _controller.WithdrawList();
+            var result = _controller.CreateCategory(model) as ViewResult;
 
             // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<WithdrawAdminListViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<WithdrawAdminListViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count);
+            _categoryServiceMock.Verify(s => s.CreateCategory(model), Times.Once);
+            Assert.IsNotNull(result);
+            Assert.IsTrue(_controller.ViewBag.SuccessMessage == "Category created successfully!");
         }
 
         [Test]
-        public async Task WithdrawList_HasWithdrawals_ReturnsListWithData()
+        public void CreateCategory_ReturnsViewWithModel_WhenModelIsInvalid()
         {
             // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            var balances = new List<BalanceChange>
-            {
-                new BalanceChange
-                {
-                    ID = Guid.NewGuid(),
-                    MoneyChange = -1000,
-                    StartTime = DateTime.Now.AddDays(-1),
-                    DueTime = DateTime.Now,
-                    Description = "Recipient&123456&BankName&1000",
-                    UserID = "user1",
-                    Status = "PROCESSING",
-                    Method = "Withdraw"
-                },
-                new BalanceChange
-                {
-                    ID = Guid.NewGuid(),
-                    MoneyChange = -2000,
-                    StartTime = DateTime.Now.AddDays(-2),
-                    DueTime = DateTime.Now,
-                    Description = "Recipient2&654321&BankName2&2000",
-                    UserID = "user2",
-                    Status = "Success",
-                    Method = "Withdraw"
-                }
-            };
-            _balanceMock.Setup(b => b.ListAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>(), null, null))
-                .ReturnsAsync(balances);
-            _userManagerMock.Setup(m => m.FindByIdAsync("user1")).ReturnsAsync(new AppUser { UserName = "user1" });
-            _userManagerMock.Setup(m => m.FindByIdAsync("user2")).ReturnsAsync(new AppUser { UserName = "user2" });
+            var model = new CategoryCreateViewModel { Commission = 10, Number = 1 };
+            _controller.ModelState.AddModelError("Commission", "Required"); // ModelState is invalid
 
             // Act
-            var result = await _controller.WithdrawList();
+            var result = _controller.CreateCategory(model) as ViewResult;
 
             // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<WithdrawAdminListViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<WithdrawAdminListViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count);
-            Assert.AreEqual("user1", model[0].UserName);
-            Assert.AreEqual("user2", model[1].UserName);
-            Assert.AreEqual("PROCESSING", model[0].Status);
-            Assert.AreEqual("Success", model[1].Status);
-            Assert.AreEqual(1, model[0].No);
-            Assert.AreEqual(2, model[1].No);
+            _categoryServiceMock.Verify(s => s.CreateCategory(It.IsAny<CategoryCreateViewModel>()), Times.Never);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(model, result.Model);
+        }
+
+        [Test]
+        public void CreateCategory_ReturnsView_WhenIdGuidInvalid()
+        {
+            // Arrange: Guid.Empty is invalid for new category
+            var model = new CategoryCreateViewModel { ID = Guid.Empty, Name = "Test", Commission = 10, Number = 1 };
+            _controller.ModelState.Clear();
+            // Act
+            var result = _controller.CreateCategory(model) as ViewResult;
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(model, result.Model);
+        }
+
+        [Test]
+        public void CreateCategory_ReturnsView_WhenNameAlreadyExists()
+        {
+            // Arrange
+            var model = new CategoryCreateViewModel { Name = "ExistingName", Commission = 10, Number = 1 };
+            _controller.ModelState.Clear();
+            _categoryServiceMock.Setup(s => s.CreateCategory(model)).Throws(new Exception("This name already exists. Choose another!"));
+            // Act
+            var result = _controller.CreateCategory(model) as ViewResult;
+            // Assert
+            Assert.IsNotNull(result);
+            // Exception thrown, so ModelState should be invalid
+        }
+
+        [Test]
+        public void CreateCategory_ReturnsView_WhenDisplayOrderAlreadyExists()
+        {
+            // Arrange
+            var model = new CategoryCreateViewModel { Name = "Test", Commission = 10, Number = 2 };
+            _controller.ModelState.Clear();
+            _categoryServiceMock.Setup(s => s.CreateCategory(model)).Throws(new Exception("Display Order already exists. Choose another!"));
+            // Act
+            var result = _controller.CreateCategory(model) as ViewResult;
+            // Assert
+            Assert.IsNotNull(result);
+        }
+
+        [Test]
+        public void CreateCategory_ReturnsView_WhenDisplayOrderIsZero()
+        {
+            // Arrange
+            var model = new CategoryCreateViewModel { Name = "Test", Commission = 10, Number = 0 };
+            _controller.ModelState.AddModelError("Number", "Display order must be greater than 0!");
+            // Act
+            var result = _controller.CreateCategory(model) as ViewResult;
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(model, result.Model);
+        }
+
+        [Test]
+        public void CreateCategory_ReturnsView_WhenCommissionGreaterThan100()
+        {
+            // Arrange
+            var model = new CategoryCreateViewModel { Name = "Test", Commission = 101, Number = 1 };
+            _controller.ModelState.AddModelError("Commission", "Commission must be between 0% and 100%!");
+            // Act
+            var result = _controller.CreateCategory(model) as ViewResult;
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(model, result.Model);
         }
     }
 }

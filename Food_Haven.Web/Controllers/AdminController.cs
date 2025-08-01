@@ -670,15 +670,22 @@ namespace Food_Haven.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _categoryService.CreateCategory(model);
+                try
+                {
+                    _categoryService.CreateCategory(model);
 
-                // Gán thông báo thành công vào ViewBag
-                ViewBag.SuccessMessage = "Category created successfully!";
+                    // Gán thông báo thành công vào ViewBag
+                    ViewBag.SuccessMessage = "Category created successfully!";
 
-                // Trả lại View để hiển thị SweetAlert rồi mới redirect bằng JS
-                return View();
+                    // Trả lại View để hiển thị SweetAlert rồi mới redirect bằng JS
+                    return View(model); // <-- FIX: always return the model
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                    return View(model);
+                }
             }
-
             return View(model); // Nếu lỗi thì giữ nguyên form
         }
         [HttpGet("Admin/UpdateCategory/{id}")]
@@ -1860,9 +1867,9 @@ namespace Food_Haven.Web.Controllers
                     .ToList();
                 decimal totalDeposit = depositInRange.Sum(bc => bc.MoneyChange);
 
-                var orderIds = ordersInRange.Select(o => o.ID).ToList();
-                var orderDetails = await _orderDetail.ListAsync(od => orderIds.Contains(od.OrderID));
-                decimal commissionRevenue = orderDetails
+                var orderIdsInRange = ordersInRange.Select(o => o.ID).ToList();
+                var orderDetailsInRange = await _orderDetail.ListAsync(od => orderIdsInRange.Contains(od.OrderID));
+                decimal commissionRevenue = orderDetailsInRange
                     .Where(od => od.CommissionPercent >= 0 && od.CommissionPercent <= 100)
                     .Sum(od => od.ProductPrice * od.Quantity * ((decimal)od.CommissionPercent / 100));
                 commissionRevenue = Math.Round(commissionRevenue, 2);
@@ -2082,112 +2089,110 @@ namespace Food_Haven.Web.Controllers
         {
             try
             {
-                var validStatuses = new[]
-             {
-            "CONFIRMED",
-            "DELIVERING",
-            "PREPARING IN KITCHEN",
-            "PENDING"
-        };
-                // Lấy toàn bộ stores
-                var allStores = await _storedetail.ListAsync(s => true);
-                var allProducts = await _product.ListAsync(p => true);
-                var allProductTypes = await _variantService.ListAsync(pt => true);
-                var allOrderDetails = await _orderDetail.ListAsync(od => true);
-                var allOrders = await _order.ListAsync(o => validStatuses.Contains(o.Status.ToUpper()));
+                DateTime startDate = GetStartDateByPeriod(period);
+                DateTime endDate = DateTime.Now;
 
-                // Gộp dữ liệu theo store
-                var storeProducts = allProducts.GroupBy(p => p.StoreID)
-                    .ToDictionary(g => g.Key, g => g.Select(p => p.ID).ToList());
-                var productTypesDict = allProductTypes.GroupBy(pt => pt.ProductID)
-                    .ToDictionary(g => g.Key, g => g.Select(pt => pt.ID).ToList());
-                var productTypeStoreMap = allProductTypes.ToDictionary(pt => pt.ID, pt => pt.ProductID);
+                // Lấy tất cả cửa hàng
+                var shops = await _storedetail.ListAsync();
 
-                // Áp dụng filter thời gian lên orderDetails
-                var now = DateTime.Now;
-                IEnumerable<OrderDetail> filteredOrderDetails = allOrderDetails
-                    .Where(od => allOrders.Any(o => o.ID == od.OrderID));
+                // Lấy tất cả sản phẩm
+                var allProducts = await _product.ListAsync();
+                // Lấy tất cả variant
+                var allProductTypes = await _variantService.ListAsync();
+                // Lấy tất cả OrderDetail trong period
+                var allOrderDetails = period.ToLower() == "alltime"
+                    ? await _orderDetail.ListAsync()
+                    : await _orderDetail.ListAsync(od => od.CreatedDate >= startDate && od.CreatedDate <= endDate);
 
-                switch (period?.ToLower())
-                {
-                    case "today":
-                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate.Date == now.Date);
-                        break;
-                    case "yesterday":
-                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate.Date == now.AddDays(-1).Date);
-                        break;
-                    case "last7days":
-                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate >= now.AddDays(-7));
-                        break;
-                    case "last30days":
-                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate >= now.AddDays(-30));
-                        break;
-                    case "thismonth":
-                        filteredOrderDetails = filteredOrderDetails.Where(od => od.CreatedDate.Month == now.Month && od.CreatedDate.Year == now.Year);
-                        break;
-                    case "lastmonth":
-                        var lastMonth = now.AddMonths(-1);
-                        filteredOrderDetails = filteredOrderDetails.Where(od =>
-                            od.CreatedDate.Month == lastMonth.Month && od.CreatedDate.Year == lastMonth.Year);
-                        break;
-                    case "alltime":
-                    default:
-                        // Không filter thêm
-                        break;
-                }
+                // Lấy order IDs
+                var orderIds = allOrderDetails.Select(od => od.OrderID).Distinct().ToList();
+                var orders = orderIds.Any() ? await _order.ListAsync(o => orderIds.Contains(o.ID)) : new List<Order>();
 
-                // Gom nhóm theo StoreID
-                var orderDetailsByStore = filteredOrderDetails
-                    .Where(od => productTypeStoreMap.ContainsKey(od.ProductTypesID))
-                    .GroupBy(od =>
+                // Lấy user chủ shop
+                var userIds = shops.Select(s => s.UserID).Distinct().ToList();
+                var users = await _userManager.Users
+                    .Where(u => userIds.Contains(u.Id))
+                    .ToDictionaryAsync(u => u.Id, u => new { u.UserName, u.FirstName, u.LastName });
+
+                // Xác định shop nào thỏa điều kiện:
+                // 1. Được tạo trong filter
+                // 2. Hoặc có đơn phát sinh trong filter
+                var shopIdWithOrder = allProducts
+                    .Join(allProductTypes, p => p.ID, pt => pt.ProductID, (p, pt) => new { p.StoreID, pt.ID })
+                    .Join(allOrderDetails, x => x.ID, od => od.ProductTypesID, (x, od) => x.StoreID)
+                    .Distinct()
+                    .ToHashSet();
+
+                var result = shops
+                    .Where(shop =>
+                        // shop tạo trong filter, hoặc có đơn trong filter
+                        (shop.CreatedDate >= startDate && shop.CreatedDate <= endDate)
+                        || shopIdWithOrder.Contains(shop.ID)
+                    )
+                    .Select(shop =>
                     {
-                        var productId = productTypeStoreMap[od.ProductTypesID];
-                        var product = allProducts.FirstOrDefault(p => p.ID == productId);
-                        return product?.StoreID ?? Guid.Empty;
+                        // Sản phẩm của shop
+                        var productsOfShop = allProducts.Where(p => p.StoreID == shop.ID).ToList();
+                        int totalProducts = productsOfShop.Count;
+
+                        // Lọc variant (ProductType) thuộc sản phẩm của shop
+                        var productTypeIds = allProductTypes
+                            .Where(pt => productsOfShop.Select(p => p.ID).Contains(pt.ProductID))
+                            .Select(pt => pt.ID)
+                            .ToList();
+
+                        // Lọc OrderDetail trong period thuộc shop
+                        var odOfShop = allOrderDetails
+                            .Where(od => productTypeIds.Contains(od.ProductTypesID))
+                            .ToList();
+
+                        // OrderId của shop trong period
+                        var orderIdsOfShop = odOfShop.Select(od => od.OrderID).Distinct().ToList();
+
+                        // Orders của shop trong period
+                        var ordersOfShop = orders.Where(o => orderIdsOfShop.Contains(o.ID)).ToList();
+
+                        // Tổng doanh thu của shop trong period
+                        decimal grossSales = ordersOfShop.Sum(o => o.TotalPrice);
+
+                        // Seller
+                        var user = users.ContainsKey(shop.UserID) ? users[shop.UserID] : null;
+                        var sellerName = user != null
+                            ? (!string.IsNullOrEmpty(user.FirstName) || !string.IsNullOrEmpty(user.LastName)
+                                ? $"{user.FirstName} {user.LastName}".Trim()
+                                : user.UserName)
+                            : "Unknown";
+
+                        return new
+                        {
+                            id = shop.ID,
+                            name = shop.Name,
+                            customer = new { name = sellerName },
+                            quantity = totalProducts,           // Nếu shop chưa có sp thì là 0
+                            amount = grossSales,                // Nếu shop chưa có đơn thì là 0
+                            status = shop.IsActive ? "Active" : "Banned"
+                        };
                     })
-                    .Where(g => g.Key != Guid.Empty)
+                    .OrderByDescending(x => x.amount)
                     .ToList();
-
-                var storeData = orderDetailsByStore.Select(g =>
-                {
-                    var storeId = g.Key;
-                    var store = allStores.FirstOrDefault(s => s.ID == storeId);
-                    var productsOfStore = storeProducts.ContainsKey(storeId) ? storeProducts[storeId] : new List<Guid>();
-                    var orderCount = g.Select(od => od.OrderID).Distinct().Count();
-                    var grosssales = g.Sum(od => od.ProductPrice * od.Quantity);
-                    var commissionrevenue = g
-                        .Where(od => od.CommissionPercent >= 0 && od.CommissionPercent <= 100)
-                        .Sum(od => od.ProductPrice * od.Quantity * ((decimal)od.CommissionPercent / 100));
-
-                    return new
-                    {
-                        storeid = store?.ID ?? Guid.Empty,
-                        storename = store?.Name ?? "Unknown",
-                        storejoindate = store?.CreatedDate.ToString("dd/MM/yyyy") ?? "",
-                        productcount = productsOfStore.Count,
-                        ordercount = orderCount,
-                        grosssales = Math.Round(grosssales, 2),
-                        commissionrevenue = Math.Round(commissionrevenue, 2)
-                    };
-                })
-                .Where(x => x.storeid != Guid.Empty)
-                .OrderByDescending(x => x.grosssales)
-                .ToList();
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
-                    storeData = storeData
-                        .Where(s => s.storename.ToLower().Contains(search.ToLower()))
+                    result = result
+                        .Where(s => s.name.ToLower().Contains(search.ToLower()))
                         .ToList();
                 }
 
-                return Json(storeData);
+                return Json(new { success = true, data = result });
             }
             catch (Exception ex)
             {
-                return Json(new { error = ex.Message });
+                return Json(new { success = false, msg = "An error occurred: " + ex.Message });
+
             }
         }
+
+
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetTopCategories(string period = "today", string search = "")
@@ -2287,57 +2292,14 @@ namespace Food_Haven.Web.Controllers
                 .OrderByDescending(x => x.grossSales)
                 .ToList();
 
-            // Tính tổng doanh thu để lấy phần trăm growth từng category
-            decimal allGrossSales = grouped.Sum(x => x.grossSales);
-
-            // Tính growth từng category (làm tròn từng mục, rồi bù cho mục lớn nhất)
-            var growths = grouped
-                .Select(x => allGrossSales == 0 ? 0 : Math.Round(100m * x.grossSales / allGrossSales, 2))
-                .ToList();
-
-            decimal sumGrowth = growths.Sum();
-            decimal diff = 100m - sumGrowth;
-            if (growths.Count > 0)
-            {
-                // Tìm index mục có grossSales lớn nhất để bù diff
-                int maxIdx = 0;
-                decimal maxGross = grouped[0].grossSales;
-                for (int i = 1; i < grouped.Count; i++)
-                {
-                    if (grouped[i].grossSales > maxGross)
-                    {
-                        maxGross = grouped[i].grossSales;
-                        maxIdx = i;
-                    }
-                }
-                // Bù và đảm bảo không âm
-                growths[maxIdx] += diff;
-                if (growths[maxIdx] < 0) growths[maxIdx] = 0;
-            }
-
-            var categoryStats = grouped
-                .Select((x, idx) => new
-                {
-                    id = x.id,
-                    name = x.name,
-                    commitson = x.commitson,
-                    createdDate = x.createdDate,
-                    grossSales = x.grossSales,
-                    commissionRevenue = x.commissionRevenue,
-                    orderCount = x.orderCount,
-                    growth = growths[idx]
-                })
-                .OrderByDescending(x => x.grossSales)
-                .ToList();
-
             if (!string.IsNullOrEmpty(search))
             {
-                categoryStats = categoryStats
+                grouped = grouped
                     .Where(c => c.name.ToLower().Contains(search.ToLower()))
                     .ToList();
             }
 
-            return Json(categoryStats);
+            return Json(grouped);
         }
         [HttpGet]
         public async Task<IActionResult> ShopComplaintRates(string period = "alltime")
@@ -2353,10 +2315,8 @@ namespace Food_Haven.Web.Controllers
 
                 // Lấy tất cả sản phẩm
                 var allProducts = await _product.ListAsync();
-
                 // Lấy tất cả variant
                 var allProductTypes = await _variantService.ListAsync();
-
                 // Lấy tất cả OrderDetail (có thể lọc theo status nếu muốn, ở đây lấy tất cả)
                 var allOrderDetails = await _orderDetail.ListAsync();
 
@@ -2426,7 +2386,7 @@ namespace Food_Haven.Web.Controllers
                 DateTime startDate = GetStartDateByPeriod(period);
                 DateTime endDate = DateTime.Now;
 
-                // Lấy tất cả shop
+                // Lấy tất cả cửa hàng
                 var shops = await _storedetail.ListAsync();
 
                 // Lấy tất cả sản phẩm
