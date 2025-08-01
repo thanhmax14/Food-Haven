@@ -1,12 +1,14 @@
 ﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -53,6 +55,8 @@ namespace Food_Haven.UnitTest.Home_Index_Test
         private Mock<IVoucherServices> _voucherServiceMock;
         private Mock<IStoreReportServices> _storeReportServiceMock;
         private Mock<IStoreFollowersService> _storeFollowersServiceMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
 
         // Nếu muốn mock luôn RecipeSearchService, bạn cần tạo interface cho nó
         // private Mock<IRecipeSearchService> _recipeSearchServiceMock;
@@ -88,6 +92,8 @@ namespace Food_Haven.UnitTest.Home_Index_Test
             _voucherServiceMock = new Mock<IVoucherServices>();
             _storeReportServiceMock = new Mock<IStoreReportServices>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
 
             // Nếu RecipeSearchService cần được mock, bạn nên refactor thành interface IRecipeSearchService và mock nó
             var recipeSearchService = new RecipeSearchService(""); // Hoặc dùng Mock<IRecipeSearchService>()
@@ -114,7 +120,9 @@ namespace Food_Haven.UnitTest.Home_Index_Test
                 _voucherServiceMock.Object,
                 _storeReportServiceMock.Object,
                 _storeFollowersServiceMock.Object,
-                recipeSearchService
+                recipeSearchService,
+                _expertRecipeServicesMock.Object,
+                _recipeViewHistoryServicesMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext

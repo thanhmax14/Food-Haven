@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLogic.Services.BalanceChanges;
+﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -24,11 +21,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Models;
 using Moq;
 using Net.payOS;
 using NUnit.Framework;
-using Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 using System.Threading.Tasks;
 
 namespace Food_Haven.UnitTest._Home_Logout_Test
@@ -38,7 +40,8 @@ namespace Food_Haven.UnitTest._Home_Logout_Test
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<SignInManager<AppUser>> _signInManagerMock;
         private HomeController _controller;
-
+        private Mock<IExpertRecipeServices> expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> recipeViewHistoryServicesMock;
         [SetUp]
         public void Setup()
         {
@@ -91,7 +94,9 @@ namespace Food_Haven.UnitTest._Home_Logout_Test
                 voucherMock.Object,
                 storeReportMock.Object,
                 storeFollowersMock.Object,
-                recipeSearchMock
+                recipeSearchMock,
+                expertRecipeServicesMock.Object,
+                recipeViewHistoryServicesMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext

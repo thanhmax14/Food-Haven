@@ -1,12 +1,14 @@
 ﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -52,7 +54,8 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
         private Mock<IVoucherServices> _voucherServiceMock;
         private Mock<IStoreReportServices> _storeReportServiceMock;
         private Mock<IStoreFollowersService> _storeFollowersServiceMock;
-
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
         private HomeController _controller;
 
         [SetUp]
@@ -84,7 +87,8 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
             _voucherServiceMock = new Mock<IVoucherServices>();
             _storeReportServiceMock = new Mock<IStoreReportServices>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
-
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
             var recipeSearchService = new RecipeSearchService("");
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
 
@@ -108,7 +112,9 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
                 _voucherServiceMock.Object,
                 _storeReportServiceMock.Object,
                 _storeFollowersServiceMock.Object,
-                recipeSearchService
+                recipeSearchService,
+                 _expertRecipeServicesMock.Object, // <-- Add this argument
+ _recipeViewHistoryServicesMock.Object // <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext
