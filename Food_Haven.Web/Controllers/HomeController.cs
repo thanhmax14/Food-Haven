@@ -1885,7 +1885,7 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> FindRecipes()
         {
- /*           int skip = await _expertRecipeServices.CountAsync(); // bạn đã có 10000 bản
+          int skip = await _expertRecipeServices.CountAsync(); // bạn đã có 10000 bản
             int limit = 100;
 
             var recipes = _service.LoadRecipesFromCsv(skip, limit);
@@ -1896,7 +1896,7 @@ namespace Food_Haven.Web.Controllers
                 await _expertRecipeServices.AddAsync(entity);
             }
 
-            await _expertRecipeServices.SaveChangesAsync();*/
+            await _expertRecipeServices.SaveChangesAsync();
             return View();
         }
         public async Task<IActionResult> Index()
