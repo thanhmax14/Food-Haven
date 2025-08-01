@@ -2,12 +2,14 @@
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -37,7 +39,8 @@ namespace Food_Haven.UnitTest.Hone_ConfirmEmail_Test
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<SignInManager<AppUser>> _signInManagerMock;
         private HomeController _controller;
-
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
         [SetUp]
         public void Setup()
         {
@@ -70,7 +73,8 @@ namespace Food_Haven.UnitTest.Hone_ConfirmEmail_Test
             var storeReportMock = new Mock<IStoreReportServices>();
             var storeFollowersMock = new Mock<IStoreFollowersService>();
             var recipeSearchMock = new RecipeSearchService("");
-
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
             _controller = new HomeController(
                 _signInManagerMock.Object,
                 orderDetailMock.Object,
@@ -91,7 +95,9 @@ namespace Food_Haven.UnitTest.Hone_ConfirmEmail_Test
                 voucherMock.Object,
                 storeReportMock.Object,
                 storeFollowersMock.Object,
-                recipeSearchMock
+                recipeSearchMock,
+                 _expertRecipeServicesMock.Object, // <-- Add this argument
+ _recipeViewHistoryServicesMock.Object // <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext

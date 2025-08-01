@@ -1,12 +1,14 @@
 ﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -19,6 +21,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query;
 using Models;
 using Moq;
 using Net.payOS;
@@ -29,7 +32,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Food_Haven_TestUnit.UnitTestFollowedStore
 {
@@ -39,7 +41,8 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
         private Mock<SignInManager<AppUser>> _signInManagerMock;
         private Mock<IStoreFollowersService> _storeFollowersMock;
         private HomeController _controller;
-
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
         [SetUp]
         public void Setup()
         {
@@ -52,6 +55,8 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
                 new Mock<IHttpContextAccessor>().Object,
                 new Mock<IUserClaimsPrincipalFactory<AppUser>>().Object,
                 null, null, null, null);
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
 
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
             var orderDetailMock = new Mock<IOrderDetailService>();
@@ -93,7 +98,9 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
                 voucherMock.Object,
                 storeReportMock.Object,
                 _storeFollowersMock.Object,
-                recipeSearchMock
+                recipeSearchMock,
+                _expertRecipeServicesMock.Object, // <-- Add this argument
+    _recipeViewHistoryServicesMock.Object // <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext
@@ -169,7 +176,9 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
                 new Mock<IVoucherServices>().Object,
                 new Mock<IStoreReportServices>().Object,
                 _storeFollowersMock.Object,
-                new RecipeSearchService("")
+                new RecipeSearchService(""),
+                  _expertRecipeServicesMock.Object, // <-- Add this argument
+    _recipeViewHistoryServicesMock.Object // <-- Add this a
             );
 
             _userManagerMock.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);

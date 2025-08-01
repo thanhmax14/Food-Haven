@@ -1,12 +1,14 @@
 ﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -15,12 +17,13 @@ using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
 using Food_Haven.Web.Controllers;
 using Food_Haven.Web.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Models;
 using Moq;
@@ -31,7 +34,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Food_Haven.UnitTest.Hone_ExternalLoginCallback_Test
 {
@@ -40,7 +42,8 @@ namespace Food_Haven.UnitTest.Hone_ExternalLoginCallback_Test
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<SignInManager<AppUser>> _signInManagerMock;
         private HomeController _controller;
-
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
         [SetUp]
         public void Setup()
         {
@@ -73,7 +76,8 @@ namespace Food_Haven.UnitTest.Hone_ExternalLoginCallback_Test
             var storeReportMock = new Mock<IStoreReportServices>();
             var storeFollowersMock = new Mock<IStoreFollowersService>();
             var recipeSearchMock = new RecipeSearchService("");
-
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
             _controller = new HomeController(
                 _signInManagerMock.Object,
                 orderDetailMock.Object,
@@ -94,7 +98,9 @@ namespace Food_Haven.UnitTest.Hone_ExternalLoginCallback_Test
                 voucherMock.Object,
                 storeReportMock.Object,
                 storeFollowersMock.Object,
-                recipeSearchMock
+                recipeSearchMock,
+                 _expertRecipeServicesMock.Object, // <-- Add this argument
+ _recipeViewHistoryServicesMock.Object // <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext

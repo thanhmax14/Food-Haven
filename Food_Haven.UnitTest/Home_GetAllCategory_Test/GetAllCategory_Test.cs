@@ -1,12 +1,14 @@
 ﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
 using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.RecipeViewHistorys;
 using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreFollowers;
@@ -38,6 +40,8 @@ namespace Food_Haven.UnitTest.Home_GetAllCategory_Test
         private Mock<SignInManager<AppUser>> _signInManagerMock;
         private HomeController _controller;
         private Mock<ICategoryService> _categoryServiceMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
+        private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
 
         [SetUp]
         public void Setup()
@@ -92,7 +96,9 @@ namespace Food_Haven.UnitTest.Home_GetAllCategory_Test
                 voucherMock.Object,
                 storeReportMock.Object,
                 storeFollowersMock.Object,
-                recipeSearchMock
+                recipeSearchMock,
+                _expertRecipeServicesMock.Object,
+                _recipeViewHistoryServicesMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext
