@@ -22,21 +22,19 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
-using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Repository.ViewModels;
 
-namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
+namespace Food_Haven.UnitTest.Admin_RejectWithdraw_Test
 {
-    [TestFixture]
-    public class WithdrawList_Test
+    public class RejectWithdraw_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -134,81 +132,55 @@ namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
             _controller?.Dispose();
         }
 
-        
-
         [Test]
-        public async Task WithdrawList_NoWithdrawals_ReturnsEmptyList()
+        public async Task RejectWithdraw_InvalidId_ReturnsJsonError()
         {
-            // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            _balanceMock.Setup(b => b.ListAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>(), null, null))
-                .ReturnsAsync(new List<BalanceChange>());
-
-            // Act
-            var result = await _controller.WithdrawList();
-
-            // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<WithdrawAdminListViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<WithdrawAdminListViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count);
+            var result = await _controller.AcceptWithdraw("");
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+            var data = jsonResult.Value.GetType().GetProperty("success") != null
+                ? jsonResult.Value
+                : (object)new Dictionary<string, object>(jsonResult.Value.GetType().GetProperties().ToDictionary(p => p.Name, p => p.GetValue(jsonResult.Value)));
+            bool success = (bool)(data is IDictionary<string, object> dict ? dict["success"] : data.GetType().GetProperty("success").GetValue(data));
+            string msg = (string)(data is IDictionary<string, object> dict2 ? dict2["msg"] : data.GetType().GetProperty("msg").GetValue(data));
+            Assert.IsFalse(success);
+            Assert.AreEqual("Invalid ID!", msg);
         }
 
+
         [Test]
-        public async Task WithdrawList_HasWithdrawals_ReturnsListWithData()
+        public async Task RejectWithdraw_Success_ReturnsJsonSuccess()
         {
             // Arrange
             var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            var balances = new List<BalanceChange>
-            {
-                new BalanceChange
-                {
-                    ID = Guid.NewGuid(),
-                    MoneyChange = -1000,
-                    StartTime = DateTime.Now.AddDays(-1),
-                    DueTime = DateTime.Now,
-                    Description = "Recipient&123456&BankName&1000",
-                    UserID = "user1",
-                    Status = "PROCESSING",
-                    Method = "Withdraw"
-                },
-                new BalanceChange
-                {
-                    ID = Guid.NewGuid(),
-                    MoneyChange = -2000,
-                    StartTime = DateTime.Now.AddDays(-2),
-                    DueTime = DateTime.Now,
-                    Description = "Recipient2&654321&BankName2&2000",
-                    UserID = "user2",
-                    Status = "Success",
-                    Method = "Withdraw"
-                }
-            };
-            _balanceMock.Setup(b => b.ListAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>(), null, null))
-                .ReturnsAsync(balances);
-            _userManagerMock.Setup(m => m.FindByIdAsync("user1")).ReturnsAsync(new AppUser { UserName = "user1" });
-            _userManagerMock.Setup(m => m.FindByIdAsync("user2")).ReturnsAsync(new AppUser { UserName = "user2" });
+            var withdrawUser = new AppUser { UserName = "user", Id = "user-id" };
+            var guid = Guid.NewGuid();
+            var withdraw = new BalanceChange { ID = guid, UserID = "user-id", MoneyChange = 1000 };
+
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _balanceMock.Setup(b => b.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>())).ReturnsAsync(withdraw);
+            _userManagerMock.Setup(u => u.FindByIdAsync("user-id")).ReturnsAsync(withdrawUser);
+            _balanceMock.Setup(b => b.GetBalance(withdrawUser.Id)).ReturnsAsync(5000);
+            _balanceMock.Setup(b => b.UpdateAsync(withdraw)).Returns(Task.CompletedTask);
+            _balanceMock.Setup(b => b.SaveChangesAsync()).ReturnsAsync(1);
+            var manageTransactionMock = new Mock<ManageTransaction>(new FoodHavenDbContext(new DbContextOptionsBuilder<FoodHavenDbContext>().Options));
+            manageTransactionMock.Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
+                .Returns<Func<Task>>(async (func) => { await func(); return true; });
+            // Replace _manageTransaction with mock
+            typeof(AdminController).GetField("_managetrans", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(_controller, manageTransactionMock.Object);
 
             // Act
-            var result = await _controller.WithdrawList();
-
-            // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<WithdrawAdminListViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<WithdrawAdminListViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(2, model.Count);
-            Assert.AreEqual("user1", model[0].UserName);
-            Assert.AreEqual("user2", model[1].UserName);
-            Assert.AreEqual("PROCESSING", model[0].Status);
-            Assert.AreEqual("Success", model[1].Status);
-            Assert.AreEqual(1, model[0].No);
-            Assert.AreEqual(2, model[1].No);
+            var result = await _controller.RejectWithdraw(guid.ToString());
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+            var data = jsonResult.Value.GetType().GetProperty("success") != null
+                ? jsonResult.Value
+                : (object)new Dictionary<string, object>(jsonResult.Value.GetType().GetProperties().ToDictionary(p => p.Name, p => p.GetValue(jsonResult.Value)));
+            bool success = (bool)(data is IDictionary<string, object> dict ? dict["success"] : data.GetType().GetProperty("success").GetValue(data));
+            string msg = (string)(data is IDictionary<string, object> dict2 ? dict2["msg"] : data.GetType().GetProperty("msg").GetValue(data));
+            Assert.IsTrue(success);
+            Assert.AreEqual("Confirm withdrawal rejection successful!", msg);
         }
     }
 }
