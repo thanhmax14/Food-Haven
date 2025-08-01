@@ -1888,7 +1888,7 @@ namespace Food_Haven.Web.Controllers
           int skip = await _expertRecipeServices.CountAsync(); // bạn đã có 10000 bản
             int limit = 100;
 
-            var recipes = _service.LoadRecipesFromCsv(skip, limit);
+            var recipes = _service.LoadRecipesFromCsv(0, limit);
 
             foreach (var recipe in recipes)
             {

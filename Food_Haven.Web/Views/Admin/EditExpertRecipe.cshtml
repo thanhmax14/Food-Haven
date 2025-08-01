@@ -1,0 +1,1160 @@
+﻿@model Repository.ViewModels.ExpertRecipeEditViewModel
+
+<!doctype html>
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+
+
+<!-- Mirrored from themesbrand.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+
+<head>
+
+    <meta charset="utf-8" />
+    <title>Form layout | Velzon - Admin & Dashboard Template</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+    <meta content="Themesbrand" name="author" />
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="~/assetsAdmin/images/favicon.ico">
+
+    <!-- Layout config Js -->
+    <script src="~/assetsAdmin/js/layout.js"></script>
+    <!-- Bootstrap Css -->
+    <link href="~/assetsAdmin/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="~/assetsAdmin/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="~/assetsAdmin/css/app.min.css" rel="stylesheet" type="text/css" />
+    <!-- custom Css-->
+    <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .card {
+            box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
+            border: 1px solid #e9ecef;
+        }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border-radius: 0.375rem;
+            border: 1px solid #ced4da;
+            padding: 0.625rem 0.75rem;
+        }
+
+            .form-control:focus {
+                border-color: #405189;
+                box-shadow: 0 0 0 0.2rem rgba(64, 81, 137, 0.25);
+            }
+
+        .btn-add-step {
+            background-color: #f8f9fa;
+            border: 1px dashed #ced4da;
+            color: #6c757d;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-add-step:hover {
+                background-color: #405189;
+                border-color: #405189;
+                color: white;
+            }
+
+        .btn-remove {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .step-item {
+            border: 1px solid #e9ecef;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background-color: #fff;
+            position: relative;
+        }
+
+        .step-number {
+            background-color: #405189;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+    </style>
+    <style>
+        /* Fix: Ẩn invalid-feedback mặc định, chỉ hiện khi có class is-invalid */
+        .invalid-feedback {
+            display: none !important;
+        }
+
+        /* Chỉ hiện invalid-feedback khi element có class is-invalid */
+        .is-invalid ~ .invalid-feedback,
+        .form-control.is-invalid ~ .invalid-feedback,
+        .was-validated .form-control:invalid ~ .invalid-feedback {
+            display: block !important;
+        }
+
+        /* Đảm bảo field-validation-error luôn hiển thị */
+        .field-validation-error {
+            display: block !important;
+        }
+
+        /* Style cho error message */
+        .field-validation-error {
+            font-size: 0.875rem;
+            color: #dc3545;
+            margin-top: 0.25rem;
+        }
+
+        /* Đảm bảo form control có border đỏ khi invalid */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        /* Smooth transition cho validation states */
+        .form-control {
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        @await Html.PartialAsync("_headeradmin")
+        <!-- removeNotificationModal -->
+        <div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                                id="NotificationModalbtn-close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mt-2 text-center">
+                            <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
+                                       colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>
+                            <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                                <h4>Are you sure ?</h4>
+                                <p class="text-muted mx-4 mb-0">Are you sure you want to remove this Notification ?</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                            <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn w-sm btn-danger" id="delete-notification">
+                                Yes, Delete
+                                It!
+                            </button>
+                        </div>
+                    </div>
+
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <!-- ========== App Menu ========== -->
+        <div class="app-menu navbar-menu">
+            <!-- LOGO -->
+            <div class="navbar-brand-box">
+                <!-- Dark Logo-->
+                <a class="logo logo-dark">
+                    <span class="logo-sm">
+                        <img src="~/assetsAdmin/images/logo-sm.svg" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="~/assetsAdmin/images/logo-dark.svg" alt="" height="35">
+                    </span>
+                </a>
+                <!-- Light Logo-->
+                <a class="logo logo-light">
+                    <span class="logo-sm">
+                        <img src="~/assetsAdmin/images/logo-sm.svg" alt="" height="22">
+                    </span>
+                    <span class="logo-lg">
+                        <img src="~/assetsAdmin/images/logo-light.svg" alt="" height="35">
+                    </span>
+                </a>
+                <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
+                        id="vertical-hover">
+                    <i class="ri-record-circle-line"></i>
+                </button>
+            </div>
+
+            <div id="scrollbar">
+                <div class="container-fluid">
+                    <div id="two-column-menu">
+                    </div>
+                    <ul class="navbar-nav" id="navbar-nav">
+                        <li class="menu-title"><span data-key="t-menu">Menu</span></li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Index">
+                                <i class=" ri-pie-chart-line"></i> <span>Revenue Statistics</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
+                            <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="Managercomplant">
+                            <i class="ri-error-warning-line"></i> <span>Order Complaint Reports From Seller</span>
+                        </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerUser">
+                                <i class="ri-account-circle-line"></i> <span>User Accounts</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementSeller">
+                                <i class="ri-user-add-line"></i> <span>Seller Registration Requests</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewStoreRegistration">
+                            <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
+                        </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewAdminStore">
+                                <i class="ri-store-2-line"></i> <span>Store</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementReportStore">
+                            <i class="ri-alert-line"></i> <span>Store Reports From User</span>
+                        </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewCategories">
+                                <i class="ri-folder-2-line"></i> <span>Categories</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagementRecipe">
+                                <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllIngredientTag">
+                            <i class=" ri-price-tag-3-line"></i> <span>Ingredient Tag</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllTypeOfDish">
+                            <i class="ri-restaurant-line"></i> <span>Type of Dish</span>
+                        </a>
+                        </li>
+                        <li class="nav-item"></li>
+                        <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerVoucher">
+                            <i class=" ri-coupon-2-line"></i> <span>Voucher</span>
+                        </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="Chat">
+                                <i class="ri-chat-3-line"></i> <span>Chat</span>
+                            </a>
+                        </li>
+                        <!--<li class="nav-item">
+                            <a class="nav-link menu-link" href="">
+                                <i class="ri-notification-2-line"></i> <span>Notifications</span>
+                            </a>
+                        </li> -->
+                    </ul>
+                </div>
+            </div>
+            <!-- Sidebar -->
+        </div>
+        <div class="sidebar-background"></div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+
+        <div class="page-content">
+            <div class="container-fluid">
+
+                <!-- start page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                            <h4 class="mb-sm-0">Form Layout</h4>
+
+                            <div class="page-title-right">
+                                <ol class="breadcrumb m-0">
+                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
+                                    <li class="breadcrumb-item active">Form Layout</li>
+                                </ol>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end page title -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form id="recipeForm" novalidate data-recipe-id="@Model.Id">
+                                    <div class="row g-3">
+                                        <!-- Title Field -->
+                                        <input type="hidden" id="recipeId" value="@Model.Id" />
+                                        <div class="col-12">
+                                            <label for="title" class="form-label">
+                                                Title <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="title" maxlength="200"
+                                                   required>
+                                            <div class="invalid-feedback">
+                                                Please enter a title (maximum 200 characters).
+                                            </div>
+                                            <div class="form-text">
+                                                <span id="titleCount">0</span>/200 characters.
+                                            </div>
+                                        </div>
+
+                                        <!-- Ingredients Section -->
+                                        <div class="col-12">
+                                            <label class="form-label">
+                                                Ingredients <span class="text-danger">*</span>
+                                            </label>
+                                            <div id="ingredientsContainer">
+                                                <div class="step-item">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span class="step-number me-2">1</span>
+                                                        <span class="fw-medium">Ingredients 1</span>
+                                                    </div>
+                                                    <textarea class="form-control ingredient-input" maxlength="1500"
+                                                              rows="3" required></textarea>
+                                                    <div class="invalid-feedback">
+                                                        Please enter the ingredients (maximum 1500 characters).
+                                                    </div>
+                                                    <div class="form-text">
+                                                        <span class="ingredient-count">0</span>/1500 characters.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-add-step"
+                                                    onclick="addIngredient()">
+                                                <i class="fas fa-plus me-1"></i> Add Ingredients
+                                            </button>
+                                        </div>
+
+                                        <!-- Directions Section -->
+                                        <div class="col-12">
+                                            <label class="form-label">
+                                                Directions <span class="text-danger">*</span>
+                                            </label>
+                                            <div id="directionsContainer">
+                                                <div class="step-item">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span class="step-number me-2">1</span>
+                                                        <span class="fw-medium">Steps 1</span>
+                                                    </div>
+                                                    <textarea class="form-control direction-input" maxlength="2500"
+                                                              rows="4" required></textarea>
+                                                    <div class="invalid-feedback">
+                                                        Please enter the directions (maximum 2500 characters).
+                                                    </div>
+                                                    <div class="form-text">
+                                                        <span class="direction-count">0</span>/2500 characters.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-add-step" onclick="addDirection()">
+                                                <i class="fas fa-plus me-1"></i> Add Steps
+                                            </button>
+                                        </div>
+
+                                        <!-- NER Section -->
+                                        <div class="col-12">
+                                            <label class="form-label">NER (Named Entity Recognition)</label>
+                                            <div id="nerContainer">
+                                                <div class="step-item">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span class="step-number me-2">1</span>
+                                                        <span class="fw-medium">NER 1</span>
+                                                    </div>
+                                                    <textarea class="form-control ner-input" maxlength="1000"
+                                                              rows="3" required></textarea>
+                                                    <div class="invalid-feedback">
+                                                        Please enter the NER (maximum 1000 characters).
+                                                    </div>
+                                                    <div class="form-text">
+                                                        <span class="ner-count">0</span>/1000 characters.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="btn btn-add-step" onclick="addNER()">
+                                                <i class="fas fa-plus me-1"></i> Add NER
+                                            </button>
+                                        </div>
+
+                                        <!-- Link và Source -->
+                                        <div class="col-md-6">
+                                            <label for="link" class="form-label">Link</label>
+                                            <input type="url" class="form-control" id="link"
+                                                   placeholder="https://example.com" required>
+                                            <div class="invalid-feedback">
+                                                Please enter a valid URL.
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label for="source" class="form-label">Source</label>
+                                            <input type="text" class="form-control" id="source" maxlength="100" required>
+                                            <div class="invalid-feedback">
+                                                Maximum 100 characters.
+                                            </div>
+                                            <div class="form-text">
+                                                <span id="sourceCount">0</span>/100 characters.
+                                            </div>
+                                        </div>
+
+                                        <!-- Upload File Section -->
+
+                                    </div>
+
+                                    <div class="mt-4">                                
+                                        <button type="submit" class="btn btn-success me-2">
+                                            <i class="fas fa-check me-1"></i> Lưu
+                                        </button>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- container-fluid -->
+        </div>
+        <!-- End Page-content -->
+
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <script>document.write(new Date().getFullYear())</script> © Velzon.
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end d-none d-sm-block">
+                            Design & Develop by Themesbrand
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- end main content-->
+    </div>
+    <!-- END layout-wrapper -->
+    <!--start back-to-top-->
+    <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+        <i class="ri-arrow-up-line"></i>
+    </button>
+    <!--end back-to-top-->
+    <!-- JAVASCRIPT -->
+    <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assetsAdmin/libs/simplebar/simplebar.min.js"></script>
+    <script src="~/assetsAdmin/libs/node-waves/waves.min.js"></script>
+    <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
+    <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
+    <script src="~/assetsAdmin/js/plugins.js"></script>
+
+    <!-- prismjs plugin -->
+    <script src="~/assetsAdmin/libs/prismjs/prism.js"></script>
+
+    <script src="~/assetsAdmin/js/app.js"></script>
+
+</body>
+
+
+<!-- Mirrored from themesbrand.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+
+</html>
+<script>
+    let ingredientCount = 1;
+    let directionCount = 1;
+    let nerCount = 1;
+
+    // Get recipe ID from URL or hidden field
+    function getRecipeId() {
+        // Option 1: From URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const idFromUrl = urlParams.get('id');
+        if (idFromUrl) return idFromUrl;
+
+        // Option 2: From hidden field in form
+        const hiddenId = document.getElementById('recipeId');
+        if (hiddenId) return hiddenId.value;
+
+        // Option 3: From data attribute
+        const form = document.getElementById('recipeForm');
+        if (form && form.dataset.recipeId) return form.dataset.recipeId;
+
+        return null;
+    }
+
+    // Fixed scroll to error function
+    function scrollToError(errorField) {
+        if (!errorField) return;
+
+        // Find the container that holds the error field
+        const container = errorField.closest('.step-item, .col-12, .col-md-6, .form-group, .mb-3');
+
+        // Calculate offset to account for fixed headers or navigation
+        const offset = 100; // Adjust this value based on your header height
+
+        if (container) {
+            // Get the position of the container
+            const rect = container.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const targetPosition = rect.top + scrollTop - offset;
+
+            // Smooth scroll to the target position
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+
+            // Focus on the error field after scrolling
+            setTimeout(() => {
+                if (errorField.focus) {
+                    errorField.focus();
+                    // Add visual highlight to the error field
+                    errorField.style.boxShadow = '0 0 10px rgba(220, 53, 69, 0.5)';
+                    setTimeout(() => {
+                        errorField.style.boxShadow = '';
+                    }, 2000);
+                }
+            }, 500);
+        } else {
+            // Fallback: scroll directly to the field
+            errorField.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+            setTimeout(() => {
+                if (errorField.focus) {
+                    errorField.focus();
+                }
+            }, 500);
+        }
+    }
+
+    // Character counting functions
+    function setupCharacterCounter(selector, countSelector) {
+        document.addEventListener('input', function (e) {
+            if (e.target.matches(selector)) {
+                const maxLength = e.target.getAttribute('maxlength');
+                const currentLength = e.target.value.length;
+                const counter = e.target.closest('.step-item, .col-12, .col-md-6').querySelector(countSelector);
+                if (counter) {
+                    counter.textContent = currentLength;
+                    if (currentLength >= maxLength * 0.9) {
+                        counter.style.color = '#dc3545';
+                    } else {
+                        counter.style.color = '#6c757d';
+                    }
+                }
+            }
+        });
+    }
+
+    // Setup character counters
+    setupCharacterCounter('#title', '#titleCount');
+    setupCharacterCounter('#source', '#sourceCount');
+    setupCharacterCounter('.ingredient-input', '.ingredient-count');
+    setupCharacterCounter('.direction-input', '.direction-count');
+    setupCharacterCounter('.ner-input', '.ner-count');
+
+    function addIngredient() {
+        ingredientCount++;
+        const container = document.getElementById('ingredientsContainer');
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${ingredientCount}</span>
+                    <span class="fw-medium">Ingredients ${ingredientCount}</span>
+                </div>
+                <button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <textarea class="form-control ingredient-input" maxlength="1500" rows="3" required></textarea>
+            <div class="invalid-feedback">
+                Please enter the ingredients (maximum 1500 characters).
+            </div>
+            <div class="form-text">
+                <span class="ingredient-count">0</span>/1500 characters.
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+
+    function addDirection() {
+        directionCount++;
+        const container = document.getElementById('directionsContainer');
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${directionCount}</span>
+                    <span class="fw-medium">Steps ${directionCount}</span>
+                </div>
+                <button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <textarea class="form-control direction-input" maxlength="2500" rows="4" required></textarea>
+            <div class="invalid-feedback">
+                Please enter the directions (maximum 2500 characters).
+            </div>
+            <div class="form-text">
+                <span class="direction-count">0</span>/2500 characters.
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+
+    function addNER() {
+        nerCount++;
+        const container = document.getElementById('nerContainer');
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${nerCount}</span>
+                    <span class="fw-medium">NER ${nerCount}</span>
+                </div>
+                <button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <textarea class="form-control ner-input" maxlength="1000" rows="3"></textarea>
+            <div class="invalid-feedback">
+                Maximum 1000 characters.
+            </div>
+            <div class="form-text">
+                <span class="ner-count">0</span>/1000 characters.
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+
+    function removeStep(button) {
+        const stepItem = button.closest('.step-item');
+        stepItem.remove();
+        // Re-number the remaining steps
+        updateStepNumbers();
+    }
+
+    function updateStepNumbers() {
+        // Update ingredients
+        const ingredients = document.querySelectorAll('#ingredientsContainer .step-item');
+        ingredients.forEach((item, index) => {
+            const number = item.querySelector('.step-number');
+            const label = item.querySelector('.fw-medium');
+            number.textContent = index + 1;
+            label.textContent = `Ingredients ${index + 1}`;
+        });
+        ingredientCount = ingredients.length;
+
+        // Update directions
+        const directions = document.querySelectorAll('#directionsContainer .step-item');
+        directions.forEach((item, index) => {
+            const number = item.querySelector('.step-number');
+            const label = item.querySelector('.fw-medium');
+            number.textContent = index + 1;
+            label.textContent = `Steps ${index + 1}`;
+        });
+        directionCount = directions.length;
+
+        // Update NER
+        const ners = document.querySelectorAll('#nerContainer .step-item');
+        ners.forEach((item, index) => {
+            const number = item.querySelector('.step-number');
+            const label = item.querySelector('.fw-medium');
+            number.textContent = index + 1;
+            label.textContent = `NER ${index + 1}`;
+        });
+        nerCount = ners.length;
+    }
+
+    // Enhanced form validation with error scrolling
+    document.getElementById('recipeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        let isValid = true;
+        let firstErrorField = null;
+        const form = this;
+
+        // Clear previous validation errors
+        form.querySelectorAll('.is-invalid').forEach(field => {
+            field.classList.remove('is-invalid');
+        });
+
+        // Validate specific fields individually
+        const titleField = document.getElementById('title');
+        const linkField = document.getElementById('link');
+        const sourceField = document.getElementById('source');
+
+        // Validate title (required)
+        if (titleField && !titleField.value.trim()) {
+            titleField.classList.add('is-invalid');
+            isValid = false;
+            if (!firstErrorField) {
+                firstErrorField = titleField;
+            }
+        }
+
+        // Validate link (required if exists)
+        if (linkField) {
+            if (!linkField.value.trim()) {
+                linkField.classList.add('is-invalid');
+                isValid = false;
+                if (!firstErrorField) {
+                    firstErrorField = linkField;
+                }
+            } else if (!isValidURL(linkField.value)) {
+                linkField.classList.add('is-invalid');
+                isValid = false;
+                if (!firstErrorField) {
+                    firstErrorField = linkField;
+                }
+            }
+        }
+
+        // Validate source (required if exists)
+        if (sourceField && !sourceField.value.trim()) {
+            sourceField.classList.add('is-invalid');
+            isValid = false;
+            if (!firstErrorField) {
+                firstErrorField = sourceField;
+            }
+        }
+
+        // Validate required fields (ingredients, directions)
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+                if (!firstErrorField) {
+                    firstErrorField = field;
+                }
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        // If validation failed, scroll to first error
+        if (!isValid && firstErrorField) {
+            scrollToError(firstErrorField);
+            return;
+        }
+
+        if (isValid) {
+            // Collect data from form
+            const recipeData = collectFormData();
+            // Send AJAX request to update
+            updateRecipe(recipeData);
+        }
+    });
+
+    function collectFormData() {
+        const ingredients = [];
+        document.querySelectorAll('.ingredient-input').forEach(el => {
+            const value = el.value.trim();
+            if (value) ingredients.push(value);
+        });
+
+        const directions = [];
+        document.querySelectorAll('.direction-input').forEach(el => {
+            const value = el.value.trim();
+            if (value) directions.push(value);
+        });
+
+        const ner = [];
+        document.querySelectorAll('.ner-input').forEach(el => {
+            const value = el.value.trim();
+            if (value) ner.push(value);
+        });
+
+        return {
+            Id: getRecipeId(), // Include ID for edit
+            title: document.getElementById('title').value.trim(),
+            ingredients: ingredients,
+            directions: directions,
+            ner: ner,
+            link: document.getElementById('link').value.trim(),
+            source: document.getElementById('source').value.trim()
+        };
+    }
+
+    function updateRecipe(recipeData) {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        // Show loading
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang cập nhật...';
+        submitBtn.disabled = true;
+
+        fetch('/Admin/EditExpertRecipe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(recipeData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Restore button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+
+            if (data.success) {
+                Swal.fire({
+                    title: 'Cập nhật công thức thành công!',
+                    text: 'Bạn có muốn tiếp tục chỉnh sửa không?',
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: 'Tiếp tục chỉnh sửa',
+                    cancelButtonText: 'Về danh sách'
+                }).then((result) => {
+                    if (!result.isConfirmed) {
+                        window.location.href = '/admin/managerExpertRecipe';
+                    }
+                });
+            } else {
+                showErrorMessage('Có lỗi xảy ra: ' + (data.message || 'Vui lòng kiểm tra lại thông tin.'));
+
+                if (data.errors && data.errors.length > 0) {
+                    displayValidationErrors(data.errors);
+                }
+            }
+        })
+        .catch(error => {
+            // Restore button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+
+            console.error('AJAX error:', error);
+            showErrorMessage('Có lỗi xảy ra khi cập nhật dữ liệu. Vui lòng thử lại.');
+        });
+    }
+
+    // Populate form with existing data (call this when page loads)
+    function populateFormWithExistingData(recipeData) {
+        if (!recipeData) return;
+
+        // Fill basic fields
+        document.getElementById('title').value = recipeData.title || '';
+        document.getElementById('link').value = recipeData.link || '';
+        document.getElementById('source').value = recipeData.source || '';
+
+        // Update character counters for basic fields
+        updateCharacterCount('title', 'titleCount');
+        updateCharacterCount('source', 'sourceCount');
+
+        // Populate ingredients
+        if (recipeData.ingredients && recipeData.ingredients.length > 0) {
+            const container = document.getElementById('ingredientsContainer');
+            container.innerHTML = '';
+
+            recipeData.ingredients.forEach((ingredient, index) => {
+                addIngredientWithValue(ingredient, index + 1);
+            });
+            ingredientCount = recipeData.ingredients.length;
+        }
+
+        // Populate directions
+        if (recipeData.directions && recipeData.directions.length > 0) {
+            const container = document.getElementById('directionsContainer');
+            container.innerHTML = '';
+
+            recipeData.directions.forEach((direction, index) => {
+                addDirectionWithValue(direction, index + 1);
+            });
+            directionCount = recipeData.directions.length;
+        }
+
+        // Populate NER
+        if (recipeData.ner && recipeData.ner.length > 0) {
+            const container = document.getElementById('nerContainer');
+            container.innerHTML = '';
+
+            recipeData.ner.forEach((nerItem, index) => {
+                addNERWithValue(nerItem, index + 1);
+            });
+            nerCount = recipeData.ner.length;
+        }
+    }
+
+    function addIngredientWithValue(value, number) {
+        const container = document.getElementById('ingredientsContainer');
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${number}</span>
+                    <span class="fw-medium">Ingredients ${number}</span>
+                </div>
+                ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            </div>
+            <textarea class="form-control ingredient-input" maxlength="1500" rows="3" required>${value}</textarea>
+            <div class="invalid-feedback">
+                Please enter the ingredients (maximum 1500 characters).
+            </div>
+            <div class="form-text">
+                <span class="ingredient-count">${value.length}</span>/1500 characters.
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+
+    function addDirectionWithValue(value, number) {
+        const container = document.getElementById('directionsContainer');
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${number}</span>
+                    <span class="fw-medium">Steps ${number}</span>
+                </div>
+                ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            </div>
+            <textarea class="form-control direction-input" maxlength="2500" rows="4" required>${value}</textarea>
+            <div class="invalid-feedback">
+                Please enter the directions (maximum 2500 characters).
+            </div>
+            <div class="form-text">
+                <span class="direction-count">${value.length}</span>/2500 characters.
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+
+    function addNERWithValue(value, number) {
+        const container = document.getElementById('nerContainer');
+        const newItem = document.createElement('div');
+        newItem.className = 'step-item';
+        newItem.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${number}</span>
+                    <span class="fw-medium">NER ${number}</span>
+                </div>
+                ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            </div>
+            <textarea class="form-control ner-input" maxlength="1000" rows="3"required>${value}</textarea>
+            <div class="invalid-feedback">
+                Maximum 1000 characters.
+            </div>
+            <div class="form-text">
+                <span class="ner-count">${value.length}</span>/1000 characters.
+            </div>
+        `;
+        container.appendChild(newItem);
+    }
+
+    function updateCharacterCount(inputId, countId) {
+        const input = document.getElementById(inputId);
+        const counter = document.getElementById(countId);
+        if (input && counter) {
+            counter.textContent = input.value.length;
+        }
+    }
+
+    function showErrorMessage(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        const form = document.getElementById('recipeForm');
+        form.insertBefore(alertDiv, form.firstChild);
+
+        // Scroll to the error message
+        alertDiv.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 10000);
+    }
+
+    // Enhanced displayValidationErrors with scrolling to first error
+    function displayValidationErrors(errors) {
+        document.querySelectorAll('.field-validation-error').forEach(el => el.remove());
+
+        let firstErrorElement = null;
+
+        errors.forEach((error, index) => {
+            let targetElement = null;
+
+            switch (error.field.toLowerCase()) {
+                case 'title':
+                    targetElement = document.getElementById('title');
+                    break;
+                case 'ingredients':
+                    targetElement = document.querySelector('.ingredient-input');
+                    break;
+                case 'directions':
+                    targetElement = document.querySelector('.direction-input');
+                    break;
+                case 'link':
+                    targetElement = document.getElementById('link');
+                    break;
+                case 'source':
+                    targetElement = document.getElementById('source');
+                    break;
+                case 'ner':
+                    targetElement = document.querySelector('.ner-input');
+                    break;
+            }
+
+            if (targetElement) {
+                targetElement.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-validation-error text-danger small mt-1';
+                errorDiv.textContent = error.message;
+                targetElement.parentNode.insertBefore(errorDiv, targetElement.nextSibling);
+
+                // Store the first error element for scrolling
+                if (index === 0) {
+                    firstErrorElement = targetElement;
+                }
+            }
+        });
+
+        // Scroll to the first error field
+        if (firstErrorElement) {
+            setTimeout(() => {
+                scrollToError(firstErrorElement);
+            }, 100);
+        }
+    }
+
+    function isValidURL(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    // Real-time validation with enhanced field checking
+    document.addEventListener('input', function (e) {
+        // Remove validation errors for any field being edited
+        if (e.target.classList.contains('is-invalid')) {
+            e.target.classList.remove('is-invalid');
+            // Remove field validation error if exists
+            const errorDiv = e.target.parentNode.querySelector('.field-validation-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        // Specific validation for different field types
+        if (e.target.id === 'title' && e.target.value.trim()) {
+            e.target.classList.remove('is-invalid');
+        }
+
+        if (e.target.id === 'source' && e.target.value.trim()) {
+            e.target.classList.remove('is-invalid');
+        }
+
+        if (e.target.id === 'link') {
+            if (e.target.value.trim()) {
+                if (isValidURL(e.target.value)) {
+                    e.target.classList.remove('is-invalid');
+                } else {
+                    // Optionally add invalid class for real-time URL validation
+                    // e.target.classList.add('is-invalid');
+                }
+            } else {
+                e.target.classList.remove('is-invalid');
+            }
+        }
+
+        // For required fields
+        if (e.target.hasAttribute('required') && e.target.value.trim()) {
+            e.target.classList.remove('is-invalid');
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const recipeData = {
+            title: @Html.Raw(Json.Serialize(Model.title ?? "")),
+            ingredients: @Html.Raw(Json.Serialize(Model.ingredients ?? new List<string>())),
+            directions: @Html.Raw(Json.Serialize(Model.directions ?? new List<string>())),
+            ner: @Html.Raw(Json.Serialize(Model.ner ?? new List<string>())),
+            link: @Html.Raw(Json.Serialize(Model.link ?? "")),
+            source: @Html.Raw(Json.Serialize(Model.source ?? ""))
+        };
+
+        populateFormWithExistingData(recipeData);
+    });
+</script>

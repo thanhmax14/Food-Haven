@@ -1,11 +1,10 @@
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
@@ -19,7 +18,6 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +27,9 @@ using Repository.BalanceChange;
 using Repository.OrdeDetails;
 using Repository.StoreDetails;
 using Repository.ViewModels;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Threading.Tasks;
 using X.PagedList;
 
 namespace Food_Haven.Web.Controllers
@@ -60,13 +61,14 @@ namespace Food_Haven.Web.Controllers
         private readonly IProductImageService _productImageService;
         private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IExpertRecipeServices _expertRecipeServices;
 
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService,
             IMapper mapper, IWebHostEnvironment webHostEnvironment, IBalanceChangeService balance,
             ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail,
             IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService,
             IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport,
-            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, RoleManager<IdentityRole> roleManager)
+            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, RoleManager<IdentityRole> roleManager, IExpertRecipeServices expertRecipeServices)
 
         {
             _ingredienttag = ingredientTagService;
@@ -95,6 +97,7 @@ namespace Food_Haven.Web.Controllers
             _productImageService = productImageService;
             _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
             _roleManager = roleManager;
+            _expertRecipeServices = expertRecipeServices;
         }
 
         [HttpPost]
@@ -1277,7 +1280,7 @@ namespace Food_Haven.Web.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
-                return Json(new { error = "You are not logged in!" });   
+                return Json(new { error = "You are not logged in!" });
             var errors = new Dictionary<string, string>();
             if (string.IsNullOrWhiteSpace(v.Code))
                 errors["code"] = "Code is required.";
@@ -1352,7 +1355,7 @@ namespace Food_Haven.Web.Controllers
                     MinOrderValue = v.MinOrderValue,
                     IsActive = v.IsActive,
                     CreatedDate = DateTime.Now,
-                    IsGlobal=true
+                    IsGlobal = true
                 };
 
                 await _voucher.AddAsync(entity);
@@ -2559,11 +2562,230 @@ namespace Food_Haven.Web.Controllers
             return Json(new { exists });
         }
 
+        public async Task<IActionResult> ManagerExpertRecipe()
+        {
+            return View();
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllExpertRecipes()
+        {
+            var list = await _expertRecipeServices.ListAsync();
+
+            var data = list
+                .OrderByDescending(r => r.ModifiedDate ?? r.CreatedDate)
+                .Select(r => new
+                {
+                    r.ID,
+                    r.Title,
+                    r.Ingredients,
+                    r.Directions,
+                    r.NER,
+                    r.Link,
+                    r.Source,
+                    r.IsActive,
+                    r.ModifiedDate
+                })
+                .ToList();
+
+            return Json(data);
+        }
+        [HttpPost("Admin/HideExpertRecipe/{id:guid}")]
+        public async Task<IActionResult> HideExpertRecipe(Guid id)
+        {
+            var recipe = await _expertRecipeServices.GetAsyncById(id);
+            if (recipe == null) return Json(new { success = false, message = "Not found" });
+
+            recipe.IsActive = false;
+            recipe.ModifiedDate = DateTime.Now;
+
+            await _expertRecipeServices.UpdateAsync(recipe);
+            await _expertRecipeServices.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost("Admin/ShowExpertRecipe/{id:guid}")]
+        public async Task<IActionResult> ShowExpertRecipe(Guid id)
+        {
+            var recipe = await _expertRecipeServices.GetAsyncById(id);
+            if (recipe == null) return Json(new { success = false, message = "Not found" });
+
+            recipe.IsActive = true;
+            recipe.ModifiedDate = DateTime.Now;
+
+            await _expertRecipeServices.UpdateAsync(recipe);
+            await _expertRecipeServices.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
 
 
+        [HttpGet]
+        public async Task<IActionResult> GetExpertRecipeIngredients(Guid id)
+        {
+            var recipe = await _expertRecipeServices.GetAsyncById(id);
+            if (recipe == null)
+                return Json(new { ingredients = new List<string>() });
+
+            var ingredients = new List<string>();
+
+            try
+            {
+                ingredients = JsonSerializer.Deserialize<List<string>>(recipe.Ingredients ?? "[]");
+            }
+            catch { }
+
+            return Json(new { ingredients });
+        }
+
+
+        public async Task<IActionResult> CreateExpertRecipe()
+        {
+            return View();
+        }
+        public async Task<IActionResult> EditExpertRecipe(Guid id)
+        {
+            try
+            {
+                // Lấy recipe theo ID
+                var recipe = await _expertRecipeServices.GetAsyncById(id);
+
+                if (recipe == null)
+                {
+                    TempData["ErrorMessage"] = "Recipe not found.";
+                    return RedirectToAction("ManagerExpertRecipe");
+                }
+
+                // Chuyển đổi sang ViewModel để truyền cho View
+                var viewModel = new ExpertRecipeEditViewModel
+                {
+                    Id = recipe.ID,
+                    title = recipe.Title,
+                    ingredients = JsonSerializer.Deserialize<List<string>>(recipe.Ingredients ?? "[]"),
+                    directions = JsonSerializer.Deserialize<List<string>>(recipe.Directions ?? "[]"),
+                    ner = JsonSerializer.Deserialize<List<string>>(recipe.NER ?? "[]"),
+                    link = recipe.Link,
+                    source = recipe.Source
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in EditExpertRecipe GET: " + ex.Message);
+                TempData["ErrorMessage"] = "An error occurred while loading the recipe.";
+                return RedirectToAction("ManagerExpertRecipe");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditExpertRecipe([FromBody] ExpertRecipeEditViewModel model)
+        {
+            try
+            {
+                // Kiểm tra dữ liệu bắt buộc
+                if (model.Id == Guid.Empty ||
+                    string.IsNullOrWhiteSpace(model.title) ||
+                    model.ingredients == null || !model.ingredients.Any() ||
+                    model.directions == null || !model.directions.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Missing required fields: ID, title, ingredients, or directions."
+                    });
+                }
+
+                // Lấy recipe hiện tại từ DB
+                var existingRecipe = await _expertRecipeServices.GetAsyncById(model.Id);
+
+                if (existingRecipe == null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Recipe not found."
+                    });
+                }
+
+                // Cập nhật thông tin
+                existingRecipe.Title = model.title.Trim();
+                existingRecipe.Ingredients = JsonSerializer.Serialize(model.ingredients);
+                existingRecipe.Directions = JsonSerializer.Serialize(model.directions);
+                existingRecipe.NER = JsonSerializer.Serialize(model.ner ?? new List<string>());
+                existingRecipe.Link = model.link;
+                existingRecipe.Source = model.source;
+                existingRecipe.ModifiedDate = DateTime.Now;
+
+                // Lưu thay đổi
+                await _expertRecipeServices.UpdateAsync(existingRecipe);
+                await _expertRecipeServices.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in EditExpertRecipe POST: " + ex.Message);
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while updating the recipe.",
+                    error = ex.Message
+                });
+            }
+        }
+       
+            [HttpPost]
+        public async Task<IActionResult> CreateExpertRecipe([FromBody] ExpertRecipeViewModel model)
+        {
+            try
+            {
+                // Kiểm tra dữ liệu bắt buộc
+                if (string.IsNullOrWhiteSpace(model.title) ||
+                    model.ingredients == null || !model.ingredients.Any() ||
+                    model.directions == null || !model.directions.Any())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Missing required fields: title, ingredients, or directions."
+                    });
+                }
+
+                // Khởi tạo entity mới
+                var recipe = new ExpertRecipe
+                {
+                    ID = Guid.NewGuid(),
+                    Title = model.title.Trim(),
+                    Ingredients = JsonSerializer.Serialize(model.ingredients),
+                    Directions = JsonSerializer.Serialize(model.directions),
+                    NER = JsonSerializer.Serialize(model.ner ?? new List<string>()),
+                    Link = model.link,
+                    Source = model.source,
+                    IsActive = true,
+                    CreatedDate = DateTime.Now,
+                    ModifiedDate = null
+                };
+
+                // Lưu vào DB
+                await _expertRecipeServices.AddAsync(recipe);
+                await _expertRecipeServices.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in CreateExpertRecipe: " + ex.Message);
+
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while saving the recipe.",
+                    error = ex.Message
+                });
+            }
+        }
 
     }
-
-
 }
 
