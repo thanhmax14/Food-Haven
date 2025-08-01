@@ -599,6 +599,19 @@
                                         matchedIngredients: selectedIngredients.join(', ')
                                     },
                                     success: function () {
+                                                             $.get('/Home/LoadRecipeViewHistory', function (html) {
+                                    $historyList.html(html);
+
+                                    // Check if any history item exists
+                                    if ($historyList.find('.history-item').length > 0) {
+                                        $clearBtn.show();
+                                    } else {
+                                        $clearBtn.hide();
+                                    }
+                                }).fail(function () {
+                                    $historyList.html('<div class="alert alert-danger text-center mt-3">Failed to load view history.</div>');
+                                    $clearBtn.hide();
+                                });
                                         console.log("Lưu lịch sử thành công");
                                     },
                                     error: function () {

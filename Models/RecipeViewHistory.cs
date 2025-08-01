@@ -20,8 +20,8 @@ namespace Models
         public Guid ExpertRecipeId { get; set; }
         public virtual ExpertRecipe ExpertRecipe { get; set; }
 
-        public DateTime ViewedAt { get; set; } = DateTime.UtcNow;
-
+        public DateTime ViewedAt { get; set; } = DateTime.Now;
+        [StringLength(1000)]
         public string MatchedIngredients { get; set; }
     }
 }
