@@ -5,12 +5,12 @@
       data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
-<!-- Mirrored from themesbrand.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+<!-- Mirrored from themesbrand.com/velzon/html/master/ManagerExpertRecipe-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 <head>
 
     <meta charset="utf-8" />
-    <title>Form layout | Velzon - Admin & Dashboard Template</title>
+    <title>Edit ExpertRecipe | Velzon - Admin & Dashboard Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
@@ -273,8 +273,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagementRecipe">
+                            <a class="nav-link menu-link " asp-controller="Admin" asp-action="ManagementRecipe">
                                 <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagerExpertRecipe">
+                                <i class="ri-restaurant-2-line"></i> <span>Manager ExpertRecipe</span>
                             </a>
                         </li>
                         <li class="nav-item"></li>
@@ -322,12 +327,12 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Form Layout</h4>
+                            <h4 class="mb-sm-0">Edit ExpertRecipe</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
-                                    <li class="breadcrumb-item active">Form Layout</li>
+                                    <li class="breadcrumb-item"><a href="/admin/managerExpertRecipe">Manager ExpertRecipe</a></li>
+                                    <li class="breadcrumb-item active">Edit ExpertRecipe</li>
                                 </ol>
                             </div>
 
@@ -459,9 +464,13 @@
 
                                     </div>
 
-                                    <div class="mt-4">                                
+                                    <div class="mt-4"> 
+                                        <a href="/admin/managerExpertRecipe" class="btn btn-secondary me-2">
+                                            <i class="fas fa-arrow-left me-1"></i>Back
+                                        </a>
+
                                         <button type="submit" class="btn btn-success me-2">
-                                            <i class="fas fa-check me-1"></i> Lưu
+                                            <i class="fas fa-check me-1"></i>Save
                                         </button>
 
                                     </div>
@@ -474,22 +483,7 @@
             <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-
-
-        <footer class="footer">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <script>document.write(new Date().getFullYear())</script> © Velzon.
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end d-none d-sm-block">
-                            Design & Develop by Themesbrand
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        @await Html.PartialAsync("_Footer_Admin_Seller")
     </div>
     <!-- end main content-->
     </div>
@@ -515,7 +509,7 @@
 </body>
 
 
-<!-- Mirrored from themesbrand.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+<!-- Mirrored from themesbrand.com/velzon/html/master/ManagerExpertRecipe-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 </html>
 <script>
@@ -841,13 +835,12 @@
             source: document.getElementById('source').value.trim()
         };
     }
-
     function updateRecipe(recipeData) {
         const submitBtn = document.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
 
         // Show loading
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang cập nhật...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Updating...';
         submitBtn.disabled = true;
 
         fetch('/Admin/EditExpertRecipe', {
@@ -866,19 +859,19 @@
 
             if (data.success) {
                 Swal.fire({
-                    title: 'Cập nhật công thức thành công!',
-                    text: 'Bạn có muốn tiếp tục chỉnh sửa không?',
+                    title: 'Recipe updated successfully!',
+                    text: 'Do you want to continue editing?',
                     icon: 'success',
                     showCancelButton: true,
-                    confirmButtonText: 'Tiếp tục chỉnh sửa',
-                    cancelButtonText: 'Về danh sách'
+                    confirmButtonText: 'Continue editing',
+                    cancelButtonText: 'Back to list'
                 }).then((result) => {
                     if (!result.isConfirmed) {
                         window.location.href = '/admin/managerExpertRecipe';
                     }
                 });
             } else {
-                showErrorMessage('Có lỗi xảy ra: ' + (data.message || 'Vui lòng kiểm tra lại thông tin.'));
+                showErrorMessage('An error occurred: ' + (data.message || 'Please check your input.'));
 
                 if (data.errors && data.errors.length > 0) {
                     displayValidationErrors(data.errors);
@@ -891,9 +884,10 @@
             submitBtn.disabled = false;
 
             console.error('AJAX error:', error);
-            showErrorMessage('Có lỗi xảy ra khi cập nhật dữ liệu. Vui lòng thử lại.');
+            showErrorMessage('An error occurred while updating. Please try again.');
         });
     }
+
 
     // Populate form with existing data (call this when page loads)
     function populateFormWithExistingData(recipeData) {

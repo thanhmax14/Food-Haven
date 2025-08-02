@@ -28,6 +28,7 @@ using Repository.OrdeDetails;
 using Repository.StoreDetails;
 using Repository.ViewModels;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using X.PagedList;
@@ -2583,7 +2584,7 @@ namespace Food_Haven.Web.Controllers
                     r.Link,
                     r.Source,
                     r.IsActive,
-                    r.ModifiedDate
+                    r.CreatedDate
                 })
                 .ToList();
 
@@ -2785,7 +2786,260 @@ namespace Food_Haven.Web.Controllers
                 });
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> UploadCsv(IFormFile file)
+        {
+            var errors = new List<object>();
+            var validRecipes = new List<ExpertRecipe>();
 
+            const long maxSize = 100 * 1024 * 1024;
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "Please select a CSV file." });
+
+            if (file.Length > maxSize)
+                return Json(new { success = false, message = "The file exceeds the 100MB limit." });
+
+            try
+            {
+                // Query existing recipe titles in advance to check for duplicates (only when data is valid)
+                var existingTitles = _expertRecipeServices.GetAll()
+                    .Select(x => x.Title)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                using var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8);
+                string? header = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(header))
+                    return Json(new { success = false, message = "The file contains no data." });
+
+                var expectedHeaders = new[] { "title", "ingredients", "directions", "link", "source", "ner" };
+                var actualHeaders = header.Split(',').Take(6).Select(h => h.Trim().ToLower()).ToArray();
+
+                if (!expectedHeaders.SequenceEqual(actualHeaders))
+                    return Json(new { success = false, message = "The CSV headers are not in the required format." });
+
+                int rowNumber = 1;
+                string? line;
+                while ((line = await reader.ReadLineAsync()) != null)
+                {
+                    rowNumber++;
+                    var values = ParseCsvLine(line);
+                    if (values.Count < 6)
+                    {
+                        errors.Add(new { row = rowNumber, column = "All", value = "", message = "Missing required columns." });
+                        continue;
+                    }
+
+                    string title = values[0];
+                    string ingredientsJson = values[1];
+                    string directionsJson = values[2];
+                    string link = values[3];
+                    string source = values[4];
+                    string nerJson = values[5];
+
+                    bool isValid = true;
+
+                    // Title
+                    if (string.IsNullOrWhiteSpace(title))
+                    {
+                        errors.Add(new { row = rowNumber, column = "Title", value = title, message = "Title cannot be empty." });
+                        isValid = false;
+                    }
+                    else if (title.Length > 200)
+                    {
+                        errors.Add(new { row = rowNumber, column = "Title", value = title, message = "Title exceeds 200 characters." });
+                        isValid = false;
+                    }
+
+                    // Ingredients
+                    if (string.IsNullOrWhiteSpace(ingredientsJson))
+                    {
+                        errors.Add(new { row = rowNumber, column = "Ingredients", value = "", message = "Ingredients cannot be empty." });
+                        isValid = false;
+                    }
+                    else
+                    {
+                        bool isJsonValid = TryParseJsonArray(ingredientsJson, out _);
+                        bool isLengthValid = ingredientsJson.Length <= 1500;
+
+                        if (!isJsonValid && !isLengthValid)
+                            errors.Add(new { row = rowNumber, column = "Ingredients", value = ingredientsJson, message = "Invalid JSON and exceeds 1500 characters." });
+                        else if (!isJsonValid)
+                            errors.Add(new { row = rowNumber, column = "Ingredients", value = ingredientsJson, message = "Invalid JSON format." });
+                        else if (!isLengthValid)
+                            errors.Add(new { row = rowNumber, column = "Ingredients", value = ingredientsJson, message = "Exceeds 1500 characters." });
+
+                        if (!isJsonValid || !isLengthValid)
+                            isValid = false;
+                    }
+
+                    // Directions
+                    if (string.IsNullOrWhiteSpace(directionsJson))
+                    {
+                        errors.Add(new { row = rowNumber, column = "Directions", value = "", message = "Directions cannot be empty." });
+                        isValid = false;
+                    }
+                    else
+                    {
+                        bool isJsonValid = TryParseJsonArray(directionsJson, out _);
+                        bool isLengthValid = directionsJson.Length <= 2500;
+
+                        if (!isJsonValid && !isLengthValid)
+                            errors.Add(new { row = rowNumber, column = "Directions", value = directionsJson, message = "Invalid JSON and exceeds 2500 characters." });
+                        else if (!isJsonValid)
+                            errors.Add(new { row = rowNumber, column = "Directions", value = directionsJson, message = "Invalid JSON format." });
+                        else if (!isLengthValid)
+                            errors.Add(new { row = rowNumber, column = "Directions", value = directionsJson, message = "Exceeds 2500 characters." });
+
+                        if (!isJsonValid || !isLengthValid)
+                            isValid = false;
+                    }
+
+                    // NER (optional)
+                    if (!string.IsNullOrWhiteSpace(nerJson))
+                    {
+                        bool isJsonValid = TryParseJsonArray(nerJson, out _);
+                        bool isLengthValid = nerJson.Length <= 1000;
+
+                        if (!isJsonValid && !isLengthValid)
+                            errors.Add(new { row = rowNumber, column = "NER", value = nerJson, message = "Invalid JSON and exceeds 1000 characters." });
+                        else if (!isJsonValid)
+                            errors.Add(new { row = rowNumber, column = "NER", value = nerJson, message = "Invalid JSON format." });
+                        else if (!isLengthValid)
+                            errors.Add(new { row = rowNumber, column = "NER", value = nerJson, message = "Exceeds 1000 characters." });
+
+                        if (!isJsonValid || !isLengthValid)
+                            isValid = false;
+                    }
+
+                    // Link (optional)
+                    if (!string.IsNullOrWhiteSpace(link))
+                    {
+                        if (link.Length > 100)
+                        {
+                            errors.Add(new { row = rowNumber, column = "Link", value = link, message = "Exceeds 100 characters." });
+                            isValid = false;
+                        }
+
+                        var normalized = link.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? link : "https://" + link;
+                        if (!Uri.IsWellFormedUriString(normalized, UriKind.Absolute))
+                        {
+                            errors.Add(new { row = rowNumber, column = "Link", value = link, message = "Invalid URL format." });
+                            isValid = false;
+                        }
+                    }
+
+                    // Source (optional)
+                    if (!string.IsNullOrWhiteSpace(source) && source.Length > 100)
+                    {
+                        errors.Add(new { row = rowNumber, column = "Source", value = source, message = "Exceeds 100 characters." });
+                        isValid = false;
+                    }
+
+                    if (!isValid) continue;
+
+                    // Check for duplicate titles only when other validations pass
+                    if (existingTitles.Contains(title))
+                    {
+                        errors.Add(new { row = rowNumber, column = "Title", value = title, message = "Duplicate title already exists." });
+                        continue;
+                    }
+
+                    validRecipes.Add(new ExpertRecipe
+                    {
+                        Title = title,
+                        Ingredients = ingredientsJson,
+                        Directions = directionsJson,
+                        Link = link,
+                        Source = source,
+                        NER = nerJson,
+                        CreatedDate = DateTime.Now,
+                        IsActive = true
+                    });
+                }
+
+                if (validRecipes.Any())
+                {
+                    foreach (var recipe in validRecipes)
+                        await _expertRecipeServices.AddAsync(recipe);
+
+                    await _expertRecipeServices.SaveChangesAsync();
+                }
+
+                return Json(new
+                {
+                    success = errors.Count == 0,
+                    data = validRecipes.Select(x => new
+                    {
+                        x.Title,
+                        x.Ingredients,
+                        x.Directions,
+                        x.Link,
+                        x.Source,
+                        x.NER
+                    }),
+                    errors,
+                    totalSuccess = validRecipes.Count,
+                    totalErrors = errors.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "System error: " + ex.Message });
+            }
+        }
+
+
+
+        private List<string> ParseCsvLine(string line)
+        {
+            var result = new List<string>();
+            bool inQuotes = false;
+            var value = new StringBuilder();
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+
+                if (c == '"')
+                {
+                    if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+                    {
+                        // Handle escaped quote ("")
+                        value.Append('"');
+                        i++; // skip next quote
+                    }
+                    else
+                    {
+                        inQuotes = !inQuotes; // Toggle quote mode
+                    }
+                }
+                else if (c == ',' && !inQuotes)
+                {
+                    result.Add(value.ToString());
+                    value.Clear();
+                }
+                else
+                {
+                    value.Append(c);
+                }
+            }
+
+            result.Add(value.ToString());
+            return result;
+        }
+
+        private bool TryParseJsonArray(string json, out List<string> output)
+        {
+            output = new List<string>();
+            try
+            {
+                output = JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
-
