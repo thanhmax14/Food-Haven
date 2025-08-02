@@ -379,8 +379,8 @@
 
                                             <!-- Ingredients Section -->
                                             <div class="col-12">
-                                                <label class="form-label">Ingredients <span
-                                                        class="text-danger">*</span></label>
+                                                <label class="form-label">Ingredients <span class="text-danger">*</span>
+                                            </label> (Number of Ingredients)
                                                 <div id="ingredientsContainer">
                                                     <div class="step-item">
                                                         <div class="d-flex align-items-center mb-2">
@@ -430,7 +430,10 @@
 
                                             <!-- NER Section -->
                                             <div class="col-12">
-                                                <label class="form-label">NER (Named Entity Recognition)</label>
+                                            <label class="form-label">
+                                                NER (Named Entity Recognition)span
+                                                class="text-danger">*</span>
+                                            </label>
                                                 <div id="nerContainer">
                                                     <div class="step-item">
                                                         <div class="d-flex align-items-center mb-2">
@@ -456,7 +459,7 @@
                                             <div class="col-md-6">
                                                 <label for="link" class="form-label">Link</label>
                                                 <input type="url" class="form-control" id="link"
-                                                    placeholder="https://example.com">
+                                                   placeholder="https://example.com" >
                                                 <div class="invalid-feedback">
                                                     Please enter a valid URL.
                                                 </div>
@@ -464,7 +467,7 @@
 
                                             <div class="col-md-6">
                                                 <label for="source" class="form-label">Source</label>
-                                                <input type="text" class="form-control" id="source" maxlength="100">
+                                                <input type="text" class="form-control" id="source" maxlength="100" >
                                                 <div class="invalid-feedback">
                                                     Maximum 100 characters.
                                                 </div>
@@ -541,8 +544,8 @@
                                             <li>Source: Maximum 100 characters.(required)</li>
                                             <li>NER: Maximum 1000 characters.(required)</li>
                                             <li><strong>Note:</strong> Ingredients, Directions, and NER must be in
-                                                <code>JSON string array</code> format.<br>
-                                                Example: <code>[""item1"", ""item2""]</code>
+                                                <code>JSON</code> format.<br>
+                                                Example: <code>["item1", "item2"]</code>
                                             </li>
                                         </ul>
                                     </div>
@@ -553,7 +556,7 @@
                                         <div class="bg-light p-2 rounded small">
                                             <code>
                                             Title,Ingredients,Directions,Link,Source,NER<br>
-                                                No-Bake Nut Cookies,"[""1 c. brown sugar"", ""1/2 c. milk""]","[""Step 1"", ""Step 2""]","https://example.com","Blog A,"[""sugar"", ""milk""]""
+                                                No-Bake Nut Cookies,["1 c. brown sugar", "1/2 c. milk"],["Step 1", "Step 2"],https://example.com,Blog A,["sugar", "milk"]
                                             </code>
                                         </div>
                                     </div>
@@ -950,7 +953,7 @@
                         }
                     });
                 } else {
-                    showErrorMessage('An error occurred: ' + (data.message || 'Please check your input.'));
+                    showErrorMessage('' + (data.message || 'Please check your input.'));
 
                     if (data.errors && data.errors.length > 0) {
                         displayValidationErrors(data.errors);
@@ -1252,7 +1255,7 @@
 
                 if (data.success) {
                     if (data.data && data.data.length > 0) {
-                        fillFormWithData(data.data);
+                       // fillFormWithData(data.data);
                         showSuccessMessage(`Successfully imported ${data.data.length} recipe(s)!`);
                     } else {
                         showSuccessMessage('File import successful!');
@@ -1326,7 +1329,7 @@
             .replace(/'/g, "&#039;");
     }
 
-    function fillFormWithData(recipes) {
+      function fillFormWithData1(recipes) {
         if (recipes && recipes.length > 0) {
             const recipe = recipes[0];
 
@@ -1337,31 +1340,56 @@
             updateCharacterCount('title', 'titleCount');
             updateCharacterCount('source', 'sourceCount');
 
-            if (recipe.ingredients && recipe.ingredients.length > 0) {
+            // Parse ingredients
+            let ingredients = [];
+            try {
+                ingredients = JSON.parse(recipe.ingredients);
+            } catch (e) {
+                console.warn("Failed to parse ingredients:", e);
+            }
+
+            if (Array.isArray(ingredients)) {
                 const container = document.getElementById('ingredientsContainer');
                 container.innerHTML = '';
-                recipe.ingredients.forEach((ingredient, index) => {
+                ingredients.forEach((ingredient, index) => {
                     addIngredientWithValue(ingredient, index + 1);
                 });
             }
 
-            if (recipe.directions && recipe.directions.length > 0) {
+            // Parse directions
+            let directions = [];
+            try {
+                directions = JSON.parse(recipe.directions);
+            } catch (e) {
+                console.warn("Failed to parse directions:", e);
+            }
+
+            if (Array.isArray(directions)) {
                 const container = document.getElementById('directionsContainer');
                 container.innerHTML = '';
-                recipe.directions.forEach((direction, index) => {
+                directions.forEach((direction, index) => {
                     addDirectionWithValue(direction, index + 1);
                 });
             }
 
-            if (recipe.ner && recipe.ner.length > 0) {
+            // Parse NER
+            let nerItems = [];
+            try {
+                nerItems = JSON.parse(recipe.ner);
+            } catch (e) {
+                console.warn("Failed to parse NER:", e);
+            }
+
+            if (Array.isArray(nerItems)) {
                 const container = document.getElementById('nerContainer');
                 container.innerHTML = '';
-                recipe.ner.forEach((nerItem, index) => {
+                nerItems.forEach((nerItem, index) => {
                     addNERWithValue(nerItem, index + 1);
                 });
             }
         }
     }
+
 
     function addIngredientWithValue(value, number) {
         const container = document.getElementById('ingredientsContainer');

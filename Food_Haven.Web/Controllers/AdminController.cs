@@ -2593,17 +2593,27 @@ namespace Food_Haven.Web.Controllers
         [HttpPost("Admin/HideExpertRecipe/{id:guid}")]
         public async Task<IActionResult> HideExpertRecipe(Guid id)
         {
-            var recipe = await _expertRecipeServices.GetAsyncById(id);
-            if (recipe == null) return Json(new { success = false, message = "Not found" });
+            try
+            {
+                var recipe = await _expertRecipeServices.GetAsyncById(id);
+                if (recipe == null)
+                    return Json(new { success = false, message = "Not found" });
 
-            recipe.IsActive = false;
-            recipe.ModifiedDate = DateTime.Now;
+                recipe.IsActive = false;
+                recipe.ModifiedDate = DateTime.Now;
 
-            await _expertRecipeServices.UpdateAsync(recipe);
-            await _expertRecipeServices.SaveChangesAsync();
+                await _expertRecipeServices.UpdateAsync(recipe);
+                await _expertRecipeServices.SaveChangesAsync();
 
-            return Json(new { success = true });
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // ✅ Nếu bạn có logging, thêm log ở đây (ví dụ _logger.LogError(ex, ...))
+                return Json(new { success = false, message = "An error occurred while hiding the recipe." });
+            }
         }
+
 
         [HttpPost("Admin/ShowExpertRecipe/{id:guid}")]
         public async Task<IActionResult> ShowExpertRecipe(Guid id)
@@ -2753,7 +2763,15 @@ namespace Food_Haven.Web.Controllers
                     });
                 }
 
-                // Khởi tạo entity mới
+              var flag = await _expertRecipeServices.FindAsync(r => r.Title.Trim().ToLower() == model.title.Trim().ToLower());
+                if (flag != null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Recipe with this title already exists."
+                    });
+                }
                 var recipe = new ExpertRecipe
                 {
                     ID = Guid.NewGuid(),
@@ -2832,7 +2850,11 @@ namespace Food_Haven.Web.Controllers
                     string title = values[0];
                     string ingredientsJson = values[1];
                     string directionsJson = values[2];
-                    string link = values[3];
+                    string rawLink = values[3];
+                    string link = rawLink.StartsWith("http://") || rawLink.StartsWith("https://")
+                        ? rawLink
+                        : "https://" + rawLink;
+
                     string source = values[4];
                     string nerJson = values[5];
 
