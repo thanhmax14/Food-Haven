@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Microsoft.AspNetCore.Mvc;
+using BusinessLogic.Services.ExpertRecipes;
 
 namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
 {
@@ -58,6 +59,7 @@ namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
 
         private AdminController _controller;
 
@@ -123,7 +125,8 @@ namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
                 _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
-                _roleManagerMock.Object
+                _roleManagerMock.Object,
+                _expertRecipeServicesMock.Object
             );
         }
         [TearDown]

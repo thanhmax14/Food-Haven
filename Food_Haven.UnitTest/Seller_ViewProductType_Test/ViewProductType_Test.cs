@@ -23,13 +23,14 @@ using Repository.BalanceChange;
 using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using IFormFile = Microsoft.AspNetCore.Http.IFormFile;
+using Microsoft.AspNetCore.Http;
 
-namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
+namespace Food_Haven.UnitTest.Seller_ViewProductType_Test
 {
     [TestFixture]
-    public class UpdateProduct_Test
+    public class ViewProductType_Test
     {
         private SellerController _controller;
 
@@ -93,7 +94,7 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
                 _productImageServiceMock.Object,
                 _complaintImageServicesMock.Object,
                 _complaintServiceMock.Object,
-               null,
+                null,
                 _hubContextMock.Object
             );
         }
@@ -104,84 +105,74 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
             _controller?.Dispose();
         }
 
-        [Test]
-        public async Task UpdateProduct_Normal_Success_ReturnsViewWithSuccessMessage()
+        private void SetUser(string userId = "test-user-id")
         {
-            // Arrange
-            var model = new ProductUpdateViewModel
+            var claims = new List<Claim>
             {
-                ProductID = Guid.NewGuid(),
-                Name = "Pho",
-                ShortDescription = "Very delicious!",
-                LongDescription = "This pho is rich, flavorful, perfectly spiced, and absolutely delicious to enjoy.",
-                ManufactureDate = DateTime.Parse("2025-03-20"),
-                ExistingImages = new List<string> { "file1.png" },
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
+                new Claim(ClaimTypes.NameIdentifier, userId)
             };
-
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).Returns(Task.CompletedTask);
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(model.ExistingImages);
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
-
-            // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.AreEqual("Pho", ((ProductUpdateViewModel)result.Model).Name);
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var principal = new ClaimsPrincipal(identity);
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = principal }
+            };
         }
 
+        // TC01: Normal - Returns list of product types
         [Test]
-        public async Task UpdateProduct_GalleryImageBoundary_ReturnsViewWithBoundaryMessage()
+        public async Task ViewProductType_ReturnsList_WhenProductTypeExists()
         {
-            // Arrange
-            var model = new ProductUpdateViewModel
+            SetUser(); // <-- Add this line
+            var productId = Guid.Parse("b06d9378-8bb3-4dea-9a74-146f42f7bdf6");
+            var productTypes = new List<ProductVariantViewModel>
             {
-                ProductID = Guid.NewGuid(),
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
+                new ProductVariantViewModel { ID = Guid.NewGuid(), ProductID = productId, StoreID = Guid.NewGuid() }
             };
+            _productVariantServiceMock.Setup(s => s.GetProductTypeByProductIdAsync(productId)).ReturnsAsync(productTypes);
+            _productServiceMock.Setup(s => s.IsStoreActiveByProductIdAsync(productId)).ReturnsAsync(true);
+            _storeDetailServiceMock.Setup(s => s.GetStoreByUserId(It.IsAny<string>())).Returns(new StoreDetails { Status = "Active" });
 
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
+            var result = await _controller.ViewProductType(productId);
 
-            _controller.ModelState.AddModelError("GalleryImages", "You can only select up to 4 gallery images.");
-
-            // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            var updateSuccess = result.ViewData["UpdateSuccess"] as bool?;
-            Assert.IsTrue(updateSuccess == null || updateSuccess == false, "UpdateSuccess should be false or null when ModelState is invalid.");
-            Assert.IsTrue(_controller.ModelState.ContainsKey("GalleryImages"));
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.IsInstanceOf<List<ProductVariantViewModel>>(viewResult.Model);
+            var model = (List<ProductVariantViewModel>)viewResult.Model;
+            Assert.IsNotEmpty(model);
         }
 
+        // TC02: Abnormal - Returns empty list when no product type
         [Test]
-        public async Task UpdateProduct_ExceptionThrown_ReturnsViewWithErrorMessage()
+        public async Task ViewProductType_ReturnsEmptyList_WhenNoProductType()
         {
-            // Arrange
-            var model = new ProductUpdateViewModel
+            SetUser(); // <-- Add this line
+            var productId = Guid.Parse("fd2f0811-a365-47bb-b232-68c10248f1ff");
+            _productVariantServiceMock.Setup(s => s.GetProductTypeByProductIdAsync(productId)).ReturnsAsync(new List<ProductVariantViewModel>());
+            _productServiceMock.Setup(s => s.IsStoreActiveByProductIdAsync(productId)).ReturnsAsync(false);
+            _storeDetailServiceMock.Setup(s => s.GetStoreByUserId(It.IsAny<string>())).Returns((StoreDetails)null);
+
+            var result = await _controller.ViewProductType(productId);
+
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult);
+            Assert.IsInstanceOf<List<ProductVariantViewModel>>(viewResult.Model);
+            var model = (List<ProductVariantViewModel>)viewResult.Model;
+            Assert.IsEmpty(model);
+        }
+
+        // TC03: Exception - Service throws, controller should propagate or handle
+        [Test]
+        public void ViewProductType_ThrowsException_WhenServiceFails()
+        {
+            SetUser(); // <-- Add this line
+            var productId = Guid.NewGuid();
+            _productVariantServiceMock.Setup(s => s.GetProductTypeByProductIdAsync(productId)).ThrowsAsync(new Exception("Unknown error"));
+
+            Assert.ThrowsAsync<Exception>(async () =>
             {
-                ProductID = Guid.NewGuid(),
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).ThrowsAsync(new Exception("An unknown error occurred..."));
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
-
-            // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsFalse(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.IsTrue(_controller.ModelState[string.Empty].Errors[0].ErrorMessage.Contains("An unknown error occurred"));
+                await _controller.ViewProductType(productId);
+            });
         }
     }
 }

@@ -42,7 +42,8 @@ namespace Food_Haven.UnitTest.Admin_CheckNameExistsForUpdate_Test
                 null, // IStoreReportServices
                 null, // IProductImageService
                 null, // IRecipeIngredientTagIngredientTagSerivce
-                null  // RoleManager<IdentityRole>
+                null, // RoleManager<IdentityRole>
+                null  // IExpertRecipeServices (add this argument)
             );
         }
 

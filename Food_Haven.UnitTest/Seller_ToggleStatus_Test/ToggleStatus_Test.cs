@@ -14,22 +14,24 @@ using Food_Haven.Web.Controllers;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Mvc;
+using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 using Models;
 using Moq;
-using NUnit.Framework;
 using Repository.BalanceChange;
-using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using IFormFile = Microsoft.AspNetCore.Http.IFormFile;
 
-namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
+namespace Food_Haven.UnitTest.Seller_ToggleStatus_Test
 {
     [TestFixture]
-    public class UpdateProduct_Test
+    public class ToggleStatus_Test
     {
         private SellerController _controller;
 
@@ -105,83 +107,84 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
         }
 
         [Test]
-        public async Task UpdateProduct_Normal_Success_ReturnsViewWithSuccessMessage()
+        public async Task ToggleStatus_ReturnsOk_WhenProductStatusUpdatedSuccessfully()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                Name = "Pho",
-                ShortDescription = "Very delicious!",
-                LongDescription = "This pho is rich, flavorful, perfectly spiced, and absolutely delicious to enjoy.",
-                ManufactureDate = DateTime.Parse("2025-03-20"),
-                ExistingImages = new List<string> { "file1.png" },
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).Returns(Task.CompletedTask);
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(model.ExistingImages);
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
+            var productId = Guid.Parse("ed1c69fa-c1f5-45f1-a9d0-79c9f2120269");
+            _productServiceMock.Setup(s => s.ToggleProductStatus(productId)).ReturnsAsync(true);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = await _controller.ToggleStatus(productId, true);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.AreEqual("Pho", ((ProductUpdateViewModel)result.Model).Name);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+
+            var value = okResult.Value;
+            var successProp = value.GetType().GetProperty("success");
+            var messageProp = value.GetType().GetProperty("message");
+
+            Assert.IsNotNull(successProp);
+            Assert.IsNotNull(messageProp);
+
+            Assert.IsTrue((bool)successProp.GetValue(value));
+            Assert.AreEqual("Product status updated successfully!", (string)messageProp.GetValue(value));
         }
 
         [Test]
-        public async Task UpdateProduct_GalleryImageBoundary_ReturnsViewWithBoundaryMessage()
+        public async Task ToggleStatus_ReturnsNotFound_WhenProductNotFound()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-
-            _controller.ModelState.AddModelError("GalleryImages", "You can only select up to 4 gallery images.");
+            var productId = Guid.Parse("ed1c69fa-c1f5-45f1-a9d0-79c9f2120abc");
+            _productServiceMock.Setup(s => s.ToggleProductStatus(productId)).ReturnsAsync(false);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = await _controller.ToggleStatus(productId, false);
 
             // Assert
-            Assert.IsNotNull(result);
-            var updateSuccess = result.ViewData["UpdateSuccess"] as bool?;
-            Assert.IsTrue(updateSuccess == null || updateSuccess == false, "UpdateSuccess should be false or null when ModelState is invalid.");
-            Assert.IsTrue(_controller.ModelState.ContainsKey("GalleryImages"));
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.IsNotNull(notFoundResult);
+
+            var value = notFoundResult.Value;
+            var messageProp = value.GetType().GetProperty("message");
+
+            Assert.IsNotNull(messageProp);
+            Assert.AreEqual("Product not found", (string)messageProp.GetValue(value));
         }
 
         [Test]
-        public async Task UpdateProduct_ExceptionThrown_ReturnsViewWithErrorMessage()
+        public void ToggleStatus_ThrowsException_WhenServiceThrows()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                StoreID = Guid.NewGuid()
-            };
+            var productId = Guid.NewGuid();
+            _productServiceMock.Setup(s => s.ToggleProductStatus(productId)).ThrowsAsync(new Exception("Unexpected error"));
 
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).ThrowsAsync(new Exception("An unknown error occurred..."));
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
+            // Act & Assert
+            Assert.ThrowsAsync<Exception>(async () =>
+            {
+                await _controller.ToggleStatus(productId, true);
+            });
+        }
+
+        [Test]
+        public async Task ToggleStatus_BoundaryCondition_ProductIdEmpty_ReturnsNotFound()
+        {
+            // Arrange
+            var productId = Guid.Empty;
+            _productServiceMock.Setup(s => s.ToggleProductStatus(productId)).ReturnsAsync(false);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = await _controller.ToggleStatus(productId, true);
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsFalse(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.IsTrue(_controller.ModelState[string.Empty].Errors[0].ErrorMessage.Contains("An unknown error occurred"));
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.IsNotNull(notFoundResult);
+
+            var value = notFoundResult.Value;
+            var messageProp = value.GetType().GetProperty("message");
+
+            Assert.IsNotNull(messageProp);
+            Assert.AreEqual("Product not found", (string)messageProp.GetValue(value));
         }
     }
 }

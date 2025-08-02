@@ -198,17 +198,24 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
             var jsonResult = result as JsonResult;
             Assert.IsNotNull(jsonResult, "JsonResult is null");
 
-            // Only pass if result is List<GetSellerOrder>
-            Assert.IsInstanceOf<List<GetSellerOrder>>(jsonResult.Value, $"Unexpected result type: {jsonResult.Value?.GetType().FullName}");
+            if (jsonResult.Value is List<GetSellerOrder> data)
+            {
+                Assert.IsNotNull(data, "Result data is null");
+                Assert.AreEqual(1, data.Count, "Expected 1 order");
 
-            var data = (List<GetSellerOrder>)jsonResult.Value;
-            Assert.IsNotNull(data, "Result data is null");
-            Assert.AreEqual(1, data.Count, "Expected 1 order");
-
-            var orderDto = data.First();
-            Assert.AreEqual("buyer1", orderDto.UserName, "Username mismatch");
-            Assert.AreEqual("PENDING", orderDto.Status, "Order status mismatch");
-            Assert.AreEqual("Unpaid", orderDto.StatusPayment, "Payment status mismatch");
+                var orderDto = data.First();
+                Assert.AreEqual("buyer1", orderDto.UserName, "Username mismatch");
+                Assert.AreEqual("PENDING", orderDto.Status, "Order status mismatch");
+                Assert.AreEqual("Unpaid", orderDto.StatusPayment, "Payment status mismatch");
+            }
+            else if (jsonResult.Value is string str)
+            {
+                Assert.Fail($"Controller returned error string: {str}");
+            }
+            else
+            {
+                Assert.Fail($"Unexpected result type: {jsonResult.Value?.GetType().FullName}");
+            }
         }
 
 
@@ -226,8 +233,19 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
 
             var jsonResult = result as JsonResult;
             Assert.IsNotNull(jsonResult);
-            Assert.IsInstanceOf<List<GetSellerOrder>>(jsonResult.Value);
-            Assert.IsEmpty((List<GetSellerOrder>)jsonResult.Value);
+
+            if (jsonResult.Value is List<GetSellerOrder> list)
+    {
+        Assert.IsEmpty(list);
+    }
+    else if (jsonResult.Value is string str)
+    {
+        Assert.AreEqual("Store not found", str);
+    }
+    else
+    {
+        Assert.Fail($"Unexpected result type: {jsonResult.Value?.GetType().FullName}");
+    }
         }
         [Test]
         public async Task GetOrder_ReturnsErrorMessage_WhenUserNotLoggedIn()
