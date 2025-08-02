@@ -22,11 +22,21 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
+using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Repository.ViewModels;
+using BusinessLogic.Services.ExpertRecipes;
 
 namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
 {
+    [TestFixture]
     public class WithdrawList_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
@@ -51,6 +61,7 @@ namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
 
         private AdminController _controller;
 
@@ -93,6 +104,8 @@ namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
             _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -116,7 +129,8 @@ namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
                 _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
-                _roleManagerMock.Object
+                _roleManagerMock.Object,
+                _expertRecipeServicesMock.Object
             );
         }
         [TearDown]
@@ -125,6 +139,81 @@ namespace Food_Haven.UnitTest.Admin_WithdrawList_Test
             _controller?.Dispose();
         }
 
+        
 
+        [Test]
+        public async Task WithdrawList_NoWithdrawals_ReturnsEmptyList()
+        {
+            // Arrange
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            _balanceMock.Setup(b => b.ListAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>(), null, null))
+                .ReturnsAsync(new List<BalanceChange>());
+
+            // Act
+            var result = await _controller.WithdrawList();
+
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<WithdrawAdminListViewModel>>(viewResult.Model);
+            var model = viewResult.Model as List<WithdrawAdminListViewModel>;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(0, model.Count);
+        }
+
+        [Test]
+        public async Task WithdrawList_HasWithdrawals_ReturnsListWithData()
+        {
+            // Arrange
+            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
+            var balances = new List<BalanceChange>
+            {
+                new BalanceChange
+                {
+                    ID = Guid.NewGuid(),
+                    MoneyChange = -1000,
+                    StartTime = DateTime.Now.AddDays(-1),
+                    DueTime = DateTime.Now,
+                    Description = "Recipient&123456&BankName&1000",
+                    UserID = "user1",
+                    Status = "PROCESSING",
+                    Method = "Withdraw"
+                },
+                new BalanceChange
+                {
+                    ID = Guid.NewGuid(),
+                    MoneyChange = -2000,
+                    StartTime = DateTime.Now.AddDays(-2),
+                    DueTime = DateTime.Now,
+                    Description = "Recipient2&654321&BankName2&2000",
+                    UserID = "user2",
+                    Status = "Success",
+                    Method = "Withdraw"
+                }
+            };
+            _balanceMock.Setup(b => b.ListAsync(It.IsAny<System.Linq.Expressions.Expression<Func<BalanceChange, bool>>>(), null, null))
+                .ReturnsAsync(balances);
+            _userManagerMock.Setup(m => m.FindByIdAsync("user1")).ReturnsAsync(new AppUser { UserName = "user1" });
+            _userManagerMock.Setup(m => m.FindByIdAsync("user2")).ReturnsAsync(new AppUser { UserName = "user2" });
+
+            // Act
+            var result = await _controller.WithdrawList();
+
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            var viewResult = result as ViewResult;
+            Assert.IsInstanceOf<List<WithdrawAdminListViewModel>>(viewResult.Model);
+            var model = viewResult.Model as List<WithdrawAdminListViewModel>;
+            Assert.IsNotNull(model);
+            Assert.AreEqual(2, model.Count);
+            Assert.AreEqual("user1", model[0].UserName);
+            Assert.AreEqual("user2", model[1].UserName);
+            Assert.AreEqual("PROCESSING", model[0].Status);
+            Assert.AreEqual("Success", model[1].Status);
+            Assert.AreEqual(1, model[0].No);
+            Assert.AreEqual(2, model[1].No);
+        }
     }
 }

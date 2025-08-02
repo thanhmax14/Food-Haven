@@ -39,7 +39,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Food_Haven.Web.Controllers;
 using Repository.ViewModels;
-using Models; // Add this for AppUser
+using Models;
+using BusinessLogic.Services.ExpertRecipes; // Add this for AppUser
 
 namespace Food_Haven.UnitTest.Admin_ViewStoreRegistration_Test
 {
@@ -67,6 +68,7 @@ namespace Food_Haven.UnitTest.Admin_ViewStoreRegistration_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
 
         private AdminController _controller;
 
@@ -107,6 +109,7 @@ namespace Food_Haven.UnitTest.Admin_ViewStoreRegistration_Test
             _storeReportMock = new Mock<IStoreReportServices>();
             _productImageServiceMock = new Mock<IProductImageService>();
             _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _controller = new AdminController(
@@ -132,7 +135,8 @@ namespace Food_Haven.UnitTest.Admin_ViewStoreRegistration_Test
                 _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
-                _roleManagerMock.Object
+                _roleManagerMock.Object,
+                _expertRecipeServicesMock.Object
             );
         }
         [TearDown]
