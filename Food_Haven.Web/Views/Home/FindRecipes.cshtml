@@ -332,7 +332,7 @@
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
-                                    <i class="fas fa-history me-2"></i>View History <span id="historyCount" class="badge bg-light text-dark ms-1">0</span>
+                                    <i class="fas fa-history me-2"></i>View History</span>
                                 </button>
                             </li>
 
@@ -688,7 +688,9 @@
 </body>
 
 </html>
+
 <script>
+
     $(document).ready(function () {
         $('#history-tab').on('shown.bs.tab', function () {
             const $historyList = $('#historyList');
@@ -702,19 +704,26 @@
                 </div>
             `);
 
-            $.get('/Home/LoadRecipeViewHistory', function (html) {
-                $historyList.html(html);
+             $.get('/Home/LoadRecipeViewHistory', function (html) {
+        $historyList.html(html);
 
-                // Check if any history item exists
-                if ($historyList.find('.history-item').length > 0) {
-                    $clearBtn.show();
-                } else {
-                    $clearBtn.hide();
-                }
-            }).fail(function () {
-                $historyList.html('<div class="alert alert-danger text-center mt-3">Failed to load view history.</div>');
-                $clearBtn.hide();
-            });
+        // Check if any history item exists
+        if ($historyList.find('.history-item').length > 0) {
+            $clearBtn.show();
+        } else {
+            $clearBtn.hide();
+        }
+    }).fail(function (xhr, status, error) {
+        console.error("❌ Load failed:", status, error);
+
+        if (xhr.status === 401) {
+            $historyList.html('<div class="alert alert-warning text-center mt-3">Bạn cần đăng nhập để xem lịch sử.</div>');
+        } else {
+            $historyList.html('<div class="alert alert-danger text-center mt-3">Đã xảy ra lỗi khi tải lịch sử.</div>');
+        }
+
+        $clearBtn.hide();
+    });
         });
 
         // Xử lý khi bấm nút "Delete history"

@@ -169,6 +169,135 @@
         } 
     </script>
     <script>
+           const connectionRecipe = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .build();
+
+        connectionRecipe.on("ReceiveExperRecipe", function () {
+            console.log("📡 Received update signal");
+
+            $.get('/Home/GetAvailableIngredients', function (data) {
+                availableIngredients = data;
+                filteredIngredients = data.slice();
+                renderAvailableIngredients();
+            }).fail(function () {
+                console.error("❌ Failed to fetch available ingredients");
+            });
+
+            setGenerateBtnState();
+        });
+        connectionRecipe.on("ReceiveDeleteExperRecipe", function () {
+          const $historyList = $('#historyList');
+        const $clearBtn = $('#btn-clear-history');
+
+        // Show loading
+        $historyList.html(`
+            <div class="text-center my-4">
+                <div class="spinner-border text-secondary" role="status"></div>
+                <p class="mt-2">Loading view history...</p>
+            </div>
+        `);
+
+        $.get('/Home/LoadRecipeViewHistory', function (html) {
+            $historyList.html(html);
+
+            // Check if any history item exists
+            if ($historyList.find('.history-item').length > 0) {
+                $clearBtn.show();
+            } else {
+                $clearBtn.hide();
+            }
+        }).fail(function (xhr, status, error) {
+            console.error("❌ Load failed:", status, error);
+
+            if (xhr.status === 401) {
+                $historyList.html('<div class="alert alert-warning text-center mt-3">Bạn cần đăng nhập để xem lịch sử.</div>');
+            } else {
+                $historyList.html('<div class="alert alert-danger text-center mt-3">Đã xảy ra lỗi khi tải lịch sử.</div>');
+            }
+
+            $clearBtn.hide();
+        });
+
+        });
+
+        connectionRecipe.start()
+            .then(() => console.log("✅ SignalR connected"))
+            .catch(err => console.error("❌ SignalR error:", err));
+
+        $(document).ready(function () {
+            $('#history-tab').on('shown.bs.tab', function () {
+                const $historyList = $('#historyList');
+                const $clearBtn = $('#btn-clear-history');
+
+                // Show loading
+                $historyList.html(`
+                    <div class="text-center my-4">
+                        <div class="spinner-border text-secondary" role="status"></div>
+                        <p class="mt-2">Loading view history...</p>
+                    </div>
+                `);
+
+                 $.get('/Home/LoadRecipeViewHistory', function (html) {
+            $historyList.html(html);
+
+            // Check if any history item exists
+            if ($historyList.find('.history-item').length > 0) {
+                $clearBtn.show();
+            } else {
+                $clearBtn.hide();
+            }
+        }).fail(function (xhr, status, error) {
+            console.error("❌ Load failed:", status, error);
+
+            if (xhr.status === 401) {
+                $historyList.html('<div class="alert alert-warning text-center mt-3">Bạn cần đăng nhập để xem lịch sử.</div>');
+            } else {
+                $historyList.html('<div class="alert alert-danger text-center mt-3">Đã xảy ra lỗi khi tải lịch sử.</div>');
+            }
+
+            $clearBtn.hide();
+        });
+
+            });
+
+            // Xử lý khi bấm nút "Delete history"
+            $('#btn-clear-history').click(function () {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Delete all view history?',
+                    text: 'This action cannot be undone!',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete all',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/Home/DeleteAllViewHistory',
+                            type: 'POST',
+                            success: function () {
+                               $('#historyList').html(`
+            <div class="empty-history text-center">
+                <i class="fas fa-clock fa-2x mb-2 text-muted"></i>
+                <h5>No view history yet</h5>
+                <p class="text-muted">Recipes you've viewed will appear here</p>
+            </div>
+        `);
+
+                                $('#btn-clear-history').hide();
+                                Swal.fire('Deleted!', 'Your view history has been deleted.', 'success');
+                            },
+                            error: function () {
+                                Swal.fire('Error', 'Failed to delete history.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
+    <script>
         function goToChat(userId) {
             localStorage.setItem('startChatUserId', userId);
             console.log('Đã lưu userId vào localStorage:', userId);

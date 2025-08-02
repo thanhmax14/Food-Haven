@@ -17,9 +17,11 @@ using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
+using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Org.BouncyCastle.Asn1.X509;
@@ -63,13 +65,14 @@ namespace Food_Haven.Web.Controllers
         private readonly IRecipeIngredientTagIngredientTagSerivce _recipeIngredientTagIngredientTagIngredientTagSerivce;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IExpertRecipeServices _expertRecipeServices;
+        private readonly IHubContext<ChatHub> _hubContext;
 
         public AdminController(UserManager<AppUser> userManager, ITypeOfDishService typeOfDishService, IIngredientTagService ingredientTagService, IStoreDetailService storeService,
             IMapper mapper, IWebHostEnvironment webHostEnvironment, IBalanceChangeService balance,
             ICategoryService categoryService, ManageTransaction managetrans, IComplaintServices complaintService, IOrderDetailService orderDetail,
             IOrdersServices order, IProductVariantService variantService, IComplaintImageServices complaintImage, IStoreDetailService storeDetailService,
             IProductService product, IVoucherServices voucher, IRecipeService recipeService, IStoreReportServices storeRepo, IStoreReportServices storeReport,
-            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, RoleManager<IdentityRole> roleManager, IExpertRecipeServices expertRecipeServices)
+            IProductImageService productImageService, IRecipeIngredientTagIngredientTagSerivce recipeIngredientTagIngredientTagIngredientTagSerivce, RoleManager<IdentityRole> roleManager, IExpertRecipeServices expertRecipeServices, IHubContext<ChatHub> hubContext)
 
         {
             _ingredienttag = ingredientTagService;
@@ -99,6 +102,7 @@ namespace Food_Haven.Web.Controllers
             _recipeIngredientTagIngredientTagIngredientTagSerivce = recipeIngredientTagIngredientTagIngredientTagSerivce;
             _roleManager = roleManager;
             _expertRecipeServices = expertRecipeServices;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -2829,7 +2833,7 @@ namespace Food_Haven.Web.Controllers
                 // Lưu vào DB
                 await _expertRecipeServices.AddAsync(recipe);
                 await _expertRecipeServices.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveExperRecipe");
                 return Json(new { success = true });
             }
             catch (Exception ex)
@@ -3026,7 +3030,7 @@ namespace Food_Haven.Web.Controllers
 
                     await _expertRecipeServices.SaveChangesAsync();
                 }
-
+                await _hubContext.Clients.All.SendAsync("ReceiveExperRecipe");
                 return Json(new
                 {
                     success = errors.Count == 0,

@@ -67,11 +67,12 @@ namespace Food_Haven.Web.Controllers
         private readonly RecipeSearchService _service;
         private readonly IExpertRecipeServices _expertRecipeServices;
         private readonly IRecipeViewHistoryServices _recipeViewHistoryServices;
+        private readonly IHubContext<ChatHub> _hubContext;
         public bool IsTesting { get; set; } = false;
 
         public HomeController(SignInManager<AppUser> signInManager, IOrderDetailService orderDetail, IRecipeService recipeService, UserManager<AppUser> userManager, ICategoryService categoryService, IStoreDetailService storeDetailService, IEmailSender emailSender, ICartService cart, IWishlistServices wishlist, IProductService product
 , IProductImageService productimg, IProductVariantService productvarian, IReviewService reviewService, IBalanceChangeService balance, IOrdersServices order, PayOS payos, IVoucherServices voucherServices, IStoreReportServices storeReport, IStoreFollowersService storeFollowersService, RecipeSearchService service,
-            IExpertRecipeServices expertRecipeServices, IRecipeViewHistoryServices recipeViewHistoryServices)
+            IExpertRecipeServices expertRecipeServices, IRecipeViewHistoryServices recipeViewHistoryServices, IHubContext<ChatHub> hubContext)
 
         {
             _recipeService = recipeService;
@@ -99,6 +100,7 @@ namespace Food_Haven.Web.Controllers
             _service = service;
             this._expertRecipeServices = expertRecipeServices;
             _recipeViewHistoryServices = recipeViewHistoryServices;
+            _hubContext = hubContext;
         }
 
 
@@ -2358,108 +2360,162 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadRecipeViewHistory()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
 
-            var history = await _recipeViewHistoryServices.ListAsync(
-                filter: h => h.UserID == user.Id,
-                orderBy: q => q.OrderByDescending(h => h.ViewedAt),
-                includeProperties: q => q.Include(x => x.ExpertRecipe)
-            );
+                var history = await _recipeViewHistoryServices.ListAsync(
+                    filter: h => h.UserID == user.Id,
+                    orderBy: q => q.OrderByDescending(h => h.ViewedAt),
+                    includeProperties: q => q.Include(x => x.ExpertRecipe)
+                );
 
-            var topHistory = history.Take(50); // Lấy tối đa 50 lịch sử gần nhất
+                var topHistory = history.Take(50); // Lấy tối đa 50 lịch sử gần nhất
 
-            return PartialView("_RecipeHistoryPartial", topHistory);
+                return PartialView("_RecipeHistoryPartial", topHistory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in LoadRecipeViewHistory: " + ex.Message);
+                return StatusCode(500, "An error occurred while loading view history.");
+            }
         }
+
         [HttpGet("api/user/status/{userId}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetUserStatus(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound();
-
-            var isOnline = ChatHub.IsUserOnline(userId);
-
-            return Ok(new
+            try
             {
-                isOnline,
-                lastAccess = user.LastAccess.ToString("o") // ISO 8601 string
-            });
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null) return NotFound();
+
+                var isOnline = ChatHub.IsUserOnline(userId);
+
+                return Ok(new
+                {
+                    isOnline,
+                    lastAccess = user.LastAccess.ToString("o")
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetUserStatus: " + ex.Message);
+                return StatusCode(500, "An error occurred while checking user status.");
+            }
         }
+
         [HttpPost]
         public async Task<IActionResult> AddViewHistory(Guid recipeId, string matchedIngredients)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-
-            var existing = await _recipeViewHistoryServices.FindAsync(
-                h => h.UserID == user.Id && h.ExpertRecipeId == recipeId);
-
-            if (existing != null)
+            try
             {
-                existing.ViewedAt = DateTime.UtcNow;
-                existing.MatchedIngredients = matchedIngredients;
-                await _recipeViewHistoryServices.UpdateAsync(existing);
-            }
-            else
-            {
-                var newItem = new RecipeViewHistory
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
+
+                var existing = await _recipeViewHistoryServices.FindAsync(
+                    h => h.UserID == user.Id && h.ExpertRecipeId == recipeId);
+
+                if (existing != null)
                 {
-                    ID = Guid.NewGuid(),
-                    UserID = user.Id,
-                    ExpertRecipeId = recipeId,
-                    ViewedAt = DateTime.UtcNow,
-                    MatchedIngredients = matchedIngredients
-                };
-                await _recipeViewHistoryServices.AddAsync(newItem);
+                    existing.ViewedAt = DateTime.UtcNow;
+                    existing.MatchedIngredients = matchedIngredients;
+                    await _recipeViewHistoryServices.UpdateAsync(existing);
+                }
+                else
+                {
+                    var newItem = new RecipeViewHistory
+                    {
+                        ID = Guid.NewGuid(),
+                        UserID = user.Id,
+                        ExpertRecipeId = recipeId,
+                        ViewedAt = DateTime.UtcNow,
+                        MatchedIngredients = matchedIngredients
+                    };
+                    await _recipeViewHistoryServices.AddAsync(newItem);
+                }
+                await _hubContext.Clients.All.SendAsync("ReceiveDeleteExperRecipe");
+                await _recipeViewHistoryServices.SaveChangesAsync();
+                return Ok();
             }
-
-            await _recipeViewHistoryServices.SaveChangesAsync();
-            return Ok();
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in AddViewHistory: " + ex.Message);
+                return StatusCode(500, "An error occurred while saving view history.");
+            }
         }
+
         [HttpGet]
         public async Task<IActionResult> GetRecipeById(Guid id)
         {
-            var recipe = await _expertRecipeServices.GetAsyncById(id);
-            if (recipe == null) return NotFound();
-
-            return Json(new
+            try
             {
-                recipe.ID,
-                recipe.Title,
-                recipe.Ingredients,
-                recipe.Directions
-            });
+                var recipe = await _expertRecipeServices.GetAsyncById(id);
+                if (recipe == null) return NotFound();
+
+                return Json(new
+                {
+                    recipe.ID,
+                    recipe.Title,
+                    recipe.Ingredients,
+                    recipe.Directions
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in GetRecipeById: " + ex.Message);
+                return StatusCode(500, "An error occurred while retrieving the recipe.");
+            }
         }
+
         [HttpPost]
         public async Task<IActionResult> DeleteViewHistoryItem(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
 
-            var item = await _recipeViewHistoryServices.FindAsync(h => h.ID == id && h.UserID == user.Id);
-            if (item == null) return NotFound();
+                var item = await _recipeViewHistoryServices.FindAsync(h => h.ID == id && h.UserID == user.Id);
+                if (item == null) return NotFound();
+                await _hubContext.Clients.All.SendAsync("ReceiveDeleteExperRecipe");
+                await _recipeViewHistoryServices.DeleteAsync(item);
+                await _recipeViewHistoryServices.SaveChangesAsync();
 
-            await _recipeViewHistoryServices.DeleteAsync(item);
-            await _recipeViewHistoryServices.SaveChangesAsync();
-
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in DeleteViewHistoryItem: " + ex.Message);
+                return StatusCode(500, "An error occurred while deleting the history item.");
+            }
         }
+
         [HttpPost]
         public async Task<IActionResult> DeleteAllViewHistory()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
-
-            var items = await _recipeViewHistoryServices.ListAsync(h => h.UserID == user.Id);
-            foreach (var item in items)
+            try
             {
-                await _recipeViewHistoryServices.DeleteAsync(item);
-            }
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
 
-            await _recipeViewHistoryServices.SaveChangesAsync();
-            return Ok();
+                var items = await _recipeViewHistoryServices.ListAsync(h => h.UserID == user.Id);
+                foreach (var item in items)
+                {
+                    await _recipeViewHistoryServices.DeleteAsync(item);
+                }
+                await _hubContext.Clients.All.SendAsync("ReceiveDeleteExperRecipe");
+                await _recipeViewHistoryServices.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in DeleteAllViewHistory: " + ex.Message);
+                return StatusCode(500, "An error occurred while deleting all view history.");
+            }
         }
+
 
     }
     public class HomeViewModel
