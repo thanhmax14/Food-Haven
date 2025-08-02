@@ -1,5 +1,6 @@
 ﻿<!doctype html>
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable">
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+    data-sidebar-image="none" data-preloader="disable">
 
 <head>
 
@@ -39,12 +40,12 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                id="NotificationModalbtn-close"></button>
+                            id="NotificationModalbtn-close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mt-2 text-center">
                             <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop"
-                                       colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>
+                                colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>
                             <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
                                 <h4>Are you sure ?</h4>
                                 <p class="text-muted mx-4 mb-0">Are you sure you want to remove this Notification ?</p>
@@ -85,7 +86,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -101,12 +102,12 @@
                                 <i class=" ri-pie-chart-line"></i> <span>Revenue Statistics</span>
                             </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="WithdrawList">
                             <i class="ri-exchange-dollar-line"></i> <span>Withdrawal Requests From Users</span>
                         </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="Managercomplant">
                             <i class="ri-error-warning-line"></i> <span>Order Complaint Reports From Seller</span>
                         </a>
@@ -121,7 +122,7 @@
                                 <i class="ri-user-add-line"></i> <span>Seller Registration Requests</span>
                             </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="ViewStoreRegistration">
                             <i class="ri-file-add-line"></i> <span>Store Registration Requests</span>
                         </a>
@@ -131,7 +132,7 @@
                                 <i class="ri-store-2-line"></i> <span>Store</span>
                             </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagementReportStore">
                             <i class="ri-alert-line"></i> <span>Store Reports From User</span>
                         </a>
@@ -147,21 +148,22 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagerExpertRecipe">
-                                <i class="ri-restaurant-2-line"></i> <span>Manager ExpertRecipe</span>
+                            <a class="nav-link menu-link active" asp-controller="Admin"
+                                asp-action="ManagerExpertRecipe">
+                                <i class="ri-restaurant-2-line"></i> <span>Expert Recipe</span>
                             </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllIngredientTag">
                             <i class=" ri-price-tag-3-line"></i> <span>Ingredient Tag</span>
                         </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllTypeOfDish">
                             <i class="ri-restaurant-line"></i> <span>Type of Dish</span>
                         </a>
                         </li>
-                        <li class="nav-item"></li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerVoucher">
                             <i class=" ri-coupon-2-line"></i> <span>Voucher</span>
                         </a>
@@ -213,11 +215,11 @@
                         <div class="col-lg-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                   
+
                                     <h4 class="card-title mb-0">Recipes List</h4>
 
 
-                                   
+
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-10">
@@ -225,17 +227,20 @@
                                             <i class="ri-add-line"></i> Create ExpertRecipe
                                         </a>
                                     </div>
-                                   
+
                                     <!-- Tabs -->
                                     <ul class="nav nav-tabs mb-3" id="recipeTab" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">All</button>
+                                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab"
+                                                data-bs-target="#all" type="button" role="tab">All</button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">Active</button>
+                                            <button class="nav-link" id="active-tab" data-bs-toggle="tab"
+                                                data-bs-target="#active" type="button" role="tab">Active</button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="inactive-tab" data-bs-toggle="tab" data-bs-target="#inactive" type="button" role="tab">Inactive</button>
+                                            <button class="nav-link" id="inactive-tab" data-bs-toggle="tab"
+                                                data-bs-target="#inactive" type="button" role="tab">Inactive</button>
                                         </li>
                                     </ul>
 
@@ -275,7 +280,7 @@
                     </div>
 
                     <script>
-                        let allGrid,activeGrid, inactiveGrid;
+                        let allGrid, activeGrid, inactiveGrid;
 
                         document.addEventListener("DOMContentLoaded", function () {
                             loadExpertRecipes();
@@ -289,33 +294,33 @@
                                     "X-Requested-With": "XMLHttpRequest"
                                 }
                             })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (!Array.isArray(data)) return showErrorMessage("Dữ liệu trả về không hợp lệ.");
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (!Array.isArray(data)) return showErrorMessage("Dữ liệu trả về không hợp lệ.");
 
-                                const activeData = data.filter(r => r.isActive);
-                                const inactiveData = data.filter(r => !r.isActive);
-                                                if (allGrid) {
-                            allGrid.updateConfig({ data: buildGridData(data) }).forceRender();
-                        } else {
-                            allGrid = renderExpertGrid(data, "table-all", "loader-all");
-                        }
-                                if (activeGrid) {
-                                    activeGrid.updateConfig({ data: buildGridData(activeData) }).forceRender();
-                                } else {
-                                    activeGrid = renderExpertGrid(activeData, "table-active", "loader-active");
-                                }
+                                    const activeData = data.filter(r => r.isActive);
+                                    const inactiveData = data.filter(r => !r.isActive);
+                                    if (allGrid) {
+                                        allGrid.updateConfig({ data: buildGridData(data) }).forceRender();
+                                    } else {
+                                        allGrid = renderExpertGrid(data, "table-all", "loader-all");
+                                    }
+                                    if (activeGrid) {
+                                        activeGrid.updateConfig({ data: buildGridData(activeData) }).forceRender();
+                                    } else {
+                                        activeGrid = renderExpertGrid(activeData, "table-active", "loader-active");
+                                    }
 
-                                if (inactiveGrid) {
-                                    inactiveGrid.updateConfig({ data: buildGridData(inactiveData) }).forceRender();
-                                } else {
-                                    inactiveGrid = renderExpertGrid(inactiveData, "table-inactive", "loader-inactive");
-                                }
-                            })
-                            .catch(err => {
-                                console.error(err);
-                                showErrorMessage("Không thể tải dữ liệu.");
-                            });
+                                    if (inactiveGrid) {
+                                        inactiveGrid.updateConfig({ data: buildGridData(inactiveData) }).forceRender();
+                                    } else {
+                                        inactiveGrid = renderExpertGrid(inactiveData, "table-inactive", "loader-inactive");
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    showErrorMessage("Không thể tải dữ liệu.");
+                                });
                         }
 
                         function renderExpertGrid(data, containerId, loaderId) {
@@ -425,19 +430,19 @@
                                         "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]')?.value || ""
                                     }
                                 })
-                                .then(res => res.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire("Success", "Recipe updated!", "success");
-                                        loadExpertRecipes(); // ✅ Refresh bảng sau khi cập nhật
-                                    } else {
-                                        Swal.fire("Error", data.message || "Update failed", "error");
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error(err);
-                                    Swal.fire("Error", err.message, "error");
-                                });
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            Swal.fire("Success", "Recipe updated!", "success");
+                                            loadExpertRecipes(); // ✅ Refresh bảng sau khi cập nhật
+                                        } else {
+                                            Swal.fire("Error", data.message || "Update failed", "error");
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error(err);
+                                        Swal.fire("Error", err.message, "error");
+                                    });
                             });
                         }
 
@@ -448,16 +453,16 @@
 
 
                 </div>
-               
-            </div>
-          
 
-    
+            </div>
+
+
+
         </div>
-   
+
 
     </div>
-   
+
     <button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
         <i class="ri-arrow-up-line"></i>
     </button>
@@ -473,7 +478,8 @@
     </div>
 
     <div class="customizer-setting d-none d-md-block">
-        <div class="btn-info rounded-pill shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas" data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
+        <div class="btn-info rounded-pill shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas"
+            data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
             <i class='mdi mdi-spin mdi-cog-outline fs-22'></i>
         </div>
     </div>
