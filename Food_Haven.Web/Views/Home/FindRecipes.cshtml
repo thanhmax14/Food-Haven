@@ -265,10 +265,10 @@
                 overflow: hidden;
             }
 
-            .recipe-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            }
+                .recipe-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+                }
 
             .recipe-Title {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -285,10 +285,10 @@
                 cursor: pointer;
             }
 
-            .history-item:hover {
-                background: rgba(102, 126, 234, 0.1);
-                transform: translateX(5px);
-            }
+                .history-item:hover {
+                    background: rgba(102, 126, 234, 0.1);
+                    transform: translateX(5px);
+                }
 
             .history-time {
                 color: #666;
@@ -298,49 +298,45 @@
             .tab-content {
                 background: white;
                 border-radius: 0 15px 15px 15px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            }
-
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }  
             #historyList {
                 height: auto !important;
                 overflow: visible !important;
             }
-
             .empty-history {
                 text-align: center;
                 color: #666;
                 padding: 40px 20px;
             }
 
-            .empty-history i {
-                font-size: 3rem;
-                color: #ddd;
-                margin-bottom: 15px;
-            }
+                .empty-history i {
+                    font-size: 3rem;
+                    color: #ddd;
+                    margin-bottom: 15px;
+                }
         </style>
         <div class="page-content pt-30">
             <div class="container">
                 <div class="row">
                     <div class="col-xl-10 col-lg-12 m-auto">
-
-
+                   
+              
                         <h2>Food Haven Recipe Generator</h2>
                         <hr />
-                        <ul class="nav nav-tabs mb-0" id="mainTabs" role="tablist">
+                         <ul class="nav nav-tabs mb-0" id="mainTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="generator-tab" data-bs-toggle="tab"
-                                    data-bs-target="#generator" type="button" role="tab">
+                                <button class="nav-link active" id="generator-tab" data-bs-toggle="tab" data-bs-target="#generator" type="button" role="tab">
                                     <i class="fas fa-magic me-2"></i>Generate Recipe
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
-                                    type="button" role="tab">
-                                    <i class="fas fa-history me-2"></i>View History
+                                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                                    <i class="fas fa-history me-2"></i>View History</span>
                                 </button>
                             </li>
 
-                        </ul>
+                    </ul>
 
                         <div class="tab-content p-4">
                             <!-- Tab Tạo Recipe -->
@@ -348,23 +344,20 @@
                                 <div class="card mb-3">
                                     <div class="card-header fw-bold">Available Ingredients</div>
                                     <div class="card-body pb-2">
-                                        <input type="text" id="search-ingredient" class="form-control mb-2"
-                                            placeholder="Search ingredient..." autocomplete="off" />
-                                        <div id="available-Ingredients" class="d-flex flex-wrap gap-2"
-                                            style="max-height: 300px; overflow-y: auto; min-height:60px; border:1px solid #e3e3e3; border-radius:8px;">
+                                        <input type="text" id="search-ingredient" class="form-control mb-2" placeholder="Search ingredient..." autocomplete="off" />
+                                        <div id="available-Ingredients"
+                                             class="d-flex flex-wrap gap-2"
+                                             style="max-height: 300px; overflow-y: auto; min-height:60px; border:1px solid #e3e3e3; border-radius:8px;">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="card mb-3">
-                                    <div class="card-header fw-bold">Selected Ingredients <small
-                                            class="text-muted">(Click to remove)</small></div>
+                                    <div class="card-header fw-bold">Selected Ingredients <small class="text-muted">(Click to remove)</small></div>
                                     <div class="card-body">
-                                        <div id="selected-Ingredients" class="d-flex flex-wrap gap-2 align-items-center"
-                                            style="min-height: 60px;">
+                                        <div id="selected-Ingredients" class="d-flex flex-wrap gap-2 align-items-center" style="min-height: 60px;">
                                             <div class="text-muted w-100 text-center">
-                                                <i class="fas fa-hand-pointer me-2"></i>Select at least 2 ingredients to
-                                                get started
+                                                <i class="fas fa-hand-pointer me-2"></i>Select at least 2 ingredients to get started
 
                                             </div>
                                         </div>
@@ -376,10 +369,8 @@
                                     <div class="card-header fw-bold">Number of recipes to show</div>
                                     <div class="card-body">
                                         <div class="result-btns-row">
-                                            <input type="number" id="limit-input" min="1" max="50" value="5"
-                                                class="form-control" style="width:100px;display:inline-block" />
-                                            <button id="btn-generate" class="btn btn-success ms-2"
-                                                disabled>Generate</button>
+                                            <input type="number" id="limit-input" min="1" max="50" value="5" class="form-control" style="width:100px;display:inline-block" />
+                                            <button id="btn-generate" class="btn btn-success ms-2" disabled>Generate</button>
                                             <button id="btn-clear" class="btn btn-secondary ms-2">Clear</button>
                                         </div>
                                     </div>
@@ -412,22 +403,19 @@
 
                         </div>
                         <!-- Ingredients selection -->
-
+                   
 
                         <div id="results" class="mt-3"></div>
 
                         <!-- Modal recipe template -->
                         <div class="modal fade" tabindex="-1" id="recipeModal" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content"
-                                    style="background:#fff8cc; font-family: 'Fira Mono', 'Consolas', monospace;">
+                                <div class="modal-content" style="background:#fff8cc; font-family: 'Fira Mono', 'Consolas', monospace;">
                                     <div class="modal-header" style="border:none;">
                                         <h5 class="modal-Title fw-bold" id="modalTitle"></h5>
-                                        <button type="button" class="btn-close fs-3" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
+                                        <button type="button" class="btn-close fs-3" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body"
-                                        style="white-space:pre-line; max-height: 700px; overflow-y: auto; text-align:left; padding-left:32px;padding-right:32px;">
+                                    <div class="modal-body" style="white-space:pre-line; max-height: 700px; overflow-y: auto; text-align:left; padding-left:32px;padding-right:32px;">
                                         <div id="modalRecipeBody"></div>
                                     </div>
                                     <div class="modal-footer" style="border:none;">
@@ -441,158 +429,154 @@
 
                         <!-- Custom loading overlay -->
                         <div id="customLoading" style="display:none;">
-                            <div
-                                style="background:#fff8cc;border-radius:30px;padding:40px 50px 30px 50px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:340px;text-align:center;display:inline-block;">
+                            <div style="background:#fff8cc;border-radius:30px;padding:40px 50px 30px 50px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:340px;text-align:center;display:inline-block;">
                                 <div>
-                                    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" alt="cook"
-                                        width="48" style="margin-bottom:10px;">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" alt="cook" width="48" style="margin-bottom:10px;">
                                 </div>
-                                <span id="loadingText"
-                                    style="font-family:'Fira Mono',monospace;font-size:1.3rem;font-weight:600;display:block;">
+                                <span id="loadingText" style="font-family:'Fira Mono',monospace;font-size:1.3rem;font-weight:600;display:block;">
                                     Finding a recipe<span id="loadingDots"></span>
                                 </span>
                             </div>
                         </div>
 
                         @section scripts {
+                          
 
-
-
+    
 
                             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-                            .
-                            <script>
-                                $(document).ready(function () {
-                                    // Xử lý modal backdrop bị giữ lại
-                                    $('#recipeModal').on('hidden.bs.modal', function () {
-                                        $('.modal-backdrop').remove();        // Xoá lớp nền mờ
-                                        $('body').removeClass('modal-open');  // Cho phép cuộn trang lại
-                                    });
+                            .<script>
+                                 $(document).ready(function () {
+                                     // Xử lý modal backdrop bị giữ lại
+                                     $('#recipeModal').on('hidden.bs.modal', function () {
+                                         $('.modal-backdrop').remove();        // Xoá lớp nền mờ
+                                         $('body').removeClass('modal-open');  // Cho phép cuộn trang lại
+                                     });
 
-                                    // (các xử lý khác như .view-history-recipe, ajax... ở đây)
-                                });
+                                     // (các xử lý khác như .view-history-recipe, ajax... ở đây)
+                                 });
                             </script>
 
                             <script>
 
-                                let availableIngredients = [];
-                                let filteredIngredients = [];
-                                let selectedIngredients = [];
-                                let foundRecipes = [];
-                                let lastRecipeTxt = "";
+                                        let availableIngredients = [];
+                                        let filteredIngredients = [];
+                                        let selectedIngredients = [];
+                                        let foundRecipes = [];
+                                        let lastRecipeTxt = "";
 
-                                $(document).ready(function () {
-                                    $.get('@Url.Action("GetAvailableIngredients")', function (data) {
-                                        availableIngredients = data;
-                                        filteredIngredients = data.slice();
-                                        renderAvailableIngredients();
-                                    });
-                                    setGenerateBtnState();
-                                });
+                                        $(document).ready(function () {
+                                            $.get('@Url.Action("GetAvailableIngredients")', function (data) {
+                                                availableIngredients = data;
+                                                filteredIngredients = data.slice();
+                                                renderAvailableIngredients();
+                                            });
+                                            setGenerateBtnState();
+                                        });
 
-                                $('#search-ingredient').on('input', function () {
-                                    const keyword = $(this).val().toLowerCase();
-                                    filteredIngredients = availableIngredients.filter(x => x.toLowerCase().includes(keyword));
-                                    renderAvailableIngredients();
-                                });
+                                        $('#search-ingredient').on('input', function () {
+                                            const keyword = $(this).val().toLowerCase();
+                                            filteredIngredients = availableIngredients.filter(x => x.toLowerCase().includes(keyword));
+                                            renderAvailableIngredients();
+                                        });
 
-                                function renderAvailableIngredients() {
-                                    let html = '';
-                                    filteredIngredients.forEach(ing => {
-                                        html += `<button class="btn btn-secondary-primary mb-2 ing-btn" data-ing="${ing}" type="button">${ing}</button>`;
-                                    });
-                                    $("#available-Ingredients").html(html);
-                                }
-
-                                function renderSelectedIngredients() {
-                                    let html = '';
-                                    selectedIngredients.forEach(ing => {
-                                        html += `<span class="badge bg-success p-2 me-1 selected-ing" data-ing="${ing}" style="cursor:pointer;" Title="Click to remove">${ing} <i class="fas fa-times ms-1"></i></span>`;
-                                    });
-                                    $("#selected-Ingredients").html(html);
-                                    setGenerateBtnState();
-                                }
-
-                                $(document).on('click', '.ing-btn', function () {
-                                    let ing = $(this).data('ing');
-                                    if (!selectedIngredients.includes(ing)) {
-                                        selectedIngredients.push(ing);
-                                        availableIngredients = availableIngredients.filter(x => x !== ing);
-                                        filteredIngredients = availableIngredients.filter(x => x.toLowerCase().includes($('#search-ingredient').val().toLowerCase()));
-                                        renderAvailableIngredients();
-                                        renderSelectedIngredients();
-                                    }
-                                });
-
-                                $(document).on('click', '.selected-ing', function () {
-                                    let ing = $(this).data('ing');
-                                    selectedIngredients = selectedIngredients.filter(x => x !== ing);
-                                    if (!availableIngredients.includes(ing)) {
-                                        availableIngredients.push(ing);
-                                        availableIngredients.sort();
-                                    }
-                                    filteredIngredients = availableIngredients.filter(x => x.toLowerCase().includes($('#search-ingredient').val().toLowerCase()));
-                                    renderAvailableIngredients();
-                                    renderSelectedIngredients();
-                                });
-
-                                $('#btn-clear').click(function () {
-                                    availableIngredients = availableIngredients.concat(selectedIngredients).sort();
-                                    filteredIngredients = availableIngredients.slice();
-                                    selectedIngredients = [];
-                                    renderAvailableIngredients();
-                                    renderSelectedIngredients();
-                                    $("#results").empty();
-                                    $("#search-ingredient").val('');
-                                    setGenerateBtnState();
-                                });
-
-                                function setGenerateBtnState() {
-                                    if (selectedIngredients.length >= 2) {
-                                        $('#btn-generate').prop('disabled', false);
-                                    } else {
-                                        $('#btn-generate').prop('disabled', true);
-                                    }
-                                }
-
-                                // Hiệu ứng dấu chấm động cho loading
-                                let dotCount = 0;
-                                let dotInterval;
-                                function startLoadingDots() {
-                                    dotInterval = setInterval(function () {
-                                        dotCount = (dotCount + 1) % 4;
-                                        $('#loadingDots').text('.'.repeat(dotCount));
-                                    }, 350);
-                                }
-                                function stopLoadingDots() {
-                                    clearInterval(dotInterval);
-                                    $('#loadingDots').text('');
-                                }
-
-                                $('#btn-generate').click(function () {
-                                    let limit = parseInt($("#limit-input").val()) || 5;
-                                    $('#customLoading').css('display', 'flex');
-                                    startLoadingDots();
-                                    $.ajax({
-                                        url: '@Url.Action("FindRecipes")',
-                                        method: 'POST',
-                                        data: {
-                                            Ingredients: selectedIngredients,
-                                            limit: limit
-                                        },
-                                        success: function (html) {
-                                            $("#results").html(html);
-                                        },
-                                        error: function () {
-                                            $("#results").html('<div class="alert alert-danger">Error while searching for recipes!</div>');
-
-                                        },
-                                        complete: function () {
-                                            $('#customLoading').fadeOut(100);
-                                            stopLoadingDots();
+                                        function renderAvailableIngredients() {
+                                            let html = '';
+                                            filteredIngredients.forEach(ing => {
+                                                html += `<button class="btn btn-secondary-primary mb-2 ing-btn" data-ing="${ing}" type="button">${ing}</button>`;
+                                            });
+                                            $("#available-Ingredients").html(html);
                                         }
-                                    });
-                                });
+
+                                        function renderSelectedIngredients() {
+                                            let html = '';
+                                            selectedIngredients.forEach(ing => {
+                                                html += `<span class="badge bg-success p-2 me-1 selected-ing" data-ing="${ing}" style="cursor:pointer;" Title="Click to remove">${ing} <i class="fas fa-times ms-1"></i></span>`;
+                                            });
+                                            $("#selected-Ingredients").html(html);
+                                            setGenerateBtnState();
+                                        }
+
+                                        $(document).on('click', '.ing-btn', function () {
+                                            let ing = $(this).data('ing');
+                                            if (!selectedIngredients.includes(ing)) {
+                                                selectedIngredients.push(ing);
+                                                availableIngredients = availableIngredients.filter(x => x !== ing);
+                                                filteredIngredients = availableIngredients.filter(x => x.toLowerCase().includes($('#search-ingredient').val().toLowerCase()));
+                                                renderAvailableIngredients();
+                                                renderSelectedIngredients();
+                                            }
+                                        });
+
+                                        $(document).on('click', '.selected-ing', function () {
+                                            let ing = $(this).data('ing');
+                                            selectedIngredients = selectedIngredients.filter(x => x !== ing);
+                                            if (!availableIngredients.includes(ing)) {
+                                                availableIngredients.push(ing);
+                                                availableIngredients.sort();
+                                            }
+                                            filteredIngredients = availableIngredients.filter(x => x.toLowerCase().includes($('#search-ingredient').val().toLowerCase()));
+                                            renderAvailableIngredients();
+                                            renderSelectedIngredients();
+                                        });
+
+                                        $('#btn-clear').click(function () {
+                                            availableIngredients = availableIngredients.concat(selectedIngredients).sort();
+                                            filteredIngredients = availableIngredients.slice();
+                                            selectedIngredients = [];
+                                            renderAvailableIngredients();
+                                            renderSelectedIngredients();
+                                            $("#results").empty();
+                                            $("#search-ingredient").val('');
+                                            setGenerateBtnState();
+                                        });
+
+                                        function setGenerateBtnState() {
+                                            if (selectedIngredients.length >= 2) {
+                                                $('#btn-generate').prop('disabled', false);
+                                            } else {
+                                                $('#btn-generate').prop('disabled', true);
+                                            }
+                                        }
+
+                                        // Hiệu ứng dấu chấm động cho loading
+                                        let dotCount = 0;
+                                        let dotInterval;
+                                        function startLoadingDots() {
+                                            dotInterval = setInterval(function () {
+                                                dotCount = (dotCount + 1) % 4;
+                                                $('#loadingDots').text('.'.repeat(dotCount));
+                                            }, 350);
+                                        }
+                                        function stopLoadingDots() {
+                                            clearInterval(dotInterval);
+                                            $('#loadingDots').text('');
+                                        }
+
+                                        $('#btn-generate').click(function () {
+                                            let limit = parseInt($("#limit-input").val()) || 5;
+                                            $('#customLoading').css('display', 'flex');
+                                            startLoadingDots();
+                                            $.ajax({
+                                                url: '@Url.Action("FindRecipes")',
+                                                method: 'POST',
+                                                data: {
+                                                    Ingredients: selectedIngredients,
+                                                    limit: limit
+                                                },
+                                                success: function (html) {
+                                                    $("#results").html(html);
+                                                },
+                                                error: function () {
+                                                   $("#results").html('<div class="alert alert-danger">Error while searching for recipes!</div>');
+
+                                                },
+                                                complete: function () {
+                                                    $('#customLoading').fadeOut(100);
+                                                    stopLoadingDots();
+                                                }
+                                            });
+                                        });
 
                                 $(document).on('click', '.btn-view-modal', function () {
                                     let idx = $(this).data('idx');
@@ -607,57 +591,57 @@
                                     $("#modalTitle").text(r.Title);
                                     $("#modalRecipeBody").text(txt);
                                     lastRecipeTxt = txt;
-                                    $.ajax({
-                                        url: '@Url.Action("AddViewHistory", "Home")',
-                                        method: 'POST',
-                                        data: {
-                                            recipeId: r.ID,
-                                            matchedIngredients: selectedIngredients.join(', ')
-                                        },
-                                        success: function () {
-                                            $.get('/Home/LoadRecipeViewHistory', function (html) {
-                                                $historyList.html(html);
+                                                                 $.ajax({
+                                    url: '@Url.Action("AddViewHistory", "Home")',
+                                    method: 'POST',
+                                    data: {
+                                        recipeId: r.ID,
+                                        matchedIngredients: selectedIngredients.join(', ')
+                                    },
+                                    success: function () {
+                                                             $.get('/Home/LoadRecipeViewHistory', function (html) {
+                                    $historyList.html(html);
 
-                                                // Check if any history item exists
-                                                if ($historyList.find('.history-item').length > 0) {
-                                                    $clearBtn.show();
-                                                } else {
-                                                    $clearBtn.hide();
-                                                }
-                                            }).fail(function () {
-                                                $historyList.html('<div class="alert alert-danger text-center mt-3">Failed to load view history.</div>');
-                                                $clearBtn.hide();
-                                            });
-                                            console.log("Lưu lịch sử thành công");
-                                        },
-                                        error: function () {
-                                            console.warn("Lỗi khi lưu lịch sử");
-                                        }
-                                    });
+                                    // Check if any history item exists
+                                    if ($historyList.find('.history-item').length > 0) {
+                                        $clearBtn.show();
+                                    } else {
+                                        $clearBtn.hide();
+                                    }
+                                }).fail(function () {
+                                    $historyList.html('<div class="alert alert-danger text-center mt-3">Failed to load view history.</div>');
+                                    $clearBtn.hide();
+                                });
+                                        console.log("Lưu lịch sử thành công");
+                                    },
+                                    error: function () {
+                                        console.warn("Lỗi khi lưu lịch sử");
+                                    }
+                                });
                                     var myModal = new bootstrap.Modal(document.getElementById('recipeModal'));
                                     myModal.show();
                                 });
 
 
 
-                                function parseIngredients(Ingredients) {
-                                    if (!Ingredients) return "";
-                                    try {
-                                        let arr = JSON.parse(Ingredients);
-                                        return arr.map(x => '- ' + x).join('\n');
-                                    } catch {
-                                        return Ingredients.split(',').map(x => '- ' + x.trim()).join('\n');
-                                    }
-                                }
-                                function parseDirections(Directions) {
-                                    if (!Directions) return "";
-                                    try {
-                                        let arr = JSON.parse(Directions);
-                                        return arr.map((x, i) => (i + 1) + '. ' + x).join('\n');
-                                    } catch {
-                                        return Directions;
-                                    }
-                                }
+                                        function parseIngredients(Ingredients) {
+                                            if (!Ingredients) return "";
+                                            try {
+                                                let arr = JSON.parse(Ingredients);
+                                                return arr.map(x => '- ' + x).join('\n');
+                                            } catch {
+                                                return Ingredients.split(',').map(x => '- ' + x.trim()).join('\n');
+                                            }
+                                        }
+                                        function parseDirections(Directions) {
+                                            if (!Directions) return "";
+                                            try {
+                                                let arr = JSON.parse(Directions);
+                                                return arr.map((x, i) => (i + 1) + '. ' + x).join('\n');
+                                            } catch {
+                                                return Directions;
+                                            }
+                                        }
                             </script>
                         }
 
@@ -704,7 +688,9 @@
 </body>
 
 </html>
+
 <script>
+
     $(document).ready(function () {
         $('#history-tab').on('shown.bs.tab', function () {
             const $historyList = $('#historyList');
@@ -718,19 +704,26 @@
                 </div>
             `);
 
-            $.get('/Home/LoadRecipeViewHistory', function (html) {
-                $historyList.html(html);
+             $.get('/Home/LoadRecipeViewHistory', function (html) {
+        $historyList.html(html);
 
-                // Check if any history item exists
-                if ($historyList.find('.history-item').length > 0) {
-                    $clearBtn.show();
-                } else {
-                    $clearBtn.hide();
-                }
-            }).fail(function () {
-                $historyList.html('<div class="alert alert-danger text-center mt-3">Failed to load view history.</div>');
-                $clearBtn.hide();
-            });
+        // Check if any history item exists
+        if ($historyList.find('.history-item').length > 0) {
+            $clearBtn.show();
+        } else {
+            $clearBtn.hide();
+        }
+    }).fail(function (xhr, status, error) {
+        console.error("❌ Load failed:", status, error);
+
+        if (xhr.status === 401) {
+            $historyList.html('<div class="alert alert-warning text-center mt-3">Bạn cần đăng nhập để xem lịch sử.</div>');
+        } else {
+            $historyList.html('<div class="alert alert-danger text-center mt-3">Đã xảy ra lỗi khi tải lịch sử.</div>');
+        }
+
+        $clearBtn.hide();
+    });
         });
 
         // Xử lý khi bấm nút "Delete history"
@@ -748,7 +741,7 @@
                         url: '/Home/DeleteAllViewHistory',
                         type: 'POST',
                         success: function () {
-                            $('#historyList').html(`
+                           $('#historyList').html(`
         <div class="empty-history text-center">
             <i class="fas fa-clock fa-2x mb-2 text-muted"></i>
             <h5>No view history yet</h5>
