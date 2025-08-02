@@ -3,12 +3,12 @@
     data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
-<!-- Mirrored from themesbrand.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+<!-- Mirrored from themesbrand.com/velzon/html/master/ManagerExpertRecipe-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 <head>
 
     <meta charset="utf-8" />
-    <title>Form layout | Velzon - Admin & Dashboard Template</title>
+    <title>Create ExpertRecipe | Velzon - Admin & Dashboard Template</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
@@ -217,7 +217,7 @@
                 </button>
             </div>
 
-            <div id="scrollbar">
+              <div id="scrollbar">
                 <div class="container-fluid">
                     <div id="two-column-menu">
                     </div>
@@ -269,8 +269,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagementRecipe">
+                            <a class="nav-link menu-link " asp-controller="Admin" asp-action="ManagementRecipe">
                                 <i class="ri-restaurant-2-line"></i> <span>Cooking Recipes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagerExpertRecipe">
+                                <i class="ri-restaurant-2-line"></i> <span>Manager ExpertRecipe</span>
                             </a>
                         </li>
                         <li class="nav-item"></li>
@@ -319,12 +324,12 @@
                         <div class="col-12">
                             <div
                                 class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                                <h4 class="mb-sm-0">Form Layout</h4>
+                                <h4 class="mb-sm-0">Create ExpertRecipe</h4>
 
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Forms</a></li>
-                                        <li class="breadcrumb-item active">Form Layout</li>
+                                    <li class="breadcrumb-item"><a href="/admin/managerExpertRecipe">Manager ExpertRecipe</a></li>
+                                        <li class="breadcrumb-item active">Create ExpertRecipe</li>
                                     </ol>
                                 </div>
 
@@ -337,7 +342,7 @@
                         <div class="col-12" style="float: right;">
                             <div class="card">
                                 <div class="border rounded p-3 bg-light">
-                                    <h6 class="mb-3">Import từ File CSV</h6>
+                                    <h6 class="mb-3">Import From File CSV</h6>
                                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
                                         data-bs-target="#uploadModal">
                                         <i class="fas fa-upload me-2"></i>Select CSV File
@@ -472,15 +477,21 @@
 
                                         </div>
 
-                                        <div class="mt-4">
+                                    <div class="mt-4">
+                                        <a href="/admin/managerExpertRecipe" class="btn btn-secondary me-2">
+                                            <i class="fas fa-arrow-left me-1"></i>Back
+                                        </a>
+
                                         <button type="reset" class="btn btn-secondary">
-                                            <i class="fas fa-times me-1"></i> Resest
+                                            <i class="fas fa-times me-1"></i> Reset
                                         </button>
-                                            <button type="submit" class="btn btn-success me-2">
-                                                <i class="fas fa-check me-1"></i> Lưu
-                                            </button>
-                                            
-                                        </div>
+
+                                        <button type="submit" class="btn btn-success me-2" id="submitBtn">
+                                            <i class="fas fa-check me-1" id="submitIcon"></i>
+                                            <span id="submitText">Create</span>
+                                        </button>
+                                    </div>
+
                                     </form>
                                 </div>
                             </div>
@@ -524,9 +535,9 @@
                                             <li>Title: Maximum 200 characters. (required)</li>
                                             <li>Ingredients: Maximum 1500 characters. (required)</li>
                                             <li>Directions: Maximum 2500 characters. (required)</li>
-                                            <li>NER: Maximum 1000 characters. (optional)</li>
-                                            <li>Link: Must be a valid URL (optional)</li>
-                                            <li>Source: Maximum 100 characters. (optional)</li>
+                                            <li>Link: Must be a valid URL (required)</li>
+                                            <li>Source: Maximum 100 characters.(required)</li>
+                                            <li>NER: Maximum 1000 characters.(required)</li>
                                             <li><strong>Note:</strong> Ingredients, Directions, and NER must be in
                                                 <code>JSON string array</code> format.<br>
                                                 Example: <code>[""item1"", ""item2""]</code>
@@ -539,8 +550,8 @@
                                         <h6>Sample format:</h6>
                                         <div class="bg-light p-2 rounded small">
                                             <code>
-                                                Title,Ingredients,Directions,NER,Link,Source<br>
-                                                No-Bake Nut Cookies,"[""1 c. brown sugar"", ""1/2 c. milk""]","[""Step 1"", ""Step 2""]","[""sugar"", ""milk""]","https://example.com","Blog A"
+                                            Title,Ingredients,Directions,Link,Source,NER<br>
+                                                No-Bake Nut Cookies,"[""1 c. brown sugar"", ""1/2 c. milk""]","[""Step 1"", ""Step 2""]","https://example.com","Blog A,"[""sugar"", ""milk""]""
                                             </code>
                                         </div>
                                     </div>
@@ -557,88 +568,70 @@
                                 </div>
 
                                 <!-- Footer buttons -->
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Cancel</button>
-                                    <button type="button" class="btn btn-primary" id="uploadBtn" onclick="uploadFile()">
-                                        <i class="fas fa-upload me-1"></i>Upload
-                                    </button>
-                                </div>
+                            <!-- Footer buttons -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="uploadBtn" onclick="uploadFile()">
+                                    <i class="fas fa-upload me-1" id="uploadIcon"></i>
+                                    <span id="uploadText">Upload</span>
+                                </button>
+                            </div>
+
                             </div>
                         </div>
                     </div>
 
                     <!-- Error Modal -->
-                    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-xl">
-                            <div class="modal-content">
-                                <div class="modal-header bg-danger text-white">
-                                    <h5 class="modal-title" id="errorModalLabel">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>Lỗi Import File
-                                    </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="errorModalLabel">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Import File Errors
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-warning">
+                                    <strong id="errorSummary">Your file contains some errors that must be fixed before importing:</strong>
                                 </div>
-                                <div class="modal-body">
-                                    <div class="alert alert-warning">
-                                        <strong>File của bạn có một số lỗi cần được sửa trước khi import:</strong>
-                                    </div>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th>Dòng</th>
-                                                    <th>Cột</th>
-                                                    <th>Giá trị</th>
-                                                    <th>Lỗi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="errorTableBody">
-                                                <!-- Errors will be populated here -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="mt-3">
-                                        <small class="text-muted">
-                                            <strong>Directions:</strong> Vui lòng sửa các lỗi trên trong file CSV và thử
-                                            upload lại.
-                                        </small>
-                                    </div>
+                                <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Row</th>
+                                                <th>Column</th>
+                                                <th>Value</th>
+                                                <th>Error</th>
+                                                <th>Status</th> <!-- ✅ Added -->
+                                            </tr>
+                                        </thead>
+                                        <tbody id="errorTableBody">
+                                            <!-- Errors will be populated here -->
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary"
-                                        data-bs-dismiss="modal">Đóng</button>
-                                    <button type="button" class="btn btn-primary" onclick="downloadErrorReport()">
-                                        <i class="fas fa-download me-1"></i>Tải báo cáo lỗi
-                                    </button>
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        <strong>Note:</strong> Please correct the above errors in your CSV file and try uploading again.
+                                    </small>
                                 </div>
                             </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="downloadErrorReport()">
+                                    <i class="fas fa-download me-1"></i>Download Error Report
+                                </button>
+                            </div>
                         </div>
-
-
-
                     </div>
+                </div>
+
                 </div>
                 <!-- container-fluid -->
             </div>
             <!-- End Page-content -->
-
-
-            <footer class="footer">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <script>document.write(new Date().getFullYear())</script> © Velzon.
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="text-sm-end d-none d-sm-block">
-                                Design & Develop by Themesbrand
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+        @await Html.PartialAsync("_Footer_Admin_Seller")
         </div>
         <!-- end main content-->
 
@@ -672,7 +665,7 @@
 </body>
 
 
-<!-- Mirrored from themesbrand.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
+<!-- Mirrored from themesbrand.com/velzon/html/master/ManagerExpertRecipe-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 </html>
 <script>
@@ -829,7 +822,6 @@
     document.getElementById('recipeForm').addEventListener('submit', function (e) {
         e.preventDefault();
         formSubmitted = true; // Đánh dấu form đã được submit
-
         let isValid = true;
         let firstInvalidField = null;
         const form = this;
@@ -922,13 +914,12 @@
             source: document.getElementById('source').value.trim()
         };
     }
-
     function saveRecipe(recipeData) {
         const submitBtn = $('button[type="submit"]');
         const originalText = submitBtn.html();
 
-        // Hiển thị loading
-        submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Đang lưu...');
+        // Show loading spinner
+        submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
         submitBtn.prop('disabled', true);
 
         $.ajax({
@@ -937,43 +928,44 @@
             contentType: 'application/json',
             data: JSON.stringify(recipeData),
             success: function (data) {
-                // Khôi phục button
+                // Restore button state
                 submitBtn.html(originalText);
                 submitBtn.prop('disabled', false);
-    if (data.success) {
-        Swal.fire({
-            title: 'Lưu công thức thành công!',
-            text: 'Bạn có muốn tạo công thức mới không?',
-            icon: 'success',
-            showCancelButton: true,
-            confirmButtonText: 'Có',
-            cancelButtonText: 'Không'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                resetForm(); // Hàm tạo công thức mới
-            } else {
-                window.location.href = '/admin/managerExpertRecipe'; // Chuyển trang
-            }
-        });
-    } else {
-        showErrorMessage('Có lỗi xảy ra: ' + (data.message || 'Vui lòng kiểm tra lại thông tin.'));
 
-        if (data.errors && data.errors.length > 0) {
-            displayValidationErrors(data.errors);
-        }
-    }
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Recipe saved successfully!',
+                        text: 'Do you want to create another one?',
+                        icon: 'success',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            resetForm(); // Create new recipe
+                        } else {
+                            window.location.href = '/admin/managerExpertRecipe'; // Redirect
+                        }
+                    });
+                } else {
+                    showErrorMessage('An error occurred: ' + (data.message || 'Please check your input.'));
 
+                    if (data.errors && data.errors.length > 0) {
+                        displayValidationErrors(data.errors);
+                    }
+                }
             },
             error: function (xhr, status, error) {
-                // Khôi phục button
+                // Restore button
                 submitBtn.html(originalText);
                 submitBtn.prop('disabled', false);
 
                 console.error('AJAX error:', error);
-                showErrorMessage('Có lỗi xảy ra khi lưu dữ liệu. Vui lòng thử lại.');
+                showErrorMessage('An error occurred while saving. Please try again.');
             }
         });
     }
+
 
     function showSuccessMessage(message) {
         // Tạo alert thành công
@@ -1194,7 +1186,24 @@
         }
     });
 
-    // Upload file function
+        // Reset modal when it opens
+    document.getElementById('uploadModal').addEventListener('shown.bs.modal', function () {
+        const fileInput = document.getElementById('csvFile');
+        fileInput.value = '';
+        fileInput.classList.remove('is-invalid');
+
+        document.getElementById('uploadProgress').classList.add('d-none');
+
+        // Reset button state
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadText = document.getElementById('uploadText');
+
+        uploadBtn.disabled = false;
+        uploadIcon.className = 'fas fa-upload me-1';
+        uploadText.textContent = 'Upload';
+    });
+
     function uploadFile() {
         const fileInput = document.getElementById('csvFile');
         const file = fileInput.files[0];
@@ -1206,123 +1215,145 @@
 
         if (!file.name.toLowerCase().endsWith('.csv')) {
             fileInput.classList.add('is-invalid');
-            showErrorMessage('Vui lòng chọn file có định dạng .csv');
+            showErrorMessage('Please select a file with the .csv extension.');
             return;
         }
 
         fileInput.classList.remove('is-invalid');
 
-        // Show progress
         document.getElementById('uploadProgress').classList.remove('d-none');
-        document.getElementById('uploadBtn').disabled = true;
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadText = document.getElementById('uploadText');
 
-        // Create FormData
+        uploadBtn.disabled = true;
+        uploadIcon.className = 'fas fa-spinner fa-spin me-1';
+        uploadText.textContent = 'Uploading...';
+
         const formData = new FormData();
         formData.append('file', file);
 
-        // Ajax call to upload file
-        fetch('/Recipe/UploadCsv', {
+        fetch('/Admin/UploadCsv', {
             method: 'POST',
             body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
             .then(response => response.json())
             .then(data => {
+                uploadIcon.className = 'fas fa-upload me-1';
+                uploadText.textContent = 'Upload';
+                uploadBtn.disabled = false;
                 document.getElementById('uploadProgress').classList.add('d-none');
-                document.getElementById('uploadBtn').disabled = false;
+
+                const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                if (uploadModal) uploadModal.hide();
 
                 if (data.success) {
-                    // Close upload modal
-                    const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
-                    uploadModal.hide();
-
-                    // Fill form with data
                     if (data.data && data.data.length > 0) {
                         fillFormWithData(data.data);
-                        showSuccessMessage(`Import thành công ${data.data.length} công thức!`);
+                        showSuccessMessage(`Successfully imported ${data.data.length} recipe(s)!`);
                     } else {
-                        showSuccessMessage('Import file thành công!');
+                        showSuccessMessage('File import successful!');
                     }
                 } else {
-                    // Show error modal with detailed errors
                     if (data.errors && data.errors.length > 0) {
-                        showErrorModal(data.errors);
+                        showErrorModal(data.errors, data.totalSuccess || 0);
                     } else {
-                        showErrorMessage(data.message || 'Có lỗi xảy ra khi import file.');
+                        showErrorMessage(data.message || 'An error occurred during file import.');
                     }
                 }
             })
             .catch(error => {
-                document.getElementById('uploadProgress').classList.add('d-none');
-                document.getElementById('uploadBtn').disabled = false;
+                const uploadModal = bootstrap.Modal.getInstance(document.getElementById('uploadModal'));
+                if (uploadModal) uploadModal.hide();
                 console.error('Error:', error);
-                showErrorMessage('Có lỗi xảy ra khi upload file. Vui lòng thử lại.');
+                uploadIcon.className = 'fas fa-upload me-1';
+                uploadText.textContent = 'Upload';
+                uploadBtn.disabled = false;
+                document.getElementById('uploadProgress').classList.add('d-none');
+                showErrorMessage('An error occurred while uploading the file. Please try again.');
             });
     }
 
-    function showErrorModal(errors) {
+
+    function showErrorModal(errors, totalSuccess, statusMap = {}) {
         const errorTableBody = document.getElementById('errorTableBody');
         errorTableBody.innerHTML = '';
 
-        errors.forEach(error => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                    <td><span class="badge bg-secondary">${error.row}</span></td>
-                    <td><strong>${error.column}</strong></td>
-                    <td class="text-truncate" style="max-width: 200px;" title="${error.value}">${error.value || 'Trống'}</td>
-                    <td><span class="text-danger">${error.message}</span></td>
-                `;
-            errorTableBody.appendChild(row);
+        const grouped = {};
+        errors.forEach(e => {
+            if (!grouped[e.row]) grouped[e.row] = [];
+            grouped[e.row].push(e);
         });
 
-        // Store errors for download
+        Object.entries(grouped).forEach(([rowNum, errs]) => {
+            errs.forEach(error => {
+                const safeValue = (error.value ?? '').toString();
+                const status = statusMap[rowNum] === true ? '✔ Success' : '❌ Error';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="badge bg-secondary">${error.row}</span></td>
+                    <td><strong>${escapeHtml(error.column)}</strong></td>
+                    <td class="text-truncate" style="max-width: 300px;" title="${escapeHtml(safeValue)}">
+                        ${escapeHtml(safeValue.length > 100 ? safeValue.slice(0, 100) + '...' : safeValue)}
+                    </td>
+                    <td><span class="text-danger">${escapeHtml(error.message)}</span></td>
+                    <td><span class="${status.startsWith('✔') ? 'text-success' : 'text-danger'}">${status}</span></td>
+                `;
+                errorTableBody.appendChild(row);
+            });
+        });
+
+        document.getElementById('errorSummary').innerHTML = `
+            Total <b>${errors.length}</b> error(s), <b>${totalSuccess}</b> row(s) imported successfully.
+        `;
+
         window.currentErrors = errors;
 
-        // Show error modal
-        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-        errorModal.show();
+        const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+        modal.show();
+    }
+
+    function escapeHtml(unsafe) {
+        return ('' + unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     function fillFormWithData(recipes) {
         if (recipes && recipes.length > 0) {
-            const recipe = recipes[0]; // Fill with first recipe
+            const recipe = recipes[0];
 
-            // Fill basic fields
             document.getElementById('title').value = recipe.title || '';
             document.getElementById('link').value = recipe.link || '';
             document.getElementById('source').value = recipe.source || '';
 
-            // Update character counters
             updateCharacterCount('title', 'titleCount');
             updateCharacterCount('source', 'sourceCount');
 
-            // Fill ingredients
             if (recipe.ingredients && recipe.ingredients.length > 0) {
                 const container = document.getElementById('ingredientsContainer');
                 container.innerHTML = '';
-
                 recipe.ingredients.forEach((ingredient, index) => {
                     addIngredientWithValue(ingredient, index + 1);
                 });
             }
 
-            // Fill directions
             if (recipe.directions && recipe.directions.length > 0) {
                 const container = document.getElementById('directionsContainer');
                 container.innerHTML = '';
-
                 recipe.directions.forEach((direction, index) => {
                     addDirectionWithValue(direction, index + 1);
                 });
             }
 
-            // Fill NER
             if (recipe.ner && recipe.ner.length > 0) {
                 const container = document.getElementById('nerContainer');
                 container.innerHTML = '';
-
                 recipe.ner.forEach((nerItem, index) => {
                     addNERWithValue(nerItem, index + 1);
                 });
@@ -1335,21 +1366,21 @@
         const newItem = document.createElement('div');
         newItem.className = 'step-item';
         newItem.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center">
-                        <span class="step-number me-2">${number}</span>
-                        <span class="fw-medium">Ingredients ${number}</span>
-                    </div>
-                    ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${number}</span>
+                    <span class="fw-medium">Ingredient ${number}</span>
                 </div>
-                <textarea class="form-control ingredient-input" maxlength="1500" rows="3" required>${value}</textarea>
-                <div class="invalid-feedback">
-                    Please enter the ingredients (maximum 1500 characters).
-                </div>
-                <div class="form-text">
-                    <span class="ingredient-count">${value.length}</span>/1500 characters.
-                </div>
-            `;
+                ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            </div>
+            <textarea class="form-control ingredient-input" maxlength="1500" rows="3" required>${value}</textarea>
+            <div class="invalid-feedback">
+                Please enter ingredients (max 1500 characters).
+            </div>
+            <div class="form-text">
+                <span class="ingredient-count">${value.length}</span>/1500 characters.
+            </div>
+        `;
         container.appendChild(newItem);
     }
 
@@ -1358,21 +1389,21 @@
         const newItem = document.createElement('div');
         newItem.className = 'step-item';
         newItem.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center">
-                        <span class="step-number me-2">${number}</span>
-                        <span class="fw-medium">Steps ${number}</span>
-                    </div>
-                    ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${number}</span>
+                    <span class="fw-medium">Step ${number}</span>
                 </div>
-                <textarea class="form-control direction-input" maxlength="2500" rows="4" required>${value}</textarea>
-                <div class="invalid-feedback">
-                    Please enter the directions (maximum 2500 characters).
-                </div>
-                <div class="form-text">
-                    <span class="direction-count">${value.length}</span>/2500 characters.
-                </div>
-            `;
+                ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            </div>
+            <textarea class="form-control direction-input" maxlength="2500" rows="4" required>${value}</textarea>
+            <div class="invalid-feedback">
+                Please enter directions (max 2500 characters).
+            </div>
+            <div class="form-text">
+                <span class="direction-count">${value.length}</span>/2500 characters.
+            </div>
+        `;
         container.appendChild(newItem);
     }
 
@@ -1381,21 +1412,21 @@
         const newItem = document.createElement('div');
         newItem.className = 'step-item';
         newItem.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center">
-                        <span class="step-number me-2">${number}</span>
-                        <span class="fw-medium">NER ${number}</span>
-                    </div>
-                    ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <span class="step-number me-2">${number}</span>
+                    <span class="fw-medium">NER ${number}</span>
                 </div>
-                <textarea class="form-control ner-input" maxlength="1000" rows="3">${value}</textarea>
-                <div class="invalid-feedback">
-                    Maximum 1000 characters.
-                </div>
-                <div class="form-text">
-                    <span class="ner-count">${value.length}</span>/1000 characters.
-                </div>
-            `;
+                ${number > 1 ? '<button type="button" class="btn btn-remove btn-sm" onclick="removeStep(this)"><i class="fas fa-trash"></i></button>' : ''}
+            </div>
+            <textarea class="form-control ner-input" maxlength="1000" rows="3">${value}</textarea>
+            <div class="invalid-feedback">
+                Maximum 1000 characters.
+            </div>
+            <div class="form-text">
+                <span class="ner-count">${value.length}</span>/1000 characters.
+            </div>
+        `;
         container.appendChild(newItem);
     }
 
@@ -1407,12 +1438,17 @@
         }
     }
 
-    function downloadErrorReport() {
+       function downloadErrorReport() {
         if (!window.currentErrors) return;
 
         let csvContent = "Row,Column,Value,Error\n";
+
         window.currentErrors.forEach(error => {
-            csvContent += `"${error.row}","${error.column}","${error.value || ''}","${error.message}"\n`;
+            const row = escapeCsv(error.row);
+            const column = escapeCsv(error.column);
+            const value = escapeCsv(error.value ?? '');
+            const message = escapeCsv(error.message);
+            csvContent += `${row},${column},${value},${message}\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1425,4 +1461,10 @@
         link.click();
         document.body.removeChild(link);
     }
+
+    function escapeCsv(value) {
+        const stringValue = ('' + value).replace(/"/g, '""');  // Escape double quotes
+        return `"${stringValue}"`;  // Wrap in quotes
+    }
+
 </script>
