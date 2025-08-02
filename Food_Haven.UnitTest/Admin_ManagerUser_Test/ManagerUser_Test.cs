@@ -4,6 +4,7 @@ using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
@@ -54,6 +55,7 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
 
         private AdminController _controller;
 
@@ -96,7 +98,8 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
             _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
-            _controller = new AdminController(
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+                _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
                 _ingredientTagServiceMock.Object,
@@ -119,7 +122,8 @@ namespace Food_Haven.UnitTest.Admin_ManagerUser_Test
                 _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
-                _roleManagerMock.Object
+                _roleManagerMock.Object,
+                _expertRecipeServicesMock.Object
             );
         }
         [TearDown]

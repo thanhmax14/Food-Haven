@@ -30,7 +30,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Repository.ViewModels; // Add using for IngredientTagViewModel
+using Repository.ViewModels;
+using BusinessLogic.Services.ExpertRecipes; // Add using for IngredientTagViewModel
 
 namespace Food_Haven.UnitTest.Admin_GetAllIngredientTag_Test
 {
@@ -58,6 +59,7 @@ namespace Food_Haven.UnitTest.Admin_GetAllIngredientTag_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock; // Add this field at the top with the other mocks
 
         private AdminController _controller;
 
@@ -100,6 +102,9 @@ namespace Food_Haven.UnitTest.Admin_GetAllIngredientTag_Test
             _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
+
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>(); // Add this line to initialize the mock
+
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -123,7 +128,8 @@ namespace Food_Haven.UnitTest.Admin_GetAllIngredientTag_Test
                 _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
-                _roleManagerMock.Object
+                _roleManagerMock.Object,
+                _expertRecipeServicesMock.Object // <-- Add this argument
             );
         }
         [TearDown]

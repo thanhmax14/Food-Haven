@@ -23,17 +23,17 @@ using Repository.BalanceChange;
 using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-using IFormFile = Microsoft.AspNetCore.Http.IFormFile;
+using static NUnit.Framework.Internal.OSPlatform;
 
-namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
+namespace Food_Haven.UnitTest.Seller_GetComplaint_Test
 {
     [TestFixture]
-    public class UpdateProduct_Test
+    public class GetComplaint_Test
     {
         private SellerController _controller;
-
-        // Các Mock Dependencies
         private Mock<IReviewService> _reviewServiceMock;
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<IProductService> _productServiceMock;
@@ -104,84 +104,99 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
             _controller?.Dispose();
         }
 
-        [Test]
-        public async Task UpdateProduct_Normal_Success_ReturnsViewWithSuccessMessage()
+        // Test case 1: Normal - Seller logged in, data exists, returns complaint list
+        [Test]  
+        public async Task GetComplaint_ReturnsListOfComplaints_WhenUserIsSellerAndDataExists()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                Name = "Pho",
-                ShortDescription = "Very delicious!",
-                LongDescription = "This pho is rich, flavorful, perfectly spiced, and absolutely delicious to enjoy.",
-                ManufactureDate = DateTime.Parse("2025-03-20"),
-                ExistingImages = new List<string> { "file1.png" },
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
-            };
+            var user = new AppUser { Id = "seller1", UserName = "seller" };
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+                .ReturnsAsync(user);
 
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).Returns(Task.CompletedTask);
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(model.ExistingImages);
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
+            var store = new StoreDetails { ID = Guid.NewGuid(), UserID = user.Id };
+            _storeDetailService2Mock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
+                .ReturnsAsync(store);
+
+            // Product
+            var product = new Product { ID = Guid.NewGuid(), StoreID = store.ID };
+            _productService2Mock.Setup(p => p.ListAsync(
+                It.IsAny<Expression<Func<Product, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<Product> { product });
+
+            // ProductType
+            var productType = new ProductTypes { ID = Guid.NewGuid(), ProductID = product.ID };
+            _productVariantServiceMock.Setup(v => v.ListAsync(
+                It.IsAny<Expression<Func<ProductTypes, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<ProductTypes> { productType });
+
+            // OrderDetail
+            var orderDetail = new OrderDetail { ID = Guid.NewGuid(), ProductTypesID = productType.ID, OrderID = Guid.NewGuid() };
+            _orderDetailServiceMock.Setup(o => o.ListAsync(
+                It.IsAny<Expression<Func<OrderDetail, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<OrderDetail> { orderDetail });
+
+            // Order
+            var order = new Order { ID = orderDetail.OrderID, UserID = user.Id, OrderTracking = "ORD123" };
+            _ordersServiceMock.Setup(o => o.ListAsync(
+                It.IsAny<Expression<Func<Order, bool>>>(),
+                It.IsAny<Func<IQueryable<Order>, IOrderedQueryable<Order>>>(),
+                null))
+                .ReturnsAsync(new List<Order> { order });
+
+            // Complaint
+            var complaint = new Complaint
+            {
+                ID = Guid.NewGuid(),
+                OrderDetailID = orderDetail.ID,
+                Description = "Test complaint",
+                Status = "Open",
+                Reply = "Seller reply",
+                AdminReply = "Admin reply",
+                CreatedDate = DateTime.Now
+            };
+            _complaintServiceMock.Setup(c => c.ListAsync(
+                It.IsAny<Expression<Func<Complaint, bool>>>(),
+                null,
+                null))
+                .ReturnsAsync(new List<Complaint> { complaint });
+
+            // Users
+            var users = new List<AppUser> { user };
+            _userManagerMock.Setup(m => m.Users).Returns(new TestAsyncEnumerable<AppUser>(users));
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = await _controller.GetComplaint() as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.AreEqual("Pho", ((ProductUpdateViewModel)result.Model).Name);
+            Assert.IsInstanceOf<List<GetComplaintViewModel>>(result.Value);
+            var complaintList = (List<GetComplaintViewModel>)result.Value;
+            Assert.IsTrue(complaintList.Count > 0);
+            Assert.AreEqual("seller", complaintList[0].UserName);
         }
 
+        // Test case 2: Abnormal - User not logged in, returns error message
         [Test]
-        public async Task UpdateProduct_GalleryImageBoundary_ReturnsViewWithBoundaryMessage()
+        public async Task GetComplaint_ReturnsErrorMessage_WhenUserIsNull()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-
-            _controller.ModelState.AddModelError("GalleryImages", "You can only select up to 4 gallery images.");
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+                .ReturnsAsync((AppUser)null);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = await _controller.GetComplaint() as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);
-            var updateSuccess = result.ViewData["UpdateSuccess"] as bool?;
-            Assert.IsTrue(updateSuccess == null || updateSuccess == false, "UpdateSuccess should be false or null when ModelState is invalid.");
-            Assert.IsTrue(_controller.ModelState.ContainsKey("GalleryImages"));
-        }
-
-        [Test]
-        public async Task UpdateProduct_ExceptionThrown_ReturnsViewWithErrorMessage()
-        {
-            // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).ThrowsAsync(new Exception("An unknown error occurred..."));
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
-
-            // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsFalse(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.IsTrue(_controller.ModelState[string.Empty].Errors[0].ErrorMessage.Contains("An unknown error occurred"));
+            Assert.IsInstanceOf<ErroMess>(result.Value);
+            var erro = (ErroMess)result.Value;
+            Assert.AreEqual("You are not logged in!", erro.msg);
         }
     }
 }

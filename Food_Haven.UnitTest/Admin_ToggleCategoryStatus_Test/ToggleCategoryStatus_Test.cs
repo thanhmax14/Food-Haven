@@ -28,6 +28,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Microsoft.AspNetCore.Mvc;
+using BusinessLogic.Services.ExpertRecipes;
 
 namespace Food_Haven.UnitTest.Admin_ToggleCategoryStatus_Test
 {
@@ -55,6 +56,7 @@ namespace Food_Haven.UnitTest.Admin_ToggleCategoryStatus_Test
         private Mock<IProductImageService> _productImageServiceMock;
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
+        private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
 
         private AdminController _controller;
 
@@ -97,6 +99,7 @@ namespace Food_Haven.UnitTest.Admin_ToggleCategoryStatus_Test
             _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -120,7 +123,8 @@ namespace Food_Haven.UnitTest.Admin_ToggleCategoryStatus_Test
                 _storeReportMock.Object, // storeReport
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
-                _roleManagerMock.Object
+                _roleManagerMock.Object,
+                _expertRecipeServicesMock.Object
             );
         }
         [TearDown]

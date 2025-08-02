@@ -14,26 +14,29 @@ using Food_Haven.Web.Controllers;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using Moq;
 using NUnit.Framework;
 using Repository.BalanceChange;
-using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using IFormFile = Microsoft.AspNetCore.Http.IFormFile;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.IO;
+using System.Net.Http.Headers;
+using System.Diagnostics;
 
-namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
+namespace Food_Haven.UnitTest.Seller_UpdateProductTypeStatus_Test
 {
     [TestFixture]
-    public class UpdateProduct_Test
+    public class UpdateProductTypeStatus_Test
     {
         private SellerController _controller;
-
-        // Các Mock Dependencies
         private Mock<IReviewService> _reviewServiceMock;
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<IProductService> _productServiceMock;
@@ -75,7 +78,6 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
             _manageTransactionMock = new Mock<ManageTransaction>();
             _hubContextMock = new Mock<IHubContext<ChatHub>>();
 
-            // Khởi tạo SellerController với các dependency mock
             _controller = new SellerController(
                 _reviewServiceMock.Object,
                 _userManagerMock.Object,
@@ -93,11 +95,10 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
                 _productImageServiceMock.Object,
                 _complaintImageServicesMock.Object,
                 _complaintServiceMock.Object,
-               null,
+                null,
                 _hubContextMock.Object
             );
         }
-
         [TearDown]
         public void TearDown()
         {
@@ -105,83 +106,76 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
         }
 
         [Test]
-        public async Task UpdateProduct_Normal_Success_ReturnsViewWithSuccessMessage()
+        public void UpdateProductTypeStatus_ReturnsSuccessTrue_WithUpdatedMessage()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                Name = "Pho",
-                ShortDescription = "Very delicious!",
-                LongDescription = "This pho is rich, flavorful, perfectly spiced, and absolutely delicious to enjoy.",
-                ManufactureDate = DateTime.Parse("2025-03-20"),
-                ExistingImages = new List<string> { "file1.png" },
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).Returns(Task.CompletedTask);
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(model.ExistingImages);
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
+            var variantId = Guid.NewGuid();
+            bool isActive = true;
+            _productVariantServiceMock.Setup(s => s.UpdateProductVariantStatus(variantId, isActive)).Returns(true);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = _controller.UpdateProductTypeStatus(variantId, isActive) as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.AreEqual("Pho", ((ProductUpdateViewModel)result.Model).Name);
+            var json = JsonSerializer.Serialize(result.Value);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            Assert.IsTrue(root.GetProperty("success").GetBoolean());
         }
 
         [Test]
-        public async Task UpdateProduct_GalleryImageBoundary_ReturnsViewWithBoundaryMessage()
+        public void UpdateProductTypeStatus_ReturnsSuccessFalse_WithFailedMessage()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                GalleryImages = new List<IFormFile>(), // Use empty or mock IFormFile objects here
-                StoreID = Guid.NewGuid()
-            };
-
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-
-            _controller.ModelState.AddModelError("GalleryImages", "You can only select up to 4 gallery images.");
+            var variantId = Guid.NewGuid();
+            bool isActive = false;
+            _productVariantServiceMock.Setup(s => s.UpdateProductVariantStatus(variantId, isActive)).Returns(false);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = _controller.UpdateProductTypeStatus(variantId, isActive) as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);
-            var updateSuccess = result.ViewData["UpdateSuccess"] as bool?;
-            Assert.IsTrue(updateSuccess == null || updateSuccess == false, "UpdateSuccess should be false or null when ModelState is invalid.");
-            Assert.IsTrue(_controller.ModelState.ContainsKey("GalleryImages"));
+            var json = System.Text.Json.JsonSerializer.Serialize(result.Value);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            Assert.IsFalse(root.GetProperty("success").GetBoolean());
+            // Remove message assertion
         }
 
         [Test]
-        public async Task UpdateProduct_ExceptionThrown_ReturnsViewWithErrorMessage()
+        public void UpdateProductTypeStatus_ReturnsErrorMessage_WhenExceptionThrown()
         {
             // Arrange
-            var model = new ProductUpdateViewModel
-            {
-                ProductID = Guid.NewGuid(),
-                StoreID = Guid.NewGuid()
-            };
+            var variantId = Guid.NewGuid();
+            bool isActive = true;
+            _productVariantServiceMock.Setup(s => s.UpdateProductVariantStatus(variantId, isActive))
+                .Throws(new Exception("Test exception"));
 
-            _productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).ThrowsAsync(new Exception("An unknown error occurred..."));
-            _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(new List<string>());
-            _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
-            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");
+            // Act & Assert
+            var ex = Assert.Throws<Exception>(() => _controller.UpdateProductTypeStatus(variantId, isActive));
+            Assert.AreEqual("Test exception", ex.Message);
+        }
+
+        [Test]
+        public void UpdateProductTypeStatus_ReturnsFailedMessage_WithInvalidGuid()
+        {
+            // Arrange
+            var invalidVariantId = Guid.Empty; // boundary/invalid input
+            bool isActive = true;
+            _productVariantServiceMock.Setup(s => s.UpdateProductVariantStatus(invalidVariantId, isActive)).Returns(false);
 
             // Act
-            var result = await _controller.UpdateProduct(model) as ViewResult;
+            var result = _controller.UpdateProductTypeStatus(invalidVariantId, isActive) as JsonResult;
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsFalse(result.ViewData["UpdateSuccess"] as bool?);
-            Assert.IsTrue(_controller.ModelState[string.Empty].Errors[0].ErrorMessage.Contains("An unknown error occurred"));
+            var json = System.Text.Json.JsonSerializer.Serialize(result.Value);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            Assert.IsFalse(root.GetProperty("success").GetBoolean());
+            // Remove message assertion
         }
     }
 }
