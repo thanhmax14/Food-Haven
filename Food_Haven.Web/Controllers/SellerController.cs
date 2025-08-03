@@ -1014,7 +1014,7 @@ namespace Food_Haven.Web.Controllers
                 foreach (var item in orderDetails)
                 {
                     item.Status = "Refunded";
-                    item.ModifiedDate = DateTime.UtcNow;
+                    item.ModifiedDate = DateTime.Now;
                     await _orderDetail.UpdateAsync(item);
 
                     var product = await _variantService.FindAsync(p => p.ID == item.ProductTypesID);
@@ -1050,7 +1050,7 @@ namespace Food_Haven.Web.Controllers
     : $"{order.Description}#CANCELLED BY SHOP-{DateTime.Now}";
 
                 order.PaymentStatus = "Refunded";
-                order.ModifiedDate = DateTime.UtcNow;
+                order.ModifiedDate = DateTime.Now;
                 await _order.UpdateAsync(order);
 
 
@@ -1100,7 +1100,7 @@ namespace Food_Haven.Web.Controllers
                 foreach (var item in orderDetails)
                 {
                     item.Status = status;
-                    item.ModifiedDate = DateTime.UtcNow;
+                    item.ModifiedDate = DateTime.Now;
                     await _orderDetail.UpdateAsync(item);
 
                 }
@@ -1331,7 +1331,7 @@ namespace Food_Haven.Web.Controllers
                         // Cập nhật trạng thái đơn hàng
                         order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.UtcNow;
+                        order.ModifiedDate = DateTime.Now;
                         order.Description = string.IsNullOrEmpty(order.Description)
                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";

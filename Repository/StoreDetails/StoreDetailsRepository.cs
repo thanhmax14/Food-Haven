@@ -141,7 +141,7 @@ namespace Repository.StoreDetails
                 return false;
 
             store.IsActive = isActive;
-            store.ModifiedDate = DateTime.UtcNow;
+            store.ModifiedDate = DateTime.Now;
 
             var products = await _context.Products
                 .Where(p => p.StoreID == storeId)
@@ -222,7 +222,7 @@ namespace Repository.StoreDetails
                 return false;
 
             store.Status = "APPROVED";
-            store.ModifiedDate = DateTime.UtcNow; // Cập nhật ngày sửa đổi
+            store.ModifiedDate = DateTime.Now; // Cập nhật ngày sửa đổi
 
             _context.StoreDetails.Update(store);
             return await _context.SaveChangesAsync() > 0;
@@ -234,7 +234,7 @@ namespace Repository.StoreDetails
                 return false;
 
             store.Status = "REJECTED";
-            store.ModifiedDate = DateTime.UtcNow; // Cập nhật ngày sửa đổi
+            store.ModifiedDate = DateTime.Now; // Cập nhật ngày sửa đổi
 
             _context.StoreDetails.Update(store);
             return await _context.SaveChangesAsync() > 0;

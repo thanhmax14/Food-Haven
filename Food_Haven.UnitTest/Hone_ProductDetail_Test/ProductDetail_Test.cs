@@ -143,8 +143,8 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
                 IsActive = true,
                 StoreID = storeId,
                 CategoryID = categoryId,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
+                CreatedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now
             };
 
             var store = new StoreDetails { ID = storeId, IsActive = true, UserID = "user1" };

@@ -53,7 +53,7 @@ namespace Repository.ProductVariants
                 Stock = model.Stock,
                 ManufactureDate = model.ManufactureDate,
                 ProductID = model.ProductID,
-                ModifiedDate = DateTime.UtcNow,
+                ModifiedDate = DateTime.Now,
                 IsActive = true
             };
 
@@ -88,7 +88,7 @@ namespace Repository.ProductVariants
             variant.OriginalPrice = model.OriginalPrice;
             variant.Stock = model.Stock;
             variant.ManufactureDate = model.ManufactureDate;
-            variant.ModifiedDate = DateTime.UtcNow;
+            variant.ModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return true;

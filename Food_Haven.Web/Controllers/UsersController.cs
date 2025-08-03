@@ -834,7 +834,7 @@ var finalAmount = subtotal - discount;
                         }
                         var addedDetails = new List<OrderDetail>();
                         var temOrderDeyail = new List<OrderDetail>();
-                        decimal totelPrice = 0;
+                        decimal totelPrice = 0,temAdmin=-1;
 
                         foreach (var id in buyRequest.Products)
                         {
@@ -862,23 +862,43 @@ var finalAmount = subtotal - discount;
                             var v = await _voucherServices.FindAsync(x => x.Code.ToLower() == billingInfo.voucher.ToLower() && x.IsActive);
                             if (v == null)
                                 return Json(new { message = "Invalid voucher" });
-
-                            if (totelPrice < v.MinOrderValue)
-                                return Json(new { message = "Order does not meet the minimum requirement" });
-
                             decimal discount = v.DiscountType == "Percent"
                                 ? totelPrice * v.DiscountAmount / 100
                                 : v.DiscountAmount;
 
                             if (v.MaxDiscountAmount.HasValue)
                                 discount = Math.Min(discount, v.MaxDiscountAmount.Value);
-                            totelPrice = Math.Max(0, totelPrice - discount);
+
+                 
+                            discount = Math.Min(discount, totelPrice);
+
+                            if (v.IsGlobal)
+                            {
+                                temAdmin = totelPrice - discount;
+                            }
+                            else
+                            {
+                                totelPrice -= discount;
+                            }
+
+
                         }
                         var orderID = Guid.NewGuid();
-                        if (await _balance.CheckMoney(user.Id, totelPrice) == false)
+                        if(temAdmin!=-1)
                         {
-                            return Json(new ErroMess { msg = "Insufficient balance to make a purchase!" });
+                            if (await _balance.CheckMoney(user.Id, temAdmin) == false)
+                            {
+                                return Json(new ErroMess { msg = "Insufficient balance to make a purchase!" });
+                            }
                         }
+                        else
+                        {
+                            if (await _balance.CheckMoney(user.Id, totelPrice) == false)
+                            {
+                                return Json(new ErroMess { msg = "Insufficient balance to make a purchase!" });
+                            }
+                        }
+                       
                         foreach (var id in buyRequest.Products)
                         {
                             var product = await _productWarian.GetAsyncById(id.Key);
@@ -941,12 +961,15 @@ var finalAmount = subtotal - discount;
                             Note = model.Note ?? "",
                             Description = $"Pending-{DateTime.Now}"
                         };
+                        decimal finalPrice = temAdmin == -1 ? totelPrice : temAdmin;
+                 
+
                         var balan = new BalanceChange
                         {
                             UserID = user.Id,
-                            MoneyChange = -totelPrice,
+                            MoneyChange = -finalPrice,
                             MoneyBeforeChange = await _balance.GetBalance(user.Id),
-                            MoneyAfterChange = await _balance.GetBalance(user.Id) - totelPrice,
+                            MoneyAfterChange = await _balance.GetBalance(user.Id) - finalPrice,
                             Method = "Buy",
                             Status = "Pending",
                             Display = true,
@@ -964,7 +987,7 @@ var finalAmount = subtotal - discount;
                             }
                         }
                             
-                        if (await _balance.CheckMoney(user.Id, totelPrice))
+                        if (await _balance.CheckMoney(user.Id, finalPrice))
                         {
                             try
                             {
@@ -987,8 +1010,8 @@ var finalAmount = subtotal - discount;
                                 balan.Status = "Failed";
                                 balan.DueTime = DateTime.Now;
                                 balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
-                                balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
-                                balan.MoneyChange = totelPrice;
+                                balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + finalPrice;
+                                balan.MoneyChange = finalPrice;
                                 await this._orderDetailService.SaveChangesAsync();
                                 await this._order.SaveChangesAsync();
                                 await this._balance.SaveChangesAsync();
@@ -1055,8 +1078,8 @@ var finalAmount = subtotal - discount;
                                 balan.Status = "Failed";
                                 balan.DueTime = DateTime.Now;
                                 balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
-                                balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
-                                balan.MoneyChange = totelPrice;
+                                balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + finalPrice;
+                                balan.MoneyChange = finalPrice;
                                 await this._orderDetailService.SaveChangesAsync();
                                 await this._order.SaveChangesAsync();
                                 await this._balance.SaveChangesAsync();
@@ -1077,8 +1100,8 @@ var finalAmount = subtotal - discount;
                             balan.Status = "Failed";
                             balan.DueTime = DateTime.Now;
                             balan.MoneyBeforeChange = await _balance.GetBalance(user.Id);
-                            balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + totelPrice;
-                            balan.MoneyChange = totelPrice;
+                            balan.MoneyAfterChange = await _balance.GetBalance(user.Id) + finalPrice;
+                            balan.MoneyChange = finalPrice;
                             await this._orderDetailService.SaveChangesAsync();
                             await this._order.SaveChangesAsync();
                             await this._balance.SaveChangesAsync();
@@ -1197,7 +1220,7 @@ var finalAmount = subtotal - discount;
                 foreach (var item in orderDetails)
                 {
                     item.Status = "Refunded";
-                    item.ModifiedDate = DateTime.UtcNow;
+                    item.ModifiedDate = DateTime.Now;
                     await _orderDetailService.UpdateAsync(item);
 
                     var product = await _productWarian.FindAsync(p => p.ID == item.ProductTypesID);
@@ -1232,7 +1255,7 @@ var finalAmount = subtotal - discount;
                     : $"{order.Description}#CANCELLED BY USER-{DateTime.Now}";
 
                 order.PaymentStatus = "Refunded";
-                order.ModifiedDate = DateTime.UtcNow;
+                order.ModifiedDate = DateTime.Now;
                 await _order.UpdateAsync(order);
 
                 await _orderDetailService.SaveChangesAsync();
@@ -1287,9 +1310,9 @@ var finalAmount = subtotal - discount;
                 {
                     ID = Guid.NewGuid(),
                     Comment = model.Content,
-                    CommentDate = DateTime.UtcNow,
+                    CommentDate = DateTime.Now,
                     //Relay = model.Relay,
-                    //DateRelay = model.DateRelay ?? DateTime.UtcNow,
+                    //DateRelay = model.DateRelay ?? DateTime.Now,
                     Status = false, // pending
                     Rating = model.Rating,
                     UserID = user.Id,
@@ -2226,7 +2249,7 @@ var finalAmount = subtotal - discount;
                 var viewModel = new FavoriteRecipe
                 {
                     ID = Guid.NewGuid(),
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedDate = DateTime.Now,
                     RecipeID = obj.RecipeID,
                     UserID = user.Id
                 };

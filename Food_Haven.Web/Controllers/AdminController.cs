@@ -920,7 +920,7 @@ namespace Food_Haven.Web.Controllers
                         // Update order status
                         order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.UtcNow;
+                        order.ModifiedDate = DateTime.Now;
                         order.Description = string.IsNullOrEmpty(order.Description)
                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
                             : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";

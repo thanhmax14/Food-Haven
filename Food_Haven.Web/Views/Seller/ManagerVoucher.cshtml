@@ -389,6 +389,54 @@
                             }
                         }
 
+                        // NEW: Function to set readonly state for edit mode
+                        function setReadonlyForEdit() {
+                            const fieldsToMakeReadonly = [
+                                "code",           // Code
+                                "discountAmount", // Discount Amount
+                                "scope",          // Max Discount
+                                "discountType",   // Discount Type
+                                "currentUsage"    // Current Usage
+                            ];
+
+                            fieldsToMakeReadonly.forEach(fieldId => {
+                                const field = document.getElementById(fieldId);
+                                if (field) {
+                                    field.disabled = true;
+                                    field.classList.add("readonly-field");
+                                    // For select elements, we need to disable them instead of readonly
+                                    if (field.tagName.toLowerCase() === 'select') {
+                                        field.disabled = true;
+                                    }
+                                }
+                            });
+                        }
+
+                                          function removeReadonlyForCreate() {
+                        const fieldsToMakeEditable = [
+                            "code",           // Code
+                            "discountAmount", // Discount Amount
+                            "scope",          // Max Discount
+                            "discountType",   // Discount Type
+                            "currentUsage"    // Current Usage
+                        ];
+
+                        fieldsToMakeEditable.forEach(fieldId => {
+                            const field = document.getElementById(fieldId);
+                            if (field) {
+                                // Remove readonly property
+                                field.readOnly = false;
+                                field.classList.remove("readonly-field");
+
+                                // FIXED: Also enable the field (remove disabled state)
+                                field.disabled = false;
+                            }
+                        });
+
+                        // ADDED: After enabling fields, recheck the discount type toggle
+                        toggleMaxDiscountField();
+                    }
+
                         // Add event listener for discount type change
                         document.getElementById("discountType").addEventListener("change", toggleMaxDiscountField);
 
@@ -407,6 +455,9 @@
 
                             // Update modal title to Create
                             modalTitle.textContent = "Add Voucher";
+
+                            // MODIFIED: Remove readonly state for create mode
+                            removeReadonlyForCreate();
 
                             // Clear all error messages and validation states
                             form.querySelectorAll(".text-danger").forEach(e => {
@@ -838,6 +889,9 @@
                                     // Toggle Max Discount field based on discount type
                                     toggleMaxDiscountField();
 
+                                    // MODIFIED: Set readonly fields for edit mode
+                                    setReadonlyForEdit();
+
                                     // Clear any existing errors
                                     form.querySelectorAll(".text-danger").forEach(e => {
                                         e.style.display = "none";
@@ -1009,7 +1063,6 @@
                         loadVouchers().then(bindCheckAll);
                     });
                 </script>
-
 
 
                 <div class="modal fade" id="showModal" tabindex="-1" aria-hidden="true">
