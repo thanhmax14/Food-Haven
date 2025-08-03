@@ -290,49 +290,145 @@
 
                                 </div>
                             </div>
-
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
                             <!-- Grid.js Script -->
                             <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
                             <!-- Bootstrap JS -->
                             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    function fetchOrders() {
-                                        fetch("/seller/GetOrder", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({})
-                                        })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                console.log("Orders Data:", data);
+                       <script>
+                                                           // 🔧 Version cải thiện với error handling và logging tốt hơn
 
-                                                if (!data || data === false || (data.msg && typeof data.msg === "string")) {
-                                                    console.warn("Không có dữ liệu đơn hàng hoặc lỗi:", data?.msg || "No data");
-                                                    renderTables([]);
-                                                    return;
-                                                }
+                                let gridInstances = {}; // Lưu trữ instances của các grid
 
-                                                renderTables(data);
-                                            })
-                                            .catch(error => console.error("Error fetching orders:", error));
+                                const connectionManageOrder = new signalR.HubConnectionBuilder()
+                                    .withUrl("/chathub")
+                                    .configureLogging(signalR.LogLevel.Information)
+                                    .build();
+
+                                connectionManageOrder.on("ReceivManageOrder", function () {
+                                    console.log("📥 Nhận tín hiệu ReceivManageOrder từ server");
+                                    console.log("🔄 Bắt đầu cập nhật orders...");
+                                    fetchOrders();
+                                });
+
+                                connectionManageOrder.start()
+                                    .then(() => {
+                                        console.log("✅ SignalR Orders connected successfully");
+                                        // Test connection
+                                        console.log("Connection State:", connectionManageOrder.state);
+                                    })
+                                    .catch(err => {
+                                        console.error("❌ SignalR connection error:", err);
+                                        // Retry connection after 5 seconds
+                                        setTimeout(() => {
+                                            console.log("🔄 Attempting to reconnect SignalR...");
+                                            connectionManageOrder.start();
+                                        }, 5000);
+                                    });
+
+                                // Handle disconnection
+                                connectionManageOrder.onclose(async () => {
+                                    console.warn("⚠️ SignalR connection lost. Attempting to reconnect...");
+                                    await new Promise(resolve => setTimeout(resolve, 5000));
+                                    try {
+                                        await connectionManageOrder.start();
+                                        console.log("✅ SignalR reconnected");
+                                    } catch (err) {
+                                        console.error("❌ Reconnection failed:", err);
                                     }
+                                });
 
-                                    function renderTables(orders) {
-                                        function createGrid(elementId, filterStatus = null) {
-                                            const filteredData = filterStatus
-                                                ? orders.filter(order => order.status?.toUpperCase() === filterStatus.toUpperCase())
-                                                : orders;
+                                function fetchOrders() {
+                                    console.log("🚀 Fetching orders...");
 
-                                            new gridjs.Grid({
+                                    return fetch("/seller/GetOrder", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "X-Requested-With": "XMLHttpRequest" // Đảm bảo server nhận diện đây là AJAX request
+                                        },
+                                        body: JSON.stringify({})
+                                    })
+                                    .then(response => {
+                                        console.log("📡 Response status:", response.status);
+
+                                        if (!response.ok) {
+                                            throw new Error(`HTTP error! status: ${response.status}`);
+                                        }
+
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        console.log("📊 Orders Data received:", data);
+                                        console.log("📊 Data type:", typeof data);
+                                        console.log("📊 Is Array:", Array.isArray(data));
+
+                                        if (!data || data === false || (data.msg && typeof data.msg === "string")) {
+                                            console.warn("⚠️ Không có dữ liệu đơn hàng hoặc lỗi:", data?.msg || "No data");
+                                            renderTables([]);
+                                            return;
+                                        }
+
+                                        // Ensure data is array
+                                        const ordersArray = Array.isArray(data) ? data : (data.orders || []);
+                                        console.log("📋 Processing orders count:", ordersArray.length);
+
+                                        renderTables(ordersArray);
+                                    })
+                                    .catch(error => {
+                                        console.error("❌ Error fetching orders:", error);
+                                        // Show user-friendly error message
+                                        showErrorMessage("Không thể tải dữ liệu đơn hàng. Vui lòng thử lại sau.");
+                                    });
+                                }
+
+                                function renderTables(orders) {
+                                    console.log("🎨 Rendering tables with", orders.length, "orders");
+
+                                    function createGrid(elementId, filterStatus = null) {
+                                        const container = document.getElementById(elementId);
+                                        if (!container) {
+                                            console.warn(`⚠️ Container ${elementId} not found`);
+                                            return;
+                                        }
+
+                                        console.log(`🔄 Creating grid for ${elementId} with filter:`, filterStatus);
+
+                                        // 🔥 Destroy existing grid instance if exists
+                                        if (gridInstances[elementId]) {
+                                            try {
+                                                gridInstances[elementId].destroy();
+                                                console.log(`🗑️ Destroyed existing grid for ${elementId}`);
+                                            } catch (e) {
+                                                console.warn(`⚠️ Error destroying grid ${elementId}:`, e);
+                                            }
+                                        }
+
+                                        // ❗ Clear container completely
+                                        container.innerHTML = '';
+
+                                        const filteredData = filterStatus
+                                            ? orders.filter(order => {
+                                                const orderStatus = order.status?.toUpperCase();
+                                                const targetStatus = filterStatus.toUpperCase();
+                                                console.log(`🔍 Filtering: ${orderStatus} === ${targetStatus}`, orderStatus === targetStatus);
+                                                return orderStatus === targetStatus;
+                                            })
+                                            : orders;
+
+                                        console.log(`📊 Filtered data for ${elementId}:`, filteredData.length, "items");
+
+                                        try {
+                                            // Create new grid instance
+                                            const gridInstance = new gridjs.Grid({
                                                 columns: [
                                                     { id: "stt", name: "STT" },
                                                     {
                                                         id: "orderTracking",
                                                         name: "Order Code",
                                                         formatter: (cell) => {
-                                                            return gridjs.html(`<a  href="/seller/ViewOrderDetails/${cell}" target="_blank" class="fw-medium link-primary">${cell}</a>`);
+                                                            return gridjs.html(`<a href="/seller/ViewOrderDetails/${cell}" target="_blank" class="fw-medium link-primary">${cell}</a>`);
                                                         }
                                                     },
                                                     { id: "userName", name: "Customer" },
@@ -341,17 +437,27 @@
                                                         name: "Order Date",
                                                         formatter: (e) => {
                                                             if (!e) return "N/A";
-                                                            const date = new Date(e);
-                                                            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                                                            try {
+                                                                const date = new Date(e);
+                                                                if (isNaN(date.getTime())) return "Invalid Date";
+                                                                return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+                                                            } catch (error) {
+                                                                console.error("Date formatting error:", error);
+                                                                return "N/A";
+                                                            }
                                                         }
                                                     },
                                                     { id: "quantity", name: "Quantity" },
-                                                    { id: "total", name: "Total", formatter: cell => `$${(cell || 0).toLocaleString()}` },
+                                                    {
+                                                        id: "total",
+                                                        name: "Total",
+                                                        formatter: cell => `₫${(cell || 0).toLocaleString('vi-VN')}`
+                                                    },
                                                     {
                                                         id: "status",
                                                         name: "Status",
                                                         formatter: cell => {
-                                                            const color = {
+                                                            const statusColors = {
                                                                 "SUCCESS": "success",
                                                                 "FAILED": "danger",
                                                                 "PROCESSING": "warning",
@@ -362,72 +468,121 @@
                                                                 "CANCELLED BY USER": "danger",
                                                                 "CANCELLED BY SHOP": "danger",
                                                                 "DELIVERY FAILED": "danger"
-                                                            }[cell?.toUpperCase()] || "secondary";
+                                                            };
 
+                                                            const color = statusColors[cell?.toUpperCase()] || "secondary";
                                                             return gridjs.html(`<span class="badge bg-${color}-subtle text-${color} text-uppercase">${cell || 'N/A'}</span>`);
                                                         }
                                                     },
                                                     {
                                                         name: "Action",
                                                         formatter: (cell, row) => {
-                                                            const orderId = row.cells[1]?.data; // orderTracking
-                                                            const status = row.cells[6]?.data?.toUpperCase(); // status column (cột thứ 7)
-
-                                                            const viewBtn = `
-                                                                            <a href="/seller/ViewOrderDetails/${orderId}" target="_blank" class="btn btn-sm btn-outline-primary me-1">
-                                                <i class="ri-eye-line"></i> View
-                                            </a>`;
-
-                                                            const cancelBtn = (status === "PENDING" || status === "PREPARING IN KITCHEN")
-                                                                ? `<button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('${orderId}')">
-                                                   <i class="ri-close-line"></i> Cancel order
-                                               </button>`
-                                                                : "";
-
-                                                            return gridjs.html(viewBtn);
+                                                            const orderId = row.cells[1]?.data;
+                                                            return gridjs.html(`
+                                                                <a href="/seller/ViewOrderDetails/${orderId}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="ri-eye-line"></i> View
+                                                                </a>
+                                                            `);
                                                         }
                                                     }
-
                                                 ],
                                                 data: filteredData.map((item, index) => ({
                                                     ...item,
-                                                    stt: index + 1 // ✅ Reset STT cho từng bảng
+                                                    stt: index + 1
                                                 })),
-                                                                                    pagination: { enabled: true, limit: 10 },
-                                    search: true,
-                                    sort: true
-                                }).render(document.getElementById(elementId));
+                                                pagination: {
+                                                    enabled: true,
+                                                    limit: 10,
+                                                    summary: true
+                                                },
+                                                search: {
+                                                    enabled: true,
+                                                    placeholder: 'Tìm kiếm...'
+                                                },
+                                                sort: true,
+                                                className: {
+                                                    table: 'table table-striped table-hover',
+                                                    thead: 'table-dark'
+                                                }
+                                            });
+
+                                            // Store instance and render
+                                            gridInstances[elementId] = gridInstance;
+                                            gridInstance.render(container);
+
+                                            console.log(`✅ Grid ${elementId} rendered successfully with ${filteredData.length} items`);
+
+                                        } catch (error) {
+                                            console.error(`❌ Error creating grid ${elementId}:`, error);
+                                            container.innerHTML = `<div class="alert alert-danger">Lỗi hiển thị bảng: ${error.message}</div>`;
                                         }
-
-
-                                    const statusMappings = {
-                                    "allTable": null,
-                                    "pendingTable": "PENDING",
-                                    "preparingTable": "PREPARING IN KITCHEN",
-                                    "deliveringTable": "DELIVERING",
-                                    "confirmedTable": "CONFIRMED",
-                                    "cancelledUserTable": "CANCELLED BY USER",
-                                    "cancelledShopTable": "CANCELLED BY SHOP",
-                                    "failedDeliveryTable": "DELIVERY FAILED"
-                                };
-
-
-                                        Object.entries(statusMappings).forEach(([elementId, status]) => {
-                                            const container = document.getElementById(elementId);
-                                            if (!container) {
-                                                console.warn(`❌ Không tìm thấy phần tử ID "${elementId}" trong DOM.`);
-                                                return;
-                                            }
-
-                                            container.innerHTML = "";
-                                            createGrid(elementId, status);
-                                        });
                                     }
 
+                                    // Status mappings
+                                    const statusMappings = {
+                                        "allTable": null,
+                                        "pendingTable": "PENDING",
+                                        "preparingTable": "PREPARING IN KITCHEN",
+                                        "deliveringTable": "DELIVERING",
+                                        "confirmedTable": "CONFIRMED",
+                                        "cancelledUserTable": "CANCELLED BY USER",
+                                        "cancelledShopTable": "CANCELLED BY SHOP",
+                                        "failedDeliveryTable": "DELIVERY FAILED"
+                                    };
+
+                                    // Create all grids
+                                    Object.entries(statusMappings).forEach(([elementId, status]) => {
+                                        createGrid(elementId, status);
+                                    });
+
+                                    console.log("🎉 All tables rendered successfully");
+                                }
+
+                                // Utility function to show error messages
+                                function showErrorMessage(message) {
+                                    // You can customize this based on your UI framework
+                                    console.error("🚨 Error:", message);
+
+                                    // Example with toast notification (if you're using Bootstrap)
+                                    const toastContainer = document.querySelector('.toast-container');
+                                    if (toastContainer) {
+                                        const toast = document.createElement('div');
+                                        toast.className = 'toast align-items-center text-white bg-danger border-0';
+                                        toast.innerHTML = `
+                                            <div class="d-flex">
+                                                <div class="toast-body">${message}</div>
+                                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                                            </div>
+                                        `;
+                                        toastContainer.appendChild(toast);
+                                        new bootstrap.Toast(toast).show();
+                                    }
+                                }
+
+                                // 🔄 Test function to manually trigger update
+                                window.testSignalRUpdate = function() {
+                                    console.log("🧪 Manual test - triggering fetchOrders()");
                                     fetchOrders();
+                                };
+
+                                // ✅ Load initial orders when page loads
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    console.log("🚀 DOM loaded, fetching initial orders...");
+
+                                    // Add some delay to ensure all resources are loaded
+                                    setTimeout(() => {
+                                        fetchOrders();
+                                    }, 100);
                                 });
-                            </script>
-                          
+
+                                // 🔍 Debug helper - check connection status
+                                window.checkSignalRStatus = function() {
+                                    console.log("📊 SignalR Status:", {
+                                        connectionState: connectionManageOrder.state,
+                                        connectionId: connectionManageOrder.connectionId
+                                    });
+                                };
+                           </script>
 
 
 
@@ -488,6 +643,7 @@
 
    
     </div>
+
 
     <!-- JAVASCRIPT -->
     <script src="~/assetsAdmin/libs/bootstrap/js/bootstrap.bundle.min.js"></script>

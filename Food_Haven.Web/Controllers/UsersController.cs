@@ -800,6 +800,7 @@ var finalAmount = subtotal - discount;
                             }
                             else
                             {
+                                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
                                 return Json(new ErroMess { msg = "An error occurred during the purchase process!" });
                             }
                         }
@@ -991,6 +992,7 @@ var finalAmount = subtotal - discount;
                                 await this._orderDetailService.SaveChangesAsync();
                                 await this._order.SaveChangesAsync();
                                 await this._balance.SaveChangesAsync();
+                                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
                                 return Json(new ErroMess { msg = "An error occurred during the purchase process!" });
                             }
                         }
@@ -1036,6 +1038,7 @@ var finalAmount = subtotal - discount;
                                 await this._order.SaveChangesAsync();
                                 var hubContext1 = HttpContext.RequestServices.GetRequiredService<IHubContext<CartHub>>();
                                 await hubContext1.Clients.User(user.Id).SendAsync("ReceiveCartUpdate");
+                                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
                                 return Json(new ErroMess { success = true, msg = "Order placed successfully! Returning to Order page in 3 seconds." });
                             }
                             else
@@ -1079,11 +1082,12 @@ var finalAmount = subtotal - discount;
                             await this._orderDetailService.SaveChangesAsync();
                             await this._order.SaveChangesAsync();
                             await this._balance.SaveChangesAsync();
-
+                            await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
                             return Json(new ErroMess { msg = "An error occurred during the purchase process!" });
                         }
                     }
                 }
+                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
                 return Json(new ErroMess { msg = "An error occurred, please contact admin!" });
             }
             return Json(new ErroMess { msg = "Invalid payment method!" });
@@ -1235,6 +1239,8 @@ var finalAmount = subtotal - discount;
                 await _productWarian.SaveChangesAsync();
                 await _order.SaveChangesAsync();
                 await _balance.SaveChangesAsync();
+                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
+                await _hubContext.Clients.All.SendAsync("ReceiveOrders");
                 await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                 return Json(new { success = true, message = "The order has been cancelled and refunded successfully." });
             }
@@ -2630,6 +2636,124 @@ var finalAmount = subtotal - discount;
             return View(viewModel);
         }
 
+        // C# Controller Methods
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrdersList()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
+                getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
+
+                var orderViewModels = new List<dynamic>();
+
+                if (getOrder.Any())
+                {
+                    var count = 0;
+                    foreach (var item in getOrder)
+                    {
+                        orderViewModels.Add(new
+                        {
+                            stt = count++,
+                            deliveryAddress = item.DeliveryAddress,
+                            paymentMethod = item.PaymentMethod,
+                            status = item.Status,
+                            total = item.TotalPrice,
+                            orderId = item.ID,
+                            orderTracking = item.OrderTracking,
+                            deliveryDate = item.ModifiedDate,
+                            note = item.Note,
+                            quantity = item.Quantity,
+                            statusPayment = item.PaymentStatus,
+                            orderDate = item.CreatedDate
+                        });
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    orders = orderViewModels,
+                    message = "Orders loaded successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while loading orders",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // Alternative version using your existing OrderViewModel class
+        [HttpGet]
+        public async Task<IActionResult> GetOrdersListWithViewModel()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Json(new { success = false, message = "User not found" });
+                }
+
+                var getOrder = await this._order.ListAsync(u => u.UserID == user.Id);
+                getOrder = getOrder.OrderByDescending(x => x.CreatedDate).ToList();
+
+                var orderViewModels = new List<OrderViewModel>();
+
+                if (getOrder.Any())
+                {
+                    var count = 0;
+                    foreach (var item in getOrder)
+                    {
+                        orderViewModels.Add(new OrderViewModel
+                        {
+                            stt = count++,
+                            DeliveryAddress = item.DeliveryAddress,
+                            PaymentMethod = item.PaymentMethod,
+                            Status = item.Status,
+                            Total = item.TotalPrice,
+                            OrderId = item.ID,
+                            OrderTracking = item.OrderTracking,
+                            DeliveryDate = item.ModifiedDate,
+                            Note = item.Note,
+                            Quantity = item.Quantity,
+                            StatusPayment = item.PaymentStatus,
+                            OrderDate = item.CreatedDate
+                        });
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    orders = orderViewModels,
+                    message = "Orders loaded successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return Json(new
+                {
+                    success = false,
+                    message = "An error occurred while loading orders",
+                    error = ex.Message
+                });
+            }
+        }
 
 
 
