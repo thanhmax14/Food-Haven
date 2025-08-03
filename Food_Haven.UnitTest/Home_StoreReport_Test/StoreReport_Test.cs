@@ -16,11 +16,13 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
 using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models;
 using Moq;
 using Net.payOS;
@@ -92,6 +94,7 @@ namespace Food_Haven.UnitTest.Home_StoreReport_Test
             _voucherServiceMock = new Mock<IVoucherServices>();
             _storeReportServiceMock = new Mock<IStoreReportServices>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
 
             // Nếu RecipeSearchService cần được mock, bạn nên refactor thành interface IRecipeSearchService và mock nó
             var recipeSearchService = new RecipeSearchService(""); // Hoặc dùng Mock<IRecipeSearchService>()
@@ -120,7 +123,9 @@ namespace Food_Haven.UnitTest.Home_StoreReport_Test
                 _storeFollowersServiceMock.Object,
                 recipeSearchService,
                 _expertRecipeServicesMock.Object,
-                _recipeViewHistoryServicesMock.Object
+                _recipeViewHistoryServicesMock.Object,
+                hubContextMock.Object
+
             );
 
             _controller.ControllerContext = new ControllerContext

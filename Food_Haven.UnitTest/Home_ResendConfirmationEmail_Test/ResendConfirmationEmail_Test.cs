@@ -16,12 +16,14 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
 using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.SignalR;
 using Models;
 using Moq;
 using Net.payOS;
@@ -73,6 +75,7 @@ namespace Food_Haven.UnitTest.Home_ResendConfirmationEmail_Test
             var storeReportMock = new Mock<IStoreReportServices>();
             var storeFollowersMock = new Mock<IStoreFollowersService>();
             var recipeSearchMock = new RecipeSearchService("");
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
 
             _controller = new HomeController(
                 _signInManagerMock.Object,
@@ -96,7 +99,9 @@ namespace Food_Haven.UnitTest.Home_ResendConfirmationEmail_Test
                 storeFollowersMock.Object,
                 recipeSearchMock,
                  _expertRecipeServicesMock.Object, // <-- Add this argument
- _recipeViewHistoryServicesMock.Object // <-- Add this argument
+ _recipeViewHistoryServicesMock.Object,
+                 hubContextMock.Object
+            // <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext

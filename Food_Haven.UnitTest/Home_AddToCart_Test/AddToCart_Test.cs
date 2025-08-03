@@ -101,6 +101,7 @@ namespace Food_Haven.UnitTest.Home_AddToCart_Test
             var recipeSearchService = new RecipeSearchService(""); // Hoặc dùng Mock<IRecipeSearchService>()
 
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
+            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
 
             _controller = new HomeController(
                 _signInManagerMock.Object,
@@ -124,7 +125,8 @@ namespace Food_Haven.UnitTest.Home_AddToCart_Test
                 _storeFollowersServiceMock.Object,
                 recipeSearchService,
                 _expertRecipeServicesMock.Object,
-                _recipeViewHistoryServicesMock.Object
+                _recipeViewHistoryServicesMock.Object,
+                hubContextMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext

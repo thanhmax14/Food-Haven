@@ -16,11 +16,13 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
 using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models;
 using Moq;
 using Net.payOS;
@@ -91,6 +93,7 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
             _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
             var recipeSearchService = new RecipeSearchService("");
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
+            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
 
             _controller = new HomeController(
                 _signInManagerMock.Object,
@@ -114,7 +117,8 @@ namespace Food_Haven.UnitTest.Hone_ProductDetail_Test
                 _storeFollowersServiceMock.Object,
                 recipeSearchService,
                  _expertRecipeServicesMock.Object, // <-- Add this argument
- _recipeViewHistoryServicesMock.Object // <-- Add this argument
+ _recipeViewHistoryServicesMock.Object,
+  hubContextMock.Object // <-- Add this argument// <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext

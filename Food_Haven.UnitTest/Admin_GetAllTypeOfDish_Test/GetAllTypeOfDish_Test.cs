@@ -17,9 +17,11 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
@@ -105,6 +107,8 @@ namespace Food_Haven.UnitTest.Admin_GetAllTypeOfDish_Test
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
+
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -129,7 +133,8 @@ namespace Food_Haven.UnitTest.Admin_GetAllTypeOfDish_Test
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
-                _expertRecipeServicesMock.Object
+                _expertRecipeServicesMock.Object,
+                hubContextMock.Object
             );
         }
         [TearDown]

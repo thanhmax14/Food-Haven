@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
-using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
 using BusinessLogic.Services.ExpertRecipes;
@@ -26,19 +25,15 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
+using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
+namespace Food_Haven.UnitTest.Admin_RejectSeller_Test
 {
-    public class ManagementReportStore_Test
+    public class RejectSeller_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -63,7 +58,6 @@ namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
         private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
-
         private AdminController _controller;
 
         [SetUp]
@@ -79,11 +73,11 @@ namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
             _balanceMock = new Mock<IBalanceChangeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
             var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
@@ -123,85 +117,119 @@ namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
                 _expertRecipeServicesMock.Object,
-                hubContextMock.Object
+                                hubContextMock.Object
+
             );
         }
+
         [TearDown]
         public void TearDown()
         {
             _controller?.Dispose();
         }
+
         [Test]
-        public async Task ManagementReportStore_AdminLoggedIn_ReturnsViewWithReportList()
+        public async Task RejectSeller_ReturnsSuccess_WhenUserExistsAndUpdateSucceeds()
         {
             // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
+            var admin = new AppUser { Id = "admin", UserName = "admin" };
+            var user = new AppUser { Id = "user1", Email = "huyy1035@gmail.com" };
+            var usersViewModel = new UsersViewModel { Email = "huyy1035@gmail.com", RejectNote = "Not qualified" };
 
-            var report = new StoreReport
-            {
-                ID = Guid.NewGuid(),
-                StoreID = Guid.NewGuid(),
-                UserID = "user1",
-                Reason = "Reason",
-                Message = "Message",
-                CreatedDate = DateTime.Now
-            };
-            var store = new StoreDetails { ID = report.StoreID, Name = "StoreName" };
-            var reportingUser = new AppUser { UserName = "reporter", Email = "reporter@email.com" };
-
-            _storeReportMock.Setup(r => r.ListAsync(null, null, null)).ReturnsAsync(new List<StoreReport> { report });
-            _storeReportMock.Setup(r => r.ListAsync()).ReturnsAsync(new List<StoreReport> { report }); // Fix: also setup parameterless ListAsync
-            _userManagerMock.Setup(m => m.FindByIdAsync("user1")).ReturnsAsync(reportingUser);
-            _storeServiceMock.Setup(s => s.GetAsyncById(report.StoreID)).ReturnsAsync(store);
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(admin);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
+            _userManagerMock.Setup(m => m.FindByEmailAsync("huyy1035@gmail.com")).ReturnsAsync(user);
+            _userManagerMock.Setup(m => m.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
 
             // Act
-            var result = await _controller.ManagementReportStore();
+            var result = await _controller.RejectSeller(usersViewModel);
 
-            // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<StoreReportViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<StoreReportViewModel>;
-            Assert.AreEqual(1, model.Count);
-            Assert.AreEqual("reporter", model[0].UserName);
-            Assert.AreEqual("StoreName", model[0].StoreName);
+            object value = null;
+            if (result is JsonResult jsonResult)
+                value = jsonResult.Value;
+            else if (result is ObjectResult objectResult)
+                value = objectResult.Value;
+
+            Assert.IsNotNull(value);
+
+            var type = value.GetType();
+            var success = (bool)type.GetProperty("success")?.GetValue(value);
+            var message = (string)type.GetProperty("message")?.GetValue(value);
+
+            Assert.IsTrue(success);
+            Assert.AreEqual("User rejected as seller", message);
         }
 
         [Test]
-        public async Task ManagementReportStore_AdminLoggedIn_ReturnsViewWithEmptyList()
+        public async Task RejectSeller_ReturnsUserNotFound_WhenUserDoesNotExist()
         {
             // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
+            var admin = new AppUser { Id = "admin", UserName = "admin" };
+            var usersViewModel = new UsersViewModel { Email = "abc@gmail.com", RejectNote = "Not found" };
 
-            var emptyReportList = new List<StoreReport>();
-            _storeReportMock.Setup(r => r.ListAsync(null, null, null)).ReturnsAsync(emptyReportList);
-            _storeReportMock.Setup(r => r.ListAsync()).ReturnsAsync(emptyReportList); // optional, for safety
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(admin);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
+            _userManagerMock.Setup(m => m.FindByEmailAsync("abc@gmail.com")).ReturnsAsync((AppUser)null);
 
             // Act
-            var result = await _controller.ManagementReportStore();
+            var result = await _controller.RejectSeller(usersViewModel);
 
-            // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<StoreReportViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<StoreReportViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count);
+            object value = null;
+            if (result is JsonResult jsonResult)
+                value = jsonResult.Value;
+            else if (result is ObjectResult objectResult)
+                value = objectResult.Value;
+
+            Assert.IsNotNull(value);
+
+            var type = value.GetType();
+            var success = (bool)type.GetProperty("success")?.GetValue(value);
+            var message = (string)type.GetProperty("message")?.GetValue(value);
+
+            Assert.IsFalse(success);
+            Assert.AreEqual("User not found", message);
         }
 
+        [Test]
+        public async Task RejectSeller_ReturnsError_WhenUpdateFails()
+        {
+            // Arrange
+            var admin = new AppUser { Id = "admin", UserName = "admin" };
+            var user = new AppUser { Id = "user1", Email = "huyy1035@gmail.com" };
+            var usersViewModel = new UsersViewModel { Email = "huyy1035@gmail.com", RejectNote = "Not qualified" };
+
+            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(admin);
+            _userManagerMock.Setup(m => m.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
+            _userManagerMock.Setup(m => m.FindByEmailAsync("huyy1035@gmail.com")).ReturnsAsync(user);
+            _userManagerMock.Setup(m => m.UpdateAsync(user)).ReturnsAsync(IdentityResult.Failed());
+
+            // Act
+            var result = await _controller.RejectSeller(usersViewModel);
+
+            object value = null;
+            if (result is JsonResult jsonResult)
+                value = jsonResult.Value;
+            else if (result is ObjectResult objectResult)
+                value = objectResult.Value;
+
+            Assert.IsNotNull(value);
+
+            var type = value.GetType();
+            var success = (bool)type.GetProperty("success")?.GetValue(value);
+            var message = (string)type.GetProperty("message")?.GetValue(value);
+
+            Assert.IsFalse(success);
+            Assert.AreEqual("Failed to update user", message);
+        }
     }
 }
