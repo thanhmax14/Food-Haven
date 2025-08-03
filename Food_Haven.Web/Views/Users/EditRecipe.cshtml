@@ -184,14 +184,7 @@
                             </select>
                         </div>
 
-                        <!-- IsActive -->
-                        <div class="col-md-6 mb-3">
-                                <input type="hidden" name="IsActive" value="true" />
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
-        <label class="form-check-label">Is Active</label>
-    </div>
-                        </div>
+                       
 
 
                         <div class="row">
@@ -199,8 +192,9 @@
 
 
                     <div class="col-md-6 mb-3 h-100 d-flex flex-column edit-recipe-form" data-recipe-id="@Model.ID" data-selected-tags='@Json.Serialize(Model.SelectedIngredientTags)'>
-    <input class="search-input" type="text" placeholder="Search..." title="Search..." id="searchAll-@Model.ID">
     <label for="IngredientTags-@Model.ID" class="form-label">Ingredient Tag</label>
+                        <input class="search-input" type="text" placeholder="Search..." title="Search..." id="searchAll-@Model.ID">
+    
     
     <select id="IngredientTags-@Model.ID" name="SelectedIngredientTags" class="form-select" multiple size="5" style="display: none;">
         @foreach (var tag in Model.IngredientTags)
@@ -248,6 +242,14 @@
 
                         <!-- Cột trái: 3 time input -->
                         <div class="col-md-6">
+                             <!-- IsActive -->
+                        <div class="col-md-6 mb-3" style="padding: 20px">
+                                <input type="hidden" name="IsActive" value="true" />
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
+        <label class="form-check-label">Is Active</label>
+    </div>
+                        </div>
                             <!-- Preparation Time -->
                             <div class="mb-3">
                                 <label class="form-label">Preparation Time</label>
@@ -330,14 +332,15 @@
 
 
 
-                                <!-- Total Time -->
+                                
+                            </div>
+                            <!-- Total Time -->
                                 <div class="mb-3">
                                     <label class="form-label">Total Time</label>
                                     <div class="form-control bg-light" id="displayTotalTime" style="height: auto;">
                                         0 minute
                                     </div>
                                 </div>
-                            </div>
                         </div>
                     </div><!-- end inner row -->
                     <input type="hidden" id="hiddenPrepTime" name="PreparationTime" />
