@@ -999,9 +999,13 @@ namespace Food_Haven.Web.Controllers
                 if (order == null)
                     return Json(new { success = false, message = "Order not found." });
 
-                if (!string.Equals(order.Status, "Pending", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(order.Status, "Preparing In Kitchen", StringComparison.OrdinalIgnoreCase))
+                var status = order.Status;
+                if (!status.Equals("Pending", StringComparison.OrdinalIgnoreCase) &&
+                    !status.Equals("Preparing In Kitchen", StringComparison.OrdinalIgnoreCase))
+                {
                     return Json(new { success = false, message = "Only orders with status Pending and Preparing In Kitchen can be cancelled." });
+                }
+
 
                 var orderDetails = await _orderDetail.ListAsync(d => d.OrderID == order.ID);
                 if (orderDetails == null || !orderDetails.Any())
@@ -1054,6 +1058,8 @@ namespace Food_Haven.Web.Controllers
                 await _variantService.SaveChangesAsync();
                 await _order.SaveChangesAsync();
                 await _balance.SaveChangesAsync();
+                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
+                await _hubContext.Clients.All.SendAsync("ReceiveOrders");
                 await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
                 return Json(new { success = true, message = "Order has been cancelled successfully." });
 
@@ -1112,7 +1118,8 @@ namespace Food_Haven.Web.Controllers
                 await _order.UpdateAsync(order);
                 await _orderDetail.SaveChangesAsync();
                 await _order.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceivManageOrder");
+                await _hubContext.Clients.All.SendAsync("ReceiveOrders");
                 return Json(new { success = true, message = $"Order status updated successfully: {status}" });
             }
             catch (Exception)
@@ -1494,7 +1501,7 @@ namespace Food_Haven.Web.Controllers
             {
                 await this._complaintService.UpdateAsync(complaint);
                 await this._complaintService.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveOrders");
                 return Json(new { success = true, message = mess });
             }
             catch (Exception ex)

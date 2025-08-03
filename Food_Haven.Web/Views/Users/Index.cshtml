@@ -779,18 +779,65 @@
                                     </script>
 
                                     <script>
+                                        // Global variables để track grid instances
+                                        let ordersGrid = null;
                                         let detailsGrid = null;
-
+                                        let orderDetailsListenerAdded = false;
+                                        let orderId=null;
                                         document.addEventListener("DOMContentLoaded", function () {
-                                            const orderContainer = document.getElementById("table-orders");
-                                            orderContainer.innerHTML = "";
+                                            loadOrdersData();
+                                        });
 
-                                            const orderData = @Html.Raw(JsonSerializer.Serialize(Model.OrderViewodels));
+                                        function loadOrdersData() {
+                                            const orderContainer = document.getElementById("table-orders");
+
+                                            // Destroy existing grid trước khi tạo mới
+                                            if (ordersGrid) {
+                                                ordersGrid.destroy();
+                                                ordersGrid = null;
+                                            }
+
+                                            orderContainer.innerHTML = ""; // Clear existing content
+
+                                            // Show loading indicator
+                                            orderContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+                                            fetch("/Users/GetOrdersList", {
+                                                method: "GET",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    "Accept": "application/json"
+                                                },
+                                                cache: "no-store"
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success && data.orders) {
+                                                    renderOrdersGrid(data.orders);
+                                                } else {
+                                                    orderContainer.innerHTML = '<div class="alert alert-warning">No orders found.</div>';
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error("Load orders error:", error);
+                                                orderContainer.innerHTML = '<div class="alert alert-danger">Error loading orders. Please try again.</div>';
+                                            });
+                                        }
+
+                                        // Function to render the orders grid
+                                        function renderOrdersGrid(orderData) {
+                                            const orderContainer = document.getElementById("table-orders");
+                                            orderContainer.innerHTML = ""; // Clear loading indicator
+
                                             let sttCounter = 1;
 
-                                            new gridjs.Grid({
+                                            // Tạo grid mới và lưu reference
+                                            ordersGrid = new gridjs.Grid({
                                                 columns: [
-                                                    { name: "STT", width: "60px" },
+                                                    { name: "STT", width: "80px" },
                                                     { name: "Order Tracking", width: "160px" },
                                                     { name: "Payment Method", width: "130px" },
                                                     {
@@ -806,21 +853,16 @@
                                                                 case "processing":
                                                                     color = "warning";
                                                                     break;
-
                                                                 case "confirmed":
-                                                                    color = "success";
-                                                                    break;
                                                                 case "success":
-                                                                color = "success";
+                                                                    color = "success";
                                                                     break;
                                                                 case "preparing in kitchen":
                                                                     color = "info";
                                                                     break;
-
                                                                 case "delivering":
                                                                     color = "primary";
                                                                     break;
-
                                                                 case "cancelled by user":
                                                                 case "cancelled by restaurant":
                                                                 case "cancelled by shop":
@@ -828,7 +870,6 @@
                                                                 case "rejected":
                                                                     color = "danger";
                                                                     break;
-
                                                                 case "refunded":
                                                                     color = "dark";
                                                                     break;
@@ -850,19 +891,15 @@
                                                                 case "processing":
                                                                     color = "warning";
                                                                     break;
-
                                                                 case "confirmed":
                                                                     color = "success";
                                                                     break;
-
                                                                 case "preparing in kitchen":
                                                                     color = "info";
                                                                     break;
-
                                                                 case "delivering":
                                                                     color = "primary";
                                                                     break;
-
                                                                 case "cancelled by user":
                                                                 case "cancelled by restaurant":
                                                                 case "cancelled by shop":
@@ -870,7 +907,6 @@
                                                                 case "rejected":
                                                                     color = "danger";
                                                                     break;
-
                                                                 case "refunded":
                                                                     color = "dark";
                                                                     break;
@@ -906,333 +942,297 @@
                                                     },
                                                     { name: "Note", width: "200px" },
                                                     { name: "Delivery Address", width: "220px" },
-
                                                     {
                                                         name: "Actions",
                                                         width: "150px",
                                                         formatter: (_, row) => {
                                                             const orderId = row.cells[1]?.data;
-                                                  
-
                                                             return gridjs.html(`
-                                                                                      <button class="btn btn-sm btn-primary view-details"
-                                                                                              data-id="${orderId}">
-                                                                                          View Order
-                                                                                      </button>
-                                                                                    `);
+                                                                <button class="btn btn-sm btn-primary view-details"
+                                                                        data-id="${orderId}">
+                                                                    View Order
+                                                                </button>
+                                                            `);
                                                         }
                                                     }
-
                                                 ],
                                                 pagination: { enabled: true, limit: 5, summary: true },
                                                 search: true,
                                                 sort: true,
                                                 data: orderData.map((o, index) => [
                                                     sttCounter++,           // 0
-                                                    o.OrderTracking,        // 1
-                                                    o.PaymentMethod,        // 2
-                                                    o.StatusPayment,        // 3
-                                                    o.Status,               // 4
-                                                    o.Quantity,             // 5
-                                                    o.Total,                // 6
-                                                    o.OrderDate,            // 7
-                                                    o.DeliveryDate,         // 8
-                                                    o.Note,                 // 9
-                                                    o.DeliveryAddress,      // 10
-                                                    o.isPay,                // 11
-                                                    o.linkpay,              // 12
-                                                    ""                      // 13: placeholder cho formatter
+                                                    o.orderTracking,        // 1
+                                                    o.paymentMethod,        // 2
+                                                    o.statusPayment,        // 3
+                                                    o.status,               // 4
+                                                    o.quantity,             // 5
+                                                    o.total,                // 6
+                                                    o.orderDate,            // 7
+                                                    o.deliveryDate,         // 8
+                                                    o.note,                 // 9
+                                                    o.deliveryAddress,      // 10
+                                                    ""                      // 11: placeholder for formatter
                                                 ])
-                                            }).render(orderContainer);
+                                            });
 
+                                            // Render grid
+                                            ordersGrid.render(orderContainer);
+
+                                            // Setup event listener chỉ một lần
+                                            if (!orderDetailsListenerAdded) {
+                                                setupOrderDetailsListener();
+                                                orderDetailsListenerAdded = true;
+                                            }
+                                        }
+
+                                        // Setup event listener for order details
+                                        function setupOrderDetailsListener() {
                                             document.addEventListener("click", function (e) {
                                                 if (e.target.classList.contains("view-details")) {
-                                                    const orderId = e.target.getAttribute("data-id");
+                                                 orderId = e.target.getAttribute("data-id");
                                                     loadOrderDetails(orderId);
                                                 }
                                             });
-                                            function loadOrderDetails(orderId) {
-                                                fetch("/Users/GetOrderDetails", {
-                                                    method: "POST",
-                                                    headers: {
-                                                        "Content-Type": "application/json",
-                                                        "Accept": "application/json"
-                                                    },
-                                                    body: JSON.stringify(orderId),
-                                                    cache: "no-store"
-                                                })
-                                                    .then(response => {
-                                                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                                                        return response.json();
-                                                    })
-                                                    .then(data => {
-                                                        if (data.success) {
-                                                            const detailsContainer = document.getElementById("table-order-details");
-                                                            detailsContainer.innerHTML = "";
+                                        }
 
-                                                            if (detailsGrid) {
-                                                                detailsGrid.destroy();
+                                        // Your existing loadOrderDetails function remains the same
+                                        function loadOrderDetails(orderId) {
+                                            fetch("/Users/GetOrderDetails", {
+                                                method: "POST",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    "Accept": "application/json"
+                                                },
+                                                body: JSON.stringify(orderId),
+                                                cache: "no-store"
+                                            })
+                                            .then(response => {
+                                                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                                                return response.json();
+                                            })
+                                            .then(data => {
+                                                if (data.success) {
+                                                    renderOrderDetailsGrid(data);
+                                                } else {
+                                                    Swal.fire("Not Found", "Order details could not be found.", "warning");
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error("Fetch error:", error);
+                                                Swal.fire("Error!", "An error occurred while loading the order details.", "error");
+                                            });
+                                        }
+
+                                        // Function to render order details grid
+                                        function renderOrderDetailsGrid(data) {
+                                            const detailsContainer = document.getElementById("table-order-details");
+
+                                            // Destroy existing details grid
+                                            if (detailsGrid) {
+                                                detailsGrid.destroy();
+                                                detailsGrid = null;
+                                            }
+
+                                            detailsContainer.innerHTML = "";
+
+                                            let sttCounter = 1;
+
+                                            detailsGrid = new gridjs.Grid({
+                                                columns: [
+                                                    { name: "STT", width: "60px", hidden: true },
+                                                    { name: "Product Name", width: "250px" },
+                                                    { name: "Product Price", width: "150px" },
+                                                    { name: "Total Price", width: "150px" },
+                                                    { name: "Quantity", width: "100px" },
+                                                    {
+                                                        name: "Status",
+                                                        width: "150px",
+                                                        formatter: (cell) => {
+                                                            const value = (cell || "").toLowerCase();
+                                                            let color = "secondary";
+
+                                                            switch (value) {
+                                                                case "pending":
+                                                                case "waiting confirmation":
+                                                                case "processing":
+                                                                    color = "warning";
+                                                                    break;
+                                                                case "confirmed":
+                                                                    color = "success";
+                                                                    break;
+                                                                case "preparing in kitchen":
+                                                                    color = "info";
+                                                                    break;
+                                                                case "delivering":
+                                                                    color = "primary";
+                                                                    break;
+                                                                case "cancelled by user":
+                                                                case "cancelled by restaurant":
+                                                                case "cancelled by shop":
+                                                                case "delivery failed":
+                                                                case "rejected":
+                                                                    color = "danger";
+                                                                    break;
+                                                                case "refunded":
+                                                                    color = "dark";
+                                                                    break;
                                                             }
 
-                                                            let sttCounter = 1;
+                                                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
+                                                        }
+                                                    },
+                                                    { name: "Feedback", hidden: true },
+                                                    { name: "Complaint", hidden: true },
+                                                    { name: "Product ID", hidden: true },
+                                                    {
+                                                        name: "Action",
+                                                        width: "200px",
+                                                        formatter: (_, row) => {
+                                                            const hasFeedback = row.cells[6]?.data;
+                                                            const hasComplaint = row.cells[7]?.data;
+                                                            const productName = row.cells[1]?.data || "";
+                                                            const productId = row.cells[8]?.data || "";
+                                                            const ortracking = row.cells[9]?.data || "";
 
-                                                            detailsGrid = new gridjs.Grid({
-                                                                columns: [
-                                                                    { name: "STT", width: "60px", hidden: true },
-                                                                    { name: "Product Name", width: "250px" },
-                                                                    { name: "Product Price", width: "150px" },
-                                                                    { name: "Total Price", width: "150px" },
-                                                                    { name: "Quantity", width: "100px" },
-                                                                    {
-                                                                        name: "Status",
-                                                                        width: "150px",
-                                                                        formatter: (cell) => {
-                                                                            const value = (cell || "").toLowerCase();
-                                                                            let color = "secondary";
+                                                            const escapedName = String(productName).replace(/'/g, "\\'");
+                                                            let buttons = '<div class="d-flex gap-2 justify-content-start">';
 
-                                                                            switch (value) {
-                                                                                case "pending":
-                                                                                case "waiting confirmation":
-                                                                                case "processing":
-                                                                                    color = "warning";
-                                                                                    break;
+                                                            if (!hasFeedback) {
+                                                                buttons += `
+                                                                    <button class="btn btn-outline-success btn-sm"
+                                                                      onclick="openReviewModal('${productId}', '${escapedName}')">
+                                                                        Review
+                                                                    </button>`;
+                                                            }
 
-                                                                                case "confirmed":
-                                                                                    color = "success";
-                                                                                    break;
+                                                            if (!hasComplaint) {
+                                                                buttons += `
+                                                                    <button class="btn btn-outline-danger btn-sm"
+                                                                      onclick="openComplaintModal('${ortracking}', '${escapedName}', '${productId}')">
+                                                                        Complaint
+                                                                    </button>`;
+                                                            }
 
-                                                                                case "preparing in kitchen":
-                                                                                    color = "info";
-                                                                                    break;
+                                                            buttons += '</div>';
+                                                            return gridjs.html(buttons);
+                                                        }
+                                                    }
+                                                ],
+                                                pagination: { enabled: true, limit: 5, summary: true },
+                                                search: true,
+                                                sort: true,
+                                                data: data.data.map((od) => [
+                                                    sttCounter++,
+                                                    od.productName,
+                                                    od.productPrice,
+                                                    od.totalPrice,
+                                                    od.quantity,
+                                                    od.status,
+                                                    od.hasFeedback,
+                                                    od.hasComplaint,
+                                                    od.productId,
+                                                    od.ortracking
+                                                ])
+                                            });
 
-                                                                                case "delivering":
-                                                                                    color = "primary";
-                                                                                    break;
+                                            detailsGrid.render(detailsContainer);
 
-                                                                                case "cancelled by user":
-                                                                                case "cancelled by restaurant":
-                                                                                case "cancelled by shop":
-                                                                                case "delivery failed":
-                                                                                case "rejected":
-                                                                                    color = "danger";
-                                                                                    break;
+                                            // Show order details tab
+                                            const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
+                                            orderDetailsTab.show();
 
-                                                                                case "refunded":
-                                                                                    color = "dark";
-                                                                                    break;
-                                                                            }
+                                            // Remove existing buttons
+                                            document.getElementById("back-to-orders-btn")?.remove();
+                                            document.getElementById("go-to-pay-btn")?.remove();
+                                            document.getElementById("cancel-entire-order-btn")?.remove();
 
+                                            // Add action buttons based on order status
+                                            addOrderActionButtons(data, detailsContainer);
+                                        }
 
-                                                                            return gridjs.html(`<span class="badge bg-${color}">${cell}</span>`);
-                                                                        }
-                                                                    },
-                                                                    { name: "Feedback", hidden: true },  // index 6
-                                                                    { name: "Complaint", hidden: true }, // index 7
-                                                                    { name: "Product ID", hidden: true }, // index 8 ✅
-                                                                    {
-                                                                        name: "Action",
-                                                                        width: "200px",
-                                                                        formatter: (_, row) => {
-                                                                            const hasFeedback = row.cells[6]?.data;
-                                                                            const hasComplaint = row.cells[7]?.data;
-                                                                            const productName = row.cells[1]?.data || "";
-                                                                            const productId = row.cells[8]?.data || "";
-                                                                            const ortracking = row.cells[9]?.data || "";
-                                                                            console.log("Debug row:", row.cells.map(c => c.data));
+                                        // Function to add action buttons based on order status
+                                        function addOrderActionButtons(data, container) {
+                                            const orderStatus = (data.orderStatus || "").toLowerCase();
+                                            const flag = data.isPay;
+                                            const link = (data.linkpay || "");
 
-                                                                            const escapedName = String(productName).replace(/'/g, "\\'");
-                                                                            let buttons = '<div class="d-flex gap-2 justify-content-start">';
+                                            if (orderStatus === "processing") {
+                                                if (flag === true && link && link.trim() !== '') {
+                                                    const button = document.createElement("button");
+                                                    button.className = "btn btn-success mt-3 float-end";
+                                                    button.id = "go-to-pay-btn";
+                                                    button.innerHTML = "<i class='fi fi-rs-star'></i> Go to pay";
+                                                    button.addEventListener("click", () => {
+                                                        window.open(link, "_blank");
+                                                    });
+                                                    container.appendChild(button);
+                                                }
+                                            }
 
-                                                                            if (!hasFeedback) {
-                                                                                buttons += `
-                                                                                                                        <button class="btn btn-outline-success btn-sm"
-                                                                                                                          onclick="openReviewModal('${productId}', '${escapedName}')">
-                                                                                                                                                                  Review
-                                                                                                                                                                </button>`;
-                                                                            }
+                                            if (orderStatus === "pending") {
+                                                const cancelAllBtn = document.createElement("button");
+                                                cancelAllBtn.id = "cancel-entire-order-btn";
+                                                cancelAllBtn.className = "btn btn-danger mt-3 float-end";
+                                                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Cancel Order";
+                                                cancelAllBtn.onclick = () => cancelEntireOrder(orderId);
+                                                console.log("Adding cancel button for order ID:", orderId);
+                                                container.appendChild(cancelAllBtn);
+                                            }
 
-                                                                            if (!hasComplaint) {
-                                                                                buttons += `
-                                                                                                                           <button class="btn btn-outline-danger btn-sm" onclick="openComplaintModal('${ortracking}', '${escapedName}', '${productId}')">
-                                                                                                                                                                 Complaint
-                                                                                                                        </button>`;
-                                                                            }
+                                            // Back button
+                                            const backButton = document.createElement("button");
+                                            backButton.id = "back-to-orders-btn";
+                                            backButton.className = "btn btn-secondary mt-3 me-2";
+                                            backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i>Back to Orders";
+                                            backButton.onclick = () => {
+                                                document.getElementById("orders-tab")?.click();
+                                                loadOrdersData(); // Reload orders when going back
+                                            };
+                                            container.appendChild(backButton);
+                                        }
 
-                                                                            buttons += '</div>';
-                                                                            return gridjs.html(buttons);
-                                                                        }
-                                                                    }
-                                                                ],
-                                                                pagination: { enabled: true, limit: 5, summary: true },
-                                                                search: true,
-                                                                sort: true,
-                                                                data: data.data.map((od) => [
-                                                                    sttCounter++,
-                                                                    od.productName,
-                                                                    od.productPrice,
-                                                                    od.totalPrice,
-                                                                    od.quantity,
-                                                                    od.status,
-                                                                    od.hasFeedback,
-                                                                    od.hasComplaint,
-                                                                    od.productId,
-                                                                    od.ortracking
-                                                                ])
-                                                            });
-
-
-                                                            detailsGrid.render(detailsContainer);
-
-                                                            // Tabs và buttons như cũ
-                                                            const orderDetailsTab = new bootstrap.Tab(document.getElementById("order-details-tab"));
-                                                            orderDetailsTab.show();
-
-                                                            document.getElementById("back-to-orders-btn")?.remove();
-                                                            document.getElementById("go-to-pay-btn")?.remove();
-                                                            document.getElementById("cancel-entire-order-btn")?.remove();
-
-
-                                                            const orderStatus = (data.orderStatus || "").toLowerCase();
-                                                            const flag =data.isPay; // hoặc !!data.isPay nếu bạn cần ép kiểu
-                                                            const link = (data.linkpay || "");
-                                                             if(orderStatus === "processing"){
-                                             if (flag === true && link && link.trim() !== '') {
-                                        const button = document.createElement("button");
-                                        button.className = "btn btn-success mt-3 float-end";
-                                        button.id = "go-to-pay-btn";
-                                        button.innerHTML = "<i class='fi fi-rs-star'></i> Go to pay";
-                                        button.addEventListener("click", () => {
-                                            window.open(link, "_blank");
-                                        });
-                                        detailsContainer.appendChild(button);
-                                              }
-                                                             }
-
-                                                            if (orderStatus === "pending") {
-                                                                const cancelAllBtn = document.createElement("button");
-                                                                cancelAllBtn.id = "cancel-entire-order-btn";
-                                                                cancelAllBtn.className = "btn btn-danger mt-3 float-end";
-                                                                cancelAllBtn.innerHTML = "<i class='fi fi-rs-trash'></i> Cancel Order";
-                                                                cancelAllBtn.onclick = () => {
-                                                                    Swal.fire({
-                                                                        title: "Cancel this order?",
-                                                                        text: "This entire order will be cancelled!",
-                                                                        icon: "warning",
-                                                                        showCancelButton: true,
-                                                                        confirmButtonText: "Cancel Order",
-                                                                        cancelButtonText: "No",
-                                                                        confirmButtonColor: "#d33",
-                                                                        cancelButtonColor: "#6c757d"
-                                                                    }).then((result) => {
-                                                                        if (result.isConfirmed) {
-                                                                            fetch("/Users/CancelOrder", {
-                                                                                method: "POST",
-                                                                                headers: {
-                                                                                    "Content-Type": "application/json",
-                                                                                    "Accept": "application/json"
-                                                                                },
-                                                                                body: JSON.stringify(orderId)
-                                                                            })
-                                                                                .then(res => res.json())
-                                                                                .then(data => {
-                                                                                    if (data.success) {
-                                                                                        Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success")
-                                                                                            .then(() => document.getElementById("orders-tab")?.click());
-                                                                                    } else {
-                                                                                        Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
-
-                                                                                    }
-                                                                                })
-                                                                                .catch(() => Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error"));
-                                                                        }
-                                                                    });
-                                                                };
-                                                                detailsContainer.appendChild(cancelAllBtn);
-                                                            } else if (orderStatus === "confirmed") {
-                                                                const feedbackBtn = document.createElement("button");
-                                                             }
-                                                            const backButton = document.createElement("button");
-                                                            backButton.id = "back-to-orders-btn";
-                                                            backButton.className = "btn btn-secondary mt-3 me-2";
-                                                            backButton.innerHTML = "<i class='fi fi-rs-arrow-left'></i>Back to Orders";
-                                                            backButton.onclick = () => document.getElementById("orders-tab")?.click();
-                                                            detailsContainer.appendChild(backButton);
-
+                                        // Function to cancel entire order
+                                        function cancelEntireOrder(orderId) {
+                                            Swal.fire({
+                                                title: "Cancel this order?",
+                                                text: "This entire order will be cancelled!",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonText: "Cancel Order",
+                                                cancelButtonText: "No",
+                                                confirmButtonColor: "#d33",
+                                                cancelButtonColor: "#6c757d"
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    fetch("/Users/CancelOrder", {
+                                                        method: "POST",
+                                                        headers: {
+                                                            "Content-Type": "application/json",
+                                                            "Accept": "application/json"
+                                                        },
+                                                        body: JSON.stringify(orderId)
+                                                    })
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        if (data.success) {
+                                                            Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success")
+                                                                .then(() => {
+                                                                    document.getElementById("orders-tab")?.click();
+                                                                    loadOrdersData(); // Reload orders after cancellation
+                                                                });
                                                         } else {
-                                                            Swal.fire(
-                                                                "Not Found",
-                                                                "Order details could not be found.",
-                                                                "warning"
-                                                            );
-
-                                                            console.log("Lỗi trả về:", data.message);
+                                                            Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
                                                         }
                                                     })
-                                                    .catch(error => {
-                                                        console.error("Fetch error:", error);
-                                                        Swal.fire(
-                                                            "Error!",
-                                                            "An error occurred while loading the order details.",
-                                                            "error"
-                                                        );
+                                                    .catch(() => Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error"));
+                                                }
+                                            });
+                                        }
 
-                                                    });
-                                            }
-
-
-
-
-
-                                        });
-
-
-                                        document.addEventListener("click", function (e) {
-                                            if (e.target.classList.contains("cancel-order")) {
-                                                const orderId = e.target.getAttribute("data-id");
-
-                                                Swal.fire({
-                                                    title: "Cancel this order?",
-                                                    text: "You won't be able to undo this action!",
-                                                    icon: "warning",
-                                                    showCancelButton: true,
-                                                    confirmButtonText: "Cancel Order",
-                                                    cancelButtonText: "No",
-                                                    confirmButtonColor: "#d33",
-                                                    cancelButtonColor: "#6c757d"
-                                                }).then((result) => {
-                                                    if (result.isConfirmed) {
-                                                        fetch("/Users/CancelOrder", {
-                                                            method: "POST",
-                                                            headers: {
-                                                                "Content-Type": "application/json",
-                                                                "Accept": "application/json"
-                                                            },
-                                                            body: JSON.stringify(orderId)
-                                                        })
-                                                            .then(res => res.json())
-                                                            .then(data => {
-                                                                if (data.success) {
-                                                                    Swal.fire("Cancelled!", data.message || "The order has been cancelled.", "success").then(() => {
-                                                                        document.getElementById("orders-tab").click(); // Quay lại danh sách đơn
-                                                                    });
-                                                                } else {
-                                                                    Swal.fire("Error!", data.message || "Unable to cancel the order.", "error");
-                                                                }
-                                                            })
-                                                            .catch(error => {
-                                                                console.error("Cancel error:", error);
-                                                                Swal.fire("Error!", "An error occurred while sending the cancellation request.", "error");
-                                                            });
-                                                    }
-                                                });
-                                            }
-                                        });
-
-
-
-
+                                        // SignalR connection
+                                        
+                                     
                                     </script>
-
 
 
                                     @* <div class="tab-pane fade" id="track-orders" role="tabpanel"
@@ -1840,7 +1840,7 @@
     <!-- <script src="assetsAdmin/libs/quill/quill.min.js"></script> -->
     <!-- Admin app -->
     <script src="assetsAdmin/js/app.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
@@ -2330,4 +2330,17 @@
                 console.error("Lỗi khi lấy danh sách ngân hàng:", error);
             });
     });
+</script>
+<script>
+    const connectionOrder = new signalR.HubConnectionBuilder()
+        .withUrl("/chathub")
+        .build();
+
+    connectionOrder.on("ReceiveOrders", function () {
+    loadOrdersData();
+    });
+
+    connectionOrder.start()
+        .then(() => console.log("✅ SignalR Orders connected"))
+        .catch(err => console.error("❌ SignalR error:", err));
 </script>
