@@ -1,53 +1,53 @@
-using System.Data;
+using Azure;
 using BusinessLogic.Hash;
-using System.Text.RegularExpressions;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
+using BusinessLogic.Services.Categorys;
+using BusinessLogic.Services.ComplaintImages;
+using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.FavoriteFavoriteRecipes;
+using BusinessLogic.Services.IngredientTagServices;
+using BusinessLogic.Services.Message; // nhớ import
+using BusinessLogic.Services.MessageImages;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
+using BusinessLogic.Services.ProductVariantVariants;
+using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
+using BusinessLogic.Services.RecipeReviewReviews;
+using BusinessLogic.Services.RecipeServices;
+using BusinessLogic.Services.Reviews;
 using BusinessLogic.Services.StoreDetail;
+using BusinessLogic.Services.StoreFollowers;
+using BusinessLogic.Services.TypeOfDishServices;
+using BusinessLogic.Services.VoucherServices; // nhớ import
+using Food_Haven.Web.Hubs;
+using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Models;
 using Net.payOS;
 using Net.payOS.Types;
+using Org.BouncyCastle.Asn1.X509;
 using Repository.BalanceChange;
 using Repository.ViewModels;
-using System.Text.Json;
-using System.Text;
-using Microsoft.AspNetCore.SignalR;
-using Food_Haven.Web.Hubs;
-using MailKit.Search;
-using System.Collections.Generic;
-using BusinessLogic.Services.Reviews;
-using BusinessLogic.Services.ProductVariantVariants;
-using BusinessLogic.Services.ComplaintImages;
-using BusinessLogic.Services.Complaints;
-using Org.BouncyCastle.Asn1.X509;
-using BusinessLogic.Services.RecipeServices;
-using BusinessLogic.Services.Categorys;
-using BusinessLogic.Services.IngredientTagServices;
-using BusinessLogic.Services.TypeOfDishServices;
-using Azure;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using X.PagedList;
-using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
-using System.Drawing;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using BusinessLogic.Services.MessageImages;
-using BusinessLogic.Services.Message; // nhớ import
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using BusinessLogic.Services.RecipeReviewReviews;
-using BusinessLogic.Services.FavoriteFavoriteRecipes;
-using BusinessLogic.Services.StoreFollowers;
-using BusinessLogic.Services.VoucherServices; // nhớ import
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using X.PagedList;
 
 namespace Food_Haven.Web.Controllers
 {
@@ -500,9 +500,10 @@ namespace Food_Haven.Web.Controllers
                 var temp = await _product.FindAsync(u => u.ID == product.ProductID);
                 if (temp == null)
                 {
-                    temStoreid = temp.StoreID;
+               
                     return Json(new ErroMess { msg = "The selected product does not exist!" });
                 }
+                temStoreid = temp.StoreID;
                 var checkcart = await this._cart.FindAsync(u => u.UserID == user.Id && u.ProductTypesID == id);
                 if (checkcart == null)
                 {
@@ -1231,21 +1232,44 @@ var finalAmount = subtotal - discount;
                         await _productWarian.UpdateAsync(product);
                     }
                 }
+                decimal temAdmin = -1;
+                if (order.VoucherID!=null)
+                {          
+                    var v = await _voucherServices.FindAsync(x => x.ID== order.VoucherID && x.IsActive);
+                    if (v == null)
+                        return Json(new { message = "Invalid voucher" });
+                    decimal discount = v.DiscountType == "Percent"
+                        ? order.TotalPrice * v.DiscountAmount / 100
+                        : v.DiscountAmount;
 
+                    if (v.MaxDiscountAmount.HasValue)
+                        discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+
+
+                    discount = Math.Min(discount, order.TotalPrice);
+
+                    if (v.IsGlobal)
+                    {
+                        temAdmin = order.TotalPrice - discount;
+                    }                 
+
+                }
+                decimal finalPrice = temAdmin == -1 ? order.TotalPrice : temAdmin;
                 var currentBalance = await _balance.GetBalance(order.UserID);
                 var refundTransaction = new BalanceChange
                 {
                     UserID = order.UserID,
-                    MoneyChange = order.TotalPrice,
+                    MoneyChange = finalPrice,
                     MoneyBeforeChange = currentBalance,
-                    MoneyAfterChange = currentBalance + order.TotalPrice,
+                    MoneyAfterChange = currentBalance + finalPrice,
                     Method = "Refund",
                     Status = "Success",
                     Display = true,
                     IsComplete = true,
                     CheckDone = true,
                     StartTime = DateTime.Now,
-                    DueTime = DateTime.Now
+                    DueTime = DateTime.Now,
+                    Description = $"Refund for cancelled order: {order.ID}",
                 };
                 await _balance.AddAsync(refundTransaction);
 

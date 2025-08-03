@@ -1026,12 +1026,34 @@ namespace Food_Haven.Web.Controllers
                     }
                 }
 
+                decimal temAdmin = -1;
+                if (order.VoucherID != null)
+                {
+                    var v = await _voucher.FindAsync(x => x.ID == order.VoucherID && x.IsActive);
+                    if (v == null)
+                        return Json(new { message = "Invalid voucher" });
+                    decimal discount = v.DiscountType == "Percent"
+                        ? order.TotalPrice * v.DiscountAmount / 100
+                        : v.DiscountAmount;
 
+                    if (v.MaxDiscountAmount.HasValue)
+                        discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+
+
+                    discount = Math.Min(discount, order.TotalPrice);
+
+                    if (v.IsGlobal)
+                    {
+                        temAdmin = order.TotalPrice - discount;
+                    }
+
+                }
+                decimal finalPrice = temAdmin == -1 ? order.TotalPrice : temAdmin;
                 var currentBalance = await _balance.GetBalance(order.UserID);
                 var refundTransaction = new BalanceChange
                 {
                     UserID = order.UserID,
-                    MoneyChange = order.TotalPrice,
+                    MoneyChange = finalPrice,
                     MoneyBeforeChange = currentBalance,
                     MoneyAfterChange = currentBalance + order.TotalPrice,
                     Method = "Refund",
@@ -1040,7 +1062,8 @@ namespace Food_Haven.Web.Controllers
                     IsComplete = true,
                     CheckDone = true,
                     StartTime = DateTime.Now,
-                    DueTime = DateTime.Now
+                    DueTime = DateTime.Now,
+                    Description = $"Refund for order {order.ID} - Cancelled by Shop",
                 };
                 await _balance.AddAsync(refundTransaction);
 
@@ -1449,6 +1472,7 @@ namespace Food_Haven.Web.Controllers
                                 CheckDone = true,
                                 StartTime = DateTime.Now,
                                 DueTime = DateTime.Now,
+                                Description = $"Warranty order created for Order Tracking: {order.ID}",
                                 //     OrderID = newOrderId
                             };
 
