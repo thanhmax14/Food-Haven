@@ -1714,7 +1714,7 @@ namespace Food_Haven.Web.Controllers
                     UserID = user.Id,
                     Reason = obj.Reason,
                     Message = obj.Message,
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedDate = DateTime.Now,
                 };
 
                 await _storeReport.AddAsync(report);
@@ -2419,7 +2419,7 @@ namespace Food_Haven.Web.Controllers
 
                 if (existing != null)
                 {
-                    existing.ViewedAt = DateTime.UtcNow;
+                    existing.ViewedAt = DateTime.Now;
                     existing.MatchedIngredients = matchedIngredients;
                     await _recipeViewHistoryServices.UpdateAsync(existing);
                 }
@@ -2430,7 +2430,7 @@ namespace Food_Haven.Web.Controllers
                         ID = Guid.NewGuid(),
                         UserID = user.Id,
                         ExpertRecipeId = recipeId,
-                        ViewedAt = DateTime.UtcNow,
+                        ViewedAt = DateTime.Now,
                         MatchedIngredients = matchedIngredients
                     };
                     await _recipeViewHistoryServices.AddAsync(newItem);

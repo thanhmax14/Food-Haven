@@ -156,7 +156,7 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
                 ImageUrl = "image.jpg",
                 ShortDescriptions = "Short desc",
                 LongDescriptions = "Long desc",
-                CreatedDate = DateTime.UtcNow,
+                CreatedDate = DateTime.Now,
                 UserID = userId
             };
 
@@ -172,9 +172,9 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
                 IsOnSale = true,
                 ShortDescription = "short",
                 LongDescription = "long",
-                ManufactureDate = DateTime.UtcNow,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
+                ManufactureDate = DateTime.Now,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now
             };
 
             var variant = new ProductTypes

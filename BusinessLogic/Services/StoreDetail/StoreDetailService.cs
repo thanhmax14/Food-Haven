@@ -171,7 +171,7 @@ namespace BusinessLogic.Services.StoreDetail
             }
 
             storeDetail.Status = newStatus;
-            storeDetail.ModifiedDate = DateTime.UtcNow;
+            storeDetail.ModifiedDate = DateTime.Now;
 
             await _repositorys.UpdateStoreAsync(storeDetail);
             return true;

@@ -100,7 +100,7 @@ namespace BusinessLogic.Services.Orders
                     MoneyBeforeChange = moneyBeforeChange,
                     MoneyChange = moneyChange,
                     MoneyAfterChange = moneyAfterChange,
-                    StartTime = DateTime.UtcNow,
+                    StartTime = DateTime.Now,
                     Status = "Success",
                     CheckDone = true
                 };
@@ -138,7 +138,7 @@ namespace BusinessLogic.Services.Orders
                     MoneyBeforeChange = moneyBeforeChange,
                     MoneyChange = moneyChange,
                     MoneyAfterChange = moneyAfterChange,
-                    StartTime = DateTime.UtcNow,
+                    StartTime = DateTime.Now,
                     Status = "CANCELLED",
                     CheckDone = true
                 };

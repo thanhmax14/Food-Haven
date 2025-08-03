@@ -180,7 +180,7 @@ namespace Repository.Products
             product.ShortDescription = model.ShortDescription;
             product.LongDescription = model.LongDescription;
             product.ManufactureDate = model.ManufactureDate;
-            product.ModifiedDate = DateTime.UtcNow;
+            product.ModifiedDate = DateTime.Now;
             product.IsOnSale = model.IsOnSale;
             product.CategoryID = model.CateID;
             await _context.SaveChangesAsync();
