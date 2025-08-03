@@ -2608,7 +2608,7 @@ namespace Food_Haven.Web.Controllers
 
                 await _expertRecipeServices.UpdateAsync(recipe);
                 await _expertRecipeServices.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveExperRecipe");
                 return Json(new { success = true });
             }
             catch (Exception ex)
@@ -2622,17 +2622,28 @@ namespace Food_Haven.Web.Controllers
         [HttpPost("Admin/ShowExpertRecipe/{id:guid}")]
         public async Task<IActionResult> ShowExpertRecipe(Guid id)
         {
-            var recipe = await _expertRecipeServices.GetAsyncById(id);
-            if (recipe == null) return Json(new { success = false, message = "Not found" });
+            try
+            {
+                var recipe = await _expertRecipeServices.GetAsyncById(id);
+                if (recipe == null)
+                    return Json(new { success = false, message = "Not found" });
 
-            recipe.IsActive = true;
-            recipe.ModifiedDate = DateTime.Now;
+                recipe.IsActive = true;
+                recipe.ModifiedDate = DateTime.Now;
 
-            await _expertRecipeServices.UpdateAsync(recipe);
-            await _expertRecipeServices.SaveChangesAsync();
+                await _expertRecipeServices.UpdateAsync(recipe);
+                await _expertRecipeServices.SaveChangesAsync();
+                await _hubContext.Clients.All.SendAsync("ReceiveExperRecipe");
 
-            return Json(new { success = true });
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                // Ghi log nếu cần: _logger.LogError(ex, "Error in ShowExpertRecipe");
+                return Json(new { success = false, message = "An error occurred while updating the recipe." });
+            }
         }
+
 
 
         [HttpGet]
@@ -2735,7 +2746,7 @@ namespace Food_Haven.Web.Controllers
                 // Lưu thay đổi
                 await _expertRecipeServices.UpdateAsync(existingRecipe);
                 await _expertRecipeServices.SaveChangesAsync();
-
+                await _hubContext.Clients.All.SendAsync("ReceiveExperRecipe");
                 return Json(new { success = true });
             }
             catch (Exception ex)

@@ -912,19 +912,7 @@
                                                         width: "150px",
                                                         formatter: (_, row) => {
                                                             const orderId = row.cells[1]?.data;
-                                                            const isPay = row.cells[11]?.data;
-                                                            const linkPay = row.cells[12]?.data;
-
-                                                            //console.log("Debug:", row.cells.map(c => c.data)); // kiểm tra chính xác
-
-                                                            if (isPay === true && linkPay && linkPay.trim() !== '') {
-                                                                return gridjs.html(`
-                                                                                        <button type="button" class="btn btn-sm btn-light"
-                                                                                                onclick="window.open('${linkPay}', '_blank')">
-                                                                                            Details
-                                                                                        </button>
-                                                                                      `);
-                                                            }
+                                                  
 
                                                             return gridjs.html(`
                                                                                       <button class="btn btn-sm btn-primary view-details"
