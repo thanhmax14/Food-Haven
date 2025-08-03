@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Moq;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.SignalR;
+using Food_Haven.Web.Hubs;
 
 namespace Food_Haven.UnitTest.Admin_CheckNameExistsForUpdate_Test
 {
@@ -13,12 +15,15 @@ namespace Food_Haven.UnitTest.Admin_CheckNameExistsForUpdate_Test
     {
         private Mock<ICategoryService> _categoryServiceMock;
         private AdminController _controller;
+        private Mock<IHubContext<ChatHub>> _hubContextMock;
 
         [SetUp]
         public void Setup()
         {
             _categoryServiceMock = new Mock<ICategoryService>();
-            // Truyền đúng 23 tham số, các tham số không dùng thì để null hoặc default
+            _hubContextMock = new Mock<IHubContext<ChatHub>>();
+
+            // Truyền đúng 24 tham số, các tham số không dùng thì để null hoặc default
             _controller = new AdminController(
                 null, // UserManager<AppUser>
                 null, // ITypeOfDishService
@@ -43,7 +48,8 @@ namespace Food_Haven.UnitTest.Admin_CheckNameExistsForUpdate_Test
                 null, // IProductImageService
                 null, // IRecipeIngredientTagIngredientTagSerivce
                 null, // RoleManager<IdentityRole>
-                null  // IExpertRecipeServices (add this argument)
+                null, // IExpertRecipeServices
+                _hubContextMock.Object // IHubContext<ChatHub>
             );
         }
 

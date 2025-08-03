@@ -16,11 +16,13 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.VoucherServices;
 using BusinessLogic.Services.Wishlists;
 using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Hubs;
 using Food_Haven.Web.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Query;
 using Models;
 using Moq;
@@ -43,6 +45,7 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
         private HomeController _controller;
         private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
         private Mock<IRecipeViewHistoryServices> _recipeViewHistoryServicesMock;
+        private Mock<IHubContext<ChatHub>> hubContextMock;
         [SetUp]
         public void Setup()
         {
@@ -57,6 +60,7 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
                 null, null, null, null);
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
             _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
+            hubContextMock = new Mock<IHubContext<ChatHub>>();
 
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
             var orderDetailMock = new Mock<IOrderDetailService>();
@@ -100,7 +104,10 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
                 _storeFollowersMock.Object,
                 recipeSearchMock,
                 _expertRecipeServicesMock.Object, // <-- Add this argument
-    _recipeViewHistoryServicesMock.Object // <-- Add this argument
+    _recipeViewHistoryServicesMock.Object,
+                    hubContextMock.Object
+
+            // <-- Add this argument
             );
 
             _controller.ControllerContext = new ControllerContext
@@ -177,8 +184,9 @@ namespace Food_Haven_TestUnit.UnitTestFollowedStore
                 new Mock<IStoreReportServices>().Object,
                 _storeFollowersMock.Object,
                 new RecipeSearchService(""),
-                  _expertRecipeServicesMock.Object, // <-- Add this argument
-    _recipeViewHistoryServicesMock.Object // <-- Add this a
+                _expertRecipeServicesMock.Object,
+                _recipeViewHistoryServicesMock.Object,
+                hubContextMock.Object // <-- Add this argument
             );
 
             _userManagerMock.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);

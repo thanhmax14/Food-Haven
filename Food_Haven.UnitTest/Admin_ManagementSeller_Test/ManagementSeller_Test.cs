@@ -3,6 +3,7 @@ using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
+using BusinessLogic.Services.ExpertRecipes;
 using BusinessLogic.Services.IngredientTagServices;
 using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
@@ -16,25 +17,26 @@ using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Controllers;
+using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.DBContext;
 using Moq;
 using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
+using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Repository.ViewModels;
-using BusinessLogic.Services.ExpertRecipes;
 
 namespace Food_Haven.UnitTest.Admin_ManagementSeller_Test
 {
@@ -106,6 +108,7 @@ namespace Food_Haven.UnitTest.Admin_ManagementSeller_Test
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
 
             _controller = new AdminController(
                 _userManagerMock.Object,
@@ -131,7 +134,8 @@ namespace Food_Haven.UnitTest.Admin_ManagementSeller_Test
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
-                _expertRecipeServicesMock.Object
+                _expertRecipeServicesMock.Object,
+                hubContextMock.Object
             );
         }
         [TearDown]

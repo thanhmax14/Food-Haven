@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
-using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
 using BusinessLogic.Services.ExpertRecipes;
@@ -16,14 +15,12 @@ using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.StoreReports;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
-using Food_Haven.Web.Controllers;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Models;
 using Models.DBContext;
 using Moq;
 using Repository.BalanceChange;
@@ -32,13 +29,12 @@ using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
+namespace Food_Haven.UnitTest.Admin_ViewStoreDetail_Test
 {
-    public class ManagementReportStore_Test
+    public class ViewStoreDetail_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -63,7 +59,6 @@ namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
         private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
         private Mock<RoleManager<IdentityRole>> _roleManagerMock;
         private Mock<IExpertRecipeServices> _expertRecipeServicesMock;
-
         private AdminController _controller;
 
         [SetUp]
@@ -79,11 +74,11 @@ namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
             _balanceMock = new Mock<IBalanceChangeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
             var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
@@ -123,85 +118,68 @@ namespace Food_Haven.UnitTest.Admin_ManagementReportStore_Test
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
                 _expertRecipeServicesMock.Object,
-                hubContextMock.Object
+                 hubContextMock.Object
             );
         }
+
         [TearDown]
         public void TearDown()
         {
             _controller?.Dispose();
         }
         [Test]
-        public async Task ManagementReportStore_AdminLoggedIn_ReturnsViewWithReportList()
+        public async Task ViewStoreDetail_ReturnsView_WhenStoreExists()
         {
             // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
-
-            var report = new StoreReport
-            {
-                ID = Guid.NewGuid(),
-                StoreID = Guid.NewGuid(),
-                UserID = "user1",
-                Reason = "Reason",
-                Message = "Message",
-                CreatedDate = DateTime.Now
-            };
-            var store = new StoreDetails { ID = report.StoreID, Name = "StoreName" };
-            var reportingUser = new AppUser { UserName = "reporter", Email = "reporter@email.com" };
-
-            _storeReportMock.Setup(r => r.ListAsync(null, null, null)).ReturnsAsync(new List<StoreReport> { report });
-            _storeReportMock.Setup(r => r.ListAsync()).ReturnsAsync(new List<StoreReport> { report }); // Fix: also setup parameterless ListAsync
-            _userManagerMock.Setup(m => m.FindByIdAsync("user1")).ReturnsAsync(reportingUser);
-            _storeServiceMock.Setup(s => s.GetAsyncById(report.StoreID)).ReturnsAsync(store);
+            var storeId = Guid.Parse("2983d0a3-da6a-4bd1-a66b-08d6da57482a");
+            var viewModel = new ViewStoreDetailViewModel { ID = storeId, StoreName = "Test Store" };
+            _storeServiceMock.Setup(s => s.GetStoreDetailAsync(storeId)).ReturnsAsync(viewModel);
 
             // Act
-            var result = await _controller.ManagementReportStore();
+            var result = await _controller.ViewStoreDetail(storeId);
 
             // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
             var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<StoreReportViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<StoreReportViewModel>;
-            Assert.AreEqual(1, model.Count);
-            Assert.AreEqual("reporter", model[0].UserName);
-            Assert.AreEqual("StoreName", model[0].StoreName);
+            Assert.IsNotNull(viewResult);
+            Assert.IsInstanceOf<ViewStoreDetailViewModel>(viewResult.Model);
+            Assert.AreEqual(storeId, ((ViewStoreDetailViewModel)viewResult.Model).ID);
         }
 
         [Test]
-        public async Task ManagementReportStore_AdminLoggedIn_ReturnsViewWithEmptyList()
+        public async Task ViewStoreDetail_ReturnsNotFound_WhenStoreDoesNotExist()
         {
             // Arrange
-            var adminUser = new AppUser { UserName = "admin", Id = "admin-id" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(adminUser);
-            _userManagerMock.Setup(m => m.IsInRoleAsync(adminUser, "Admin")).ReturnsAsync(true);
-
-            var emptyReportList = new List<StoreReport>();
-            _storeReportMock.Setup(r => r.ListAsync(null, null, null)).ReturnsAsync(emptyReportList);
-            _storeReportMock.Setup(r => r.ListAsync()).ReturnsAsync(emptyReportList); // optional, for safety
+            var storeId = Guid.Parse("2983d0a3-da6a-4bd1-a66b-08d6da57482b"); // <-- valid GUID
+            _storeServiceMock.Setup(s => s.GetStoreDetailAsync(storeId)).ReturnsAsync((ViewStoreDetailViewModel)null);
 
             // Act
-            var result = await _controller.ManagementReportStore();
+            var result = await _controller.ViewStoreDetail(storeId);
 
             // Assert
-            Assert.IsInstanceOf<ViewResult>(result);
-            var viewResult = result as ViewResult;
-            Assert.IsInstanceOf<List<StoreReportViewModel>>(viewResult.Model);
-            var model = viewResult.Model as List<StoreReportViewModel>;
-            Assert.IsNotNull(model);
-            Assert.AreEqual(0, model.Count);
+            Assert.IsInstanceOf<NotFoundResult>(result);
         }
 
+        [Test]
+        public async Task ViewStoreDetail_ThrowsException_ReturnsException()
+        {
+            // Arrange
+            var storeId = Guid.Parse("2983d0a3-da6a-4bd1-a66b-08d6da57482a");
+            _storeServiceMock
+                .Setup(s => s.GetStoreDetailAsync(storeId))
+                .ThrowsAsync(new Exception("Database error"));
+
+            // Act & Assert
+            Assert.ThrowsAsync<Exception>(async () => await _controller.ViewStoreDetail(storeId));
+        }
     }
 }

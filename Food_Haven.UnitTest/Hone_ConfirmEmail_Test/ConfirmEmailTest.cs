@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Models;
 using Moq;
 using Net.payOS;
@@ -31,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Food_Haven.Web.Hubs;
 
 namespace Food_Haven.UnitTest.Hone_ConfirmEmail_Test
 {
@@ -75,6 +77,7 @@ namespace Food_Haven.UnitTest.Hone_ConfirmEmail_Test
             var recipeSearchMock = new RecipeSearchService("");
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
             _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
             _controller = new HomeController(
                 _signInManagerMock.Object,
                 orderDetailMock.Object,
@@ -96,8 +99,9 @@ namespace Food_Haven.UnitTest.Hone_ConfirmEmail_Test
                 storeReportMock.Object,
                 storeFollowersMock.Object,
                 recipeSearchMock,
-                 _expertRecipeServicesMock.Object, // <-- Add this argument
- _recipeViewHistoryServicesMock.Object // <-- Add this argument
+                _expertRecipeServicesMock.Object,
+                _recipeViewHistoryServicesMock.Object,
+                hubContextMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext

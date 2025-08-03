@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Models;
+using MockQueryable.Moq;
 using Moq;
 using NUnit.Framework;
 using Repository.BalanceChange;
@@ -27,6 +28,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using static NUnit.Framework.Internal.OSPlatform;
+using MockQueryable;
 
 namespace Food_Haven.UnitTest.Seller_GetComplaint_Test
 {
@@ -168,7 +170,8 @@ namespace Food_Haven.UnitTest.Seller_GetComplaint_Test
 
             // Users
             var users = new List<AppUser> { user };
-            _userManagerMock.Setup(m => m.Users).Returns(new TestAsyncEnumerable<AppUser>(users));
+            var mockUsers = users.AsQueryable().BuildMock();
+            _userManagerMock.Setup(m => m.Users).Returns(mockUsers);
 
             // Act
             var result = await _controller.GetComplaint() as JsonResult;
