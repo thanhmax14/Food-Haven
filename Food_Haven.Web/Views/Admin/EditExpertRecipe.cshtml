@@ -364,9 +364,18 @@
 
                                         <!-- Ingredients Section -->
                                         <div class="col-12">
-                                            <label class="form-label">
-                                                Ingredients <span class="text-danger">*</span>
-                                            </label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label mb-0">
+                                                    Ingredients <span class="text-danger">*</span>
+                                                </label>
+                                                @* <small class="text-muted">(Number of Ingredients)</small> *@
+                                            </div>
+
+                                            <div class="bg-light border rounded p-2 mb-3 small">
+                                                <strong>Note: </strong>
+                                                Each item should include full details like quantity, unit, and description.<br>
+                                                <strong>Example:</strong> <code>1 c. brown sugar, 1/2 c. evaporated milk, 2 Tbsp. butter,...</code>
+                                            </div>
                                             <div id="ingredientsContainer">
                                                 <div class="step-item">
                                                     <div class="d-flex align-items-center mb-2">
@@ -417,7 +426,18 @@
 
                                         <!-- NER Section -->
                                         <div class="col-12">
-                                            <label class="form-label">NER (Named Entity Recognition)</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label mb-0">
+                                                    NER (Named Entity Recognition) <span class="text-danger">*</span>
+                                                </label>
+                                                @* <small class="text-muted">(Number of Ingredients)</small> *@
+                                            </div>
+
+                                            <div class="bg-light border rounded p-2 mb-3 small">
+                                                <strong>Note: </strong>
+                                                Each item should be a simplified ingredient name, without quantity or unit.<br>
+                                                <strong>Example:</strong> <code>brown sugar, milk, butter,...</code>
+                                            </div>
                                             <div id="nerContainer">
                                                 <div class="step-item">
                                                     <div class="d-flex align-items-center mb-2">
