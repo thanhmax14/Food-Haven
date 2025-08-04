@@ -28,5 +28,6 @@ namespace BusinessLogic.Services.Complaints
             Expression<Func<Complaint, bool>> filter = null,
             Func<IQueryable<Complaint>, IOrderedQueryable<Complaint>> orderBy = null,
             Func<IQueryable<Complaint>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Complaint, object>> includeProperties = null);
+        void ResolveComplaintAsync(Guid complaintId, string action, string note);
     }
 }

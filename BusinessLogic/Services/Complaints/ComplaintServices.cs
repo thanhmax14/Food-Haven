@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.Services.Complaints
 {
-    public class ComplaintServices:IComplaintServices
+    public class ComplaintServices : IComplaintServices
     {
         private readonly IComplaintRepository _repository;
         private readonly IMapper _mapper;
@@ -40,6 +40,7 @@ namespace BusinessLogic.Services.Complaints
         public async Task DeleteAsync(Guid id) => await _repository.DeleteAsync(id);
 
         public async Task<bool> ExistsAsync(Guid id) => await _repository.ExistsAsync(id);
+
         public int Count() => _repository.Count();
 
         public async Task<int> CountAsync() => await _repository.CountAsync();
@@ -47,10 +48,37 @@ namespace BusinessLogic.Services.Complaints
         public async Task<IEnumerable<Complaint>> ListAsync() => await _repository.ListAsync();
 
         public async Task<IEnumerable<Complaint>> ListAsync(
-            Expression<Func<Complaint, bool>> filter = null,
-            Func<IQueryable<Complaint>, IOrderedQueryable<Complaint>> orderBy = null,
-            Func<IQueryable<Complaint>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Complaint, object>> includeProperties = null) =>
+            Expression<Func<Complaint, bool>>? filter = null,
+            Func<IQueryable<Complaint>, IOrderedQueryable<Complaint>>? orderBy = null,
+            Func<IQueryable<Complaint>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Complaint, object>>? includeProperties = null) =>
             await _repository.ListAsync(filter, orderBy, includeProperties);
+
         public async Task<int> SaveChangesAsync() => await _repository.SaveChangesAsync();
+
+        public async void ResolveComplaintAsync(Guid complaintId, string action, string note)
+        {
+            var complaint = await _repository.GetAsyncById(complaintId);
+            if (complaint == null) return;
+
+            switch (action)
+            {
+                case "approve":
+                    complaint.Status = "Resolved";
+                    complaint.AdminReply = note;
+                    complaint.DateAdminReply = DateTime.UtcNow;
+                    break;
+                case "reject":
+                    complaint.Status = "Rejected";
+                    complaint.RejectNote = note;
+                    complaint.DateAdminReply = DateTime.UtcNow;
+                    break;
+                default:
+                    // Optionally handle other actions
+                    break;
+            }
+
+            await _repository.UpdateAsync(complaint);
+            await _repository.SaveChangesAsync();
+        }
     }
 }
