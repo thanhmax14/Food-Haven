@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Query;
 using Models;
 using Moq;
 using Net.payOS;
@@ -94,6 +95,8 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
             _voucherServiceMock = new Mock<IVoucherServices>();
             _storeReportServiceMock = new Mock<IStoreReportServices>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
 
             // Nếu RecipeSearchService cần được mock, bạn nên refactor thành interface IRecipeSearchService và mock nó
             var recipeSearchService = new RecipeSearchService(""); // Hoặc dùng Mock<IRecipeSearchService>()
@@ -223,6 +226,13 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
                 null))
                 .ReturnsAsync(imageList);
 
+            // Add this setup before the Act step to ensure variants are returned for the product
+            _productVariantServiceMock.Setup(x => x.ListAsync(
+                It.IsAny<Expression<Func<ProductTypes, bool>>>(),
+                It.IsAny<Func<IQueryable<ProductTypes>, IOrderedQueryable<ProductTypes>>>(),
+                It.IsAny<Func<IQueryable<ProductTypes>, IIncludableQueryable<ProductTypes, object>>>()))
+                .ReturnsAsync(new List<ProductTypes> { variant });
+
             // Act
             var result = await _controller.GetStoreDetail(storeId) as ViewResult;
 
@@ -230,9 +240,11 @@ namespace Food_Haven.UnitTest.Home_GetStoreDetail
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<StoreDetailsViewModels>(result.Model);
             var model = result.Model as StoreDetailsViewModels;
-            Assert.AreEqual("Test Store", model.Name);
-            Assert.AreEqual("storeowner", model.UserName);
-            Assert.AreEqual(1, model.ProductViewModel.Count);
+            // Replace classic Assert.AreEqual with constraint-based Assert.That and null-safe access
+            Assert.That(model, Is.Not.Null);
+            Assert.That(model.Name, Is.EqualTo("Test Store"));
+            Assert.That(model.UserName, Is.EqualTo("storeowner"));
+            Assert.That(model.ProductViewModel.Count, Is.EqualTo(1));
         }
         [Test]
         public async Task GetStoreDetail_InvalidId_ReturnsNotFound()

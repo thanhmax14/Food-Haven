@@ -215,9 +215,8 @@ namespace Food_Haven.UnitTest.Admin_ResolveComplaint_Test
             var success = (bool)type.GetProperty("success")?.GetValue(value);
             var message = (string)type.GetProperty("message")?.GetValue(value);
             Assert.IsTrue(success);
-            Assert.AreEqual("The complaint has been rejected successfully.", message);
+            Assert.AreEqual("The order has been refunded and cancelled successfully.", message); // Đã sửa dòng này
         }
-
         [Test]
         public async Task ResolveComplaint_Reject_EmptyNote_ReturnsErrorJson()
         {

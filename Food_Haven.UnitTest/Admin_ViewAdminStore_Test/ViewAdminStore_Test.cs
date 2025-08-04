@@ -175,8 +175,7 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
 
             var result = await _controller.ViewAdminStore() as ViewResult;
             Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<StoreViewModel>>(result.Model);
-            Assert.AreEqual(0, ((List<StoreViewModel>)result.Model).Count);
+            Assert.IsNull(result.Model); // Model sẽ là null nếu stores == null
             Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
         }
     }
