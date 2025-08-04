@@ -1498,6 +1498,17 @@ var finalAmount = subtotal - discount;
                 var orderDetails = await _orderDetailService.FindAsync(d => d.ID == model.OrderDetailID);
                 if (orderDetails == null)
                     return Json(new { success = false, message = "There are no products in this order." });
+                var order = await _order.FindAsync(o => o.ID == orderDetails.OrderID);
+                if (order == null)
+                    return Json(new { success = false, message = "Order not found." });
+                var getPriceRefun = orderDetails.TotalPrice;
+                if (order.VoucherID != null)
+                {
+                    getPriceRefun = await _order.CalculateRefundAmount(order, orderDetails);
+                }
+                order.TotalPrice -= getPriceRefun;
+                await _order.UpdateAsync(order);
+                await _order.SaveChangesAsync();
                 foreach (var file in model.Images)
                 {
                     var fileExt = Path.GetExtension(file.FileName).ToLowerInvariant();
