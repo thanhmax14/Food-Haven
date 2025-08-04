@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
 using BusinessLogic.Services.BalanceChanges;
+using BusinessLogic.Services.OrderDetailService;
+using BusinessLogic.Services.VoucherServices;
 using Models;
 using Repository.BalanceChange;
 using Repository.Categorys;
@@ -21,8 +23,9 @@ namespace BusinessLogic.Services.Orders
         private readonly CategoryRepository _categoryRepositorys;
         private readonly StoreDetailsRepository _atoreDetailRepositorys;
         private readonly OrderDetailRepository _orderDetailRepositorys;
-
-        public OrderServices(IOrdersRepository repository, IMapper mapper, OrdersRepository orderRepository, IBalanceChangeService balanceService, BalanceChangeRepository balanceRepositorys, CategoryRepository categoryRepositorys, StoreDetailsRepository atoreDetailRepositorys)
+        private readonly IVoucherServices _voucher;
+        private readonly IOrderDetailService _orderDetail;
+        public OrderServices(IOrdersRepository repository, IMapper mapper, OrdersRepository orderRepository, IBalanceChangeService balanceService, BalanceChangeRepository balanceRepositorys, CategoryRepository categoryRepositorys, StoreDetailsRepository atoreDetailRepositorys, IVoucherServices voucher, IOrderDetailService orderDetail)
         {
             _repository = repository;
             _mapper = mapper;
@@ -31,6 +34,8 @@ namespace BusinessLogic.Services.Orders
             _balanceRepositorys = balanceRepositorys;
             _categoryRepositorys = categoryRepositorys;
             _atoreDetailRepositorys = atoreDetailRepositorys;
+            _voucher = voucher;
+            _orderDetail = orderDetail;
         }
 
         public IQueryable<Order> GetAll() => _repository.GetAll();
@@ -100,7 +105,7 @@ namespace BusinessLogic.Services.Orders
                     MoneyBeforeChange = moneyBeforeChange,
                     MoneyChange = moneyChange,
                     MoneyAfterChange = moneyAfterChange,
-                    StartTime = DateTime.UtcNow,
+                    StartTime = DateTime.Now,
                     Status = "Success",
                     CheckDone = true
                 };
@@ -138,7 +143,7 @@ namespace BusinessLogic.Services.Orders
                     MoneyBeforeChange = moneyBeforeChange,
                     MoneyChange = moneyChange,
                     MoneyAfterChange = moneyAfterChange,
-                    StartTime = DateTime.UtcNow,
+                    StartTime = DateTime.Now,
                     Status = "CANCELLED",
                     CheckDone = true
                 };
@@ -151,6 +156,30 @@ namespace BusinessLogic.Services.Orders
                 Console.WriteLine($"Error in RejectOrder: {ex.Message}");
                 return false;
             }
+        }
+
+        public async Task<decimal> CalculateRefundAmount(Order order, OrderDetail itemToRefund)
+        {
+            var v = await _voucher.FindAsync(x => x.ID == order.VoucherID && x.IsActive);
+            if (v == null)
+                throw new Exception("Invalid voucher");
+
+       
+            var orderDetails = await _orderDetail.ListAsync(x => x.OrderID == order.ID);
+            decimal originalTotal = orderDetails.Sum(x => x.ProductPrice * x.Quantity);
+            decimal discount = v.DiscountType == "Percent"
+                ? originalTotal * v.DiscountAmount / 100
+                : v.DiscountAmount;
+            if (v.MaxDiscountAmount.HasValue)
+                discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+
+            discount = Math.Min(discount, originalTotal);
+            decimal itemTotal = itemToRefund.ProductPrice * itemToRefund.Quantity;
+            decimal ratio = itemTotal / originalTotal;
+            decimal itemDiscount = discount * ratio;
+            decimal refundAmount = itemTotal - itemDiscount;
+
+            return refundAmount;
         }
 
     }

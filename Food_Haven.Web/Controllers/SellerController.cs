@@ -1014,7 +1014,7 @@ namespace Food_Haven.Web.Controllers
                 foreach (var item in orderDetails)
                 {
                     item.Status = "Refunded";
-                    item.ModifiedDate = DateTime.UtcNow;
+                    item.ModifiedDate = DateTime.Now;
                     await _orderDetail.UpdateAsync(item);
 
                     var product = await _variantService.FindAsync(p => p.ID == item.ProductTypesID);
@@ -1026,12 +1026,34 @@ namespace Food_Haven.Web.Controllers
                     }
                 }
 
+                decimal temAdmin = -1;
+                if (order.VoucherID != null)
+                {
+                    var v = await _voucher.FindAsync(x => x.ID == order.VoucherID && x.IsActive);
+                    if (v == null)
+                        return Json(new { message = "Invalid voucher" });
+                    decimal discount = v.DiscountType == "Percent"
+                        ? order.TotalPrice * v.DiscountAmount / 100
+                        : v.DiscountAmount;
 
+                    if (v.MaxDiscountAmount.HasValue)
+                        discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+
+
+                    discount = Math.Min(discount, order.TotalPrice);
+
+                    if (v.IsGlobal)
+                    {
+                        temAdmin = order.TotalPrice - discount;
+                    }
+
+                }
+                decimal finalPrice = temAdmin == -1 ? order.TotalPrice : temAdmin;
                 var currentBalance = await _balance.GetBalance(order.UserID);
                 var refundTransaction = new BalanceChange
                 {
                     UserID = order.UserID,
-                    MoneyChange = order.TotalPrice,
+                    MoneyChange = finalPrice,
                     MoneyBeforeChange = currentBalance,
                     MoneyAfterChange = currentBalance + order.TotalPrice,
                     Method = "Refund",
@@ -1040,7 +1062,8 @@ namespace Food_Haven.Web.Controllers
                     IsComplete = true,
                     CheckDone = true,
                     StartTime = DateTime.Now,
-                    DueTime = DateTime.Now
+                    DueTime = DateTime.Now,
+                    Description = $"Refund for order {order.ID} - Cancelled by Shop",
                 };
                 await _balance.AddAsync(refundTransaction);
 
@@ -1050,7 +1073,7 @@ namespace Food_Haven.Web.Controllers
     : $"{order.Description}#CANCELLED BY SHOP-{DateTime.Now}";
 
                 order.PaymentStatus = "Refunded";
-                order.ModifiedDate = DateTime.UtcNow;
+                order.ModifiedDate = DateTime.Now;
                 await _order.UpdateAsync(order);
 
 
@@ -1100,7 +1123,7 @@ namespace Food_Haven.Web.Controllers
                 foreach (var item in orderDetails)
                 {
                     item.Status = status;
-                    item.ModifiedDate = DateTime.UtcNow;
+                    item.ModifiedDate = DateTime.Now;
                     await _orderDetail.UpdateAsync(item);
 
                 }
@@ -1311,31 +1334,42 @@ namespace Food_Haven.Web.Controllers
                         orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
                         await _orderDetail.UpdateAsync(orderDetails);
+
+                        var getPriceRefun = orderDetails.TotalPrice;
+                          if (order.VoucherID != null)
+                        {
+                            getPriceRefun = await _order.CalculateRefundAmount(order, orderDetails);
+                        }
+                      //  order.TotalPrice -= getPriceRefun;
+
+
                         var currentBalance = await _balance.GetBalance(order.UserID);
                         var refundTransaction = new BalanceChange
                         {
                             UserID = order.UserID,
-                            MoneyChange = orderDetails.TotalPrice,
+                            MoneyChange = getPriceRefun,
                             MoneyBeforeChange = currentBalance,
-                            MoneyAfterChange = currentBalance + orderDetails.TotalPrice,
+                            MoneyAfterChange = currentBalance + getPriceRefun,
                             Method = "Refund",
                             Status = "Success",
                             Display = true,
                             IsComplete = true,
                             CheckDone = true,
                             StartTime = DateTime.Now,
-                            DueTime = DateTime.Now
+                            DueTime = DateTime.Now,
+                            Description= $"Refund for order {order.ID} - Complaint resolved by seller",
                         };
+                      
                         await _balance.AddAsync(refundTransaction);
 
                         // Cập nhật trạng thái đơn hàng
-                        order.Status = "Refunded";
+                     /*   order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.UtcNow;
+                        order.ModifiedDate = DateTime.Now;
                         order.Description = string.IsNullOrEmpty(order.Description)
                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
-                        order.IsPaid = true;
+                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
+                      
                         await _order.UpdateAsync(order);
 
                         // Lưu thay đổi
@@ -1385,6 +1419,12 @@ namespace Food_Haven.Web.Controllers
                                 throw new Exception("Original order not found.");
 
                             var voucherCode = $"Warranty-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+                            var getPriceRefun = originalOrder.TotalPrice;
+                            if (originalOrder.VoucherID != null)
+                            {
+                                getPriceRefun = await _order.CalculateRefundAmount(originalOrder, orderDetail);
+                            }
+                          //  originalOrder.TotalPrice -= getPriceRefun;
 
                             var voucher = new Voucher
                             {
@@ -1449,6 +1489,7 @@ namespace Food_Haven.Web.Controllers
                                 CheckDone = true,
                                 StartTime = DateTime.Now,
                                 DueTime = DateTime.Now,
+                                Description = $"Warranty order created for Order Tracking: {order.ID}",
                                 //     OrderID = newOrderId
                             };
 

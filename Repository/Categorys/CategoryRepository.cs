@@ -78,7 +78,7 @@ namespace Repository.Categorys
                 Commission = model.Commission,
                 DisplayOrder = model.Number.ToString(),  // <-- Cần thêm dòng này
                 ImageUrl = fileName, // Chỉ lưu tên file vào database
-                CreatedDate = DateTime.UtcNow,
+                CreatedDate = DateTime.Now,
                 ModifiedDate = null,
                 IsActive = true
             };
@@ -161,7 +161,7 @@ namespace Repository.Categorys
             category.Name = model.Name;
             category.Commission = model.Commission;
             category.DisplayOrder = model.Number+"";
-            category.ModifiedDate = DateTime.UtcNow.Date; // Chỉ lấy ngày, không lấy giờ
+            category.ModifiedDate = DateTime.Now.Date; // Chỉ lấy ngày, không lấy giờ
 
             _context.SaveChanges();
         }

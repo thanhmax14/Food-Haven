@@ -25,5 +25,6 @@ namespace BusinessLogic.Services.Orders
             Func<IQueryable<Order>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Order, object>> includeProperties = null);
         Task<bool> RejectOrder(Guid orderId);
         Task<bool> AcceptOrder(Guid orderId);
+        Task<decimal> CalculateRefundAmount(Order order, OrderDetail itemToRefund);
     }
 }

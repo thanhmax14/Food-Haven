@@ -218,6 +218,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Admin" asp-action="ManagerExpertRecipe">
+                                <i class="ri-restaurant-2-line"></i> <span>Expert Recipe</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                         <a class="nav-link menu-link" asp-controller="Admin" asp-action="GetAllIngredientTag">
                             <i class=" ri-price-tag-3-line"></i> <span>Ingredient Tag</span>
                         </a>
@@ -423,6 +428,54 @@
                             }
                         }
 
+                        // NEW: Function to set readonly state for edit mode
+                        function setReadonlyForEdit() {
+                            const fieldsToMakeReadonly = [
+                                "code",           // Code
+                                "discountAmount", // Discount Amount
+                                "scope",          // Max Discount
+                                "discountType",   // Discount Type
+                                "currentUsage"    // Current Usage
+                            ];
+
+                            fieldsToMakeReadonly.forEach(fieldId => {
+                                const field = document.getElementById(fieldId);
+                                if (field) {
+                                    field.disabled = true;
+                                    field.classList.add("readonly-field");
+                                    // For select elements, we need to disable them instead of readonly
+                                    if (field.tagName.toLowerCase() === 'select') {
+                                        field.disabled = true;
+                                    }
+                                }
+                            });
+                        }
+
+                                          function removeReadonlyForCreate() {
+                        const fieldsToMakeEditable = [
+                            "code",           // Code
+                            "discountAmount", // Discount Amount
+                            "scope",          // Max Discount
+                            "discountType",   // Discount Type
+                            "currentUsage"    // Current Usage
+                        ];
+
+                        fieldsToMakeEditable.forEach(fieldId => {
+                            const field = document.getElementById(fieldId);
+                            if (field) {
+                                // Remove readonly property
+                                field.readOnly = false;
+                                field.classList.remove("readonly-field");
+
+                                // FIXED: Also enable the field (remove disabled state)
+                                field.disabled = false;
+                            }
+                        });
+
+                        // ADDED: After enabling fields, recheck the discount type toggle
+                        toggleMaxDiscountField();
+                    }
+
                         // Add event listener for discount type change
                         document.getElementById("discountType").addEventListener("change", toggleMaxDiscountField);
 
@@ -441,6 +494,9 @@
 
                             // Update modal title to Create
                             modalTitle.textContent = "Add Voucher";
+
+                            // MODIFIED: Remove readonly state for create mode
+                            removeReadonlyForCreate();
 
                             // Clear all error messages and validation states
                             form.querySelectorAll(".text-danger").forEach(e => {
@@ -761,17 +817,18 @@
                             }
                         });
 
-                        // Load vouchers function
-                        async function loadVouchers() {
-                            try {
-                                const res = await fetch("/Admin/GetAllVoucher");
-                                const data = await res.json();
-                                tbody.innerHTML = "";
+                                   async function loadVouchers() {
+                        try {
+                            const res = await fetch("/Admin/GetAllVoucher");
+                            const data = await res.json();
+                            const tbody = document.querySelector("#voucherTable tbody"); // Đảm bảo selector đúng
+                            tbody.innerHTML = "";
 
-                                function safeDate(str) {
-                                    return (str && str.length >= 10) ? str : "";
-                                }
+                            function safeDate(str) {
+                                return (str && str.length >= 10) ? str : "";
+                            }
 
+                            if (Array.isArray(data) && data.length > 0) {
                                 data.forEach((item) => {
                                     const row = document.createElement("tr");
                                     row.innerHTML = `
@@ -789,35 +846,47 @@
                                                 ${item.isActive ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
-                                                           <td>
-                      <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-primary edit-item-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#showModal">
-                          <i class="ri-pencil-fill align-bottom me-1"></i>Edit
-                        </button>
-                        <button class="btn btn-sm btn-danger delete-item-btn" data-id="${item.id}" data-code="${item.code}" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">
-                          <i class="ri-eye-line align-bottom me-1"></i>Remove
-                        </button>
-                      </div>
-                    </td>
-                    `;
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-sm btn-primary edit-item-btn" data-id="${item.id}" data-bs-toggle="modal" data-bs-target="#showModal">
+                                                    <i class="ri-pencil-fill align-bottom me-1"></i>Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-danger delete-item-btn" data-id="${item.id}" data-code="${item.code}" data-bs-toggle="modal" data-bs-target="#deleteRecordModal">
+                                                    <i class="ri-eye-line align-bottom me-1"></i>Remove
+                                                </button>
+                                            </div>
+                                        </td>
+                                    `;
                                     tbody.appendChild(row);
                                 });
 
-                                // Initialize List.js for search and pagination
+                                // Chỉ khởi tạo List.js nếu có ít nhất 1 item
                                 new List("voucherList", {
-                                    valueNames: ["code", "discountAmount", "discountType", "startDate", "expirationDate", "createdDate", "maxUsage", "currentUsage", "isActive"],
+                                    valueNames: [
+                                        "code", "discountAmount", "discountType",
+                                        "startDate", "expirationDate", "createdDate",
+                                        "maxUsage", "currentUsage", "isActive"
+                                    ],
                                     page: 5,
                                     pagination: true
                                 });
-                            } catch (error) {
-                                console.error("Error loading vouchers:", error);
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "Error",
-                                    text: "Failed to load vouchers."
-                                });
+                            } else {
+                                // Nếu không có voucher, hiển thị một dòng thông báo
+                                const row = document.createElement("tr");
+                                row.innerHTML = `<td colspan="11" class="text-center text-muted">No vouchers found.</td>`;
+                                tbody.appendChild(row);
                             }
+
+                        } catch (error) {
+                            console.error("Error loading vouchers:", error);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: "Failed to load vouchers."
+                            });
                         }
+                    }
+
 
                         // Bind check all functionality
                         function bindCheckAll() {
@@ -858,6 +927,9 @@
 
                                     // Toggle Max Discount field based on discount type
                                     toggleMaxDiscountField();
+
+                                    // MODIFIED: Set readonly fields for edit mode
+                                    setReadonlyForEdit();
 
                                     // Clear any existing errors
                                     form.querySelectorAll(".text-danger").forEach(e => {
@@ -960,8 +1032,8 @@
                                 confirmButtonText: "Yes, delete them!",
                                 cancelButtonText: "Cancel",
                                 customClass: {
-                                    confirmButton: "btn btn-danger",
-                                    cancelButton: "btn btn-secondary"
+                                    confirmButton: "btn btn-danger mx-2",
+                                    cancelButton: "btn btn-secondary mx-2"
                                 },
                                 buttonsStyling: false
                             }).then(async (result) => {
@@ -1030,6 +1102,7 @@
                         loadVouchers().then(bindCheckAll);
                     });
                 </script>
+
 
 
 

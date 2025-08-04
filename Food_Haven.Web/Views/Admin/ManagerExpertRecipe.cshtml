@@ -197,14 +197,14 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                <h4 class="mb-sm-0">Manager ExpertRecipe</h4>
+                                <h4 class="mb-sm-0">Manager Expert Recipe</h4>
 
-                                <div class="page-title-right">
+                                @* <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tables</a></li>
                                         <li class="breadcrumb-item active">Manager ExpertRecipe</li>
                                     </ol>
-                                </div>
+                                </div> *@
 
                             </div>
                         </div>
@@ -216,20 +216,20 @@
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
 
-                                    <h4 class="card-title mb-0">Recipes List</h4>
+                                    <h4 class="card-title mb-0">Expert Recipe List</h4>
 
 
 
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-10">
+                                    
                                         <a href="/Admin/createExpertRecipe" class="btn btn-sm btn-success">
-                                            <i class="ri-add-line"></i> Create ExpertRecipe
+                                            <i class="ri-add-line"></i> Create Expert Recipe
                                         </a>
-                                    </div>
+                                    
 
                                     <!-- Tabs -->
-                                    <ul class="nav nav-tabs mb-3" id="recipeTab" role="tablist">
+                                    <ul class="nav nav-tabs mt-3 mb-3" id="recipeTab" role="tablist">
                                         <li class="nav-item" role="presentation">
                                             <button class="nav-link active" id="all-tab" data-bs-toggle="tab"
                                                 data-bs-target="#all" type="button" role="tab">All</button>
@@ -368,14 +368,14 @@
                                             const isActive = row.cells[8].data;
 
                                             return gridjs.html(`
-                                                <button class="btn btn-sm ${isActive ? "btn-danger" : "btn-success"} me-1"
+                                            <a class="btn btn-sm btn-primary" href="/Admin/EditExpertRecipe?id=${id}">
+                                                    <i class="ri-edit-2-line"></i> Edit
+                                                </a>
+                                            <button class="btn btn-sm ${isActive ? "btn-danger" : "btn-success"} me-1"
                                                     onclick="toggleExpertVisibility('${id}', ${isActive})">
                                                     <i class="${isActive ? "ri-eye-off-line" : "ri-eye-line"} me-1"></i>
                                                     ${isActive ? "Hide" : "Show"}
-                                                </button>
-                                                <a class="btn btn-sm btn-primary" href="/Admin/EditExpertRecipe?id=${id}">
-                                                    <i class="ri-edit-2-line"></i> Edit
-                                                </a>
+                                                </button
                                             `);
                                         }
                                     }
@@ -477,12 +477,7 @@
         </div>
     </div>
 
-    <div class="customizer-setting d-none d-md-block">
-        <div class="btn-info rounded-pill shadow-lg btn btn-icon btn-lg p-2" data-bs-toggle="offcanvas"
-            data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
-            <i class='mdi mdi-spin mdi-cog-outline fs-22'></i>
-        </div>
-    </div>
+
 
 
 

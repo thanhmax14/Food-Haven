@@ -80,8 +80,8 @@ namespace Food_Haven.Web.Controllers
             _userManager = userManager;
             _balance = balance;
             client = new HttpClient();
-            var contentipe = new MediaTypeWithQualityHeaderValue("application/json");
-            client.DefaultRequestHeaders.Accept.Add(contentipe);
+            var contentype = new MediaTypeWithQualityHeaderValue("application/json");
+            client.DefaultRequestHeaders.Accept.Add(contentype);
             _storeService = storeService;
             _userManager = userManager;
             _mapper = mapper;
@@ -636,7 +636,6 @@ namespace Food_Haven.Web.Controllers
             if (stores == null || stores.Count == 0)
             {
                 TempData["Message"] = "No inactive stores found.";
-                stores = new List<StoreViewModel>(); // Đảm bảo không truyền null cho View
             }
 
             return View(stores);
@@ -897,34 +896,40 @@ namespace Food_Haven.Web.Controllers
                         var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
                         if (order == null)
                             return Json(new { success = false, message = "Order not found." });
+                        var getPriceRefun = orderDetails.TotalPrice;
+                        if (order.VoucherID != null)
+                        {
+                            getPriceRefun = await _order.CalculateRefundAmount(order, orderDetails);
+                        }
+                      //  order.TotalPrice -= getPriceRefun;
 
-                        orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
                         await _orderDetail.UpdateAsync(orderDetails);
                         var currentBalance = await _balance.GetBalance(order.UserID);
                         var refundTransaction = new BalanceChange
                         {
                             UserID = order.UserID,
-                            MoneyChange = orderDetails.TotalPrice,
+                            MoneyChange = getPriceRefun,
                             MoneyBeforeChange = currentBalance,
-                            MoneyAfterChange = currentBalance + orderDetails.TotalPrice,
+                            MoneyAfterChange = currentBalance + getPriceRefun,
                             Method = "Refund",
                             Status = "Success",
                             Display = true,
                             IsComplete = true,
                             CheckDone = true,
                             StartTime = DateTime.Now,
-                            DueTime = DateTime.Now
+                            DueTime = DateTime.Now,
+                            Description= $"Refund for order {order.ID}",
                         };
                         await _balance.AddAsync(refundTransaction);
 
                         // Update order status
-                        order.Status = "Refunded";
+                       /* order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.UtcNow;
+                        order.ModifiedDate = DateTime.Now;
                         order.Description = string.IsNullOrEmpty(order.Description)
                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
                         order.IsPaid = true;
                         await _order.UpdateAsync(order);
 
@@ -950,7 +955,21 @@ namespace Food_Haven.Web.Controllers
                     complaint.AdminReportStatus = $"Reject";
                     complaint.DateAdminReply = DateTime.Now;
                     complaint.AdminReply = $"[Reject] - {note}";
-                    mess = "The complaint has been rejected successfully.";
+                    var orderDetails1 = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
+                    if (orderDetails1 == null)
+                        return Json(new { success = false, message = "There are no products in this order." });
+                    var order1 = await _order.FindAsync(o => o.ID == orderDetails1.OrderID);
+                    if (order1 == null)
+                        return Json(new { success = false, message = "Order not found." });
+                    var getPriceRefun1 = orderDetails1.TotalPrice;
+                    if (order1.VoucherID != null)
+                    {
+                        getPriceRefun1 = await _order.CalculateRefundAmount(order1, orderDetails1);
+                    }
+                    order1.TotalPrice += getPriceRefun1;
+                    await _order.UpdateAsync(order1);
+                    await _order.SaveChangesAsync();
+                    mess = "The order has been refunded and cancelled successfully.";
                     break;
                 default:
                     return Json(new { success = false, message = "Invalid action type." });
@@ -1213,7 +1232,6 @@ namespace Food_Haven.Web.Controllers
         {
             return View();
         }
-       
         [HttpGet]
         public IActionResult GetAllVoucher()
         {
@@ -1556,7 +1574,7 @@ namespace Food_Haven.Web.Controllers
             }
         }
 
-        [HttpPost("Admin/UpdateRecipeStatus/{id:guid}/{status}")]
+        [HttpPost("Admin/UpdateRecipeStatus/{id}/{status}")]
         public async Task<IActionResult> UpdateRecipeStatus(Guid id, string status, string rejectNote)
         {
             var admin = await _userManager.GetUserAsync(User);
@@ -1580,24 +1598,17 @@ namespace Food_Haven.Web.Controllers
                 }
                 else
                 {
-                    // Return BadRequestObjectResult with an anonymous object (not ExpandoObject)
-                    return new BadRequestObjectResult(new { success = false, message = "Invalid status." });
+                    return BadRequest(new { success = false, message = "Invalid status." });
                 }
 
                 await _recipeService.UpdateAsync(recipe);
                 await _recipeService.SaveChangesAsync();
 
-                // Return JsonResult with an anonymous object (not ExpandoObject)
-                string message = status.Equals("Approved", StringComparison.OrdinalIgnoreCase)
-                    ? "Recipe approved successfully."
-                    : status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
-                        ? "Recipe rejected successfully."
-                        : $"Recipe {status.ToLower()} successfully.";
-                return new JsonResult(new { success = true, message });
+                return Json(new { success = true, message = $"Recipe {status.ToLower()} successfully." });
             }
             catch (Exception ex)
             {
-                return new JsonResult(new
+                return Json(new
                 {
                     success = false,
                     message = "An error occurred while updating the recipe status.",
@@ -2067,17 +2078,17 @@ namespace Food_Haven.Web.Controllers
 
                 var summary = new
                 {
-                    grossSales = Math.Round(totalGrossSales, 2),
-                    commissionRevenue = Math.Round(totalCommissionRevenue, 2),
-                    totalDeposits = Math.Round(totalDeposits, 2),
-                    totalWithdrawals = Math.Round(totalWithdrawals, 2)
+                    grosssales = totalGrossSales,
+                    commissonrevenue = totalCommissionRevenue,
+                    totalsdeposit = totalDeposits,
+                    totalswithdrawal = totalWithdrawals
                 };
                 var chartData = new
                 {
-                    grossSales = chartGrossSales,
-                    commissionRevenue = chartCommissionRevenue,
-                    totalDeposits = chartDeposits,
-                    totalWithdrawals = chartWithdrawals
+                    grosssales = chartGrossSales,
+                    commissonrevenue = chartCommissionRevenue,
+                    totalsdeposit = chartDeposits,
+                    totalswithdrawal = chartWithdrawals
                 };
 
                 return Json(new { summary, chartData });
@@ -2206,7 +2217,7 @@ namespace Food_Haven.Web.Controllers
         {
             var validStatuses = new[] { "CONFIRMED", "DELIVERING", "PREPARING IN KITCHEN", "PENDING" };
 
-            // Lấy tất cả sản phẩm, product type, order detail
+            // Lấy toàn bộ sản phẩm, product type, order detail
             var products = await _product.ListAsync(p => true);
             if (!products.Any())
                 return Json(new List<object>());
@@ -2221,7 +2232,7 @@ namespace Food_Haven.Web.Controllers
             if (!orderDetails.Any())
                 return Json(new List<object>());
 
-            // Lấy tất cả order hợp lệ (status đúng)
+            // Lấy toàn bộ order hợp lệ (status đúng)
             var orderIds = orderDetails.Select(od => od.OrderID).Distinct().ToList();
             var orders = await _order.ListAsync(o => orderIds.Contains(o.ID) && validStatuses.Contains(o.Status.ToUpper()));
             if (!orders.Any())

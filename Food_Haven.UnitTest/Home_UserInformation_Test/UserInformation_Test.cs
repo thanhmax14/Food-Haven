@@ -148,7 +148,7 @@ namespace Food_Haven.UnitTest.Home_UserInformation_Test
             {
                 Id = userId,
                 UserName = "testuser",
-                JoinedDate = DateTime.UtcNow,
+                JoinedDate = DateTime.Now,
                 ImageUrl = "test.jpg"
             };
 

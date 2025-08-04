@@ -279,7 +279,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link active" asp-controller="Admin" asp-action="ManagerExpertRecipe">
-                                <i class="ri-restaurant-2-line"></i> <span>Manager ExpertRecipe</span>
+                                <i class="ri-restaurant-2-line"></i> <span>Expert Recipe</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -327,12 +327,12 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
-                            <h4 class="mb-sm-0">Edit ExpertRecipe</h4>
+                            <h4 class="mb-sm-0">Edit Expert Recipe</h4>
 
                             <div class="page-title-right">
                                 <ol class="breadcrumb m-0">
-                                    <li class="breadcrumb-item"><a href="/admin/managerExpertRecipe">Manager ExpertRecipe</a></li>
-                                    <li class="breadcrumb-item active">Edit ExpertRecipe</li>
+                                    <li class="breadcrumb-item"><a href="/admin/managerExpertRecipe">Manager Expert Recipe</a></li>
+                                    <li class="breadcrumb-item active">Edit Expert Recipe</li>
                                 </ol>
                             </div>
 
@@ -364,9 +364,18 @@
 
                                         <!-- Ingredients Section -->
                                         <div class="col-12">
-                                            <label class="form-label">
-                                                Ingredients <span class="text-danger">*</span>
-                                            </label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label mb-0">
+                                                    Ingredients <span class="text-danger">*</span>
+                                                </label>
+                                                @* <small class="text-muted">(Number of Ingredients)</small> *@
+                                            </div>
+
+                                            <div class="bg-light border rounded p-2 mb-3 small">
+                                                <strong>Note: </strong>
+                                                Each item should include full details like quantity, unit, and description.<br>
+                                                <strong>Example:</strong> <code>1 c. brown sugar, 1/2 c. evaporated milk, 2 Tbsp. butter,...</code>
+                                            </div>
                                             <div id="ingredientsContainer">
                                                 <div class="step-item">
                                                     <div class="d-flex align-items-center mb-2">
@@ -417,7 +426,18 @@
 
                                         <!-- NER Section -->
                                         <div class="col-12">
-                                            <label class="form-label">NER (Named Entity Recognition)</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="form-label mb-0">
+                                                    NER (Named Entity Recognition) <span class="text-danger">*</span>
+                                                </label>
+                                                @* <small class="text-muted">(Number of Ingredients)</small> *@
+                                            </div>
+
+                                            <div class="bg-light border rounded p-2 mb-3 small">
+                                                <strong>Note: </strong>
+                                                Each item should be a simplified ingredient name, without quantity or unit.<br>
+                                                <strong>Example:</strong> <code>brown sugar, milk, butter,...</code>
+                                            </div>
                                             <div id="nerContainer">
                                                 <div class="step-item">
                                                     <div class="d-flex align-items-center mb-2">
