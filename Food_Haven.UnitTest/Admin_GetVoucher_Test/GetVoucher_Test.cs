@@ -78,11 +78,11 @@ namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
             _balanceMock = new Mock<IBalanceChangeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
             var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
@@ -90,6 +90,8 @@ namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
                     await func();
                     return true;
                 });
+
+            _manageTransaction = manageTransactionMock.Object; // <-- Fix: assign the mock object
 
             _complaintServiceMock = new Mock<IComplaintServices>();
             _orderDetailMock = new Mock<IOrderDetailService>();
@@ -104,7 +106,7 @@ namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
             _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
 
             _controller = new AdminController(
                 _userManagerMock.Object,
@@ -115,22 +117,22 @@ namespace Food_Haven.UnitTest.Admin_GetVoucher_Test
                 _webHostEnvironmentMock.Object,
                 _balanceMock.Object,
                 _categoryServiceMock.Object,
-                _manageTransaction,
+                _manageTransaction, // <-- Now not null
                 _complaintServiceMock.Object,
                 _orderDetailMock.Object,
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
-                _expertRecipeServicesMock.Object,
+                _expertRecipeServicesMock?.Object,
                 hubContextMock.Object
             );
         }
