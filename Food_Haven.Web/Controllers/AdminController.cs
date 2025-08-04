@@ -896,34 +896,40 @@ namespace Food_Haven.Web.Controllers
                         var order = await this._order.FindAsync(u => u.ID == orderDetails.OrderID);
                         if (order == null)
                             return Json(new { success = false, message = "Order not found." });
+                        var getPriceRefun = orderDetails.TotalPrice;
+                        if (order.VoucherID != null)
+                        {
+                            getPriceRefun = await _order.CalculateRefundAmount(order, orderDetails);
+                        }
+                      //  order.TotalPrice -= getPriceRefun;
 
-                        orderDetails.Status = "Refunded";
                         orderDetails.ModifiedDate = DateTime.Now;
                         await _orderDetail.UpdateAsync(orderDetails);
                         var currentBalance = await _balance.GetBalance(order.UserID);
                         var refundTransaction = new BalanceChange
                         {
                             UserID = order.UserID,
-                            MoneyChange = orderDetails.TotalPrice,
+                            MoneyChange = getPriceRefun,
                             MoneyBeforeChange = currentBalance,
-                            MoneyAfterChange = currentBalance + orderDetails.TotalPrice,
+                            MoneyAfterChange = currentBalance + getPriceRefun,
                             Method = "Refund",
                             Status = "Success",
                             Display = true,
                             IsComplete = true,
                             CheckDone = true,
                             StartTime = DateTime.Now,
-                            DueTime = DateTime.Now
+                            DueTime = DateTime.Now,
+                            Description= $"Refund for order {order.ID}",
                         };
                         await _balance.AddAsync(refundTransaction);
 
                         // Update order status
-                        order.Status = "Refunded";
+                       /* order.Status = "Refunded";
                         order.PaymentStatus = "Refunded";
                         order.ModifiedDate = DateTime.Now;
                         order.Description = string.IsNullOrEmpty(order.Description)
                             ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
                         order.IsPaid = true;
                         await _order.UpdateAsync(order);
 
@@ -949,6 +955,20 @@ namespace Food_Haven.Web.Controllers
                     complaint.AdminReportStatus = $"Reject";
                     complaint.DateAdminReply = DateTime.Now;
                     complaint.AdminReply = $"[Reject] - {note}";
+                    var orderDetails1 = await _orderDetail.FindAsync(d => d.ID == complaint.OrderDetailID);
+                    if (orderDetails1 == null)
+                        return Json(new { success = false, message = "There are no products in this order." });
+                    var order1 = await _order.FindAsync(o => o.ID == orderDetails1.OrderID);
+                    if (order1 == null)
+                        return Json(new { success = false, message = "Order not found." });
+                    var getPriceRefun1 = orderDetails1.TotalPrice;
+                    if (order1.VoucherID != null)
+                    {
+                        getPriceRefun1 = await _order.CalculateRefundAmount(order1, orderDetails1);
+                    }
+                    order1.TotalPrice += getPriceRefun1;
+                    await _order.UpdateAsync(order1);
+                    await _order.SaveChangesAsync();
                     mess = "The order has been refunded and cancelled successfully.";
                     break;
                 default:
