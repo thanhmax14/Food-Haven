@@ -2614,6 +2614,7 @@ namespace Food_Haven.Web.Controllers
 
             return Json(data);
         }
+
         [HttpPost("Admin/HideExpertRecipe/{id:guid}")]
         public async Task<IActionResult> HideExpertRecipe(Guid id)
         {
