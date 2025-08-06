@@ -19,13 +19,11 @@ namespace Repository.ViewModels
         public DateTime ManufactureDate { get; set; }
         public bool IsActive { get; set; } = true;
         public bool IsOnSale { get; set; } = false;
-        [Required(ErrorMessage = "The value is invalid.")]
         public Guid CateID { get; set; }
         public Guid StoreID { get; set; }
         //public List<IFormFile> Images { get; set; } // Upload tối đa 5 hình
         public IFormFile? MainImage { get; set; }  // Ảnh chính
         public List<IFormFile> GalleryImages { get; set; } = new List<IFormFile>();  // Ảnh phụ
-        [Required(ErrorMessage = "The value is invalid.")]
         public List<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
 
         public string? ExistingMainImage { get; set; } // Chỉ ảnh chính
