@@ -328,10 +328,15 @@
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
-                        // ======= MAIN IMAGE PREVIEW =======
                         const mainInput = document.getElementById('product-image-input');
                         const mainPreview = document.getElementById('product-img');
+                        const galleryInput = document.getElementById('galleryImageInput');
+                        const galleryList = document.getElementById('galleryPreviewList');
+                        const submitBtn = document.getElementById('submitBtn');
 
+                        let selectedGalleryFiles = [];
+
+                        // ==== Preview Main Image ====
                         if (mainInput && mainPreview) {
                             mainInput.addEventListener('change', function (e) {
                                 const file = e.target.files[0];
@@ -347,55 +352,82 @@
                             });
                         }
 
-                        // ======= GALLERY IMAGE WITH LIMIT =======
-                        const galleryInput = document.getElementById('galleryImageInput');
-                        const galleryList = document.getElementById('galleryPreviewList');
-                        const submitBtn = document.getElementById('submitBtn');
-                        let selectedGalleryFiles = [];
-
+                        // ==== Preview Gallery Images + Allow Remove ====
                         galleryInput.addEventListener('change', function (e) {
                             const newFiles = Array.from(e.target.files);
 
-                            const totalSelected = newFiles.length;
-                            if (totalSelected + galleryList.children.length > 4) {
+                            if (selectedGalleryFiles.length + newFiles.length > 4) {
                                 Swal.fire({
                                     icon: 'warning',
                                     title: 'Image limit exceeded!',
                                     text: `You can only select up to 4 gallery images.`,
                                 });
+                                galleryInput.value = '';
                                 return;
                             }
-                            renderGalleryPreviews(newFiles);
+
+                            selectedGalleryFiles = selectedGalleryFiles.concat(newFiles);
+                            renderGalleryPreviews();
                         });
 
-                        function renderGalleryPreviews(files) {
-                            files.forEach((file, index) => {
+                        function renderGalleryPreviews() {
+                            galleryList.innerHTML = '';
+                            selectedGalleryFiles.forEach((file, index) => {
                                 const reader = new FileReader();
                                 reader.onload = function (event) {
                                     const li = document.createElement('li');
                                     li.className = 'list-group-item d-flex justify-content-between align-items-center';
                                     li.innerHTML = `
-                                    <div class="d-flex align-items-center" style="gap: 10px;">
-                                        <img src="${event.target.result}" alt="${file.name}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
-                                        <div>
-                                            <div>${file.name}</div>
-                                            <div class="text-muted small">${(file.size / 1024).toFixed(1)} KB</div>
-                                        </div>
-                                    </div>
-                                `;
+                        <div class="d-flex align-items-center" style="gap: 10px;">
+                            <img src="${event.target.result}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
+                            <div>
+                                <div>${file.name}</div>
+                                <div class="text-muted small">${(file.size / 1024).toFixed(1)} KB</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                    `;
+                                    li.querySelector('button').addEventListener('click', function () {
+                                        selectedGalleryFiles.splice(index, 1);
+                                        renderGalleryPreviews();
+                                    });
                                     galleryList.appendChild(li);
                                 };
                                 reader.readAsDataURL(file);
                             });
                         }
 
-                        function updateSubmitState() {
-                            submitBtn.disabled = selectedGalleryFiles.length > 4;
-                        }
+                        // ==== Form Validation ====
+                        const form = document.querySelector('form[method="post"]');
+                        form.addEventListener('submit', function (e) {
+                            const hasMainImage = mainInput && mainInput.files && mainInput.files.length > 0;
+                            const hasGalleryImages = selectedGalleryFiles.length > 0;
+
+                            if (!hasMainImage) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'The Product Image field is required.',
+                                    text: 'Please select a main product image!'
+                                });
+                                return;
+                            }
+
+                            if (!hasGalleryImages) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'The Product Gallery field is required.',
+                                    text: 'Please select at least one gallery image!'
+                                });
+                                return;
+                            }
+                        });
                     });
                 </script>
 
-                <script>
+
+                @* <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         const form = document.querySelector('form[method="post"]');
                         const mainInput = document.getElementById('product-image-input');
@@ -426,7 +458,7 @@
                             }
                         });
                     });
-                </script>
+                </script> *@
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
                 <!-- end main content-->
