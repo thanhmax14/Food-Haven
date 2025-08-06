@@ -216,23 +216,29 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-md-12">
-                                                        <div class="mb-3">
-                                                            <label asp-for="LongDescription" class="form-label">Detailed
-                                                                Description</label>
-                                                            <textarea asp-for="LongDescription" class="form-control" rows="3"
-                                                                placeholder="Enter detailed description"
-                                                                id="ckeditor-classic"></textarea>
-                                                            <span asp-validation-for="LongDescription"
-                                                                class="text-danger"></span>
-                                                        </div>
+                                                    @* <div class="mb-3">
+                                                        <label asp-for="LongDescription" class="form-label">Detailed
+                                                            Description</label>
+                                                        <textarea asp-for="LongDescription" class="form-control" rows="3"
+                                                            placeholder="Enter detailed description"
+                                                            id="ckeditor-classic"></textarea>
+                                                        <span asp-validation-for="LongDescription" class="text-danger"></span>
+                                                    </div> *@
+
+                                                    <div class="mb-3">
+                                                        <label for="ckeditor-classic" class="form-label">Detailed
+                                                            Description</label>
+                                                        <textarea id="ckeditor-classic" name="LongDescription"
+                                                    class="form-control">@Html.Raw(Model.LongDescription)</textarea>
+                                                        <span asp-validation-for="LongDescription" class="text-danger"></span>
                                                     </div>
 
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label asp-for="ManufactureDate" class="form-label">Manufacture
                                                                 Date</label>
-                                                            <input asp-for="ManufactureDate" type="date" class="form-control" />
+                                                            <input asp-for="ManufactureDate" type="date" class="form-control"
+                                                                id="manufactureDate" />
                                                             <span asp-validation-for="ManufactureDate"
                                                                 class="text-danger"></span>
                                                         </div>
@@ -333,10 +339,9 @@
                         const galleryInput = document.getElementById('galleryImageInput');
                         const galleryList = document.getElementById('galleryPreviewList');
                         const submitBtn = document.getElementById('submitBtn');
+                        const maxGalleryImages = 4;
 
-                        let selectedGalleryFiles = [];
-
-                        // ==== Preview Main Image ====
+                        // ===== MAIN IMAGE =====
                         if (mainInput && mainPreview) {
                             mainInput.addEventListener('change', function (e) {
                                 const file = e.target.files[0];
@@ -352,27 +357,36 @@
                             });
                         }
 
-                        // ==== Preview Gallery Images + Allow Remove ====
-                        galleryInput.addEventListener('change', function (e) {
-                            const newFiles = Array.from(e.target.files);
+                        // ==== Add DELETE button for Main Image (Optional UI Enhancement) ====
+                        // You can add your own delete button in HTML and reset mainInput.value = '' when clicked
 
-                            if (selectedGalleryFiles.length + newFiles.length > 4) {
+                        // ===== GALLERY IMAGES =====
+                        let dt = new DataTransfer(); // to manage selected gallery images
+
+                        galleryInput.addEventListener('change', function (e) {
+                            const newFiles = Array.from(galleryInput.files);
+
+                            if ((dt.items.length + newFiles.length) > maxGalleryImages) {
                                 Swal.fire({
                                     icon: 'warning',
                                     title: 'Image limit exceeded!',
-                                    text: `You can only select up to 4 gallery images.`,
+                                    text: `You can only select up to ${maxGalleryImages} gallery images.`,
                                 });
                                 galleryInput.value = '';
                                 return;
                             }
 
-                            selectedGalleryFiles = selectedGalleryFiles.concat(newFiles);
-                            renderGalleryPreviews();
+                            newFiles.forEach(file => {
+                                dt.items.add(file);
+                            });
+
+                            galleryInput.files = dt.files;
+                            renderGalleryPreview();
                         });
 
-                        function renderGalleryPreviews() {
+                        function renderGalleryPreview() {
                             galleryList.innerHTML = '';
-                            selectedGalleryFiles.forEach((file, index) => {
+                            Array.from(dt.files).forEach((file, index) => {
                                 const reader = new FileReader();
                                 reader.onload = function (event) {
                                     const li = document.createElement('li');
@@ -388,8 +402,9 @@
                         <button type="button" class="btn btn-danger btn-sm">Delete</button>
                     `;
                                     li.querySelector('button').addEventListener('click', function () {
-                                        selectedGalleryFiles.splice(index, 1);
-                                        renderGalleryPreviews();
+                                        dt.items.remove(index);
+                                        galleryInput.files = dt.files;
+                                        renderGalleryPreview();
                                     });
                                     galleryList.appendChild(li);
                                 };
@@ -397,11 +412,11 @@
                             });
                         }
 
-                        // ==== Form Validation ====
+                        // ===== FORM VALIDATION =====
                         const form = document.querySelector('form[method="post"]');
                         form.addEventListener('submit', function (e) {
                             const hasMainImage = mainInput && mainInput.files && mainInput.files.length > 0;
-                            const hasGalleryImages = selectedGalleryFiles.length > 0;
+                            const hasGalleryImages = dt.files.length > 0;
 
                             if (!hasMainImage) {
                                 e.preventDefault();
@@ -425,6 +440,71 @@
                         });
                     });
                 </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const ckeditorElement = document.querySelector("#ckeditor-classic");
+                        if (ckeditorElement && !ckeditorElement.classList.contains('ckeditor-initialized')) {
+                            ClassicEditor
+                                .create(ckeditorElement)
+                                .then(editor => {
+                                    window.myEditorInstance = editor;
+                                    ckeditorElement.classList.add('ckeditor-initialized');
+                                })
+                                .catch(error => {
+                                    console.error("CKEditor init error:", error);
+                                });
+                        }
+
+                        // Set initial value
+                        hiddenInput.value = editor.getData();
+                    })
+                        .catch(error => {
+                            console.error("CKEditor init error:", error);
+                        });
+                        }
+                    });
+                </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const form = document.querySelector('form[method="post"]');
+                        const manufactureDateInput = document.getElementById("manufactureDate");
+
+                        form.addEventListener("submit", function (e) {
+                            const selectedDate = new Date(manufactureDateInput.value);
+                            const today = new Date();
+                            //today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác ngày
+
+                            if (selectedDate > today) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Invalid Date",
+                                    text: "Manufacture date cannot be in the future.",
+                                });
+                            }
+                        });
+                    });
+                </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        @if (TempData["DuplicateName"] != null && (bool)TempData["DuplicateName"])
+                            {
+                                <text>
+                                    Swal.fire({
+                                        icon: "error",
+                                    title: "Duplicate Name",
+                                    text: "Another product already uses this name. Please enter a different one.",
+                                    confirmButtonColor: "#d33"
+                        });
+                                </text>
+                        }
+    });
+                </script>
+
+
 
 
                 @* <script>
@@ -487,7 +567,6 @@
                 <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
                 <script src="~/assetsAdmin/js/plugins.js"></script>
                 <!-- ckeditor -->
-                <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
 
                 <!-- dropzone js -->
                 <script src="~/assetsAdmin/libs/dropzone/dropzone-min.js"></script>

@@ -491,6 +491,23 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
+            var isDuplicateName = await _productService.IsDuplicateProductNameAsync(model.Name, model.StoreID);
+            if (isDuplicateName)
+            {
+                TempData["DuplicateName"] = true;
+
+                // Nạp lại danh mục
+                var categories = await _productService.GetActiveCategoriesAsync();
+                model.Categories = categories.Select(c => new SelectListItem
+                {
+                    Value = c.ID.ToString(),
+                    Text = c.Name
+                }).ToList();
+
+                return View(model);
+            }
+
+
             var productImages = new List<ProductImageViewModel>();
             var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
@@ -615,8 +632,7 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
-            // Kiểm tra tên trùng
-            if (await _productService.IsProductNameTakenAsync(model.Name, model.ProductID))
+            if (await _productService.IsProductNameTakenAsync(model.Name, model.ProductID, model.StoreID))
             {
                 TempData["DuplicateName"] = true;
 
@@ -1376,11 +1392,11 @@ namespace Food_Haven.Web.Controllers
                         await _orderDetail.UpdateAsync(orderDetails);
 
                         var getPriceRefun = orderDetails.TotalPrice;
-                          if (order.VoucherID != null)
+                        if (order.VoucherID != null)
                         {
                             getPriceRefun = await _order.CalculateRefundAmount(order, orderDetails);
                         }
-                      //  order.TotalPrice -= getPriceRefun;
+                        //  order.TotalPrice -= getPriceRefun;
 
 
                         var currentBalance = await _balance.GetBalance(order.UserID);
@@ -1397,19 +1413,19 @@ namespace Food_Haven.Web.Controllers
                             CheckDone = true,
                             StartTime = DateTime.Now,
                             DueTime = DateTime.Now,
-                            Description= $"Refund for order {order.ID} - Complaint resolved by seller",
+                            Description = $"Refund for order {order.ID} - Complaint resolved by seller",
                         };
-                      
+
                         await _balance.AddAsync(refundTransaction);
 
                         // Cập nhật trạng thái đơn hàng
-                     /*   order.Status = "Refunded";
-                        order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.Now;
-                        order.Description = string.IsNullOrEmpty(order.Description)
-                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
-                      
+                        /*   order.Status = "Refunded";
+                           order.PaymentStatus = "Refunded";
+                           order.ModifiedDate = DateTime.Now;
+                           order.Description = string.IsNullOrEmpty(order.Description)
+                               ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                               : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
+
                         await _order.UpdateAsync(order);
 
                         // Lưu thay đổi
@@ -1464,7 +1480,7 @@ namespace Food_Haven.Web.Controllers
                             {
                                 getPriceRefun = await _order.CalculateRefundAmount(originalOrder, orderDetail);
                             }
-                          //  originalOrder.TotalPrice -= getPriceRefun;
+                            //  originalOrder.TotalPrice -= getPriceRefun;
 
                             var voucher = new Voucher
                             {

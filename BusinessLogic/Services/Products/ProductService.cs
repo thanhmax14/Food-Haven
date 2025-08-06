@@ -247,11 +247,22 @@ namespace BusinessLogic.Services.Products
         {
             return await _repositorys.GetMainImageUrlByProductIdAsync(productId);
         }
-        public async Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId)
+        public async Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId, Guid storeId)
         {
-            var products = _repositorys.GetAll(); // hoặc query trực tiếp nếu có EF
-            return products.Any(p => p.Name.Trim().ToLower() == name.Trim().ToLower() && p.ID != currentProductId);
+            var products = _repositorys.GetAll(); // IQueryable
+
+            return products.Any(p =>
+                p.StoreID == storeId && // kiểm tra cùng store
+                p.ID != currentProductId && // không phải chính product đang edit
+                p.Name.Trim().ToLower() == name.Trim().ToLower()); // tên trùng
         }
+
+        public async Task<bool> IsDuplicateProductNameAsync(string name, Guid storeId)
+        {
+            return await _context.Products
+                .AnyAsync(p => p.Name.ToLower() == name.ToLower() && p.StoreID == storeId);
+        }
+
 
     }
 }

@@ -47,7 +47,9 @@ namespace BusinessLogic.Services.Products
         Task<Product> FindWithStoreAndUserAsync(Guid id);
         Task<List<string>> GetGalleryImageUrlsByProductIdAsync(Guid productId);
         Task<string> GetMainImageUrlsByProductIdAsync(Guid productId);
-        Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId);
+        Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId, Guid storeId);
+        Task<bool> IsDuplicateProductNameAsync(string name, Guid storeId);
+
 
     }
 }
