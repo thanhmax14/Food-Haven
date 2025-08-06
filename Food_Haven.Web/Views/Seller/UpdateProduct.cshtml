@@ -221,10 +221,10 @@
 
                                                 <!-- Long Description -->
                                                 <div class="col-md-12 mb-3">
-                                                    <label asp-for="LongDescription" class="form-label">Detailed
+                                                    <label for="ckeditor-classic" class="form-label">Detailed
                                                         Description</label>
-                                                    <textarea asp-for="LongDescription" class="form-control" rows="4"
-                                                        id="ckeditor-classic" required></textarea>
+                                                    <textarea id="ckeditor-classic" name="LongDescription"
+                                                class="form-control">@Html.Raw(Model.LongDescription)</textarea>
                                                     <span asp-validation-for="LongDescription" class="text-danger"></span>
                                                 </div>
 
@@ -536,7 +536,7 @@
                         form.addEventListener("submit", function (e) {
                             const selectedDate = new Date(manufactureDateInput.value);
                             const today = new Date();
-                            today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác ngày
+                            //today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác ngày
 
                             if (selectedDate > today) {
                                 e.preventDefault();
@@ -549,6 +549,34 @@
                         });
                     });
                 </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const ckeditorElement = document.querySelector("#ckeditor-classic");
+                        if (ckeditorElement && !ckeditorElement.classList.contains('ckeditor-initialized')) {
+                            ClassicEditor
+                                .create(ckeditorElement)
+                                .then(editor => {
+                                    window.myEditorInstance = editor;
+                                    ckeditorElement.classList.add('ckeditor-initialized');
+                                })
+                                .catch(error => {
+                                    console.error("CKEditor init error:", error);
+                                });
+                        }
+
+                        // Set initial value
+                        hiddenInput.value = editor.getData();
+                    })
+                        .catch(error => {
+                            console.error("CKEditor init error:", error);
+                        });
+                        }
+                    });
+                </script>
+
+
+
 
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
@@ -579,7 +607,6 @@
             <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
             <script src="~/assetsAdmin/js/plugins.js"></script>
             <!-- ckeditor -->
-            <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
 
             <!-- dropzone js -->
             <script src="~/assetsAdmin/libs/dropzone/dropzone-min.js"></script>
@@ -601,7 +628,7 @@
                                 text: 'Your product has been successfully updated.',
                                 timer: 2000,
                                 showConfirmButton: false
-                                        });
+                                    });
                             </text>
                     }
                     });
@@ -616,7 +643,7 @@
                                 title: "Duplicate Name",
                                 text: "Another product already uses this name. Please enter a different one.",
                                 confirmButtonColor: "#d33"
-                            });
+                                    });
                             </text>
                     }
             });
