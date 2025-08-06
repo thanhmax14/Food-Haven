@@ -102,9 +102,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                        </a>
+                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -394,6 +394,40 @@
                         }
                     });
                 </script>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const form = document.querySelector('form[method="post"]');
+                        const mainInput = document.getElementById('product-image-input');
+                        const galleryInput = document.getElementById('galleryImageInput');
+
+                        form.addEventListener('submit', function (e) {
+                            const hasMainImage = mainInput && mainInput.files && mainInput.files.length > 0;
+                            const hasGalleryImages = galleryInput && galleryInput.files && galleryInput.files.length > 0;
+
+                            if (!hasMainImage) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'The Product Image field is required.',
+                                    text: 'Please select a main product image!'
+                                });
+                                return;
+                            }
+
+                            if (!hasGalleryImages) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'The Product Gallery field is required.',
+                                    text: 'Please select at least one gallery image!'
+                                });
+                                return;
+                            }
+                        });
+                    });
+                </script>
+
                 @await Html.PartialAsync("_Footer_Admin_Seller")
                 <!-- end main content-->
                 <!-- END layout-wrapper -->

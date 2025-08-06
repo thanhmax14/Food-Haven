@@ -38,7 +38,7 @@ namespace BusinessLogic.Services.Products
         Task<Guid> CreateProductAsync(ProductViewModel model);
         Task<List<Categories>> GetCategoriesAsync();
         Task<ProductUpdateViewModel> GetProductByIdAsync(Guid productId);
-        Task UpdateProductAsync(ProductUpdateViewModel model, string webRootPath);
+        Task<(bool Success, string? ErrorMessage)> UpdateProductAsync(ProductUpdateViewModel model, string webRootPath);
         Task<bool> ToggleProductStatus(Guid productId);
         List<ProductIndexViewModel> GetProductsByCurrentUser(string userId);
         Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
@@ -47,5 +47,7 @@ namespace BusinessLogic.Services.Products
         Task<Product> FindWithStoreAndUserAsync(Guid id);
         Task<List<string>> GetGalleryImageUrlsByProductIdAsync(Guid productId);
         Task<string> GetMainImageUrlsByProductIdAsync(Guid productId);
+        Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId);
+
     }
 }

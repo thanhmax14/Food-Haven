@@ -601,8 +601,8 @@ namespace Food_Haven.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
-                model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
+                model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(model.ProductID);
+                model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(model.ProductID); // lấy riêng ảnh chính
 
                 model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
                 {
@@ -611,14 +611,53 @@ namespace Food_Haven.Web.Controllers
                 }).ToList();
 
                 ViewBag.StoreID = model.StoreID;
+                //ViewBag.UpdateSuccess = true;
                 return View(model);
             }
 
+            // Kiểm tra tên trùng
+            if (await _productService.IsProductNameTakenAsync(model.Name, model.ProductID))
+            {
+                TempData["DuplicateName"] = true;
+
+                // Reload các dữ liệu để hiển thị lại view nếu cần
+                model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(model.ProductID);
+                model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(model.ProductID);
+                model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
+                {
+                    Value = c.ID.ToString(),
+                    Text = c.Name
+                }).ToList();
+                ViewBag.StoreID = model.StoreID;
+
+                return View(model);
+            }
+
+            // try
+            // {
+            //     var webRootPath = _webHostEnvironment.WebRootPath;
+            //     await _productService.UpdateProductAsync(model, webRootPath);
+            //     ViewBag.UpdateSuccess = true;
+            // }
+            // catch (Exception ex)
+            // {
+            //     ModelState.AddModelError(string.Empty, ex.Message);
+            //     ViewBag.UpdateSuccess = false;
+            // }
             try
             {
                 var webRootPath = _webHostEnvironment.WebRootPath;
-                await _productService.UpdateProductAsync(model, webRootPath);
-                ViewBag.UpdateSuccess = true;
+                var result = await _productService.UpdateProductAsync(model, webRootPath);
+
+                if (result.Success)
+                {
+                    ViewBag.UpdateSuccess = true;
+                }
+                else
+                {
+                    ViewBag.UpdateSuccess = false;
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Update failed.");
+                }
             }
             catch (Exception ex)
             {
@@ -626,10 +665,11 @@ namespace Food_Haven.Web.Controllers
                 ViewBag.UpdateSuccess = false;
             }
 
+
             // model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
             // model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
-            model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
-            model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
+            model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(model.ProductID);
+            model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(model.ProductID); // lấy riêng ảnh chính
 
             model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
             {
