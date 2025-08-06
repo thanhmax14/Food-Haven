@@ -257,8 +257,8 @@ namespace Repository.Products
             }
 
             // Xác minh có ảnh chính
-            if (!mainHandled || !product.ProductImages.Any(i => i.IsMain))
-                return (false, "The main photo cannot be blank.");
+            // if (!mainHandled || !product.ProductImages.Any(i => i.IsMain))
+            //     return (false, "The main photo cannot be blank.");
 
             await _context.SaveChangesAsync();
 

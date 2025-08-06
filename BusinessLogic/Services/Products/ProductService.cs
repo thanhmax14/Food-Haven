@@ -204,9 +204,9 @@ namespace BusinessLogic.Services.Products
             return await _repositorys.GetProductByIdAsync(productId);
         }
 
-        public async Task UpdateProductAsync(ProductUpdateViewModel model, string webRootPath)
+        public async Task<(bool Success, string? ErrorMessage)> UpdateProductAsync(ProductUpdateViewModel model, string webRootPath)
         {
-            await _repositorys.UpdateProductAsync(model, webRootPath);
+            return await _repositorys.UpdateProductAsync(model, webRootPath);
         }
 
         public async Task<bool> ToggleProductStatus(Guid productId)
@@ -247,5 +247,11 @@ namespace BusinessLogic.Services.Products
         {
             return await _repositorys.GetMainImageUrlByProductIdAsync(productId);
         }
+        public async Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId)
+        {
+            var products = _repositorys.GetAll(); // hoặc query trực tiếp nếu có EF
+            return products.Any(p => p.Name.Trim().ToLower() == name.Trim().ToLower() && p.ID != currentProductId);
+        }
+
     }
 }
