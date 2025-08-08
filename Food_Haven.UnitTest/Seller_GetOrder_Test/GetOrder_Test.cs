@@ -147,14 +147,23 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.Expression).Returns(users.Expression);
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.ElementType).Returns(users.ElementType);
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.GetEnumerator()).Returns(users.GetEnumerator());
+            // Add async support for ToDictionaryAsync in EF Core
+            mockUserDbSet.As<IAsyncEnumerable<AppUser>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<System.Threading.CancellationToken>()))
+                .Returns(new TestAsyncEnumerator<AppUser>(users.GetEnumerator()));
+            mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<AppUser>(users.Provider));
 
             _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(sellerUser);
             _userManagerMock.Setup(x => x.Users).Returns(mockUserDbSet.Object);
+
+
 
             // Mock StoreDetails service (MUST mock the second one)
             _storeDetailService2Mock
                 .Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
                 .ReturnsAsync(store);
+
 
             // Mock Product service (phải dùng _productService2Mock)
             _productService2Mock

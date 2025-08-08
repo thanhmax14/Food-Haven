@@ -2322,7 +2322,6 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ShopComplaintRates(string period = "alltime")
         {
-            period = "alltime";
             try
             {
                 DateTime startDate = GetStartDateByPeriod(period);
