@@ -491,6 +491,23 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
+            var isDuplicateName = await _productService.IsDuplicateProductNameAsync(model.Name, model.StoreID);
+            if (isDuplicateName)
+            {
+                TempData["DuplicateName"] = true;
+
+                // Nạp lại danh mục
+                var categories = await _productService.GetActiveCategoriesAsync();
+                model.Categories = categories.Select(c => new SelectListItem
+                {
+                    Value = c.ID.ToString(),
+                    Text = c.Name
+                }).ToList();
+
+                return View(model);
+            }
+
+
             var productImages = new List<ProductImageViewModel>();
             var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
 
@@ -601,8 +618,8 @@ namespace Food_Haven.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
-                model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
+                model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(model.ProductID);
+                model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(model.ProductID); // lấy riêng ảnh chính
 
                 model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
                 {
@@ -611,14 +628,52 @@ namespace Food_Haven.Web.Controllers
                 }).ToList();
 
                 ViewBag.StoreID = model.StoreID;
+                //ViewBag.UpdateSuccess = true;
                 return View(model);
             }
 
+            if (await _productService.IsProductNameTakenAsync(model.Name, model.ProductID, model.StoreID))
+            {
+                TempData["DuplicateName"] = true;
+
+                // Reload các dữ liệu để hiển thị lại view nếu cần
+                model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(model.ProductID);
+                model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(model.ProductID);
+                model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
+                {
+                    Value = c.ID.ToString(),
+                    Text = c.Name
+                }).ToList();
+                ViewBag.StoreID = model.StoreID;
+
+                return View(model);
+            }
+
+            // try
+            // {
+            //     var webRootPath = _webHostEnvironment.WebRootPath;
+            //     await _productService.UpdateProductAsync(model, webRootPath);
+            //     ViewBag.UpdateSuccess = true;
+            // }
+            // catch (Exception ex)
+            // {
+            //     ModelState.AddModelError(string.Empty, ex.Message);
+            //     ViewBag.UpdateSuccess = false;
+            // }
             try
             {
                 var webRootPath = _webHostEnvironment.WebRootPath;
-                await _productService.UpdateProductAsync(model, webRootPath);
-                ViewBag.UpdateSuccess = true;
+                var result = await _productService.UpdateProductAsync(model, webRootPath);
+
+                if (result.Success)
+                {
+                    ViewBag.UpdateSuccess = true;
+                }
+                else
+                {
+                    ViewBag.UpdateSuccess = false;
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Update failed.");
+                }
             }
             catch (Exception ex)
             {
@@ -626,10 +681,11 @@ namespace Food_Haven.Web.Controllers
                 ViewBag.UpdateSuccess = false;
             }
 
+
             // model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
             // model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
-            model.ExistingImages = await _productService.GetImageUrlsByProductIdAsync(model.ProductID);
-            model.ExistingMainImage = model.ExistingImages.FirstOrDefault();
+            model.ExistingImages = await _productService.GetGalleryImageUrlsByProductIdAsync(model.ProductID);
+            model.ExistingMainImage = await _productService.GetMainImageUrlsByProductIdAsync(model.ProductID); // lấy riêng ảnh chính
 
             model.Categories = (await _productService.GetActiveCategoriesAsync()).Select(c => new SelectListItem
             {
@@ -1336,11 +1392,11 @@ namespace Food_Haven.Web.Controllers
                         await _orderDetail.UpdateAsync(orderDetails);
 
                         var getPriceRefun = orderDetails.TotalPrice;
-                          if (order.VoucherID != null)
+                        if (order.VoucherID != null)
                         {
                             getPriceRefun = await _order.CalculateRefundAmount(order, orderDetails);
                         }
-                      //  order.TotalPrice -= getPriceRefun;
+                        //  order.TotalPrice -= getPriceRefun;
 
 
                         var currentBalance = await _balance.GetBalance(order.UserID);
@@ -1357,19 +1413,19 @@ namespace Food_Haven.Web.Controllers
                             CheckDone = true,
                             StartTime = DateTime.Now,
                             DueTime = DateTime.Now,
-                            Description= $"Refund for order {order.ID} - Complaint resolved by seller",
+                            Description = $"Refund for order {order.ID} - Complaint resolved by seller",
                         };
-                      
+
                         await _balance.AddAsync(refundTransaction);
 
                         // Cập nhật trạng thái đơn hàng
-                     /*   order.Status = "Refunded";
-                        order.PaymentStatus = "Refunded";
-                        order.ModifiedDate = DateTime.Now;
-                        order.Description = string.IsNullOrEmpty(order.Description)
-                            ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
-                            : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
-                      
+                        /*   order.Status = "Refunded";
+                           order.PaymentStatus = "Refunded";
+                           order.ModifiedDate = DateTime.Now;
+                           order.Description = string.IsNullOrEmpty(order.Description)
+                               ? $"Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}"
+                               : $"{order.Description}#Refunded - {DateTime.Now:yyyy-MM-dd HH:mm:ss}";*/
+
                         await _order.UpdateAsync(order);
 
                         // Lưu thay đổi
@@ -1424,7 +1480,7 @@ namespace Food_Haven.Web.Controllers
                             {
                                 getPriceRefun = await _order.CalculateRefundAmount(originalOrder, orderDetail);
                             }
-                          //  originalOrder.TotalPrice -= getPriceRefun;
+                            //  originalOrder.TotalPrice -= getPriceRefun;
 
                             var voucher = new Voucher
                             {

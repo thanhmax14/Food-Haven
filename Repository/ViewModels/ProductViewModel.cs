@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace Repository.ViewModels
 {
     public class ProductViewModel
     {
         public string Name { get; set; }
+        [Required(ErrorMessage = "The Short Description field is required.")]
         public string ShortDescription { get; set; }
+        [Required(ErrorMessage = "The Long Description field is required.")]
         public string LongDescription { get; set; }
         public DateTime ManufactureDate { get; set; }
         public bool IsActive { get; set; } = true;

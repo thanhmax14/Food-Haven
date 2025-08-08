@@ -107,9 +107,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                        </a>
+                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -208,7 +208,7 @@
                                                 <div class="col-md-6 mb-3">
                                                     <label asp-for="ManufactureDate" class="form-label">Manufacture Date</label>
                                                     <input asp-for="ManufactureDate" type="date" class="form-control"
-                                                        required />
+                                                        id="manufactureDate" required />
                                                 </div>
 
                                                 <!-- Short Description -->
@@ -221,10 +221,10 @@
 
                                                 <!-- Long Description -->
                                                 <div class="col-md-12 mb-3">
-                                                    <label asp-for="LongDescription" class="form-label">Detailed
+                                                    <label for="ckeditor-classic" class="form-label">Detailed
                                                         Description</label>
-                                                    <textarea asp-for="LongDescription" class="form-control" rows="4"
-                                                        id="ckeditor-classic" required></textarea>
+                                                    <textarea id="ckeditor-classic" name="LongDescription"
+                                                class="form-control">@Html.Raw(Model.LongDescription)</textarea>
                                                     <span asp-validation-for="LongDescription" class="text-danger"></span>
                                                 </div>
 
@@ -344,7 +344,7 @@
                     }
                 </style>
 
-                <script>
+                @* <script>
                     @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
                         {
                             <text>
@@ -354,75 +354,75 @@
                                 text: 'Your product has been successfully updated.',
                                 timer: 2000,
                                 showConfirmButton: false
-                                                                                                });
+                                                                                                            });
                             </text>
                     }
-                </script>
+                </script> *@
 
                 <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            const mainInput = document.getElementById('product-image-input');
-                            const mainPreview = document.getElementById('product-img');
-                            const removedImagesContainer = document.getElementById('removedImagesContainer');
-                            const existingGalleryCountInput = document.getElementById('existingGalleryCount');
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const mainInput = document.getElementById('product-image-input');
+                        const mainPreview = document.getElementById('product-img');
+                        const removedImagesContainer = document.getElementById('removedImagesContainer');
+                        const existingGalleryCountInput = document.getElementById('existingGalleryCount');
 
-                            let selectedGalleryFiles = [];
-                            let galleryInput = document.getElementById('galleryImageInput');
-                            const galleryList = document.getElementById('galleryPreviewList');
+                        let selectedGalleryFiles = [];
+                        let galleryInput = document.getElementById('galleryImageInput');
+                        const galleryList = document.getElementById('galleryPreviewList');
 
-                            function updateGalleryInputState() {
-                                const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
-                                const existingCount = parseInt(existingGalleryCountInput.value) || 0;
-                                const totalImages = (existingCount - removedCount) + selectedGalleryFiles.length;
-                                if (totalImages > 4) {
-                                    Swal.fire({
-                                        icon: 'warning',
-                                        title: 'Image limit exceeded!',
-                                        text: 'You can only select up to 4 gallery images.'
-                                    });
-                                }
-                            }
-
-                            if (mainInput && mainPreview) {
-                                mainInput.addEventListener('change', function (e) {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        const reader = new FileReader();
-                                        reader.onload = e => mainPreview.src = e.target.result;
-                                        reader.readAsDataURL(file);
-                                    } else {
-                                        mainPreview.src = "/images/placeholder-image.png";
-                                    }
+                        function updateGalleryInputState() {
+                            const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
+                            const existingCount = parseInt(existingGalleryCountInput.value) || 0;
+                            const totalImages = (existingCount - removedCount) + selectedGalleryFiles.length;
+                            if (totalImages > 4) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Image limit exceeded!',
+                                    text: 'You can only select up to 4 gallery images.'
                                 });
                             }
+                        }
 
-                            galleryInput.addEventListener('change', function (e) {
-                                const files = Array.from(e.target.files);
-                                const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
-                                const existingCount = parseInt(existingGalleryCountInput.value) || 0;
-                                const totalIfAdded = (existingCount - removedCount) + selectedGalleryFiles.length + files.length;
-
-                                if (totalIfAdded > 4) {
-                                    Swal.fire({ icon: 'warning', title: 'Image limit exceeded!', text: 'Only 4 gallery images allowed.' });
-                                    galleryInput.value = '';
-                                    return;
-                                }
-
-                                selectedGalleryFiles = selectedGalleryFiles.concat(files);
-                                renderGalleryPreviews();
-                                updateGalleryInputState();
-                            });
-
-                            function renderGalleryPreviews() {
-                                galleryList.querySelectorAll('li[data-type="new"]').forEach(li => li.remove());
-
-                                selectedGalleryFiles.forEach((file, index) => {
+                        if (mainInput && mainPreview) {
+                            mainInput.addEventListener('change', function (e) {
+                                const file = e.target.files[0];
+                                if (file) {
                                     const reader = new FileReader();
-                                    reader.onload = function (e) {
-                                        const li = document.createElement('li');
-                                        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                                        li.setAttribute('data-type', 'new');
-                                        li.innerHTML = `
+                                    reader.onload = e => mainPreview.src = e.target.result;
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    mainPreview.src = "/images/placeholder-image.png";
+                                }
+                            });
+                        }
+
+                        galleryInput.addEventListener('change', function (e) {
+                            const files = Array.from(e.target.files);
+                            const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
+                            const existingCount = parseInt(existingGalleryCountInput.value) || 0;
+                            const totalIfAdded = (existingCount - removedCount) + selectedGalleryFiles.length + files.length;
+
+                            if (totalIfAdded > 4) {
+                                Swal.fire({ icon: 'warning', title: 'Image limit exceeded!', text: 'Only 4 gallery images allowed.' });
+                                galleryInput.value = '';
+                                return;
+                            }
+
+                            selectedGalleryFiles = selectedGalleryFiles.concat(files);
+                            renderGalleryPreviews();
+                            updateGalleryInputState();
+                        });
+
+                        function renderGalleryPreviews() {
+                            galleryList.querySelectorAll('li[data-type="new"]').forEach(li => li.remove());
+
+                            selectedGalleryFiles.forEach((file, index) => {
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    const li = document.createElement('li');
+                                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                    li.setAttribute('data-type', 'new');
+                                    li.innerHTML = `
                                         <div class="d-flex align-items-center" style="gap: 10px;">
                                             <img src="${e.target.result}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
                                             <div>
@@ -432,24 +432,24 @@
                                         </div>
                                         <button type="button" class="btn btn-danger btn-sm">Delete</button>
                                     `;
-                                        li.querySelector('button').addEventListener('click', function () {
-                                            selectedGalleryFiles.splice(index, 1);
-                                            renderGalleryPreviews();
-                                            updateGalleryInputState();
-                                        });
-                                        galleryList.appendChild(li);
-                                    };
-                                    reader.readAsDataURL(file);
-                                });
-                            }
+                                    li.querySelector('button').addEventListener('click', function () {
+                                        selectedGalleryFiles.splice(index, 1);
+                                        renderGalleryPreviews();
+                                        updateGalleryInputState();
+                                    });
+                                    galleryList.appendChild(li);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                        }
 
-                            const existingGalleryContainer = document.getElementById('existingGalleryImages');
-                            if (existingGalleryContainer) {
-                                const galleryImages = existingGalleryContainer.querySelectorAll('.existing-gallery-img');
-                                galleryImages.forEach(img => {
-                                    const li = document.createElement('li');
-                                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-                                    li.innerHTML = `
+                        const existingGalleryContainer = document.getElementById('existingGalleryImages');
+                        if (existingGalleryContainer) {
+                            const galleryImages = existingGalleryContainer.querySelectorAll('.existing-gallery-img');
+                            galleryImages.forEach(img => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                                li.innerHTML = `
                                     <div class="d-flex align-items-center" style="gap: 10px;">
                                         <img src="${img.dataset.url}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
                                         <div>
@@ -459,25 +459,31 @@
                                     </div>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="markToRemove(this, '${img.dataset.url}')">Delete</button>
                                 `;
-                                    galleryList.appendChild(li);
-                                });
-                            }
+                                galleryList.appendChild(li);
+                            });
+                        }
 
-                            window.markToRemove = function (button, imageUrl) {
-                                const li = button.closest('li');
-                                li.remove();
+                        window.markToRemove = function (button, imageUrl) {
+                            const li = button.closest('li');
+                            li.remove();
 
-                                const input = document.createElement("input");
-                                input.type = "hidden";
-                                input.name = "RemoveImageUrls";
-                                input.value = imageUrl;
-                                removedImagesContainer.appendChild(input);
-                                updateGalleryInputState();
-                            };
-
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = "RemoveImageUrls";
+                            input.value = imageUrl;
+                            removedImagesContainer.appendChild(input);
                             updateGalleryInputState();
-                        });
+                        };
+
+                        updateGalleryInputState();
+                    });
                 </script>
+                @* const hasMainImage = mainInput.files.length > 0 || (mainPreview && mainPreview.src && !mainPreview.src.includes("placeholder"));
+                            if (!hasMainImage) {
+                                e.preventDefault();
+                                Swal.fire({ icon: 'error', title: 'Missing Main Image', text: 'Please select a main product image!' });
+                                return;
+                            } *@
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         const form = document.querySelector('form[method="post"]');
@@ -488,12 +494,19 @@
                         const galleryInput = document.getElementById('galleryImageInput');
 
                         form.addEventListener('submit', function (e) {
-                            const hasMainImage = mainInput.files.length > 0 || (mainPreview && mainPreview.src && !mainPreview.src.includes("placeholder"));
-                            if (!hasMainImage) {
+
+                            @* const hasMainImageUploaded = mainInput.files.length > 0;
+                            const hasExistingMainImage = mainPreview && mainPreview.src && !mainPreview.src.includes("placeholder");
+
+                            if (!hasMainImageUploaded && !hasExistingMainImage) {
                                 e.preventDefault();
-                                Swal.fire({ icon: 'error', title: 'Missing Main Image', text: 'Please select a main product image!' });
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Missing Main Image',
+                                    text: 'Please select a main product image!'
+                                });
                                 return;
-                            }
+                            } *@
 
                             const removedCount = removedImagesContainer.querySelectorAll('input[name="RemoveImageUrls"]').length;
                             const existingCount = parseInt(existingGalleryCountInput.value) || 0;
@@ -514,6 +527,57 @@
                         });
                     });
                 </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const form = document.querySelector('form[method="post"]');
+                        const manufactureDateInput = document.getElementById("manufactureDate");
+
+                        form.addEventListener("submit", function (e) {
+                            const selectedDate = new Date(manufactureDateInput.value);
+                            const today = new Date();
+                            //today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác ngày
+
+                            if (selectedDate > today) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Invalid Date",
+                                    text: "Manufacture date cannot be in the future.",
+                                });
+                            }
+                        });
+                    });
+                </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const ckeditorElement = document.querySelector("#ckeditor-classic");
+                        if (ckeditorElement && !ckeditorElement.classList.contains('ckeditor-initialized')) {
+                            ClassicEditor
+                                .create(ckeditorElement)
+                                .then(editor => {
+                                    window.myEditorInstance = editor;
+                                    ckeditorElement.classList.add('ckeditor-initialized');
+                                })
+                                .catch(error => {
+                                    console.error("CKEditor init error:", error);
+                                });
+                        }
+
+                        // Set initial value
+                        hiddenInput.value = editor.getData();
+                    })
+                        .catch(error => {
+                            console.error("CKEditor init error:", error);
+                        });
+                        }
+                    });
+                </script>
+
+
+
+
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
             </div>
@@ -543,7 +607,6 @@
             <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
             <script src="~/assetsAdmin/js/plugins.js"></script>
             <!-- ckeditor -->
-            <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
 
             <!-- dropzone js -->
             <script src="~/assetsAdmin/libs/dropzone/dropzone-min.js"></script>
@@ -554,6 +617,37 @@
             <script src="~/assetsAdmin/libs/prismjs/prism.js"></script>
 
             <script src="~/assetsAdmin/js/app.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'success',
+                                title: 'Product Updated!',
+                                text: 'Your product has been successfully updated.',
+                                timer: 2000,
+                                showConfirmButton: false
+                                    });
+                            </text>
+                    }
+                    });
+            </script>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    @if (TempData["DuplicateName"] != null && (bool)TempData["DuplicateName"])
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: "error",
+                                title: "Duplicate Name",
+                                text: "Another product already uses this name. Please enter a different one.",
+                                confirmButtonColor: "#d33"
+                                    });
+                            </text>
+                    }
+            });
+            </script>
 
 </body>
 

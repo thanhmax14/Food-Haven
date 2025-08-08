@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models;
+using MockQueryable.Moq;
 using Moq;
 using Repository.BalanceChange;
 using Repository.ViewModels;
@@ -28,6 +29,7 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using MockQueryable;
 
 namespace Food_Haven.UnitTest.Seller_GetOrder_Test
 {
@@ -111,8 +113,10 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
         {
             // Arrange: Setup dữ liệu và mock
             var sellerUser = new AppUser { Id = "user1", UserName = "seller1" };
-            var store = new StoreDetails { ID = Guid.NewGuid(), UserID = sellerUser.Id };
+            var buyer = new AppUser { Id = "buyer1", UserName = "buyer1" };
+            var users = new List<AppUser> { sellerUser, buyer }.AsQueryable().BuildMock();
 
+            var store = new StoreDetails { ID = Guid.NewGuid(), UserID = sellerUser.Id };
             var product = new Product { ID = Guid.NewGuid(), StoreID = store.ID };
             var variant = new ProductTypes { ID = Guid.NewGuid(), ProductID = product.ID };
 
@@ -137,9 +141,6 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
                 Description = "desc"
             };
 
-            var buyer = new AppUser { Id = "buyer1", UserName = "buyer1" };
-            var users = new List<AppUser> { buyer }.AsQueryable();
-
             // Mock UserManager
             var mockUserDbSet = new Mock<DbSet<AppUser>>();
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.Provider).Returns(users.Provider);
@@ -156,22 +157,16 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
             _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(sellerUser);
             _userManagerMock.Setup(x => x.Users).Returns(mockUserDbSet.Object);
 
-            // Mock StoreDetails service (all possible methods) for BOTH mocks
-            foreach (var storeDetailService in new[] { _storeDetailServiceMock, _storeDetailService2Mock })
-            {
-                storeDetailService
-                    .Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                    .ReturnsAsync(store);
-                storeDetailService
-                    .Setup(x => x.GetStoreByUserId(It.IsAny<string>()))
-                    .Returns(store);
-                storeDetailService
-                    .Setup(x => x.GetStoreByUserIdAsync(It.IsAny<string>()))
-                    .ReturnsAsync(store);
-            }
 
-            // Mock Product service
-            _productServiceMock
+
+            // Mock StoreDetails service (MUST mock the second one)
+            _storeDetailService2Mock
+                .Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
+                .ReturnsAsync(store);
+
+
+            // Mock Product service (phải dùng _productService2Mock)
+            _productService2Mock
                 .Setup(x => x.ListAsync(
                     It.IsAny<Expression<Func<Product, bool>>>(),
                     It.IsAny<Func<IQueryable<Product>, IOrderedQueryable<Product>>>(),
@@ -277,6 +272,20 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
             Assert.AreEqual("You are not logged in!", data.msg);
         }
 
+        [Test]
+        public async Task GetOrder_ReturnsStoreNotFound_WhenStoreDoesNotExist()
+        {
+            var user = new AppUser { Id = "user1", UserName = "seller1" };
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+            // Không mock trả về store
+            _storeDetailService2Mock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>())).ReturnsAsync((StoreDetails)null);
 
+            var result = await _controller.GetOrder();
+
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+
+            Assert.AreEqual("Store not found", jsonResult.Value);
+        }
     }
 }

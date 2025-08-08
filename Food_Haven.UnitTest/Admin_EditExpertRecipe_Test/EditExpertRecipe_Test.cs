@@ -22,21 +22,19 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models.DBContext;
 using Moq;
-using NUnit.Framework;
+using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Food_Haven.Web.Controllers;
 
-namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
+namespace Food_Haven.UnitTest.Admin_EditExpertRecipe_Test
 {
-    [TestFixture]
-    public class ViewAdminStore_Test
+    public class EditExpertRecipe_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -77,11 +75,11 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
             _balanceMock = new Mock<IBalanceChangeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
             var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
@@ -104,8 +102,7 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
-
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -115,68 +112,128 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
                 _webHostEnvironmentMock.Object,
                 _balanceMock.Object,
                 _categoryServiceMock.Object,
-                _manageTransaction,
+                manageTransactionMock.Object,
                 _complaintServiceMock.Object,
                 _orderDetailMock.Object,
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
                 _expertRecipeServicesMock.Object,
                 hubContextMock.Object
             );
-            // Khởi tạo TempData cho controller bằng Mock<ITempDataProvider>
-            var tempDataProvider = new Mock<ITempDataProvider>().Object;
-            _controller.TempData = new TempDataDictionary(new DefaultHttpContext(), tempDataProvider);
         }
+
         [TearDown]
         public void TearDown()
         {
             _controller?.Dispose();
         }
-
         [Test]
-        public async Task ViewAdminStore_StoresExist_ReturnsViewWithStores()
+        public async Task EditExpertRecipe_ReturnsSuccess_WhenModelIsValid()
         {
-            var stores = new List<StoreViewModel> { new StoreViewModel(), new StoreViewModel() };
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync(stores);
+            var recipeId = Guid.NewGuid();
+            var model = new ExpertRecipeEditViewModel
+            {
+                Id = recipeId,
+                title = "Updated Title",
+                ingredients = new List<string> { "Salt", "Pepper" },
+                directions = new List<string> { "Step 1", "Step 2" },
+                ner = new List<string> { "Spice" },
+                link = "http://example.com",
+                source = "Manual"
+            };
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
+            var existingRecipe = new ExpertRecipe
+            {
+                ID = recipeId,
+                Title = "Old Title"
+            };
+
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
+            var clientsMock = new Mock<IHubClients>();
+            var clientProxyMock = new Mock<IClientProxy>();
+
+            clientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
+            hubContextMock.Setup(h => h.Clients).Returns(clientsMock.Object);
+            typeof(AdminController)
+                .GetField("_hubContext", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(_controller, hubContextMock.Object);
+
+            _expertRecipeServicesMock.Setup(x => x.GetAsyncById(recipeId))
+                .ReturnsAsync(existingRecipe);
+
+            _expertRecipeServicesMock.Setup(x => x.UpdateAsync(It.IsAny<ExpertRecipe>()))
+                .Returns(Task.CompletedTask);
+
+            _expertRecipeServicesMock.Setup(x => x.SaveChangesAsync())
+                .ReturnsAsync(1);
+
+            var result = await _controller.EditExpertRecipe(model) as JsonResult;
             Assert.IsNotNull(result);
-            Assert.AreEqual(stores, result.Model);
-            Assert.IsNull(_controller.TempData["Message"]);
+
+            var json = JObject.FromObject(result.Value);
+            Assert.IsTrue((bool)json["success"]);
+
+            _expertRecipeServicesMock.Verify(x => x.UpdateAsync(It.Is<ExpertRecipe>(r =>
+                r.Title == "Updated Title" &&
+                r.Link == "http://example.com" &&
+                r.Source == "Manual" &&
+                !string.IsNullOrWhiteSpace(r.Ingredients) &&
+                !string.IsNullOrWhiteSpace(r.Directions) &&
+                !string.IsNullOrWhiteSpace(r.NER)
+            )), Times.Once);
+
+            clientProxyMock.Verify(x => x.SendCoreAsync("ReceiveExperRecipe", It.IsAny<object[]>(), default), Times.Once);
+        }
+        [Test]
+        public async Task EditExpertRecipe_ReturnsError_WhenRequiredFieldsMissing()
+        {
+            var model = new ExpertRecipeEditViewModel
+            {
+                Id = Guid.Empty,
+                title = "",
+                ingredients = null,
+                directions = null
+            };
+
+            var result = await _controller.EditExpertRecipe(model) as JsonResult;
+            Assert.IsNotNull(result);
+
+            var json = JObject.FromObject(result.Value);
+            Assert.IsFalse((bool)json["success"]);
+            Assert.AreEqual("Missing required fields: ID, title, ingredients, or directions.", (string)json["message"]);
+        }
+        [Test]
+        public async Task EditExpertRecipe_ReturnsError_WhenRecipeNotFound()
+        {
+            var recipeId = Guid.NewGuid();
+            var model = new ExpertRecipeEditViewModel
+            {
+                Id = recipeId,
+                title = "Title",
+                ingredients = new List<string> { "Salt" },
+                directions = new List<string> { "Step" }
+            };
+
+            _expertRecipeServicesMock.Setup(x => x.GetAsyncById(recipeId))
+                .ReturnsAsync((ExpertRecipe)null);
+
+            var result = await _controller.EditExpertRecipe(model) as JsonResult;
+            Assert.IsNotNull(result);
+
+            var json = JObject.FromObject(result.Value);
+            Assert.IsFalse((bool)json["success"]);
+            Assert.AreEqual("Recipe not found.", (string)json["message"]);
         }
 
-        [Test]
-        public async Task ViewAdminStore_NoStores_ReturnsViewWithEmptyListAndTempData()
-        {
-            var stores = new List<StoreViewModel>();
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync(stores);
-
-            var result = await _controller.ViewAdminStore() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<StoreViewModel>>(result.Model);
-            Assert.AreEqual(0, ((List<StoreViewModel>)result.Model).Count);
-            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
-        }
-
-        [Test]
-        public async Task ViewAdminStore_NullStores_ReturnsViewWithEmptyListAndTempData()
-        {
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync((List<StoreViewModel>)null);
-
-            var result = await _controller.ViewAdminStore() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsNull(result.Model); // Model sẽ là null nếu stores == null
-            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
-        }
     }
 }

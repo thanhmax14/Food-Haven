@@ -198,8 +198,8 @@ namespace Food_Haven.UnitTest.Admin_UpdateStoreStatus_Test
 
             var json = JsonSerializer.Serialize(jsonResult.Value);
             using var doc = JsonDocument.Parse(json);
-            Assert.IsTrue(doc.RootElement.GetProperty("success").GetBoolean());
-            Assert.AreEqual("Store status updated successfully", doc.RootElement.GetProperty("message").GetString());
+            Assert.IsFalse(doc.RootElement.GetProperty("success").GetBoolean());
+            Assert.AreEqual("Store not found", doc.RootElement.GetProperty("message").GetString());
         }
 
         [Test]

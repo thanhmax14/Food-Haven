@@ -17,17 +17,20 @@ using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models.DBContext;
 using Moq;
+using Newtonsoft.Json;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
 using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -155,15 +158,32 @@ namespace Food_Haven.UnitTest.Admin_UpdateByAdmin_Test
             _userManagerMock.Setup(x => x.FindByEmailAsync(model.Email)).ReturnsAsync(user);
             _userManagerMock.Setup(x => x.UpdateAsync(It.IsAny<AppUser>())).ReturnsAsync(IdentityResult.Success);
 
+            // Ensure the controller has a valid User
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, "admin@site.com"),
+                        new Claim(ClaimTypes.Role, "Admin")
+                    }, "mock"))
+                }
+            };
+
             // Act
             var result = await _controller.UpdateByAdmin(model);
 
             // Assert
             var jsonResult = result as JsonResult;
             Assert.IsNotNull(jsonResult);
-            dynamic value = jsonResult.Value;
-            Assert.IsTrue((bool)value.success);
-            Assert.AreEqual("User account updated successfully", value.message);
+
+            // Sử dụng Newtonsoft.Json để kiểm tra property
+            var json = JsonConvert.SerializeObject(jsonResult.Value);
+            var valueDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            Assert.IsTrue((bool)valueDict["success"]);
+            Assert.That((string)valueDict["message"], Is.EqualTo("User account updated successfully"));
         }
 
         [Test]
@@ -175,7 +195,20 @@ namespace Food_Haven.UnitTest.Admin_UpdateByAdmin_Test
 
             _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(admin);
             _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
-            _userManagerMock.Setup(x => x.FindByEmailAsync(model.Email)).ReturnsAsync((AppUser)null);
+            _userManagerMock.Setup(x => x.FindByEmailAsync(model.Email)).ReturnsAsync((AppUser?)null);
+
+            // Setup HttpContext User
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, "admin@site.com"),
+                        new Claim(ClaimTypes.Role, "Admin")
+                    }, "mock"))
+                }
+            };
 
             // Act
             var result = await _controller.UpdateByAdmin(model);
@@ -183,9 +216,13 @@ namespace Food_Haven.UnitTest.Admin_UpdateByAdmin_Test
             // Assert
             var jsonResult = result as JsonResult;
             Assert.IsNotNull(jsonResult);
-            dynamic value = jsonResult.Value;
-            Assert.IsFalse((bool)value.success);
-            Assert.AreEqual("User not found", value.message);
+
+            // Sử dụng Newtonsoft.Json để kiểm tra property
+            var json = JsonConvert.SerializeObject(jsonResult.Value);
+            var valueDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
+            Assert.IsFalse((bool)valueDict["success"]);
+            Assert.That((string)valueDict["message"], Is.EqualTo("User not found"));
         }
 
         [Test]
@@ -199,6 +236,19 @@ namespace Food_Haven.UnitTest.Admin_UpdateByAdmin_Test
             _userManagerMock.Setup(x => x.IsInRoleAsync(admin, "Admin")).ReturnsAsync(true);
             _userManagerMock.Setup(x => x.FindByEmailAsync(model.Email)).ThrowsAsync(new Exception("DB error"));
 
+            // Ensure the controller has a valid User
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.Name, "admin@site.com"),
+                        new Claim(ClaimTypes.Role, "Admin")
+                    }, "mock"))
+                }
+            };
+
             // Act
             var result = await _controller.UpdateByAdmin(model);
 
@@ -207,9 +257,10 @@ namespace Food_Haven.UnitTest.Admin_UpdateByAdmin_Test
             Assert.IsNotNull(objectResult);
             Assert.AreEqual(500, objectResult.StatusCode);
 
-            // Use reflection or ExpandoObject to access dynamic properties safely
-            dynamic value = objectResult.Value;
-            var valueDict = value as IDictionary<string, object>;
+            // Sử dụng Newtonsoft.Json để convert object sang Dictionary
+            var json = JsonConvert.SerializeObject(objectResult.Value);
+            var valueDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+
             Assert.AreEqual("An error occurred while updating the user", valueDict["message"]);
             Assert.IsNotNull(valueDict["error"]);
         }

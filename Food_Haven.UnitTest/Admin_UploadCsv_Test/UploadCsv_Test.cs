@@ -17,26 +17,26 @@ using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models.DBContext;
 using Moq;
-using NUnit.Framework;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
-using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Food_Haven.Web.Controllers;
 
-namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
+namespace Food_Haven.UnitTest.Admin_UploadCsv_Test
 {
-    [TestFixture]
-    public class ViewAdminStore_Test
+    public class UploadCsv_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -77,11 +77,11 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
             _balanceMock = new Mock<IBalanceChangeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
             var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
@@ -104,8 +104,7 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
-
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -115,68 +114,148 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
                 _webHostEnvironmentMock.Object,
                 _balanceMock.Object,
                 _categoryServiceMock.Object,
-                _manageTransaction,
+                manageTransactionMock.Object,
                 _complaintServiceMock.Object,
                 _orderDetailMock.Object,
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
                 _expertRecipeServicesMock.Object,
                 hubContextMock.Object
             );
-            // Khởi tạo TempData cho controller bằng Mock<ITempDataProvider>
-            var tempDataProvider = new Mock<ITempDataProvider>().Object;
-            _controller.TempData = new TempDataDictionary(new DefaultHttpContext(), tempDataProvider);
         }
+
         [TearDown]
         public void TearDown()
         {
             _controller?.Dispose();
         }
-
         [Test]
-        public async Task ViewAdminStore_StoresExist_ReturnsViewWithStores()
+        public async Task UploadCsv_ReturnsSuccess_WhenFileIsValid()
         {
-            var stores = new List<StoreViewModel> { new StoreViewModel(), new StoreViewModel() };
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync(stores);
+            // Arrange: Tạo nội dung CSV hợp lệ
+            var csvContent = new StringBuilder();
+            csvContent.AppendLine("title,ingredients,directions,link,source,ner");
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
+            var ingredientsJson = JsonConvert.SerializeObject(new[] { "Sugar" });   // ["Sugar"]
+            var directionsJson = JsonConvert.SerializeObject(new[] { "Mix" });     // ["Mix"]
+            var nerJson = JsonConvert.SerializeObject(new[] { "NER1" });           // ["NER1"]
+
+            csvContent.AppendLine(
+                $"\"New Recipe\"," +
+                $"\"{ingredientsJson.Replace("\"", "\"\"")}\"," +
+                $"\"{directionsJson.Replace("\"", "\"\"")}\"," +
+                $"\"https://example.com\"," +
+                $"\"Test Source\"," +
+                $"\"{nerJson.Replace("\"", "\"\"")}\""
+            );
+
+            var fileName = "valid.csv";
+            var fileContent = Encoding.UTF8.GetBytes(csvContent.ToString());
+            var formFile = new FormFile(new MemoryStream(fileContent), 0, fileContent.Length, "file", fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/csv"
+            };
+
+            _expertRecipeServicesMock.Setup(x => x.GetAll())
+                .Returns(new List<ExpertRecipe>().AsQueryable());
+
+            _expertRecipeServicesMock.Setup(x => x.AddAsync(It.IsAny<ExpertRecipe>()))
+                .Returns(Task.CompletedTask);
+
+            _expertRecipeServicesMock.Setup(x => x.SaveChangesAsync())
+                .ReturnsAsync(1);
+
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
+            var clientsMock = new Mock<IHubClients>();
+            var clientProxyMock = new Mock<IClientProxy>();
+            clientsMock.Setup(c => c.All).Returns(clientProxyMock.Object);
+            hubContextMock.Setup(h => h.Clients).Returns(clientsMock.Object);
+            typeof(AdminController).GetField("_hubContext", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.SetValue(_controller, hubContextMock.Object);
+
+            // Act
+            var result = await _controller.UploadCsv(formFile) as JsonResult;
+
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(stores, result.Model);
-            Assert.IsNull(_controller.TempData["Message"]);
+            var json = JObject.FromObject(result.Value);
+            Console.WriteLine(json.ToString());
+
+            Assert.IsTrue((bool)json["success"]);
+            Assert.AreEqual(0, (int)json["totalErrors"]);
+            Assert.AreEqual(1, (int)json["totalSuccess"]);
+
+            var data = json["data"];
+            Assert.IsNotNull(data);
+            Assert.AreEqual("New Recipe", data[0]["Title"]?.ToString());
+            Assert.AreEqual("[\"Sugar\"]", data[0]["Ingredients"]?.ToString());
+            Assert.AreEqual("[\"Mix\"]", data[0]["Directions"]?.ToString());
+            Assert.AreEqual("https://example.com", data[0]["Link"]?.ToString());
+            Assert.AreEqual("Test Source", data[0]["Source"]?.ToString());
+            Assert.AreEqual("[\"NER1\"]", data[0]["NER"]?.ToString());
         }
 
-        [Test]
-        public async Task ViewAdminStore_NoStores_ReturnsViewWithEmptyListAndTempData()
-        {
-            var stores = new List<StoreViewModel>();
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync(stores);
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<StoreViewModel>>(result.Model);
-            Assert.AreEqual(0, ((List<StoreViewModel>)result.Model).Count);
-            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
-        }
 
         [Test]
-        public async Task ViewAdminStore_NullStores_ReturnsViewWithEmptyListAndTempData()
+        public async Task UploadCsv_ReturnsError_WhenFileIsNull()
         {
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync((List<StoreViewModel>)null);
+            // Act
+            var result = await _controller.UploadCsv(null) as JsonResult;
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
+            // Assert
             Assert.IsNotNull(result);
-            Assert.IsNull(result.Model); // Model sẽ là null nếu stores == null
-            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
+            var json = JObject.FromObject(result.Value);
+            Assert.IsFalse((bool)json["success"]);
+            Assert.AreEqual("Please select a CSV file.", (string)json["message"]);
         }
+        [Test]
+        public async Task UploadCsv_ReturnsError_WhenFileTooLarge()
+        {
+            var bigContent = new byte[101 * 1024 * 1024]; // >100MB
+            var formFile = new FormFile(new MemoryStream(bigContent), 0, bigContent.Length, "file", "big.csv");
+
+            // Act
+            var result = await _controller.UploadCsv(formFile) as JsonResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            var json = JObject.FromObject(result.Value);
+            Assert.IsFalse((bool)json["success"]);
+            Assert.AreEqual("The file exceeds the 100MB limit.", (string)json["message"]);
+        }
+        [Test]
+        public async Task UploadCsv_ReturnsError_WhenHeaderIsInvalid()
+        {
+            var csvContent = new StringBuilder();
+            csvContent.AppendLine("wrong1,wrong2,wrong3,wrong4,wrong5,wrong6");
+
+            var fileContent = Encoding.UTF8.GetBytes(csvContent.ToString());
+            var formFile = new FormFile(new MemoryStream(fileContent), 0, fileContent.Length, "file", "invalidHeader.csv");
+
+            _expertRecipeServicesMock.Setup(x => x.GetAll())
+                .Returns(new List<ExpertRecipe>().AsQueryable());
+
+            // Act
+            var result = await _controller.UploadCsv(formFile) as JsonResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            var json = JObject.FromObject(result.Value);
+            Assert.IsFalse((bool)json["success"]);
+            Assert.AreEqual("The CSV headers are not in the required format.", (string)json["message"]);
+        }
+
     }
 }

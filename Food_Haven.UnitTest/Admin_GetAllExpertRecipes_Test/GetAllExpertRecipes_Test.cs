@@ -22,21 +22,21 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Models.DBContext;
 using Moq;
-using NUnit.Framework;
 using Repository.BalanceChange;
 using Repository.StoreDetails;
-using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Food_Haven.Web.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using NUnit.Framework;
+using System.Reflection;
 
-namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
+namespace Food_Haven.UnitTest.Admin_GetAllExpertRecipes_Test
 {
     [TestFixture]
-    public class ViewAdminStore_Test
+    public class GetAllExpertRecipes_Test
     {
         private Mock<UserManager<AppUser>> _userManagerMock;
         private Mock<ITypeOfDishService> _typeOfDishServiceMock;
@@ -52,7 +52,7 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
         private Mock<IOrderDetailService> _orderDetailMock;
         private Mock<IOrdersServices> _orderMock;
         private Mock<IProductVariantService> _variantServiceMock;
-        private Mock<IComplaintImageServices> _complaintImageMock;
+        private Mock<IComplaintImageServices> _complaintImageMock;  
         private Mock<IProductService> _productMock;
         private Mock<IVoucherServices> _voucherMock;
         private Mock<IRecipeService> _recipeServiceMock;
@@ -77,16 +77,16 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
             _balanceMock = new Mock<IBalanceChangeService>();
             _categoryServiceMock = new Mock<ICategoryService>();
             var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDb")
-            .Options;
+                .UseInMemoryDatabase(databaseName: "TestDb")
+                .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
                 {
-                    await func();
+                    await func();       
                     return true;
                 });
 
@@ -104,8 +104,7 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
             var roleStore = new Mock<IRoleStore<IdentityRole>>();
             _roleManagerMock = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
             _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
-
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
             _controller = new AdminController(
                 _userManagerMock.Object,
                 _typeOfDishServiceMock.Object,
@@ -115,28 +114,26 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
                 _webHostEnvironmentMock.Object,
                 _balanceMock.Object,
                 _categoryServiceMock.Object,
-                _manageTransaction,
+                manageTransactionMock.Object,
                 _complaintServiceMock.Object,
                 _orderDetailMock.Object,
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
                 _expertRecipeServicesMock.Object,
                 hubContextMock.Object
             );
-            // Khởi tạo TempData cho controller bằng Mock<ITempDataProvider>
-            var tempDataProvider = new Mock<ITempDataProvider>().Object;
-            _controller.TempData = new TempDataDictionary(new DefaultHttpContext(), tempDataProvider);
         }
+
         [TearDown]
         public void TearDown()
         {
@@ -144,39 +141,72 @@ namespace Food_Haven.UnitTest.Admin_ViewAdminStore_Test
         }
 
         [Test]
-        public async Task ViewAdminStore_StoresExist_ReturnsViewWithStores()
+        public async Task GetAllExpertRecipes_ReturnsOrderedJsonResult()
         {
-            var stores = new List<StoreViewModel> { new StoreViewModel(), new StoreViewModel() };
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync(stores);
+            // Arrange
+            var now = DateTime.Now;
+            var recipes = new List<ExpertRecipe>
+            {
+                new ExpertRecipe
+                {
+                    ID = Guid.NewGuid(),
+                    Title = "Recipe 1",
+                    Ingredients = "[\"Eggs\",\"Milk\"]",
+                    Directions = "[\"Step 1\",\"Step 2\"]",
+                    NER = "[\"Eggs\",\"Milk\"]",
+                    Link = "http://example.com/1",
+                    Source = "Source 1",
+                    IsActive = true,
+                    CreatedDate = now.AddDays(-2),
+                    ModifiedDate = now.AddDays(-1)
+                },
+                new ExpertRecipe
+                {
+                    ID = Guid.NewGuid(),
+                    Title = "Recipe 2",
+                    Ingredients = "[\"Bread\",\"Butter\"]",
+                    Directions = "[\"Step 1\"]",
+                    NER = "[\"Bread\",\"Butter\"]",
+                    Link = "http://example.com/2",
+                    Source = "Source 2",
+                    IsActive = false,
+                    CreatedDate = now.AddDays(-3),
+                    ModifiedDate = null
+                }
+            };
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.AreEqual(stores, result.Model);
-            Assert.IsNull(_controller.TempData["Message"]);
-        }
+            _expertRecipeServicesMock.Setup(s => s.ListAsync())
+                .ReturnsAsync(recipes);
 
-        [Test]
-        public async Task ViewAdminStore_NoStores_ReturnsViewWithEmptyListAndTempData()
-        {
-            var stores = new List<StoreViewModel>();
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync(stores);
+            // Act
+            var result = await _controller.GetAllExpertRecipes();
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<List<StoreViewModel>>(result.Model);
-            Assert.AreEqual(0, ((List<StoreViewModel>)result.Model).Count);
-            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
-        }
+            // Assert
+            Assert.IsInstanceOf<JsonResult>(result);
+            var jsonResult = result as JsonResult;
+            Assert.IsNotNull(jsonResult);
+            Assert.IsNotNull(jsonResult.Value);
 
-        [Test]
-        public async Task ViewAdminStore_NullStores_ReturnsViewWithEmptyListAndTempData()
-        {
-            _storeServiceMock.Setup(x => x.GetInactiveStoresAsync()).ReturnsAsync((List<StoreViewModel>)null);
+            // The returned value is a List of anonymous objects, so cast to IEnumerable and use reflection to access properties
+            var data = (jsonResult.Value as IEnumerable<object>)?.ToList();
+            Assert.IsNotNull(data);
+            Assert.AreEqual(2, data.Count);
 
-            var result = await _controller.ViewAdminStore() as ViewResult;
-            Assert.IsNotNull(result);
-            Assert.IsNull(result.Model); // Model sẽ là null nếu stores == null
-            Assert.AreEqual("No inactive stores found.", _controller.TempData["Message"]);
+            // Use reflection to check properties
+            object first = data[0];
+            object second = data[1];
+
+            Assert.AreEqual(recipes[0].ID, first.GetType().GetProperty("ID")?.GetValue(first));
+            Assert.AreEqual(recipes[1].ID, second.GetType().GetProperty("ID")?.GetValue(second));
+
+            Assert.AreEqual(recipes[0].Title, first.GetType().GetProperty("Title")?.GetValue(first));
+            Assert.AreEqual(recipes[0].Ingredients, first.GetType().GetProperty("Ingredients")?.GetValue(first));
+            Assert.AreEqual(recipes[0].Directions, first.GetType().GetProperty("Directions")?.GetValue(first));
+            Assert.AreEqual(recipes[0].NER, first.GetType().GetProperty("NER")?.GetValue(first));
+            Assert.AreEqual(recipes[0].Link, first.GetType().GetProperty("Link")?.GetValue(first));
+            Assert.AreEqual(recipes[0].Source, first.GetType().GetProperty("Source")?.GetValue(first));
+            Assert.AreEqual(recipes[0].IsActive, first.GetType().GetProperty("IsActive")?.GetValue(first));
+            Assert.AreEqual(recipes[0].CreatedDate, first.GetType().GetProperty("CreatedDate")?.GetValue(first));
         }
     }
 }

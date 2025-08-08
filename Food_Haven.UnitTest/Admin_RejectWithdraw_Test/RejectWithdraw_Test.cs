@@ -82,7 +82,7 @@ namespace Food_Haven.UnitTest.Admin_RejectWithdraw_Test
             .Options;
 
             var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
+            var manageTransactionMock = new Mock<ManageTransaction>(dbContext);
             manageTransactionMock
                 .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
                 .Returns<Func<Task>>(async (func) =>
@@ -90,6 +90,8 @@ namespace Food_Haven.UnitTest.Admin_RejectWithdraw_Test
                     await func();
                     return true;
                 });
+
+            _manageTransaction = manageTransactionMock.Object; // <-- Add this line
 
             _complaintServiceMock = new Mock<IComplaintServices>();
             _orderDetailMock = new Mock<IOrderDetailService>();
@@ -115,24 +117,23 @@ namespace Food_Haven.UnitTest.Admin_RejectWithdraw_Test
                 _webHostEnvironmentMock.Object,
                 _balanceMock.Object,
                 _categoryServiceMock.Object,
-                _manageTransaction,
+                _manageTransaction, // <-- Now not null!
                 _complaintServiceMock.Object,
                 _orderDetailMock.Object,
                 _orderMock.Object,
                 _variantServiceMock.Object,
                 _complaintImageMock.Object,
-                _storeServiceMock.Object, // storeDetailService
+                _storeServiceMock.Object,
                 _productMock.Object,
                 _voucherMock.Object,
                 _recipeServiceMock.Object,
-                _storeReportMock.Object, // storeRepo
-                _storeReportMock.Object, // storeReport
+                _storeReportMock.Object,
+                _storeReportMock.Object,
                 _productImageServiceMock.Object,
                 _recipeIngredientTagServiceMock.Object,
                 _roleManagerMock.Object,
                 _expertRecipeServicesMock.Object,
-                   hubContextMock.Object
-
+                hubContextMock.Object
             );
         }
         [TearDown]
@@ -144,7 +145,7 @@ namespace Food_Haven.UnitTest.Admin_RejectWithdraw_Test
         [Test]
         public async Task RejectWithdraw_InvalidId_ReturnsJsonError()
         {
-            var result = await _controller.AcceptWithdraw("");
+            var result = await _controller.RejectWithdraw(""); // <-- Fixed here
             var jsonResult = result as JsonResult;
             Assert.IsNotNull(jsonResult);
             var data = jsonResult.Value.GetType().GetProperty("success") != null
