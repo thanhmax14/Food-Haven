@@ -146,14 +146,29 @@ namespace Food_Haven.UnitTest.Seller_GetOrder_Test
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.Expression).Returns(users.Expression);
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.ElementType).Returns(users.ElementType);
             mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.GetEnumerator()).Returns(users.GetEnumerator());
+            // Add async support for ToDictionaryAsync in EF Core
+            mockUserDbSet.As<IAsyncEnumerable<AppUser>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<System.Threading.CancellationToken>()))
+                .Returns(new TestAsyncEnumerator<AppUser>(users.GetEnumerator()));
+            mockUserDbSet.As<IQueryable<AppUser>>().Setup(m => m.Provider)
+                .Returns(new TestAsyncQueryProvider<AppUser>(users.Provider));
 
             _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(sellerUser);
             _userManagerMock.Setup(x => x.Users).Returns(mockUserDbSet.Object);
 
-            // Mock StoreDetails service
-            _storeDetailServiceMock
-                .Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
-                .ReturnsAsync(store);
+            // Mock StoreDetails service (all possible methods) for BOTH mocks
+            foreach (var storeDetailService in new[] { _storeDetailServiceMock, _storeDetailService2Mock })
+            {
+                storeDetailService
+                    .Setup(x => x.FindAsync(It.IsAny<Expression<Func<StoreDetails, bool>>>()))
+                    .ReturnsAsync(store);
+                storeDetailService
+                    .Setup(x => x.GetStoreByUserId(It.IsAny<string>()))
+                    .Returns(store);
+                storeDetailService
+                    .Setup(x => x.GetStoreByUserIdAsync(It.IsAny<string>()))
+                    .ReturnsAsync(store);
+            }
 
             // Mock Product service
             _productServiceMock
