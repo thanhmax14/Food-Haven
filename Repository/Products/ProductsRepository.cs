@@ -432,5 +432,11 @@ namespace Repository.Products
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<bool> IsTypeNameTakenAsync(Guid productId, string size)
+        {
+            return await _context.ProductTypes
+                .AnyAsync(v => v.ProductID == productId && v.Name.ToLower() == size.ToLower());
+        }
+
     }
 }

@@ -14,7 +14,7 @@ namespace Repository.ViewModels
         public string Name { get; set; }
         [Required(ErrorMessage = "The Short Description field is required.")]
         public string ShortDescription { get; set; }
-        [Required(ErrorMessage = "The Long Description field is required.")]
+        [Required(ErrorMessage = "The Detail Description field is required.")]
         public string LongDescription { get; set; }
         public DateTime ManufactureDate { get; set; }
         public bool IsActive { get; set; } = true;

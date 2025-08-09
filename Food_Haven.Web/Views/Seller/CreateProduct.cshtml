@@ -422,8 +422,8 @@
                                 e.preventDefault();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'The Product Image field is required.',
-                                    text: 'Please select a main product image!'
+                                    title: 'Empty Main Image',
+                                    text: 'The Product Image field is required.'
                                 });
                                 return;
                             }
@@ -432,8 +432,8 @@
                                 e.preventDefault();
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'The Product Gallery field is required.',
-                                    text: 'Please select at least one gallery image!'
+                                    title: 'Empty Gallery Image',
+                                    text: 'The Product Gallery field is required.'
                                 });
                                 return;
                             }
@@ -496,12 +496,12 @@
                                     Swal.fire({
                                         icon: "error",
                                     title: "Duplicate Name",
-                                    text: "Another product already uses this name. Please enter a different one.",
+                                    text: "The name of the product already exists.",
                                     confirmButtonColor: "#d33"
-                        });
+                            });
                                 </text>
                         }
-    });
+                    });
                 </script>
 
 

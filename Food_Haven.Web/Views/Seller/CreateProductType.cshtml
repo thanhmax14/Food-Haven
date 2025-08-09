@@ -235,7 +235,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="ManufactureDate" class="form-label">Manufacture Date</label>
-                                                        <input asp-for="ManufactureDate" type="date" class="form-control" />
+                                                        <input asp-for="ManufactureDate" type="date" class="form-control" id="manufactureDate" />
                                                         <span asp-validation-for="ManufactureDate" class="text-danger"></span>
                                                     </div>
                                                 </div>
@@ -277,6 +277,44 @@
                         }
                     });
                 </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const form = document.querySelector('form[method="post"]');
+                        const manufactureDateInput = document.getElementById("manufactureDate");
+
+                        form.addEventListener("submit", function (e) {
+                            const selectedDate = new Date(manufactureDateInput.value);
+                            const today = new Date();
+                            //today.setHours(0, 0, 0, 0); // Xóa giờ để so sánh chính xác ngày
+
+                            if (selectedDate > today) {
+                                e.preventDefault();
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Invalid Date",
+                                    text: "Manufacture date cannot be in the future.",
+                                });
+                            }
+                        });
+                    });
+                </script>
+
+                <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["DuplicateTypeName"] != null && (bool)TempData["DuplicateTypeName"])
+            {
+                <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Duplicate Product Type Name',
+                        text: 'The name of the product type already exists.',
+                        confirmButtonText: 'OK'
+                    });
+                </text>
+            }
+        });
+    </script>
 
 
 
