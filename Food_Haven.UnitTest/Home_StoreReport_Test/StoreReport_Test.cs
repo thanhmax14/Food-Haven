@@ -94,10 +94,15 @@ namespace Food_Haven.UnitTest.Home_StoreReport_Test
             _voucherServiceMock = new Mock<IVoucherServices>();
             _storeReportServiceMock = new Mock<IStoreReportServices>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
+
+            // 🔹 Thêm 2 mock còn thiếu
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
+
             var hubContextMock = new Mock<IHubContext<ChatHub>>();
 
-            // Nếu RecipeSearchService cần được mock, bạn nên refactor thành interface IRecipeSearchService và mock nó
-            var recipeSearchService = new RecipeSearchService(""); // Hoặc dùng Mock<IRecipeSearchService>()
+            var recipeSearchServiceMock = new Mock<RecipeSearchService>("");
+            var recipeSearchService = recipeSearchServiceMock.Object;
 
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
 
@@ -122,10 +127,9 @@ namespace Food_Haven.UnitTest.Home_StoreReport_Test
                 _storeReportServiceMock.Object,
                 _storeFollowersServiceMock.Object,
                 recipeSearchService,
-                _expertRecipeServicesMock.Object,
-                _recipeViewHistoryServicesMock.Object,
+                _expertRecipeServicesMock.Object,          // ✅ Không còn null
+                _recipeViewHistoryServicesMock.Object,     // ✅ Không còn null
                 hubContextMock.Object
-
             );
 
             _controller.ControllerContext = new ControllerContext
@@ -133,6 +137,7 @@ namespace Food_Haven.UnitTest.Home_StoreReport_Test
                 HttpContext = new DefaultHttpContext()
             };
         }
+
 
         [TearDown]
         public void TearDown()
@@ -212,8 +217,7 @@ namespace Food_Haven.UnitTest.Home_StoreReport_Test
 
             _storeReportServiceMock.Setup(x => x.AddAsync(It.IsAny<StoreReport>()))
                                    .Returns(Task.CompletedTask);
-            _storeReportServiceMock.Setup(x => x.SaveChangesAsync())
-                                   .ReturnsAsync(1);
+            _storeReportServiceMock.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
 
             var model = new StoreReportViewModel
             {

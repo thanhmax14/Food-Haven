@@ -121,6 +121,8 @@ namespace Food_Haven.UnitTest.Seller_UpdateProduct_Test
             };
 
             //_productServiceMock.Setup(s => s.UpdateProductAsync(model, It.IsAny<string>())).Returns(Task.CompletedTask);
+            _productServiceMock.Setup(s => s.UpdateProductAsync(It.IsAny<ProductUpdateViewModel>(), It.IsAny<string>()))
+                .ReturnsAsync((true, null));
             _productServiceMock.Setup(s => s.GetImageUrlsByProductIdAsync(model.ProductID)).ReturnsAsync(model.ExistingImages);
             _productServiceMock.Setup(s => s.GetActiveCategoriesAsync()).ReturnsAsync(new List<Categories>());
             _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns("wwwroot");

@@ -97,11 +97,13 @@ namespace Food_Haven.UnitTest.Home_AddToCart_Test
             _storeReportServiceMock = new Mock<IStoreReportServices>();
             _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
 
-            // Nếu RecipeSearchService cần được mock, bạn nên refactor thành interface IRecipeSearchService và mock nó
-            var recipeSearchService = new RecipeSearchService(""); // Hoặc dùng Mock<IRecipeSearchService>()
+            // 🔹 Khởi tạo 2 mock bị thiếu
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
 
+            var recipeSearchService = new RecipeSearchService("");
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
 
             _controller = new HomeController(
                 _signInManagerMock.Object,
@@ -124,8 +126,8 @@ namespace Food_Haven.UnitTest.Home_AddToCart_Test
                 _storeReportServiceMock.Object,
                 _storeFollowersServiceMock.Object,
                 recipeSearchService,
-                _expertRecipeServicesMock.Object,
-                _recipeViewHistoryServicesMock.Object,
+                _expertRecipeServicesMock.Object,          // ✅ không null nữa
+                _recipeViewHistoryServicesMock.Object,     // ✅ không null nữa
                 hubContextMock.Object
             );
 
@@ -134,6 +136,7 @@ namespace Food_Haven.UnitTest.Home_AddToCart_Test
                 HttpContext = new DefaultHttpContext()
             };
         }
+
 
         [TearDown]
         public void TearDown()
