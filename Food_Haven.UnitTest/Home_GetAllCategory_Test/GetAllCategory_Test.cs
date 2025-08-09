@@ -49,14 +49,16 @@ namespace Food_Haven.UnitTest.Home_GetAllCategory_Test
         public void Setup()
         {
             _userManagerMock = new Mock<UserManager<AppUser>>(
-             new Mock<IUserStore<AppUser>>().Object,
-              null, null, null, null, null, null, null, null);
+                new Mock<IUserStore<AppUser>>().Object,
+                null, null, null, null, null, null, null, null
+            );
 
             _signInManagerMock = new Mock<SignInManager<AppUser>>(
                 _userManagerMock.Object,
                 new Mock<IHttpContextAccessor>().Object,
                 new Mock<IUserClaimsPrincipalFactory<AppUser>>().Object,
-                null, null, null, null);
+                null, null, null, null
+            );
 
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
             var orderDetailMock = new Mock<IOrderDetailService>();
@@ -72,12 +74,15 @@ namespace Food_Haven.UnitTest.Home_GetAllCategory_Test
             var reviewServiceMock = new Mock<IReviewService>();
             var balanceChangeMock = new Mock<IBalanceChangeService>();
             var ordersServiceMock = new Mock<IOrdersServices>();
-            var payOSMock = payOS;
             var voucherMock = new Mock<IVoucherServices>();
             var storeReportMock = new Mock<IStoreReportServices>();
             var storeFollowersMock = new Mock<IStoreFollowersService>();
             var recipeSearchMock = new RecipeSearchService("");
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
+
+            // ✅ Khởi tạo các mock bị thiếu
+            _expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            _recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
 
             _controller = new HomeController(
                 _signInManagerMock.Object,
@@ -95,14 +100,14 @@ namespace Food_Haven.UnitTest.Home_GetAllCategory_Test
                 reviewServiceMock.Object,
                 balanceChangeMock.Object,
                 ordersServiceMock.Object,
-                payOSMock,
+                payOS,
                 voucherMock.Object,
                 storeReportMock.Object,
                 storeFollowersMock.Object,
                 recipeSearchMock,
-                _expertRecipeServicesMock.Object,
-                _recipeViewHistoryServicesMock.Object,
-                 hubContextMock.Object // <-- Add this argument
+                _expertRecipeServicesMock.Object,        // đã khởi tạo
+                _recipeViewHistoryServicesMock.Object,   // đã khởi tạo
+                hubContextMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext
@@ -110,6 +115,7 @@ namespace Food_Haven.UnitTest.Home_GetAllCategory_Test
                 HttpContext = new DefaultHttpContext()
             };
         }
+
 
         [TearDown]
         public void TearDown()

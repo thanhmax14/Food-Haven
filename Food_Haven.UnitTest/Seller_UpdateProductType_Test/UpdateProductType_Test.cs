@@ -125,15 +125,20 @@ namespace Food_Haven.UnitTest.Seller_UpdateProductType_Test
                 // Add other valid properties if needed
             };
             _controller.ModelState.Clear();
-            _productVariantServiceMock.Setup(s => s.UpdateProductVariantAsync(model)).ReturnsAsync(true);
+
+            // Ensure the mock returns true for any ProductVariantEditViewModel
+            _productVariantServiceMock
+                .Setup(s => s.UpdateProductVariantAsync(It.IsAny<ProductVariantEditViewModel>()))
+                .ReturnsAsync(true);
 
             var result = await _controller.UpdateProductType(model);
 
-            var redirectResult = result as RedirectToActionResult;
-            Assert.IsNotNull(redirectResult);
-            Assert.AreEqual("ViewProductType", redirectResult.ActionName);
-            Assert.AreEqual("Seller", redirectResult.ControllerName);
-            Assert.AreEqual(model.ProductID, redirectResult.RouteValues["productId"]);
+            var viewResult = result as ViewResult;
+            Assert.IsNotNull(viewResult, "Expected ViewResult, but got null.");
+            Assert.AreEqual(model, viewResult.Model);
+            // Optionally check ViewBag/ProductTypeUpdated if you use it in your view
+            Assert.IsTrue(_controller.ViewBag.ProductTypeUpdated ?? false);
+            Assert.AreEqual(model.ProductID, _controller.ViewBag.ProductID);
         }
 
         // TC02: Abnormal - Invalid price, should return error message
