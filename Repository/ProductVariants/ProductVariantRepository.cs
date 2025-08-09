@@ -16,7 +16,8 @@ namespace Repository.ProductVariants
     public class ProductVariantRepository : BaseRepository<Models.ProductTypes>, IProductVariantRepository
     {
         private readonly FoodHavenDbContext _context;
-        public ProductVariantRepository(FoodHavenDbContext context) : base(context) {
+        public ProductVariantRepository(FoodHavenDbContext context) : base(context)
+        {
             _context = context;
         }
 
@@ -127,5 +128,13 @@ namespace Repository.ProductVariants
 
             return productVariant?.Product?.StoreDetails?.IsActive;
         }
+        public async Task<bool> IsDuplicateTypeNameOnUpdateAsync(Guid productId, string name, Guid currentVariantId)
+        {
+            return await _context.ProductTypes
+                .AnyAsync(v => v.ProductID == productId
+                            && v.Name.ToLower() == name.ToLower()
+                            && v.ID != currentVariantId);
+        }
+
     }
 }

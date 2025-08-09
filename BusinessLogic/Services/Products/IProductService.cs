@@ -49,7 +49,7 @@ namespace BusinessLogic.Services.Products
         Task<string> GetMainImageUrlsByProductIdAsync(Guid productId);
         Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId, Guid storeId);
         Task<bool> IsDuplicateProductNameAsync(string name, Guid storeId);
-
+        Task<bool> IsTypeNameTakenAsync(Guid productId, string size);
 
     }
 }

@@ -263,6 +263,10 @@ namespace BusinessLogic.Services.Products
                 .AnyAsync(p => p.Name.ToLower() == name.ToLower() && p.StoreID == storeId);
         }
 
+        public async Task<bool> IsTypeNameTakenAsync(Guid productId, string size)
+        {
+            return await _repositorys.IsTypeNameTakenAsync(productId, size);
+        }
 
     }
 }

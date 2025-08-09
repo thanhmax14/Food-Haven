@@ -34,7 +34,7 @@ namespace BusinessLogic.Services.ProductVariantVariants
         public ProductTypes Find(Expression<Func<ProductTypes, bool>> match) => _repository.Find(match);
 
         public async Task<ProductTypes> FindAsync(Expression<Func<ProductTypes, bool>> match) => await _repository.FindAsync(match);
-      
+
         public async Task AddAsync(ProductTypes entity) => await _repository.AddAsync(entity);
 
         public async Task UpdateAsync(ProductTypes entity) => await _repository.UpdateAsync(entity);
@@ -86,5 +86,10 @@ namespace BusinessLogic.Services.ProductVariantVariants
         {
             return await _repositorys.IsStoreActiveByVariantIdAsync(variantId);
         }
+        public async Task<bool> IsDuplicateTypeNameOnUpdateAsync(Guid productId, string name, Guid currentVariantId)
+        {
+            return await _repositorys.IsDuplicateTypeNameOnUpdateAsync(productId, name, currentVariantId);
+        }
+
     }
 }

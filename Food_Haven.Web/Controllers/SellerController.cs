@@ -822,11 +822,17 @@ namespace Food_Haven.Web.Controllers
                 return View(model);
             }
 
+            if (await _product.IsTypeNameTakenAsync(model.ProductID, model.Size))
+            {
+                TempData["DuplicateTypeName"] = true;
+                return View(model);
+            }
+
+
             await _variantService.CreateProductVariantAsync(model);
 
             ViewBag.ProductTypeCreated = true;
             ViewBag.ProductID = model.ProductID;
-
             return View(model); // Giữ lại trang để hiển thị SweetAlert rồi redirect bằng JS
         }
 
@@ -852,14 +858,27 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProductType(ProductVariantEditViewModel model)
         {
-            if (ModelState.IsValid)
+            // Kiểm tra hợp lệ Model
+            if (!ModelState.IsValid)
             {
-                var success = await _variantService.UpdateProductVariantAsync(model);
-                if (success)
-                {
-                    return RedirectToAction("ViewProductType", "Seller", new { productId = model.ProductID });
-                }
+                return View(model);
             }
+
+            // Kiểm tra trùng tên product type trong cùng product (trừ chính nó)
+            if (await _variantService.IsDuplicateTypeNameOnUpdateAsync(model.ProductID, model.Size, model.ID))
+            {
+                TempData["DuplicateTypeName"] = true;
+                return View(model);
+            }
+
+            // Tiến hành cập nhật
+            var success = await _variantService.UpdateProductVariantAsync(model);
+            if (success)
+            {
+                ViewBag.ProductTypeUpdated = true; // Cờ dùng cho SweetAlert
+                ViewBag.ProductID = model.ProductID;
+            }
+
             return View(model);
         }
 

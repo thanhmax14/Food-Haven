@@ -99,9 +99,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                        </a>
+                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -294,7 +294,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Name" class="form-label">Store Name</label>
-                                                        <input asp-for="Name" class="form-control" />
+                                                        <input asp-for="Name" class="form-control" required />
                                                         <span asp-validation-for="Name" class="text-danger"></span>
                                                     </div>
                                                 </div>
@@ -320,7 +320,7 @@
                                                     <div class="mb-3">
                                                         <label asp-for="ShortDescriptions" class="form-label">Short
                                                             Description</label>
-                                                        <input asp-for="ShortDescriptions" class="form-control" />
+                                                        <input asp-for="ShortDescriptions" class="form-control" required />
                                                         <span asp-validation-for="ShortDescriptions"
                                                             class="text-danger"></span>
                                                     </div>
@@ -330,14 +330,14 @@
                                                     <label asp-for="LongDescriptions" class="form-label">Detail
                                                         Description</label>
                                                     <textarea asp-for="LongDescriptions" class="form-control"
-                                                        id="ckeditor-classic"></textarea>
+                                                        id="ckeditor-classic" required></textarea>
                                                     <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Address" class="form-label">Address</label>
-                                                        <input asp-for="Address" class="form-control" />
+                                                        <input asp-for="Address" class="form-control" required />
                                                         <span asp-validation-for="Address" class="text-danger"></span>
                                                     </div>
                                                 </div>
@@ -345,7 +345,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label asp-for="Phone" class="form-label">Phone Number</label>
-                                                        <input asp-for="Phone" class="form-control" />
+                                                        <input asp-for="Phone" class="form-control" required />
                                                         <span asp-validation-for="Phone" class="text-danger"></span>
                                                     </div>
                                                 </div>
@@ -438,9 +438,9 @@
                                 text: 'Your store has been successfully updated.',
                                 showConfirmButton: false,
                                 timer: 2000
-                                    }).then(() => {
+                                        }).then(() => {
                                     window.location.href = '/Seller/ViewStore';
-                                    });
+                                        });
                             </text>
                     }
                 </script>
@@ -455,7 +455,7 @@
                                 text: 'Your store has been successfully updated!',
                                 showConfirmButton: false,
                                 timer: 2000
-                                                    });
+                                                        });
                             </text>
                     }
                 </script>

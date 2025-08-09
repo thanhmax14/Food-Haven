@@ -36,5 +36,7 @@ namespace BusinessLogic.Services.ProductVariants
         bool UpdateProductVariantStatus(Guid variantId, bool isActive);
         Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
         Task<bool?> IsStoreActiveByVariantIdAsync(Guid variantId);
+        Task<bool> IsDuplicateTypeNameOnUpdateAsync(Guid productId, string name, Guid currentVariantId);
+
     }
 }
