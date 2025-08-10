@@ -30,6 +30,7 @@
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
     <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -100,9 +101,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                        </a>
+                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -187,27 +188,28 @@
                                         <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label asp-for="LongDescriptions"></label>
+                                    <div class="form-group mt-2">
+                                        <label for="ckeditor-classic" class="form-label">Detail
+                                            Description</label>
                                         <textarea asp-for="LongDescriptions" class="form-control" id="ckeditor-classic"
                                             required></textarea>
                                         <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="form-group mt-2">
                                         <label asp-for="Address"></label>
                                         <input asp-for="Address" class="form-control" required />
                                         <span asp-validation-for="Address" class="text-danger"></span>
                                     </div>
 
 
-                                    <div class="form-group">
+                                    <div class="form-group mt-2">
                                         <label asp-for="Phone"></label>
                                         <input asp-for="Phone" class="form-control" required />
                                         <span asp-validation-for="Phone" class="text-danger"></span>
                                     </div>
 
-                                    <div class="col-12">
+                                    <div class="col-12 mt-2">
                                         <label class="form-label fw-bold">Upload New Image</label>
                                         <input type="file" name="imageFile" class="form-control"
                                             accept=".png, .jpeg, .jpg" id="imgInput" />
@@ -250,6 +252,57 @@
                     });
                 </script>
 
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const ckeditorElement = document.querySelector("#ckeditor-classic");
+                        if (ckeditorElement && !ckeditorElement.classList.contains('ckeditor-initialized')) {
+                            ClassicEditor
+                                .create(ckeditorElement)
+                                .then(editor => {
+                                    window.myEditorInstance = editor;
+                                    ckeditorElement.classList.add('ckeditor-initialized');
+                                })
+                                .catch(error => {
+                                    console.error("CKEditor init error:", error);
+                                });
+                        }
+
+                        // Set initial value
+                        hiddenInput.value = editor.getData();
+                    })
+                        .catch(error => {
+                            console.error("CKEditor init error:", error);
+                        });
+                        }
+                    });
+                </script>
+
+                <script>
+                    @if (ViewBag.DuplicateName != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Duplicate Store Name',
+                                text: '@ViewBag.DuplicateName'
+                                                            });
+                            </text>
+                    }
+                </script>
+
+                <script>
+                        @if (ViewBag.DuplicatePhoneNumber != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Duplicate Phone Number',
+                                text: '@ViewBag.DuplicatePhoneNumber'
+                                                                                        });
+                            </text>
+                    }
+                </script>
+
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
             </div>
@@ -278,8 +331,6 @@
             <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
             <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
             <script src="~/assetsAdmin/js/plugins.js"></script>
-            <!-- ckeditor -->
-            <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
 
             <!-- dropzone js -->
             <script src="~/assetsAdmin/libs/dropzone/dropzone-min.js"></script>

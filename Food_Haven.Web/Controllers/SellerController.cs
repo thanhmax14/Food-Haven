@@ -716,68 +716,70 @@ namespace Food_Haven.Web.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateStore(StoreViewModel model, IFormFile? ImgFile)
+        public async Task<IActionResult> CreateStore(CreateStoreViewModel model)
         {
-            // if (ModelState.IsValid)
-            // {
+            if (!ModelState.IsValid) return View(model);
+
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
-            bool isSeller = await _storeDetailService.IsUserSellerAsync(user.Id);
-            if (!isSeller)
+            if (!await _storeDetailService.IsUserSellerAsync(user.Id))
             {
-                ModelState.AddModelError("", "You do not have permission to create a store.");
+                ViewBag.PermissionError = "You do not have permission to create a store.";
                 return View(model);
             }
 
-            var storeEntity = _mapper.Map<StoreDetails>(model);
-            storeEntity.UserID = user.Id;
-            storeEntity.Status = "Pending";
-            storeEntity.IsActive = true;
-            storeEntity.CreatedDate = DateTime.Now;
-            storeEntity.ModifiedDate = null;
-
-            storeEntity.LongDescriptions = model.LongDescriptions?.Trim();
-            storeEntity.ShortDescriptions = model.ShortDescriptions?.Trim();
-            storeEntity.Address = model.Address?.Trim();
-            storeEntity.Phone = model.Phone?.Trim();
-
-            if (ImgFile != null && ImgFile.Length > 0)
+            // Tránh trùng tên/điện thoại (ID rỗng cho create)
+            if (await _storedetail.IsStoreNameExistsAsync(model.Name, model.ID))
             {
-                string[] allowedExtensions = { ".png", ".jpeg", ".jpg" };
-                string extension = Path.GetExtension(ImgFile.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(extension))
-                {
-                    ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are supported.");
-                    return View(model);
-                }
-
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-
-                string uniqueFileName = Guid.NewGuid().ToString() + extension;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await ImgFile.CopyToAsync(fileStream);
-                }
-
-                storeEntity.ImageUrl = "/uploads/" + uniqueFileName;
+                ViewBag.DuplicateName = "The name of the store already exists.";
+                return View(model);
+            }
+            if (await _storedetail.IsPhoneExistsAsync(model.Phone, model.ID))
+            {
+                ViewBag.DuplicatePhoneNumber = "The Phone Number already exists.";
+                return View(model);
             }
 
-            await _storeDetailService.AddStoreAsync(storeEntity, user.Id);
+            // Ảnh bắt buộc
+            if (model.ImgFile == null || model.ImgFile.Length == 0)
+            {
+                ViewBag.ImageRequired = "The Store Image field is required.";
+                ModelState.AddModelError(nameof(model.ImgFile), "The Store Image field is required.");
+                return View(model);
+            }
 
-            // 🟢 Dùng Session thay vì TempData
-            HttpContext.Session.SetString("SuccessMessage", "Store registration successful! Please wait for admin approval.");
+            var ext = Path.GetExtension(model.ImgFile.FileName)?.ToLowerInvariant();
+            var allowed = new[] { ".png", ".jpeg", ".jpg" };
+            if (string.IsNullOrWhiteSpace(ext) || !allowed.Contains(ext))
+            {
+                ModelState.AddModelError(nameof(model.ImgFile), "Only image files (.png, .jpeg, .jpg) are supported.");
+                return View(model);
+            }
 
-            return RedirectToAction("ViewStore"); // Điều hướng sau khi tạo thành công
-            // }
-            //return View(model);
+            // Lưu file về wwwroot/uploads
+            var uploads = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
+
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(uploads, fileName);
+            using (var fs = new FileStream(filePath, FileMode.Create))
+                await model.ImgFile.CopyToAsync(fs);
+
+            // Set đường dẫn tương đối để lưu DB/hiển thị
+            model.Img = "/uploads/" + fileName;
+
+            // Gọi service thêm store
+            var ok = await _storeDetailService.AddStoreAsync(model, user.Id);
+            if (!ok)
+            {
+                ViewBag.PermissionError = "Could not create store.";
+                return View(model);
+            }
+
+            HttpContext.Session.SetString("SuccessMessage",
+                "Store registration successful! Please wait for admin approval.");
+            return RedirectToAction("ViewStore");
         }
 
         public async Task<IActionResult> ViewProductType(Guid productId)
@@ -2642,90 +2644,116 @@ namespace Food_Haven.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReRegisterStore(StoreViewModel model, IFormFile imageFile)
+        public async Task<IActionResult> ReRegisterStore(StoreViewModel model, IFormFile? imageFile)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Account");
+            if (user == null) return RedirectToAction("Login", "Account");
 
-            // ==== Thủ công kiểm tra ====
+            // Lấy đúng store của user theo ID (từ hidden field) để tránh sai bản ghi
+            var store = await _storeDetailService.FindAsync(s => s.ID == model.ID && s.UserID == user.Id);
+            if (store == null) return RedirectToAction("ViewStore");
+
+            // ---- VALIDATION CƠ BẢN ----
             if (string.IsNullOrWhiteSpace(model.Name))
-                ModelState.AddModelError("Name", "Name is required.");
-
+                ModelState.AddModelError(nameof(model.Name), "Name is required.");
             if (string.IsNullOrWhiteSpace(model.ShortDescriptions))
-                ModelState.AddModelError("ShortDescriptions", "Short description is required.");
-
+                ModelState.AddModelError(nameof(model.ShortDescriptions), "Short description is required.");
             if (string.IsNullOrWhiteSpace(model.LongDescriptions))
-                ModelState.AddModelError("LongDescriptions", "Long description is required.");
-
+                ModelState.AddModelError(nameof(model.LongDescriptions), "Long description is required.");
             if (string.IsNullOrWhiteSpace(model.Phone))
-                ModelState.AddModelError("Phone", "Phone number is required.");
-
+                ModelState.AddModelError(nameof(model.Phone), "Phone number is required.");
             if (string.IsNullOrWhiteSpace(model.Address))
-                ModelState.AddModelError("Address", "Address is required.");
+                ModelState.AddModelError(nameof(model.Address), "Address is required.");
 
-            // Nếu không có ảnh cũ và cũng không upload ảnh mới → lỗi
-            bool hasOldImage = !string.IsNullOrEmpty(model.Img);
+            // Ảnh: cho phép dùng ảnh cũ nếu không upload ảnh mới
+            var currentImg = store.ImageUrl;
+            if (string.IsNullOrWhiteSpace(model.Img))
+                model.Img = currentImg;
+
+            bool hasOldImage = !string.IsNullOrWhiteSpace(model.Img);
             bool hasNewImage = imageFile != null && imageFile.Length > 0;
-
             if (!hasOldImage && !hasNewImage)
+                ModelState.AddModelError(nameof(model.Img), "Please upload an image.");
+
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("Img", "Please upload an image.");
+                model.Img = hasOldImage ? model.Img : currentImg;
+                return View(model);
             }
 
-
-            // if (!ModelState.IsValid)
-            //     return View(model);
-
-            // Upload ảnh mới nếu có
-            if (imageFile != null && imageFile.Length > 0)
+            // Check trùng tên/sđt (loại trừ chính store hiện tại)
+            var nameExists = await _storedetail.IsStoreNameExistsAsync(model.Name, model.ID);
+            if (nameExists)
             {
-                var ext = Path.GetExtension(imageFile.FileName).ToLower();
-                var allowedExtensions = new[] { ".png", ".jpeg", ".jpg" };
+                ViewBag.DuplicateName = "The name of the store already exists.";
+                return View(model);
+            }
 
-                if (!allowedExtensions.Contains(ext))
+            var phoneExists = await _storedetail.IsPhoneExistsAsync(model.Phone, model.ID);
+            if (phoneExists)
+            {
+                ViewBag.DuplicatePhoneNumber = "The Phone Number already exists.";
+                return View(model);
+            }
+
+            // Upload ảnh mới nếu có, ngược lại giữ ảnh cũ
+            if (hasNewImage)
+            {
+                var ext = Path.GetExtension(imageFile!.FileName).ToLowerInvariant();
+                var allowed = new[] { ".png", ".jpeg", ".jpg" };
+                if (!allowed.Contains(ext))
                 {
-                    ModelState.AddModelError("Img", "Only image files (.png, .jpeg, .jpg) are allowed.");
+                    ModelState.AddModelError(nameof(model.Img), "Only image files (.png, .jpeg, .jpg) are allowed.");
                     return View(model);
                 }
 
-                var fileName = $"{Guid.NewGuid()}{ext}";
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", fileName);
+                var uploads = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+                if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
 
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var path = Path.Combine(uploads, fileName);
                 using (var stream = new FileStream(path, FileMode.Create))
-                {
                     await imageFile.CopyToAsync(stream);
-                }
 
                 model.Img = "/uploads/" + fileName;
+
+                // (Tùy chọn) Xoá file ảnh cũ để tránh rác (nếu bạn muốn)
+                // try {
+                //     if (!string.IsNullOrEmpty(currentImg) && currentImg.StartsWith("/uploads/"))
+                //     {
+                //         var oldPath = Path.Combine(_webHostEnvironment.WebRootPath, currentImg.TrimStart('/'));
+                //         if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                //     }
+                // } catch { /* log nếu cần */ }
             }
 
-            // Cập nhật thông tin
-            var store = await _storedetail.FindAsync(s => s.UserID == user.Id);
-            if (store == null)
-                return NotFound();
-
+            // --- CẬP NHẬT TRỰC TIẾP STORE HIỆN CÓ (KHÔNG TẠO BẢN SAO) ---
             store.Name = model.Name;
             store.ShortDescriptions = model.ShortDescriptions;
             store.LongDescriptions = model.LongDescriptions;
             store.Phone = model.Phone;
             store.Address = model.Address;
-            store.ImageUrl = model.Img;
-            store.Status = "Pending";
-            store.IsActive = true;
+            store.ImageUrl = model.Img;            // đã là ảnh cũ hoặc ảnh mới
+            store.Status = "Pending";              // đặt lại trạng thái chờ duyệt
+            store.IsActive = true;                 // tuỳ nghiệp vụ, có thể giữ nguyên store.IsActive
             store.ModifiedDate = DateTime.Now;
 
-            await _storedetail.UpdateAsync(store);
+            // Tuỳ service của bạn hỗ trợ hàm nào:
+            // Cách 1: cập nhật entity rồi SaveChanges
+            //await _storeDetailService.UpdateAsync(store);    // <- nếu có
+            // await _storeDetailService.SaveChangesAsync();  // <- nếu tách riêng
 
-            // Gán lại dữ liệu mới nhất cho ViewModel trước khi trả về View
-            model.Status = store.Status;
-            model.IsActive = store.IsActive;
-            model.ModifiedDate = store.ModifiedDate;
+            // Cách 2: nếu bạn có method cập nhật theo tham số, thì đảm bảo nó có set Status & ModifiedDate
+            await _storedetail.UpdateStoreAsync(store.ID, store.Name, store.LongDescriptions, store.ShortDescriptions,
+                                                 store.Address, store.Phone, store.ImageUrl);
 
-            ViewBag.SuccessMessage = "Store registration updated. Waiting for approval.";
-            //return View(model); // 👈 Không redirect nữa
+            TempData["UpdateSuccess"] = true;
             return RedirectToAction("ViewStore");
         }
+
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetOrderStatuses()
@@ -2829,10 +2857,13 @@ namespace Food_Haven.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateStore(Guid id, StoreViewModel model, IFormFile? ImgFile)
         {
-            // if (!ModelState.IsValid)
-            // {
-            //     return View(model);
-            // }
+            if (!ModelState.IsValid)
+            {
+                // Giữ ảnh cũ để View hiển thị
+                var existing = await _storedetail.GetStoreByIdAsync(id);
+                model.Img = existing?.ImageUrl;
+                return View(model);
+            }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
@@ -2842,6 +2873,25 @@ namespace Food_Haven.Web.Controllers
             if (existingStore == null)
             {
                 ModelState.AddModelError("", "No store found.");
+                model.Img = null;
+                return View(model);
+            }
+
+            model.Img = existingStore.ImageUrl;
+
+            // ✅ Kiểm tra trùng tên (loại trừ chính store hiện tại)
+            var nameExists = await _storedetail.IsStoreNameExistsAsync(model.Name, id);
+            if (nameExists)
+            {
+                ViewBag.DuplicateName = "The name of the store already exists.";
+                return View(model);
+            }
+
+            // ✅ Kiểm tra trùng số điện thoại
+            var phoneExists = await _storedetail.IsPhoneExistsAsync(model.Phone, id);
+            if (phoneExists)
+            {
+                ViewBag.DuplicatePhoneNumber = "The Phone Number already exists.";
                 return View(model);
             }
 
