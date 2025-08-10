@@ -140,6 +140,7 @@ namespace Food_Haven.UnitTest.User_SubmitReview_Test
             );
         }
 
+
         [TearDown]
         public void TearDown()
         {
@@ -159,9 +160,16 @@ namespace Food_Haven.UnitTest.User_SubmitReview_Test
 
             var result = await _controller.SubmitReview(reviewRequest) as JsonResult;
             Assert.NotNull(result);
-            dynamic value = result.Value;
-            Assert.IsTrue(value.success);
-            Assert.AreEqual("Review submitted successfully!", value.message);
+
+            // Use reflection to access properties safely
+            var value = result.Value;
+            var valueType = value.GetType();
+            var successProp = valueType.GetProperty("success");
+            var messageProp = valueType.GetProperty("message");
+            Assert.IsNotNull(successProp, "Returned object does not contain 'success' property.");
+            Assert.IsNotNull(messageProp, "Returned object does not contain 'message' property.");
+            Assert.IsTrue((bool)successProp.GetValue(value));
+            Assert.AreEqual("Review submitted successfully!", (string)messageProp.GetValue(value));
         }
 
         [Test]
@@ -175,9 +183,16 @@ namespace Food_Haven.UnitTest.User_SubmitReview_Test
 
             var result = await _controller.SubmitReview(reviewRequest) as JsonResult;
             Assert.NotNull(result);
-            dynamic value = result.Value;
-            Assert.IsFalse(value.success);
-            Assert.AreEqual("The product does not belong to your order.", value.message);
+
+            var value = result.Value;
+            Assert.NotNull(value, "JsonResult.Value is null");
+            var valueType = value.GetType();
+            var successProp = valueType.GetProperty("success");
+            var messageProp = valueType.GetProperty("message");
+            Assert.IsNotNull(successProp, "Returned object does not contain 'success' property.");
+            Assert.IsNotNull(messageProp, "Returned object does not contain 'message' property.");
+            Assert.IsFalse((bool?)successProp.GetValue(value) ?? true);
+            Assert.That((string?)messageProp.GetValue(value), Is.EqualTo("The product does not belong to your order."));
         }
 
         [Test]
@@ -186,15 +201,24 @@ namespace Food_Haven.UnitTest.User_SubmitReview_Test
             var user = new AppUser { Id = "user1" };
             var reviewRequest = new ReviewRequest { ProductId = Guid.NewGuid(), Rating = 5, Content = "The product is quite good." };
             var orderDetail = new OrderDetail { ID = reviewRequest.ProductId, ProductTypesID = Guid.NewGuid(), IsFeedback = true, Order = new Order { UserID = user.Id } };
+            var productVariant = new ProductTypes { ID = orderDetail.ProductTypesID, ProductID = Guid.NewGuid() };
 
             _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>())).ReturnsAsync(user);
             _orderDetailServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<OrderDetail, bool>>>())).ReturnsAsync(orderDetail);
+            _productVariantServiceMock.Setup(x => x.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>())).ReturnsAsync(productVariant);
 
             var result = await _controller.SubmitReview(reviewRequest) as JsonResult;
             Assert.NotNull(result);
-            dynamic value = result.Value;
-            Assert.IsFalse(value.success);
-            Assert.AreEqual("You have already reviewed this product.", value.message);
+
+            var value = result.Value;
+            Assert.NotNull(value, "JsonResult.Value is null");
+            var valueType = value.GetType();
+            var successProp = valueType.GetProperty("success");
+            var messageProp = valueType.GetProperty("message");
+            Assert.IsNotNull(successProp, "Returned object does not contain 'success' property.");
+            Assert.IsNotNull(messageProp, "Returned object does not contain 'message' property.");
+            Assert.IsFalse((bool?)successProp.GetValue(value) ?? true);
+            Assert.AreEqual("You have already reviewed this product.", (string?)messageProp.GetValue(value));
         }
 
         [Test]
@@ -212,9 +236,16 @@ namespace Food_Haven.UnitTest.User_SubmitReview_Test
 
             var result = await _controller.SubmitReview(reviewRequest) as JsonResult;
             Assert.NotNull(result);
-            dynamic value = result.Value;
-            Assert.IsFalse(value.success);
-            Assert.AreEqual("Could not save review.", value.message);
+
+            var value = result.Value;
+            Assert.NotNull(value, "JsonResult.Value is null");
+            var valueType = value.GetType();
+            var successProp = valueType.GetProperty("success");
+            var messageProp = valueType.GetProperty("message");
+            Assert.IsNotNull(successProp, "Returned object does not contain 'success' property.");
+            Assert.IsNotNull(messageProp, "Returned object does not contain 'message' property.");
+            Assert.IsFalse((bool?)successProp.GetValue(value) ?? true);
+            Assert.AreEqual("Could not save review.", (string?)messageProp.GetValue(value));
         }
     }
 }
