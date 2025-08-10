@@ -307,5 +307,22 @@ namespace Repository.StoreDetails
 
             return result!;
         }
+        public async Task<bool> IsStoreNameExistsAsync(string name, Guid excludeId)
+        {
+            return await _context.StoreDetails
+                .AnyAsync(s => s.Name == name && s.ID != excludeId);
+        }
+
+        public async Task<bool> IsPhoneExistsAsync(string phone, Guid excludeId)
+        {
+            string last9Digits = phone.Length > 9
+                ? phone.Substring(phone.Length - 9)
+                : phone;
+
+            return await _context.StoreDetails
+                .AnyAsync(s => EF.Functions.Like(s.Phone, $"%{last9Digits}")
+                               && s.ID != excludeId);
+        }
+
     }
 }

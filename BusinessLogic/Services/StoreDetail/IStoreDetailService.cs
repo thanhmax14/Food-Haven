@@ -29,7 +29,7 @@ namespace BusinessLogic.Services.StoreDetail
             Expression<Func<StoreDetails, bool>> filter = null,
             Func<IQueryable<StoreDetails>, IOrderedQueryable<StoreDetails>> orderBy = null,
             Func<IQueryable<StoreDetails>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<StoreDetails, object>> includeProperties = null);
-        Task<bool> AddStoreAsync(StoreDetails store, string userId);
+        Task<bool> AddStoreAsync(CreateStoreViewModel model, string userId);
         Task<IEnumerable<StoreDetails>> GetAllStoresAsync();
         Task<StoreDetails?> GetStoreByIdAsync(Guid storeId);
         Task<bool> UpdateStoreAsync(Guid id, string name, string longDesc, string shortDesc, string address, string phone, string img);
@@ -50,5 +50,7 @@ namespace BusinessLogic.Services.StoreDetail
         Task<StoreDetails> GetStoreByUserIdAsync(string userId);
         Task<ViewStoreDetailViewModel> GetStoreDetailAsync(Guid storeId);
         Task<bool> IsUserSellerAsync(string userId);
+        Task<bool> IsStoreNameExistsAsync(string name, Guid excludeId);
+        Task<bool> IsPhoneExistsAsync(string phone, Guid excludeId);
     }
 }

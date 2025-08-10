@@ -327,10 +327,10 @@
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label asp-for="LongDescriptions" class="form-label">Detail
+                                                    <label for="ckeditor-classic" class="form-label">Detail
                                                         Description</label>
-                                                    <textarea asp-for="LongDescriptions" class="form-control"
-                                                        id="ckeditor-classic" required></textarea>
+                                                    <textarea id="ckeditor-classic" name="LongDescriptions"
+                                                    class="form-control">@Html.Raw(Model.LongDescriptions)</textarea>
                                                     <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                                 </div>
 
@@ -364,6 +364,8 @@
                                                                 <p class="text-muted">No image available</p>
                                                             }
                                                         </div>
+
+                                                        <input type="hidden" asp-for="Img" />
 
                                                         <label class="form-label mt-2">Upload New Image</label>
                                                         <input type="file" name="ImgFile" class="form-control"
@@ -428,7 +430,7 @@
                     });
                 </script>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                <script>
+                @* <script>
                     @if (ViewBag.UpdateSuccess != null && (bool)ViewBag.UpdateSuccess)
                         {
                             <text>
@@ -438,9 +440,9 @@
                                 text: 'Your store has been successfully updated.',
                                 showConfirmButton: false,
                                 timer: 2000
-                                        }).then(() => {
+                                                                                        }).then(() => {
                                     window.location.href = '/Seller/ViewStore';
-                                        });
+                                                                                        });
                             </text>
                     }
                 </script>
@@ -455,9 +457,60 @@
                                 text: 'Your store has been successfully updated!',
                                 showConfirmButton: false,
                                 timer: 2000
+                                                                                                        });
+                            </text>
+                    }
+                </script> *@
+
+                <script>
+                    @if (ViewBag.DuplicateName != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Duplicate Store Name',
+                                text: '@ViewBag.DuplicateName'
+                                                                        });
+                            </text>
+                    }
+                </script>
+
+                <script>
+                        @if (ViewBag.DuplicatePhoneNumber != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Duplicate Phone Number',
+                                text: '@ViewBag.DuplicatePhoneNumber'
                                                         });
                             </text>
                     }
+                </script>
+
+                <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const ckeditorElement = document.querySelector("#ckeditor-classic");
+                            if (ckeditorElement && !ckeditorElement.classList.contains('ckeditor-initialized')) {
+                                ClassicEditor
+                                    .create(ckeditorElement)
+                                    .then(editor => {
+                                        window.myEditorInstance = editor;
+                                        ckeditorElement.classList.add('ckeditor-initialized');
+                                    })
+                                    .catch(error => {
+                                        console.error("CKEditor init error:", error);
+                                    });
+                            }
+
+                            // Set initial value
+                            hiddenInput.value = editor.getData();
+                        })
+                            .catch(error => {
+                                console.error("CKEditor init error:", error);
+                            });
+                        }
+                    });
                 </script>
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
@@ -487,8 +540,6 @@
             <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
             <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
             <script src="~/assetsAdmin/js/plugins.js"></script>
-            <!-- ckeditor -->
-            <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
 
             <!-- dropzone js -->
             <script src="~/assetsAdmin/libs/dropzone/dropzone-min.js"></script>
@@ -506,3 +557,8 @@
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 </html>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

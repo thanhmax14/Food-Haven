@@ -56,22 +56,31 @@ namespace BusinessLogic.Services.StoreDetail
             Func<IQueryable<StoreDetails>, Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<StoreDetails, object>> includeProperties = null) =>
             await _repository.ListAsync(filter, orderBy, includeProperties);
         public async Task<int> SaveChangesAsync() => await _repository.SaveChangesAsync();
-        public async Task<bool> AddStoreAsync(StoreDetails store, string userId)
+        public async Task<bool> AddStoreAsync(CreateStoreViewModel model, string userId)
         {
-            bool isSeller = await _repositorys.IsUserSellerAsync(userId);
-            if (!isSeller)
+            var isSeller = await _repositorys.IsUserSellerAsync(userId);
+            if (!isSeller) return false;
+
+            var entity = new StoreDetails
             {
-                return false; // Người dùng không phải Seller
-            }
+                ID = Guid.NewGuid(),
+                UserID = userId,
+                Name = model.Name.Trim(),
+                ShortDescriptions = model.ShortDescriptions.Trim(),
+                LongDescriptions = model.LongDescriptions.Trim(),
+                Address = model.Address.Trim(),
+                Phone = model.Phone.Trim(),
+                ImageUrl = model.Img,            // đã set ở Controller sau khi lưu file
+                Status = "Pending",
+                IsActive = true,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                RejectNote = null
+            };
 
-            store.UserID = userId;
-            store.CreatedDate = DateTime.Now;
-            store.ModifiedDate = null;
-            store.Status = "Pending";
-            store.IsActive = false;
-
-            return await _repositorys.AddStoreAsync(store);
+            return await _repositorys.AddStoreAsync(entity);
         }
+
 
         public async Task<IEnumerable<StoreDetails>> GetAllStoresAsync()
         {
@@ -207,6 +216,15 @@ namespace BusinessLogic.Services.StoreDetail
         public async Task<bool> IsUserSellerAsync(string userId)
         {
             return await _repositorys.IsUserSellerAsync(userId);
+        }
+        public async Task<bool> IsStoreNameExistsAsync(string name, Guid excludeId)
+        {
+            return await _repositorys.IsStoreNameExistsAsync(name, excludeId);
+        }
+
+        public async Task<bool> IsPhoneExistsAsync(string phone, Guid excludeId)
+        {
+            return await _repositorys.IsPhoneExistsAsync(phone, excludeId);
         }
     }
 }

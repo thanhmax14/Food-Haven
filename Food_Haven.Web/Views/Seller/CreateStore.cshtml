@@ -1,8 +1,8 @@
-﻿@model Repository.ViewModels.StoreViewModel
+﻿@model Repository.ViewModels.CreateStoreViewModel
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
-      data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
@@ -29,6 +29,7 @@
     <!-- custom Css-->
     <link href="~/assetsAdmin/css/custom.min.css" rel="stylesheet" type="text/css" />
     <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -62,7 +63,7 @@
                     </span>
                 </a>
                 <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
-                        id="vertical-hover">
+                    id="vertical-hover">
                     <i class="ri-record-circle-line"></i>
                 </button>
             </div>
@@ -136,7 +137,8 @@
                 <!-- start page title -->
                 <div class="row">
                     <div class="col-12">
-                        <div class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
+                        <div
+                            class="page-title-box d-sm-flex align-items-center justify-content-between bg-galaxy-transparent">
                             <h4 class="mb-sm-0">Register Store Details</h4>
 
                             @* <div class="page-title-right">
@@ -160,7 +162,10 @@
                                     <p class="text-muted">Modify your store details below.</p>
                                 </div>
 
-                                <form method="post" asp-page-handler="Create1" enctype="multipart/form-data">
+                                <form method="post" asp-action="CreateStore" asp-controller="Seller"
+                                    enctype="multipart/form-data">
+                                    @Html.AntiForgeryToken()
+
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label asp-for="Name" class="form-label fw-bold">Store Name</label>
@@ -169,40 +174,50 @@
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label asp-for="ShortDescriptions" class="form-label fw-bold">Short Description</label>
-                                            <input asp-for="ShortDescriptions" class="form-control" placeholder="Enter short description" />
+                                            <label asp-for="ShortDescriptions" class="form-label fw-bold">Short
+                                                Description</label>
+                                            <input asp-for="ShortDescriptions" class="form-control"
+                                                placeholder="Enter short description" />
                                             <span asp-validation-for="ShortDescriptions" class="text-danger"></span>
                                         </div>
 
                                         <div class="col-md-6">
                                             <label asp-for="Phone" class="form-label fw-bold">Phone Number</label>
-                                            <input asp-for="Phone" class="form-control" placeholder="Enter phone number" />
+                                            <input asp-for="Phone" class="form-control"
+                                                placeholder="Enter phone number" />
                                             <span asp-validation-for="Phone" class="text-danger"></span>
                                         </div>
 
                                         <div class="col-12">
-                                            <label asp-for="LongDescriptions" class="form-label fw-bold">Detailed Description</label>
-                                            <textarea asp-for="LongDescriptions" class="form-control" rows="3" placeholder="Enter detailed description" id="ckeditor-classic"></textarea>
+                                            <label for="ckeditor-classic" class="form-label fw-bold">Detailed
+                                                Description</label>
+                                            <textarea name="LongDescriptions" class="form-control" rows="3"
+                                                placeholder="Enter detailed description"
+                                                id="ckeditor-classic">@Html.Raw(Model?.LongDescriptions ?? "")</textarea>
                                             <span asp-validation-for="LongDescriptions" class="text-danger"></span>
                                         </div>
 
                                         <div class="col-12">
                                             <label asp-for="Address" class="form-label fw-bold">Address</label>
-                                            <input asp-for="Address" class="form-control" placeholder="Enter store address" />
+                                            <input asp-for="Address" class="form-control"
+                                                placeholder="Enter store address" />
                                             <span asp-validation-for="Address" class="text-danger"></span>
                                         </div>
 
                                         <div class="col-12">
                                             <label class="form-label fw-bold">Upload New Image</label>
-                                            <input type="file" name="ImgFile" class="form-control" accept=".png, .jpeg, .jpg" id="imgInput" />
+                                            <input type="file" asp-for="ImgFile" class="form-control"
+                                                accept=".png, .jpeg, .jpg" id="imgInput" />
                                             <small class="text-muted">Supported formats: PNG, JPEG, JPG</small>
                                             <div class="mt-3">
-                                                <img id="previewImage" src="" class="img-thumbnail d-none" style="max-width: 200px; max-height: 150px;" />
+                                                <img id="previewImage" src="" class="img-thumbnail d-none"
+                                                    style="max-width: 200px; max-height: 150px;" />
                                             </div>
                                         </div>
 
                                         <div class="col-12 d-flex justify-content-between mt-3">
-                                            <a href="/Seller/ViewStore" class="btn btn-secondary px-4">Back to Profile</a>
+                                            <a href="/Seller/ViewStore" class="btn btn-secondary px-4">Back to
+                                                Profile</a>
                                             <button type="submit" class="btn btn-primary px-4">Register Store</button>
                                         </div>
                                     </div>
@@ -225,6 +240,71 @@
                             reader.readAsDataURL(file);
                         }
                     });
+                </script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const ckeditorElement = document.querySelector("#ckeditor-classic");
+                        if (ckeditorElement && !ckeditorElement.classList.contains('ckeditor-initialized')) {
+                            ClassicEditor
+                                .create(ckeditorElement)
+                                .then(editor => {
+                                    window.myEditorInstance = editor;
+                                    ckeditorElement.classList.add('ckeditor-initialized');
+                                })
+                                .catch(error => {
+                                    console.error("CKEditor init error:", error);
+                                });
+                        }
+
+                        // Set initial value
+                        //hiddenInput.value = editor.getData();
+                    })
+                        .catch(error => {
+                            console.error("CKEditor init error:", error);
+                        });
+                        }
+                    });
+                </script>
+
+                <script>
+                    @if (ViewBag.DuplicateName != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Duplicate Store Name',
+                                text: '@ViewBag.DuplicateName'
+                                                                                                });
+                            </text>
+                    }
+                </script>
+
+                <script>
+                        @if (ViewBag.DuplicatePhoneNumber != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Duplicate Phone Number',
+                                text: '@ViewBag.DuplicatePhoneNumber'
+                                                                                                                                });
+                            </text>
+                    }
+                </script>
+
+                <script>
+                        @if (ViewBag.ImageRequired != null)
+                        {
+                            <text>
+                                Swal.fire({
+                                    icon: 'error',
+                                title: 'Empty Store Image',
+                                text: '@ViewBag.ImageRequired',
+                                confirmButtonText: 'OK'
+                                                                                        });
+                            </text>
+                    }
                 </script>
 
                 @await Html.PartialAsync("_Footer_Admin_Seller")
@@ -254,9 +334,6 @@
             <script src="~/assetsAdmin/libs/feather-icons/feather.min.js"></script>
             <script src="~/assetsAdmin/js/pages/plugins/lord-icon-2.1.0.js"></script>
             <script src="~/assetsAdmin/js/plugins.js"></script>
-            <!-- ckeditor -->
-            <script src="~/assetsAdmin/libs/%40ckeditor/ckeditor5-build-classic/build/ckeditor.js"></script>
-
             <!-- dropzone js -->
             <script src="~/assetsAdmin/libs/dropzone/dropzone-min.js"></script>
 
@@ -266,11 +343,14 @@
             <script src="~/assetsAdmin/libs/prismjs/prism.js"></script>
 
             <script src="~/assetsAdmin/js/app.js"></script>
-
-
 </body>
 
 
 <!-- Mirrored from EasyFood.com/velzon/html/master/forms-layouts.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2025 12:22:12 GMT -->
 
 </html>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
