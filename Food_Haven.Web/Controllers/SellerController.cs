@@ -2013,12 +2013,34 @@ namespace Food_Haven.Web.Controllers
                 var successOrderDetails = orderDetails.Where(od => successOrderIds.Contains(od.OrderID)).ToList();
 
 
-                var totalEarnings = successOrders.Sum(o => o.TotalPrice);
+        
+                var orderDetailsOfSuccessOrders = await _orderDetail.ListAsync(od => successOrderIds.Contains(od.OrderID));
 
-                var today = DateTime.Now.Date;
+                decimal commissionRevenue = orderDetailsOfSuccessOrders
+                    .Where(od => od.CommissionPercent >= 0 && od.CommissionPercent <= 100)
+                    .Sum(od => od.ProductPrice * od.Quantity * ((decimal)od.CommissionPercent / 100));
+
+                var totalEarnings = successOrders.Sum(o => o.TotalPrice) - commissionRevenue;
+                totalEarnings = Math.Round(totalEarnings, 2);
+
+
+                    var today = DateTime.Now.Date;
+                var recentOrderIds = successOrders
+               .Where(o => (today - o.CreatedDate.Date).TotalDays < 3)
+               .Select(o => o.ID)
+               .ToList();
+
+                var recentOrderDetails = await _orderDetail.ListAsync(od => recentOrderIds.Contains(od.OrderID));
+
+                decimal commissionPending = recentOrderDetails
+                    .Where(od => od.CommissionPercent >= 0 && od.CommissionPercent <= 100)
+                    .Sum(od => od.ProductPrice * od.Quantity * ((decimal)od.CommissionPercent / 100));
+
                 var pendingBalance = successOrders
                     .Where(o => (today - o.CreatedDate.Date).TotalDays < 3)
-                    .Sum(o => o.TotalPrice);
+                    .Sum(o => o.TotalPrice) - commissionPending;
+
+                pendingBalance = Math.Round(pendingBalance, 2);
 
                 var processedOrders = successOrders.Count + canceledOrders.Count;
                 var totalOrders = processedOrders;
@@ -2148,7 +2170,27 @@ namespace Food_Haven.Web.Controllers
                     int orderCount = dayOrders.Count();
                     chartOrders[dateKey] = orderCount;
                     totalOrders += orderCount;
-                    decimal earning = dayOrders.Where(o => confirmedStatuses.Contains(o.Status.ToUpper())).Sum(o => o.TotalPrice);
+                    // Lọc đơn đã xác nhận trong ngày
+                    var confirmedDayOrders = dayOrders.Where(o => confirmedStatuses.Contains(o.Status.ToUpper())).ToList();
+
+                    // Lấy danh sách OrderID các đơn đã xác nhận ngày đó
+                    var confirmedOrderIds = confirmedDayOrders.Select(o => o.ID).ToList();
+
+                    // Lấy chi tiết đơn cho các OrderID này
+                    var confirmedOrderDetails = await _orderDetail.ListAsync(od => confirmedOrderIds.Contains(od.OrderID));
+
+                    // Tính hoa hồng admin trong ngày
+                    decimal commissionRevenue = confirmedOrderDetails
+                        .Where(od => od.CommissionPercent >= 0 && od.CommissionPercent <= 100)
+                        .Sum(od => od.ProductPrice * od.Quantity * ((decimal)od.CommissionPercent / 100));
+
+                    // Tổng tiền gộp các đơn đã xác nhận ngày đó
+                    decimal totalPrice = confirmedDayOrders.Sum(o => o.TotalPrice);
+
+                    // Tính tiền seller thực tế (trừ hoa hồng)
+                    decimal earning = totalPrice - commissionRevenue;
+                    earning = Math.Round(earning, 2);
+
                     chartEarnings[dateKey] = earning;
                     totalEarnings += earning;
                     int canceledCount = dayOrders.Count(o => cancelledStatuses.Contains(o.Status.ToUpper()));

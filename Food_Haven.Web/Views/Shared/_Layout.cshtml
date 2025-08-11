@@ -89,7 +89,7 @@
                               if (data.price != null && !isNaN(data.price)) {
                                   var formattedPrice = data.price.toLocaleString("vi-VN", {
                                       style: "currency",
-                                      currency: "VND"
+                                      currency: "₫"
                                   });
                                   $("#price-display").text(formattedPrice);
                               } else {
@@ -119,7 +119,7 @@
             setInterval(function () {
                 getBalance();
                 /*  getStock(); */
-            }, 10000);
+            }, 1000);
 
             // Nếu muốn khi user chọn variant khác thì gọi lại getStock ngay lập tức
             /*      $("#selectedVariantId").on("change", function () {

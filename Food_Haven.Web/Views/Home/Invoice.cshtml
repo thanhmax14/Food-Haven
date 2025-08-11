@@ -138,16 +138,16 @@
                                                           @*   <small>SKU: FWM15VKT</small> *@
                                                         </div>
                                                     </td>
-                                                    <td class="text-center">@item.unitPrice VND</td>
+                                                    <td class="text-center">@item.unitPrice ₫</td>
                                                     <td class="text-center">@item.quantity</td>
-                                                    <td class="text-right">@item.amount VND</td>
+                                                    <td class="text-right">@item.amount ₫</td>
                                                 </tr>
                                             }
                                       
 
                                             <tr>
                                                 <td colspan="3" class="text-end f-w-600">SubTotal</td>
-                                                <td class="text-right">@Model.subtotal VND</td>
+                                                <td class="text-right">@Model.subtotal ₫</td>
                                             </tr>
                                             <tr>
                                                 <td colspan="3" class="text-end f-w-600">Voucher</td>
@@ -160,7 +160,7 @@
                                             </tr>
                                             <tr>
                                                 <td colspan="3" class="text-end f-w-600">Grand Total</td>
-                                                <td class="text-right f-w-600">@Model.itemList.Sum(u=>u.unitPrice) VND</td>
+                                                <td class="text-right f-w-600">@Model.itemList.Sum(u=>u.unitPrice) ₫</td>
                                             </tr>
                                         </tbody>
                                     </table>
