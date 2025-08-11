@@ -309,24 +309,34 @@ namespace Food_Haven.Web.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddBalance(long number)
+        public async Task<IActionResult> AddBalance(decimal number)
         {
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null)
             {
                 return Json(new { notAuth = true, message = "You must be logged in to perform this action!" });
 
             }
-            if (number < 100000)
+            if (number != Math.Floor(number))
             {
-                return Json(new ErroMess { msg = "Minimum deposit is 100,000 VND" });
+                return Json(new { msg = "Please enter an integer number (no decimals allowed)." });
+            }
+            if (number < 10000)
+            {
+                return Json(new ErroMess { msg = "Minimum deposit is 10,000 ₫" });
 
             }
+            if (number > 10000000)
+            {
+                return Json(new { msg = "Maximum deposit is 10,000,000 ₫" });
+            }
+
             var request = _httpContextAccessor.HttpContext.Request;
             var baseUrl = $"{request.Scheme}://{request.Host}";
             var temdata = new DepositViewModel
             {
-                number = number,
+                number = long.Parse(number+""),
                 CalleURL = $"{baseUrl}/home/invoice",
                 ReturnUrl = $"{baseUrl}/Users#wallet",
                 UserID = user.Id
@@ -657,7 +667,7 @@ var finalAmount = subtotal - discount;
                         }
 
                         var temOrderDeyail = new List<OrderDetail>();
-                        decimal totelPrice = 0;
+                        decimal totelPrice = 0, temAdmin = -1;
 
                         foreach (var id in buyRequest.Products)
                         {
@@ -678,7 +688,35 @@ var finalAmount = subtotal - discount;
                                 return Json(new ErroMess { msg = "A product is not in your cart!" });
                             }
                         }
+                        var flasg = false;
+                        if (!string.IsNullOrWhiteSpace(billingInfo.voucher))
+                        {
+                            flasg = true;
+                            var v = await _voucherServices.FindAsync(x => x.Code.ToLower() == billingInfo.voucher.ToLower() && x.IsActive);
+                            if (v == null)
+                                return Json(new { message = "Invalid voucher" });
+                            decimal discount = v.DiscountType == "Percent"
+                                ? totelPrice * v.DiscountAmount / 100
+                                : v.DiscountAmount;
 
+                            if (v.MaxDiscountAmount.HasValue)
+                                discount = Math.Min(discount, v.MaxDiscountAmount.Value);
+
+
+                            discount = Math.Min(discount, totelPrice);
+
+                            if (v.IsGlobal)
+                            {
+                                temAdmin = totelPrice - discount;
+                            }
+                            else
+                            {
+                                totelPrice -= discount;
+                            }
+
+
+                        }
+                        decimal finalPrice = temAdmin == -1 ? totelPrice : temAdmin;
                         var orderID = Guid.NewGuid();
                         foreach (var id in buyRequest.Products)
                         {
@@ -757,9 +795,9 @@ var finalAmount = subtotal - discount;
                                     await _orderDetailService.AddAsync(item1);
                                 }
                                 long expirationTimestamp = DateTimeOffset.Now.AddMinutes(5).ToUnixTimeSeconds();
-                                ItemData item = new ItemData($"Purchase made on account {user.UserName}:", 1, (int)totelPrice);
+                                ItemData item = new ItemData($"Purchase made on account {user.UserName}:", 1, (int)finalPrice);
                                 List<ItemData> items = new List<ItemData> { item };
-                                PaymentData paymentData = new PaymentData(orderCode, (int)totelPrice, "", items, $"{buyRequest.CalledUrl}/{orderID}",
+                                PaymentData paymentData = new PaymentData(orderCode, (int)finalPrice, "", items, $"{buyRequest.CalledUrl}/{orderID}",
                                    $"{buyRequest.SuccessUrl}/{orderID}", null, null, null, null, null, expirationTimestamp
                                 );
                                 CreatePaymentResult createPayment = await this._payos.createPaymentLink(paymentData);
@@ -2454,14 +2492,17 @@ var finalAmount = subtotal - discount;
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Withdraw(long number, string code, string numAccount, string nameAcc)
+        public async Task<IActionResult> Withdraw(decimal number, string code, string numAccount, string nameAcc)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Json(new { success = false, msg = "You are not logged in!" });
-
+            if (number != Math.Floor(number))
+            {
+                return Json(new { msg = "Please enter an integer number (no decimals allowed)." });
+            }
             if (number < 50000)
-                return Json(new { success = false, msg = "Minimum withdrawal is 50,000 VND" });
+                return Json(new { success = false, msg = "Minimum withdrawal is 10,000 ₫" });
 
             if (number % 1 != 0)
                 return Json(new { success = false, msg = "The withdrawal amount must be an integer, not a decimal." });

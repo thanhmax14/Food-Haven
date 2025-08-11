@@ -920,7 +920,7 @@
                                                         name: "Total",
                                                         width: "120px",
                                                         formatter: (cell) => parseFloat(cell).toLocaleString("vi-VN", {
-                                                            style: "currency", currency: "VND"
+                                                            style: "currency", currency: "₫"
                                                         })
                                                     },
                                                     {
@@ -1398,7 +1398,7 @@
                                     <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="wallet-tab">
                                         <div class="card">
                                             <div class="card-header">
-                                                <h3 class="mb-0">Your Balance : <span id="balance-display">@Model.BalanceUser vnd</span></h3>
+                                                <h3 class="mb-0">Your Balance : <span id="balance-display">@Model.BalanceUser ₫</span></h3>
                                             </div>
                                             <div class="container mt-4">
 
@@ -1428,7 +1428,7 @@
                                                                     <div class="modal-body">
                                                                         <label class="form-label">Deposit amount</label>
 
-                                                                        <input type="number" min="1000" step="1000" id="numOrder" class="form-control mb-3" placeholder="Enter amount (VND)">
+                                                                        <input type="number" min="1000" step="1000" id="numOrder" class="form-control mb-3" placeholder="Enter amount (₫)">
                                                                         <label class="form-label">Payment method</label>
                                                                         <div class="form-check">
                                                                             <input class="form-check-input" type="radio" name="paymentType" checked>
@@ -1455,7 +1455,7 @@
                                                                     @Html.AntiForgeryToken()
                                                                     <div class="modal-body">
                                                                         <label class="form-label">Withdrawal amount</label>
-                                                                        <input type="number" min="1000" step="1000" class="form-control mb-3" id="numOrderVut" placeholder="Enter amount (VND)">
+                                                                        <input type="number" min="1000" step="1000" class="form-control mb-3" id="numOrderVut" placeholder="Enter amount (₫)">
                                                                         <label class="form-label">Withdrawal method</label>
                                                                         <div class="form-check">
                                                                             <input class="form-check-input" type="radio" name="withdrawType" checked>
@@ -2092,7 +2092,7 @@
                 new Notify({
                     status: 'error',
                     title: 'Failed',
-                    text: 'The minimum deposit amount is 100,000 VND',
+                    text: 'The minimum deposit amount is 100,000 ₫',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,
@@ -2173,12 +2173,12 @@
         var checkbox = parseInt($("#numOrderVut").val(), 10);
         var token = $("input[name='__RequestVerificationToken']").val();
 
-        if (isNaN(checkbox) || checkbox < 50000) {
+        if (isNaN(checkbox) || checkbox < 10000) {
             setTimeout(() => {
                 new Notify({
                     status: 'error',
                     title: 'Failed',
-                    text: 'The minimum withdrawal amount is 50,000 VND',
+                    text: 'The minimum withdrawal amount is 10,000 ₫',
                     effect: 'fade',
                     speed: 300,
                     showIcon: true,

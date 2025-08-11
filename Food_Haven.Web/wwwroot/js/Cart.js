@@ -40,7 +40,7 @@ $(document).ready(function () {
           if (data.price != null && !isNaN(data.price)) {
             var formattedPrice = data.price.toLocaleString("vi-VN", {
               style: "currency",
-              currency: "VND",
+              currency: "₫",
             });
             $("#price-display").text(formattedPrice);
           } else {
@@ -107,7 +107,7 @@ $(document).ready(function () {
           var price = parseFloat(result.price);
           var formattedPrice = new Intl.NumberFormat("vi-VN", {
             style: "currency",
-            currency: "VND",
+            currency: "₫",
             maximumFractionDigits: 0,
           }).format(price);
 

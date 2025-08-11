@@ -1691,14 +1691,10 @@
                                                     <span class="text-muted">Order</span>
                                                 </td>
                                                 <td>
-                                                <p class="mb-0">$${parseInt(customer.grossSales).toLocaleString()}</p>
+                                                <p class="mb-0">${parseInt(customer.grossSales).toLocaleString()}₫</p>
                                                    <span class="text-muted">Gross Sales</span>
                                                 </td>
-                                                <td>
-                                                    <h5 class="fs-14 mb-0 ${customer.growth >= 0 ? 'text-success' : 'text-danger'}">
-                                                        ${customer.growth}%<i class="fas ${customer.growth >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'} fs-6 align-middle ms-2"></i>
-                                                    </h5>
-                                                </td>
+                                               
                                             </tr>
                                         `).join('');
 

@@ -4,6 +4,7 @@ using BusinessLogic.Services.OrderDetailService;
 using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
+using BusinessLogic.Services.StoreDetail;
 using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,9 @@ namespace Food_Haven.Web.Services.Auto
         private readonly IProductVariantService _producttype;
         private readonly PayOS _payos;
         private readonly IHubContext<ChatHub> _hubContext;
-        public ReleasePaymentJob(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> usermanager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos, IHubContext<ChatHub> hubContext = null)
+        private readonly IStoreDetailService _storedetail;
+        private readonly IProductVariantService _variantService;
+        public ReleasePaymentJob(IOrdersServices order, IOrderDetailService orderdetail, UserManager<AppUser> usermanager, IProductService product, IBalanceChangeService balance, IComplaintServices complant, IVoucherServices voucher, IProductVariantService producttype, PayOS payos, IHubContext<ChatHub> hubContext = null, IStoreDetailService storedetail = null, IProductVariantService variantService = null)
         {
             _order = order;
             _orderdetail = orderdetail;
@@ -41,6 +44,8 @@ namespace Food_Haven.Web.Services.Auto
             _producttype = producttype;
             _payos = payos;
             _hubContext = hubContext;
+            _storedetail = storedetail;
+            _variantService = variantService;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -152,7 +157,7 @@ namespace Food_Haven.Web.Services.Auto
                             MoneyChange = order.TotalPrice,
                             MoneyBeforeChange = currentBalance,
                             MoneyAfterChange = currentBalance + order.TotalPrice,
-                            Method = "Refund (Kitchen Timeout)",
+                            Method = "Refund",
                             Status = "Success",
                             Display = true,
                             IsComplete = true,
@@ -186,7 +191,7 @@ namespace Food_Haven.Web.Services.Auto
 
 
                     // RULE 3: Delivered > 3 ngày và không có tranh chấp → Cộng tiền cho người bán
-                    if (order.Status.Equals("Delivered", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalDays >= 3)
+                    if (order.Status.Equals("CONFIRMED", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalMinutes >= 3)
                     {
                         var getOrderDetails = await _orderdetail.ListAsync(d => d.OrderID == order.ID);
                         if (getOrderDetails.Any())
@@ -211,7 +216,7 @@ namespace Food_Haven.Web.Services.Auto
                                             MoneyChange = order.TotalPrice,
                                             MoneyBeforeChange = currentBalance,
                                             MoneyAfterChange = currentBalance + order.TotalPrice,
-                                            Method = "Refund (Dispute Timeout)",
+                                            Method = "Refund",
                                             Status = "Success",
                                             Display = true,
                                             IsComplete = true,
@@ -250,42 +255,64 @@ namespace Food_Haven.Web.Services.Auto
                             }
 
                             // ✅ Nếu không có tranh chấp hoặc tất cả đã xử lý → cộng tiền cho người bán
+                            // ✅ Nếu không có tranh chấp hoặc tất cả đã xử lý → cộng tiền cho người bán
                             if (!hasAnyActiveComplaint)
                             {
-                                decimal currentBalance = await _balance.GetBalance(order.UserID);
+                                // Lấy tất cả product IDs từ order details
+                                var productTypeIds = getOrderDetails.Select(od => od.ProductTypesID).ToList();
+                                var productTypes = await _variantService.ListAsync(pt => productTypeIds.Contains(pt.ID));
+                                var productIds = productTypes.Select(pt => pt.ProductID).ToList();
 
-                                foreach (var item in getOrderDetails)
+                                // Lấy tất cả product để biết store và seller
+                                var products = await _product.ListAsync(p => productIds.Contains(p.ID));
+
+                                // Mình giả sử mỗi đơn chỉ thuộc 1 cửa hàng, lấy UserID của seller từ store
+                                var storeIds = products.Select(p => p.StoreID).Distinct().ToList();
+                                var stores = await _storedetail.ListAsync(s => storeIds.Contains(s.ID));
+                                var sellerUserId = stores.FirstOrDefault()?.UserID;
+
+                                if (string.IsNullOrEmpty(sellerUserId))
                                 {
-                                    decimal commissionPercent = Convert.ToDecimal(item.CommissionPercent ?? 0f);
-                                    decimal moneychange = item.TotalPrice * (commissionPercent / 100);
-
-                                    var tempBalance = new BalanceChange
-                                    {
-                                        UserID = order.UserID,
-                                        MoneyChange = moneychange,
-                                        MoneyBeforeChange = currentBalance,
-                                        MoneyAfterChange = currentBalance + moneychange,
-                                        Method = "Sell Product",
-                                        Status = "Success",
-                                        Display = true,
-                                        IsComplete = true,
-                                        CheckDone = true,
-                                        StartTime = DateTime.Now,
-                                        DueTime = DateTime.Now,
-                                        Description = $"Cộng tiền cho người bán sau 3 ngày delivered - Đơn {order.ID}"
-                                    };
-
-                                    await _balance.AddAsync(tempBalance);
-                                    currentBalance += moneychange;
+                                    Console.WriteLine($"[RULE 3] Không tìm thấy người bán cho đơn {order.ID}.");
                                 }
+                                else
+                                {
+                                    decimal currentBalance = await _balance.GetBalance(sellerUserId);
 
-                                order.IsPaid = true;
-                                await _order.UpdateAsync(order);
-                                await _balance.SaveChangesAsync();
-                                await _order.SaveChangesAsync();
-                                await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
-                                Console.WriteLine($"[RULE 3] Đơn {order.ID} đã cộng tiền sau 3 ngày delivered và không có tranh chấp.");
+                                    foreach (var item in getOrderDetails)
+                                    {
+                                        decimal commissionPercent = Convert.ToDecimal(item.CommissionPercent ?? 0f);
+                                        decimal moneychange = item.TotalPrice * (commissionPercent / 100);
+
+                                        var tempBalance = new BalanceChange
+                                        {
+                                            UserID = sellerUserId, // ✅ cộng tiền cho người bán
+                                            MoneyChange = moneychange,
+                                            MoneyBeforeChange = currentBalance,
+                                            MoneyAfterChange = currentBalance + moneychange,
+                                            Method = "Sell Product",
+                                            Status = "Success",
+                                            Display = true,
+                                            IsComplete = true,
+                                            CheckDone = true,
+                                            StartTime = DateTime.Now,
+                                            DueTime = DateTime.Now,
+                                            Description = $"Cộng tiền cho người bán sau 3 ngày delivered - Đơn {order.ID}"
+                                        };
+
+                                        await _balance.AddAsync(tempBalance);
+                                        currentBalance += moneychange;
+                                    }
+
+                                    order.IsPaid = true;
+                                    await _order.UpdateAsync(order);
+                                    await _balance.SaveChangesAsync();
+                                    await _order.SaveChangesAsync();
+                                    await _hubContext.Clients.All.SendAsync("ReceiveUpdate", new { message = "Data changed" });
+                                    Console.WriteLine($"[RULE 3] Đơn {order.ID} đã cộng tiền cho người bán sau 3 ngày delivered và không có tranh chấp.");
+                                }
                             }
+
                         }
                     }
                     if (order.Status.Equals("PROCESSING", StringComparison.OrdinalIgnoreCase) &&
