@@ -1606,39 +1606,39 @@
                                             return;
                                         }
 
-                                        tbody.innerHTML = paginatedProducts.map(product => `
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-sm bg-light rounded p-1 me-2">
-                                                            <div style="font-size: 18px;">${product.image || '📦'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <h5 class="fs-14 my-1">
-                                                           <a href="/Admin/ViewStoredetail/${product.storeid}" target="_blank" class="text-reset wraphe">${product.storename}</a>
-                                                            </h5>
-                                                            <span class="text-muted">${product.storejoindate}</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <h5 class="fs-14 my-1 fw-normal">${product.productcount}</h5>
-                                                    <span class="text-muted">Totals Product</span>
-                                                </td>
-                                                <td>
-                                                    <h5 class="fs-14 my-1 fw-normal">${product.ordercount}</h5>
-                                                    <span class="text-muted">Orders</span>
-                                                </td>
-                                                <td>
-                                                   <h5 class="fs-14 my-1 fw-normal">₫${formatNumber(product.grosssales  )}</h5>
-                                                    <span class="text-muted">Gross Sales</span>
-                                                </td>
-                                                <td>
-                                                                                                                                  <h5 class="fs-14 my-1 fw-normal">₫${formatNumber(product.commissionrevenue)}</h5>
-                                                <span class="text-muted">Revenue</span>
-                                                </td>
-                                            </tr>
-                                        `).join('');
+                                       tbody.innerHTML = paginatedProducts.map(product => `
+    <tr>
+        <td>
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm bg-light rounded p-1 me-2">
+                    <div style="font-size: 18px;">📦</div>
+                </div>
+                <div>
+                    <h5 class="fs-14 my-1">
+                        <a href="/Admin/ViewStoredetail/${product.id}" target="_blank" class="text-reset wraphe">
+                            ${product.name}
+                        </a>
+                    </h5>
+                    <span class="text-muted">${product.customer?.name || ''}</span>
+                </div>
+            </div>
+        </td>
+        <td>
+            <h5 class="fs-14 my-1 fw-normal">${product.quantity}</h5>
+            <span class="text-muted">Quantity</span>
+        </td>
+        <td>
+            <h5 class="fs-14 my-1 fw-normal">₫${formatNumber(product.amount)}</h5>
+            <span class="text-muted">Amount</span>
+        </td>
+        <td>
+            <span class="badge ${product.status === 'Active' ? 'bg-success' : 'bg-secondary'}">
+                ${product.status}
+            </span>
+        </td>
+    </tr>
+`).join('');
+
 
                                         renderProductsPagination(products.length, page);
                                     }
@@ -1870,7 +1870,9 @@
                                         }
 
                                         try {
-                                            allProducts = await fetchProducts(period, search);
+                                         const result = await fetchProducts(period, search);
+allProducts = result.data || []; // lấy đúng mảng data
+
                                             filteredProducts = allProducts;
                                             productsCurrentPage = page;
                                             renderProducts(filteredProducts, page);
@@ -2243,32 +2245,7 @@
                                     }
 
                                     // Add export buttons
-                                    function addExportButtons() {
-                                        const productsHeader = document.querySelector('#productsTable').closest('.card').querySelector('.card-header');
-                                        const customersHeader = document.querySelector('#customersTable').closest('.card').querySelector('.card-header');
-                                        const now = new Date();
-                                        const pad = n => String(n).padStart(2, '0');
-                                        const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-                                        const filename = `Best Selling Shop_${dateStr}.csv`;
-                                        // Products export button
-                                        const productsExportBtn = document.createElement('button');
-                                        productsExportBtn.className = 'btn btn-sm btn-outline-primary me-2';
-                                        productsExportBtn.innerHTML = '<i class="fas fa-download me-1"></i>Export';
-                                        productsExportBtn.addEventListener('click', () => {
-                                                exportToCSV(filteredProducts, filename, 'products');
-                                        });
-
-                                        // Customers export button
-                                        const customersExportBtn = document.createElement('button');
-                                        customersExportBtn.className = 'btn btn-sm btn-outline-primary me-2';
-                                        customersExportBtn.innerHTML = '<i class="fas fa-download me-1"></i>Export';
-                                        customersExportBtn.addEventListener('click', () => {
-                                            exportToCSV(filteredCustomers, 'customers.csv', 'customers');
-                                        });
-
-                                        productsHeader.insertBefore(productsExportBtn, productsHeader.querySelector('.dropdown'));
-                                        customersHeader.insertBefore(customersExportBtn, customersHeader.querySelector('.dropdown'));
-                                    }
+                          
 
                                     // Enhanced table interactions
                                     function addTableInteractions() {
