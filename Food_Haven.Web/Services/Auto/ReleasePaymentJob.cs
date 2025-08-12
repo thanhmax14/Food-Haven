@@ -191,7 +191,7 @@ namespace Food_Haven.Web.Services.Auto
 
 
                     // RULE 3: Delivered > 3 ngày và không có tranh chấp → Cộng tiền cho người bán
-                    if (order.Status.Equals("CONFIRMED", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalMinutes >= 3)
+                    if (order.Status.Equals("CONFIRMED", StringComparison.OrdinalIgnoreCase) && timeSinceCreated.TotalDays >= 3)
                     {
                         var getOrderDetails = await _orderdetail.ListAsync(d => d.OrderID == order.ID);
                         if (getOrderDetails.Any())
