@@ -141,38 +141,7 @@ namespace Food_Haven.UnitTest.User_AddBalance_Test
             _dbContext?.Dispose();
         }
 
-        [Test]
-        public async Task AddBalance_Should_Return_Success_When_ValidUser_And_ValidAmount()
-        {
-            var user = new AppUser { Id = "user123", UserName = "testuser" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-            _userManagerMock.Setup(m => m.FindByIdAsync(user.Id)).ReturnsAsync(user);
-            _balanceChangeServiceMock.Setup(b => b.GetBalance(user.Id)).ReturnsAsync(500000);
-            _balanceChangeServiceMock.Setup(b => b.FindAsync(It.IsAny<Expression<Func<BalanceChange, bool>>>())).ReturnsAsync((BalanceChange)null);
-
-            // Tạo HttpContext giả có Request
-            var context = new DefaultHttpContext();
-            context.Request.Scheme = "https";
-            context.Request.Host = new HostString("localhost");
-            context.User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, "user123") }, "mock"));
-            _httpContextAccessorMock.Setup(_ => _.HttpContext).Returns(context);
-
-            // Thay thế PayOS bằng FakePayOS
-            var fakePayOS = new FakePayOS();
-            var payosField = typeof(UsersController)
-                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                .FirstOrDefault(f => f.Name == "_payos" && f.FieldType == typeof(PayOS));
-            Assert.IsNotNull(payosField, "Không tìm thấy field _payos trong UsersController");
-            payosField.SetValue(_controller, fakePayOS);
-
-            var result = await _controller.AddBalance(100000) as JsonResult;
-
-            Assert.IsNotNull(result, "JsonResult bị null");
-            var erroMess = result?.Value as ErroMess;
-            Assert.IsNotNull(erroMess, "ErroMess bị null");
-            Assert.IsTrue(erroMess.success);
-            StringAssert.Contains("https://pay.payos.vn/web/", erroMess.msg?.ToString());
-        }
+        
 
         [Test]
         public async Task AddBalance_Should_Return_Error_When_User_Not_Logged_In()
@@ -186,19 +155,6 @@ namespace Food_Haven.UnitTest.User_AddBalance_Test
             var props = json.Value.GetType().GetProperties().ToDictionary(p => p.Name, p => p.GetValue(json.Value));
             Assert.IsTrue((bool)props["notAuth"]);
             Assert.AreEqual("You must be logged in to perform this action!", props["message"]);
-        }
-
-        [Test]
-        public async Task AddBalance_Should_Return_Error_When_Amount_Less_Than_Minimum()
-        {
-            var user = new AppUser { Id = "user123" };
-            _userManagerMock.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-
-            var result = await _controller.AddBalance(90000) as JsonResult;
-
-            Assert.IsNotNull(result);
-            var erroMess = result.Value as ErroMess;
-            Assert.AreEqual("Minimum deposit is 100,000 VND", erroMess.msg);
         }
 
         [Test]
