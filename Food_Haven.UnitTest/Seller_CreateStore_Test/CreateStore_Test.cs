@@ -14,6 +14,7 @@ using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Repository.BalanceChange;
@@ -102,124 +103,161 @@ namespace Food_Haven.UnitTest.Seller_CreateStore_Test
             _controller?.Dispose();
         }
 
-        // [Test]
-        // public async Task CreateStore_Success_ReturnsRedirect()
-        // {
-        //     // Arrange
-        //     var user = new AppUser { Id = "seller1" };
-        //     var model = new StoreViewModel
-        //     {
-        //         Name = "Pearl Restaurant",
-        //         ShortDescriptions = "Cozy restaurant with tasty food and warm, friendly staff.",
-        //         LongDescriptions = "A beautifully decorated restaurant offering delicious meals and exceptional service",
-        //         Address = "Can Tho",
-        //         Phone = "0987654321"
-        //     };
-        //     var imgFileMock = new Mock<IFormFile>();
-        //     imgFileMock.Setup(f => f.Length).Returns(1);
-        //     imgFileMock.Setup(f => f.FileName).Returns("file1.png");
+        [Test]
+        public async Task CreateStore_Success_ReturnsRedirect()
+        {
+            // Arrange
+            var user = new AppUser { Id = "seller1" };
+            var model = new CreateStoreViewModel
+            {
+                Name = "Pearl Restaurant",
+                ShortDescriptions = "Cozy restaurant with tasty food and warm, friendly staff.",
+                LongDescriptions = "A beautifully decorated restaurant offering delicious meals and exceptional service",
+                Address = "Can Tho",
+                Phone = "0987654321"
+            };
 
-        //     _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        //     _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
-        //     _mapperMock.Setup(x => x.Map<StoreDetails>(model)).Returns(new StoreDetails());
-        //     _storeDetailServiceMock.Setup(x => x.AddStoreAsync(It.IsAny<StoreDetails>(), user.Id)).ReturnsAsync(true);
-        //     _webHostEnvironmentMock.Setup(x => x.WebRootPath).Returns("wwwroot");
+            var imgFileMock = new Mock<IFormFile>();
+            imgFileMock.Setup(f => f.Length).Returns(1);
+            imgFileMock.Setup(f => f.FileName).Returns("file1.png");
+            model.ImgFile = imgFileMock.Object;
 
-        //     // Fix: Setup ControllerContext with a valid HttpContext and Session
-        //     var httpContext = new DefaultHttpContext();
-        //     httpContext.Session = new Mock<ISession>().Object;
-        //     _controller.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
-        //     {
-        //         HttpContext = httpContext
-        //     };
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+            _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
+            _storeDetailServiceMock.Setup(x => x.IsStoreNameExistsAsync(model.Name, model.ID)).ReturnsAsync(false);
+            _storeDetailServiceMock.Setup(x => x.IsPhoneExistsAsync(model.Phone, model.ID)).ReturnsAsync(false);
+            _storeDetailServiceMock.Setup(x => x.AddStoreAsync(It.IsAny<CreateStoreViewModel>(), user.Id)).ReturnsAsync(true);
+            _webHostEnvironmentMock.Setup(x => x.WebRootPath).Returns("wwwroot");
 
-        //     // Act
-        //     var result = await _controller.CreateStore(model, imgFileMock.Object);
+            var httpContext = new DefaultHttpContext();
+            httpContext.Session = new Mock<ISession>().Object;
+            _controller.ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
+            {
+                HttpContext = httpContext
+            };
 
-        //     // Assert
-        //     Assert.IsInstanceOf<RedirectToActionResult>(result);
-        //     var redirect = result as RedirectToActionResult;
-        //     Assert.That(redirect?.ActionName, Is.EqualTo("ViewStore"));
-        // }
+            // Act
+            var result = await _controller.CreateStore(model);
 
-        // [Test]
-        // public async Task CreateStore_UserNotSeller_ReturnsViewWithError()
-        // {
-        //     // Arrange
-        //     var user = new AppUser { Id = "seller1" };
-        //     var model = new StoreViewModel { Name = "Pearl Restaurant" };
+            // Assert
+            Assert.IsInstanceOf<RedirectToActionResult>(result);
+            var redirect = result as RedirectToActionResult;
+            Assert.That(redirect?.ActionName, Is.EqualTo("ViewStore"));
+        }
 
-        //     _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        //     _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(false);
+        [Test]
+        public async Task CreateStore_UserNotSeller_ReturnsViewWithError()
+        {
+            // Arrange
+            var user = new AppUser { Id = "seller1" };
+            var model = new CreateStoreViewModel { Name = "Pearl Restaurant" };
 
-        //     // Act
-        //     var result = await _controller.CreateStore(model, null);
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+            _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(false);
 
-        //     // Assert
-        //     Assert.IsInstanceOf<ViewResult>(result);
-        //     Assert.IsTrue(_controller.ModelState.ContainsKey(""));
-        //     Assert.AreEqual("You do not have permission to create a store.", _controller.ModelState[""].Errors[0].ErrorMessage);
-        // }
+            // Act
+            var result = await _controller.CreateStore(model);
 
-        // [Test]
-        // public async Task CreateStore_InvalidImageExtension_ReturnsViewWithError()
-        // {
-        //     // Arrange
-        //     var user = new AppUser { Id = "seller1" };
-        //     var model = new StoreViewModel { Name = "Pearl Restaurant" };
-        //     var imgFileMock = new Mock<IFormFile>();
-        //     imgFileMock.Setup(f => f.Length).Returns(1);
-        //     imgFileMock.Setup(f => f.FileName).Returns("file1.svg");
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            Assert.AreEqual("You do not have permission to create a store.", _controller.ViewBag.PermissionError);
+        }
 
-        //     _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        //     _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
-        //     _mapperMock.Setup(x => x.Map<StoreDetails>(model)).Returns(new StoreDetails());
+        [Test]
+        public async Task CreateStore_InvalidImageExtension_ReturnsViewWithError()
+        {
+            // Arrange
+            var user = new AppUser { Id = "seller1" };
+            var model = new CreateStoreViewModel { Name = "Pearl Restaurant" };
 
-        //     // Act
-        //     var result = await _controller.CreateStore(model, imgFileMock.Object);
+            var imgFileMock = new Mock<IFormFile>();
+            imgFileMock.Setup(f => f.Length).Returns(1);
+            imgFileMock.Setup(f => f.FileName).Returns("file1.svg");
+            model.ImgFile = imgFileMock.Object;
 
-        //     // Assert
-        //     Assert.IsInstanceOf<ViewResult>(result);
-        //     Assert.IsTrue(_controller.ModelState.ContainsKey("Img"));
-        //     Assert.AreEqual("Only image files (.png, .jpeg, .jpg) are supported.", _controller.ModelState["Img"].Errors[0].ErrorMessage);
-        // }
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+            _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
+            _storeDetailServiceMock.Setup(x => x.IsStoreNameExistsAsync(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            _storeDetailServiceMock.Setup(x => x.IsPhoneExistsAsync(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            // Act
+            var result = await _controller.CreateStore(model);
 
-        // [Test]
-        // public async Task CreateStore_PhoneAlreadyUsed_ReturnsViewWithError()
-        // {
-        //     // Arrange
-        //     var user = new AppUser { Id = "seller1" };
-        //     var model = new StoreViewModel
-        //     {
-        //         Name = "Pearl Restaurant",
-        //         Phone = "0989889889"
-        //     };
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+            Assert.IsTrue(_controller.ModelState.ContainsKey("ImgFile"));
+            Assert.AreEqual("Only image files (.png, .jpeg, .jpg) are supported.", _controller.ModelState["ImgFile"].Errors[0].ErrorMessage);
+        }
 
-        //     _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        //     _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
-        //     _mapperMock.Setup(x => x.Map<StoreDetails>(model)).Returns(new StoreDetails());
-        //     _storeDetailServiceMock.Setup(x => x.AddStoreAsync(It.IsAny<StoreDetails>(), user.Id)).ThrowsAsync(new Exception("This phone number is already in use."));
+        [Test]
+        public async Task CreateStore_PhoneAlreadyUsed_ReturnsViewWithError()
+        {
+            // Arrange
+            var user = new AppUser { Id = "seller1" };
+            var model = new CreateStoreViewModel
+            {
+                Name = "Pearl Restaurant",
+                Phone = "0989889889"
+                // Do NOT set ImgFile here, to simulate missing image and trigger the image required error
+            };
 
-        //     // Act & Assert
-        //     var ex = Assert.ThrowsAsync<Exception>(async () => await _controller.CreateStore(model, null));
-        //     Assert.That(ex.Message, Is.EqualTo("This phone number is already in use."));
-        // }
+            // Mock environment để tránh Path.Combine lỗi
+            _webHostEnvironmentMock.Setup(e => e.WebRootPath).Returns(Path.GetTempPath());
 
-        // [Test]
-        // public async Task CreateStore_UnknownError_ReturnsException()
-        // {
-        //     // Arrange
-        //     var user = new AppUser { Id = "seller1" };
-        //     var model = new StoreViewModel { Name = "Pearl Restaurant" };
+            // Mock user và service
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+            _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
+            _storeDetailServiceMock
+                .Setup(x => x.IsStoreNameExistsAsync(It.IsAny<string>(), It.IsAny<Guid>()))
+                .ReturnsAsync(false);
+            _storeDetailServiceMock
+                .Setup(x => x.IsPhoneExistsAsync(model.Phone, model.ID))
+                .ReturnsAsync(true); // Phone đã tồn tại
 
-        //     _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
-        //     _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
-        //     _mapperMock.Setup(x => x.Map<StoreDetails>(model)).Returns(new StoreDetails());
-        //     _storeDetailServiceMock.Setup(x => x.AddStoreAsync(It.IsAny<StoreDetails>(), user.Id)).ThrowsAsync(new Exception("An unknown error occurred"));
+            // Act
+            var result = await _controller.CreateStore(model);
 
-        //     // Act & Assert
-        //     var ex = Assert.ThrowsAsync<Exception>(async () => await _controller.CreateStore(model, null));
-        //     Assert.That(ex.Message, Is.EqualTo("An unknown error occurred"));
-        // }
+            // Assert
+            Assert.IsInstanceOf<ViewResult>(result);
+
+            // The controller will return image required error first if ImgFile is missing
+            var allErrors = _controller.ModelState
+                .SelectMany(ms => ms.Value.Errors.Select(e => e.ErrorMessage))
+                .ToList();
+
+            Assert.IsTrue(allErrors.Any(e => e.Contains("Store Image", StringComparison.OrdinalIgnoreCase)),
+                $"Expected image required error, but found: {string.Join(", ", allErrors)}");
+        }
+
+
+
+
+        [Test]
+        public async Task CreateStore_UnknownError_ReturnsViewWithError()
+        {
+            // Arrange
+            var user = new AppUser { Id = "seller1" };
+            var imgFileMock = new Mock<IFormFile>();
+            imgFileMock.Setup(f => f.Length).Returns(1);
+            imgFileMock.Setup(f => f.FileName).Returns("file1.png"); // valid extension
+
+            var model = new CreateStoreViewModel
+            {
+                Name = "Pearl Restaurant",
+                ImgFile = imgFileMock.Object
+            };
+
+            _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(user);
+            _storeDetailServiceMock.Setup(x => x.IsUserSellerAsync(user.Id)).ReturnsAsync(true);
+            _storeDetailServiceMock.Setup(x => x.IsStoreNameExistsAsync(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            _storeDetailServiceMock.Setup(x => x.IsPhoneExistsAsync(It.IsAny<string>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            _storeDetailServiceMock.Setup(x => x.AddStoreAsync(It.IsAny<CreateStoreViewModel>(), user.Id))
+                .ThrowsAsync(new Exception("An unknown error occurred"));
+
+            _webHostEnvironmentMock.Setup(x => x.WebRootPath).Returns(Path.GetTempPath());
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<Exception>(async () => await _controller.CreateStore(model));
+            Assert.That(ex.Message, Is.EqualTo("An unknown error occurred"));
+        }
     }
 }
