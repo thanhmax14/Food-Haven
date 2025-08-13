@@ -1,6 +1,5 @@
 ﻿using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
-using BusinessLogic.Services.Categorys;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
 using BusinessLogic.Services.FavoriteFavoriteRecipes;
@@ -26,57 +25,33 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Models;
-using Models.DBContext;
 using Moq;
-using Net.payOS;
 using Newtonsoft.Json.Linq;
-using Repository.BalanceChange;
+using NUnit.Framework;
 using Repository.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
-using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+
 namespace Food_Haven.UnitTest.User_Buy_Test
 {
+    [TestFixture]
     public class Buy_Test
     {
-        private Mock<UserManager<AppUser>> _userManagerMock;
-        private Mock<IBalanceChangeService> _balanceMock;
-        private Mock<IHttpContextAccessor> _httpContextAccessorMock;
-        private Mock<IProductService> _productServiceMock;
-        private Mock<ICartService> _cartServiceMock;
-        private Mock<IProductVariantService> _productVariantServiceMock;
-        private Mock<IProductImageService> _productImageServiceMock;
-        private Mock<IOrdersServices> _ordersServiceMock;
-        private Mock<IOrderDetailService> _orderDetailServiceMock;
-        private Mock<IReviewService> _reviewServiceMock;
-        private Mock<IRecipeService> _recipeServiceMock;
-        private Mock<ICategoryService> _categoryServiceMock;
-        private Mock<IIngredientTagService> _ingredientTagServiceMock;
-        private Mock<ITypeOfDishService> _typeOfDishServiceMock;
-        private Mock<IComplaintImageServices> _complaintImageServicesMock;
-        private Mock<IComplaintServices> _complaintServicesMock;
-        private Mock<IRecipeIngredientTagIngredientTagSerivce> _recipeIngredientTagServiceMock;
-        private Mock<IMessageImageService> _messageImageServiceMock;
-        private Mock<IMessageService> _messageServiceMock;
-        private Mock<IHubContext<ChatHub>> _chatHubContextMock;
-        private Mock<IHubContext<FollowHub>> _followHubContextMock;
-        private Mock<IRecipeReviewService> _recipeReviewServiceMock;
-        private Mock<IFavoriteRecipeService> _favoriteRecipeServiceMock;
-        private Mock<IStoreFollowersService> _storeFollowersServiceMock;
-        private Mock<IStoreDetailService> _storeDetailServiceMock;
-        private HttpClient _httpClient; // Không cần mock, có thể dùng real object
-        private PayOS _payos;
-        private ManageTransaction _manageTransaction;
-        private Mock<IVoucherServices> _voucherServiceMock;
-
-        // Controller instance
         private UsersController _controller;
+        private Mock<UserManager<AppUser>> _userManagerMock;
+        private Mock<IProductVariantService> _productVariantMock;
+        private Mock<IProductService> _productMock;
+        private Mock<ICartService> _cartMock;
+        private Mock<IProductImageService> _imgMock;
+        private Mock<IVoucherServices> _voucherMock;
+
+        private AppUser _user;
+
         [SetUp]
         public void Setup()
         {
@@ -84,90 +59,183 @@ namespace Food_Haven.UnitTest.User_Buy_Test
                 new Mock<IUserStore<AppUser>>().Object,
                 null, null, null, null, null, null, null, null);
 
-            _balanceMock = new Mock<IBalanceChangeService>();
-            _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
-            _productServiceMock = new Mock<IProductService>();
-            _cartServiceMock = new Mock<ICartService>();
-            _productVariantServiceMock = new Mock<IProductVariantService>();
-            _productImageServiceMock = new Mock<IProductImageService>();
-            _ordersServiceMock = new Mock<IOrdersServices>();
-            _orderDetailServiceMock = new Mock<IOrderDetailService>();
-            _reviewServiceMock = new Mock<IReviewService>();
-            _recipeServiceMock = new Mock<IRecipeService>();
-            _categoryServiceMock = new Mock<ICategoryService>();
-            _ingredientTagServiceMock = new Mock<IIngredientTagService>();
-            _typeOfDishServiceMock = new Mock<ITypeOfDishService>();
-            _complaintImageServicesMock = new Mock<IComplaintImageServices>();
-            _complaintServicesMock = new Mock<IComplaintServices>();
-            _recipeIngredientTagServiceMock = new Mock<IRecipeIngredientTagIngredientTagSerivce>();
-            _messageImageServiceMock = new Mock<IMessageImageService>();
-            _messageServiceMock = new Mock<IMessageService>();
-            _chatHubContextMock = new Mock<IHubContext<ChatHub>>();
-            _followHubContextMock = new Mock<IHubContext<FollowHub>>();
-            _recipeReviewServiceMock = new Mock<IRecipeReviewService>();
-            _favoriteRecipeServiceMock = new Mock<IFavoriteRecipeService>();
-            _storeFollowersServiceMock = new Mock<IStoreFollowersService>();
-            _storeDetailServiceMock = new Mock<IStoreDetailService>();
-            _voucherServiceMock = new Mock<IVoucherServices>();
-            _httpClient = new HttpClient();
-            _payos = new PayOS("client-id", "api-key", "https://callback.url");
-            var options = new DbContextOptionsBuilder<FoodHavenDbContext>()
-     .UseInMemoryDatabase(databaseName: "TestDb")
-     .Options;
+            _productVariantMock = new Mock<IProductVariantService>();
+            _productMock = new Mock<IProductService>();
+            _cartMock = new Mock<ICartService>();
+            _imgMock = new Mock<IProductImageService>();
+            _voucherMock = new Mock<IVoucherServices>();
 
-            var dbContext = new FoodHavenDbContext(options);
-            var manageTransactionMock = new Mock<ManageTransaction>(dbContext); // truyền instance
-            manageTransactionMock
-                .Setup(x => x.ExecuteInTransactionAsync(It.IsAny<Func<Task>>()))
-                .Returns<Func<Task>>(async (func) =>
-                {
-                    await func();
-                    return true;
-                });
-
-
+            // Fake user
+            _user = new AppUser
+            {
+                Id = "user1",
+                Email = "test@example.com",
+                FirstName = "John",
+                LastName = "Doe",
+                PhoneNumber = "0123456789",
+                Address = "123 Street",
+                IsProfileUpdated = true
+            };
 
             _controller = new UsersController(
                 _userManagerMock.Object,
-                _httpClient,
-                _balanceMock.Object,
-                _httpContextAccessorMock.Object,
-                _productServiceMock.Object,
-                _cartServiceMock.Object,
-                _productVariantServiceMock.Object,
-                _productImageServiceMock.Object,
-                _ordersServiceMock.Object,
-                _orderDetailServiceMock.Object,
-                _payos,
-                _manageTransaction,
-                _reviewServiceMock.Object,
-                _recipeServiceMock.Object,
-                _categoryServiceMock.Object,
-                _ingredientTagServiceMock.Object,
-                _typeOfDishServiceMock.Object,
-                _complaintImageServicesMock.Object,
-                _complaintServicesMock.Object,
-                _recipeIngredientTagServiceMock.Object,
-                _messageImageServiceMock.Object,
-                _messageServiceMock.Object,
-                _chatHubContextMock.Object,
-                _recipeReviewServiceMock.Object,
-                _favoriteRecipeServiceMock.Object,
-                _storeFollowersServiceMock.Object,
-                _storeDetailServiceMock.Object,
-                _followHubContextMock.Object, _voucherServiceMock.Object
+                new HttpClient(),
+                Mock.Of<IBalanceChangeService>(),
+                Mock.Of<IHttpContextAccessor>(),
+                _productMock.Object,
+                _cartMock.Object,
+                _productVariantMock.Object,
+                _imgMock.Object,
+                Mock.Of<IOrdersServices>(),
+                Mock.Of<IOrderDetailService>(),
+                new Net.payOS.PayOS("id", "key", "callback"),
+                null,
+                Mock.Of<IReviewService>(),
+                Mock.Of<IRecipeService>(),
+                Mock.Of<ICategoryService>(),
+                Mock.Of<IIngredientTagService>(),
+                Mock.Of<ITypeOfDishService>(),
+                Mock.Of<IComplaintImageServices>(),
+                Mock.Of<IComplaintServices>(),
+                Mock.Of<IRecipeIngredientTagIngredientTagSerivce>(),
+                Mock.Of<IMessageImageService>(),
+                Mock.Of<IMessageService>(),
+                Mock.Of<IHubContext<ChatHub>>(),
+                Mock.Of<IRecipeReviewService>(),
+                Mock.Of<IFavoriteRecipeService>(),
+                Mock.Of<IStoreFollowersService>(),
+                Mock.Of<IStoreDetailService>(),
+                Mock.Of<IHubContext<FollowHub>>(),
+                _voucherMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext()
             };
+
+            // Enable session
+            var session = new TestSession();
+            _controller.ControllerContext.HttpContext.Session = session;
         }
-          [TearDown]
+
+        [TearDown]
         public void TearDown()
         {
-            _httpClient?.Dispose();
             _controller?.Dispose();
         }
+        [Test]
+        public async Task Buy_ShouldReturnError_WhenUserNotLoggedIn()
+        {
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync((AppUser)null);
+
+            var result = await _controller.Buy(new List<Guid> { Guid.NewGuid() }, null) as JsonResult;
+            var data = result.Value as ErroMess;
+
+            Assert.AreEqual("You are not logged in!", data.msg);
+        }
+
+        [Test]
+        public async Task Buy_ShouldReturnError_WhenNoProductSelected()
+        {
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(_user);
+
+            var result = await _controller.Buy(null, null) as JsonResult;
+            var data = result.Value as ErroMess;
+
+            Assert.AreEqual("Please select the products you want to buy!", data.msg);
+        }
+
+        [Test]
+        public async Task Buy_ShouldReturnError_WhenProfileNotUpdated()
+        {
+            _user.IsProfileUpdated = false;
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(_user);
+
+            var result = await _controller.Buy(new List<Guid> { Guid.NewGuid() }, null) as JsonResult;
+            var data = result.Value as ErroMess;
+
+            Assert.AreEqual("You must update your personal information before making a purchase!", data.msg);
+        }
+
+        [Test]
+        public async Task Buy_ShouldReturnError_WhenProductNotInCart()
+        {
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(_user);
+
+            var productId = Guid.NewGuid();
+            var variant = new ProductTypes { ID = productId, ProductID = Guid.NewGuid(), Name = "Test" };
+            var product = new Product { ID = variant.ProductID, StoreID = Guid.NewGuid() };
+
+            _productVariantMock.Setup(s => s.GetAsyncById(productId)).ReturnsAsync(variant);
+            _productMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Product, bool>>>())).ReturnsAsync(product);
+            _cartMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Cart, bool>>>())).ReturnsAsync((Cart)null);
+
+            var result = await _controller.Buy(new List<Guid> { productId }, null) as JsonResult;
+            var data = result.Value as ErroMess;
+
+            Assert.AreEqual("The selected product does not exist in the cart!", data.msg);
+        }
+
+        [Test]
+        public async Task Buy_ShouldReturnError_WhenStockNotEnough()
+        {
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(_user);
+
+            var productId = Guid.NewGuid();
+            var variant = new ProductTypes { ID = productId, ProductID = Guid.NewGuid(), Name = "Test", Stock = 1, SellPrice = 10 };
+            var product = new Product { ID = variant.ProductID, StoreID = Guid.NewGuid() };
+            var cartItem = new Cart { ProductTypesID = productId, Quantity = 5, UserID = _user.Id };
+
+            _productVariantMock.Setup(s => s.GetAsyncById(productId)).ReturnsAsync(variant);
+            _productMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Product, bool>>>())).ReturnsAsync(product);
+            _cartMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Cart, bool>>>())).ReturnsAsync(cartItem);
+            _productVariantMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>())).ReturnsAsync(variant);
+
+            var result = await _controller.Buy(new List<Guid> { productId }, null) as JsonResult;
+            var data = result.Value as ErroMess;
+
+            Assert.AreEqual("The quantity you wish to buy exceeds the available stock!", data.msg);
+        }
+
+        [Test]
+        public async Task Buy_ShouldReturnSuccess_WhenValidRequest()
+        {
+            _userManagerMock.Setup(u => u.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(_user);
+
+            var productId = Guid.NewGuid();
+            var variant = new ProductTypes
+            { ID = productId, ProductID = Guid.NewGuid(), Name = "Test", Stock = 10, SellPrice = 10 };
+            var product = new Product { ID = variant.ProductID, StoreID = Guid.NewGuid() };
+            var cartItem = new Cart { ProductTypesID = productId, Quantity = 1, UserID = _user.Id };
+            var img = new ProductImage { ProductID = product.ID, IsMain = true, ImageUrl = "http://example.com/img.jpg" };
+
+            _productVariantMock.Setup(s => s.GetAsyncById(productId)).ReturnsAsync(variant);
+            _productMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Product, bool>>>())).ReturnsAsync(product);
+            _cartMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<Cart, bool>>>())).ReturnsAsync(cartItem);
+            _productVariantMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductTypes, bool>>>())).ReturnsAsync(variant);
+            _imgMock.Setup(s => s.FindAsync(It.IsAny<Expression<Func<ProductImage, bool>>>())).ReturnsAsync(img);
+
+            var result = await _controller.Buy(new List<Guid> { productId }, null) as JsonResult;
+            var json = JObject.FromObject(result.Value);
+            Assert.IsTrue(json["success"].Value<bool>());
+            Assert.AreEqual("/Users/CheckOut", json["redirectUrl"].Value<string>());
+
+        }
+    }
+
+    // Fake ISession for unit tests
+    public class TestSession : ISession
+    {
+        private Dictionary<string, byte[]> _sessionStorage = new Dictionary<string, byte[]>();
+        public IEnumerable<string> Keys => _sessionStorage.Keys;
+        public string Id => Guid.NewGuid().ToString();
+        public bool IsAvailable => true;
+        public void Clear() => _sessionStorage.Clear();
+        public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public void Remove(string key) => _sessionStorage.Remove(key);
+        public void Set(string key, byte[] value) => _sessionStorage[key] = value;
+        public bool TryGetValue(string key, out byte[] value) => _sessionStorage.TryGetValue(key, out value);
     }
 }

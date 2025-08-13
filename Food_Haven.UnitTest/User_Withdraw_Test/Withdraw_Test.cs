@@ -251,7 +251,7 @@ namespace Food_Haven.UnitTest.User_Withdraw_Test
             var obj = GetJsonObject(result);
 
             Assert.IsFalse(obj["success"].Value<bool>());
-            Assert.AreEqual("Minimum withdrawal is 50,000 VND", obj["msg"].Value<string>());
+            Assert.AreEqual("Minimum withdrawal is 10,000 ₫", obj["msg"].Value<string>());
         }
 
         [Test]
