@@ -48,14 +48,18 @@ namespace Food_Haven.UnitTest._Home_Logout_Test
         public void Setup()
         {
             _userManagerMock = new Mock<UserManager<AppUser>>(
-                new Mock<IUserStore<AppUser>>().Object,
-                null, null, null, null, null, null, null, null);
+         new Mock<IUserStore<AppUser>>().Object,
+         null, null, null, null, null, null, null, null);
 
             _signInManagerMock = new Mock<SignInManager<AppUser>>(
                 _userManagerMock.Object,
                 new Mock<IHttpContextAccessor>().Object,
                 new Mock<IUserClaimsPrincipalFactory<AppUser>>().Object,
                 null, null, null, null);
+
+            // Initialize your mocks
+            expertRecipeServicesMock = new Mock<IExpertRecipeServices>();
+            recipeViewHistoryServicesMock = new Mock<IRecipeViewHistoryServices>();
 
             var payOS = new PayOS("client-id", "api-key", "https://callback.url");
             var orderDetailMock = new Mock<IOrderDetailService>();
@@ -75,7 +79,7 @@ namespace Food_Haven.UnitTest._Home_Logout_Test
             var storeReportMock = new Mock<IStoreReportServices>();
             var storeFollowersMock = new Mock<IStoreFollowersService>();
             var recipeSearchMock = new RecipeSearchService("");
-            var hubContextMock = new Mock<IHubContext<ChatHub>>(); // Add this line
+            var hubContextMock = new Mock<IHubContext<ChatHub>>();
 
             _controller = new HomeController(
                 _signInManagerMock.Object,
@@ -98,9 +102,9 @@ namespace Food_Haven.UnitTest._Home_Logout_Test
                 storeReportMock.Object,
                 storeFollowersMock.Object,
                 recipeSearchMock,
-                expertRecipeServicesMock.Object,
-                recipeViewHistoryServicesMock.Object,
-                 hubContextMock.Object // <-- Add this argument
+                expertRecipeServicesMock.Object, // now initialized
+                recipeViewHistoryServicesMock.Object, // now initialized
+                hubContextMock.Object
             );
 
             _controller.ControllerContext = new ControllerContext
