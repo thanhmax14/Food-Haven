@@ -1643,16 +1643,29 @@
                 });
 
                 const commentHTML = `
-                    <div class="single-comment d-flex mb-30">
-                        <div class="thumb text-center">
-                            <img src="/assets/imgs/blog/author-2.png" alt="" />
-                            <a href="#" class="font-heading text-brand">${data.username}</a>
+
+                    <div class="single-comment justify-content-between d-flex mb-30">
+                                <div class="thumb text-center">
+                                            <img src="/assets/imgs/blog/author-2.png" alt="" />
+                                </div>
+                                <div class="desc">
+                                    <div class="d-flex justify-content-between mb-10">
+                                        <div class="d-flex align-items-center" style="gap: 20px;">
+                                                    <a href="#" class="font-heading text-brand">${data.username}</a>
+                                                    <span class="font-xs text-muted">${data.createdDate}</span>
+                                        </div>
+                                       <div class="product-rate d-inline-block">
+                                                    <div class="product-rating" style="width: ${data.rating} * 20)%"></div>
+                                        </div>
+                                </div>
+
+                                    <p class="mb-10">
+                                                ${data.comment}
+                                    </p>
+
+                            </div>
                         </div>
-                        <div class="desc">
-                            <span class="font-xs text-muted">${data.createdDate}</span>
-                            <p class="mb-10">${data.comment}</p>
-                        </div>
-                    </div>`;
+                        `;
                 document.querySelector('.comments-area').insertAdjacentHTML('beforeend', commentHTML);
 
                 document.getElementById('commentForm').reset();

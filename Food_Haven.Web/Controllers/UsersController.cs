@@ -1,4 +1,7 @@
-using Azure;
+using System.Data;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using BusinessLogic.Hash;
 using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
@@ -14,7 +17,6 @@ using BusinessLogic.Services.Orders;
 using BusinessLogic.Services.ProductImages;
 using BusinessLogic.Services.Products;
 using BusinessLogic.Services.ProductVariants;
-using BusinessLogic.Services.ProductVariantVariants;
 using BusinessLogic.Services.RecipeIngredientTagIngredientTagServices;
 using BusinessLogic.Services.RecipeReviewReviews;
 using BusinessLogic.Services.RecipeServices;
@@ -24,29 +26,19 @@ using BusinessLogic.Services.StoreFollowers;
 using BusinessLogic.Services.TypeOfDishServices;
 using BusinessLogic.Services.VoucherServices; // nhớ import
 using Food_Haven.Web.Hubs;
-using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Models;
 using Net.payOS;
 using Net.payOS.Types;
-using Org.BouncyCastle.Asn1.X509;
 using Repository.BalanceChange;
 using Repository.ViewModels;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using System.Collections.Generic;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using X.PagedList;
 
 namespace Food_Haven.Web.Controllers
@@ -336,7 +328,7 @@ namespace Food_Haven.Web.Controllers
             var baseUrl = $"{request.Scheme}://{request.Host}";
             var temdata = new DepositViewModel
             {
-                number = long.Parse(number+""),
+                number = long.Parse(number + ""),
                 CalleURL = $"{baseUrl}/home/invoice",
                 ReturnUrl = $"{baseUrl}/Users#wallet",
                 UserID = user.Id
@@ -498,7 +490,7 @@ namespace Food_Haven.Web.Controllers
             {
                 return Json(new ErroMess { msg = "You must update your personal information before making a purchase!" });
             }
-             var temStoreid=Guid.Empty;
+            var temStoreid = Guid.Empty;
             var listItem = new List<ListItems>();
             foreach (var id in productIds)
             {
@@ -510,7 +502,7 @@ namespace Food_Haven.Web.Controllers
                 var temp = await _product.FindAsync(u => u.ID == product.ProductID);
                 if (temp == null)
                 {
-               
+
                     return Json(new ErroMess { msg = "The selected product does not exist!" });
                 }
                 temStoreid = temp.StoreID;
@@ -540,7 +532,7 @@ namespace Food_Haven.Web.Controllers
                     ItemPrice = getQuatity.SellPrice,
                     ItemQuantity = checkcart.Quantity,
                     productID = id,
-                    ProductDailid=product.ProductID
+                    ProductDailid = product.ProductID
 
                 });
 
@@ -560,39 +552,39 @@ namespace Food_Haven.Web.Controllers
             };
             if (!string.IsNullOrWhiteSpace(voucherCode))
             {
-                var Voucher = await _voucherServices.FindAsync(u => u.Code.ToLower() ==voucherCode.ToLower());
-                if( Voucher == null)
+                var Voucher = await _voucherServices.FindAsync(u => u.Code.ToLower() == voucherCode.ToLower());
+                if (Voucher == null)
                 {
                     return Json(new ErroMess { msg = "Voucher code does not exist!" });
                 }
-                if( Voucher.IsActive == false)
+                if (Voucher.IsActive == false)
                 {
                     return Json(new ErroMess { msg = "Voucher code is not active!" });
                 }
-                if(Voucher.ExpirationDate < DateTime.Now)
+                if (Voucher.ExpirationDate < DateTime.Now)
                 {
                     return Json(new ErroMess { msg = "Voucher code has expired!" });
                 }
-                if(!Voucher.IsGlobal && Voucher.StoreID != temStoreid)
+                if (!Voucher.IsGlobal && Voucher.StoreID != temStoreid)
                 {
                     return Json(new ErroMess { msg = "Voucher code is not applicable for this store!" });
                 }
-               decimal subtotal = listItem.Sum(x => x.ItemPrice * x.ItemQuantity);
+                decimal subtotal = listItem.Sum(x => x.ItemPrice * x.ItemQuantity);
 
-decimal discount = Voucher.DiscountType == "Percent"
-    ? subtotal * Voucher.DiscountAmount / 100
-    : Voucher.DiscountAmount;
+                decimal discount = Voucher.DiscountType == "Percent"
+                    ? subtotal * Voucher.DiscountAmount / 100
+                    : Voucher.DiscountAmount;
 
-if (Voucher.MaxDiscountAmount.HasValue)
-    discount = Math.Min(discount, Voucher.MaxDiscountAmount.Value);
+                if (Voucher.MaxDiscountAmount.HasValue)
+                    discount = Math.Min(discount, Voucher.MaxDiscountAmount.Value);
 
-// Không cho phép giảm quá tổng đơn
-discount = Math.Min(discount, subtotal);
+                // Không cho phép giảm quá tổng đơn
+                discount = Math.Min(discount, subtotal);
 
-temInfo.discountamount = discount;
-var finalAmount = subtotal - discount;
+                temInfo.discountamount = discount;
+                var finalAmount = subtotal - discount;
 
-                temInfo.totalamount= finalAmount;
+                temInfo.totalamount = finalAmount;
                 temInfo.voucher = voucherCode;
             }
 
@@ -873,7 +865,7 @@ var finalAmount = subtotal - discount;
                         }
                         var addedDetails = new List<OrderDetail>();
                         var temOrderDeyail = new List<OrderDetail>();
-                        decimal totelPrice = 0,temAdmin=-1;
+                        decimal totelPrice = 0, temAdmin = -1;
 
                         foreach (var id in buyRequest.Products)
                         {
@@ -894,7 +886,7 @@ var finalAmount = subtotal - discount;
                                 return Json(new ErroMess { msg = "A product is not in your cart!" });
                             }
                         }
-                        var flasg =false;
+                        var flasg = false;
                         if (!string.IsNullOrWhiteSpace(billingInfo.voucher))
                         {
                             flasg = true;
@@ -908,7 +900,7 @@ var finalAmount = subtotal - discount;
                             if (v.MaxDiscountAmount.HasValue)
                                 discount = Math.Min(discount, v.MaxDiscountAmount.Value);
 
-                 
+
                             discount = Math.Min(discount, totelPrice);
 
                             if (v.IsGlobal)
@@ -923,7 +915,7 @@ var finalAmount = subtotal - discount;
 
                         }
                         var orderID = Guid.NewGuid();
-                        if(temAdmin!=-1)
+                        if (temAdmin != -1)
                         {
                             if (await _balance.CheckMoney(user.Id, temAdmin) == false)
                             {
@@ -937,7 +929,7 @@ var finalAmount = subtotal - discount;
                                 return Json(new ErroMess { msg = "Insufficient balance to make a purchase!" });
                             }
                         }
-                       
+
                         foreach (var id in buyRequest.Products)
                         {
                             var product = await _productWarian.GetAsyncById(id.Key);
@@ -1001,7 +993,7 @@ var finalAmount = subtotal - discount;
                             Description = $"Pending-{DateTime.Now}"
                         };
                         decimal finalPrice = temAdmin == -1 ? totelPrice : temAdmin;
-                 
+
 
                         var balan = new BalanceChange
                         {
@@ -1022,10 +1014,10 @@ var finalAmount = subtotal - discount;
                             var infoVoucher = await _voucherServices.FindAsync(u => u.Code.ToLower() == billingInfo.voucher.ToLower() && u.IsActive);
                             if (infoVoucher != null)
                             {
-                                order.VoucherID= infoVoucher.ID;    
+                                order.VoucherID = infoVoucher.ID;
                             }
                         }
-                            
+
                         if (await _balance.CheckMoney(user.Id, finalPrice))
                         {
                             try
@@ -1271,9 +1263,9 @@ var finalAmount = subtotal - discount;
                     }
                 }
                 decimal temAdmin = -1;
-                if (order.VoucherID!=null)
-                {          
-                    var v = await _voucherServices.FindAsync(x => x.ID== order.VoucherID && x.IsActive);
+                if (order.VoucherID != null)
+                {
+                    var v = await _voucherServices.FindAsync(x => x.ID == order.VoucherID && x.IsActive);
                     if (v == null)
                         return Json(new { message = "Invalid voucher" });
                     decimal discount = v.DiscountType == "Percent"
@@ -1289,7 +1281,7 @@ var finalAmount = subtotal - discount;
                     if (v.IsGlobal)
                     {
                         temAdmin = order.TotalPrice - discount;
-                    }                 
+                    }
 
                 }
                 decimal finalPrice = temAdmin == -1 ? order.TotalPrice : temAdmin;
@@ -2501,7 +2493,7 @@ var finalAmount = subtotal - discount;
             {
                 return Json(new { msg = "Please enter an integer number (no decimals allowed)." });
             }
-            if (number < 50000)
+            if (number < 10000)
                 return Json(new { success = false, msg = "Minimum withdrawal is 10,000 ₫" });
 
             if (number % 1 != 0)
