@@ -147,7 +147,7 @@
                 success: function (data) {
                     Swal.fire({
                         icon: data.success ? 'success' : 'error',
-                        title: data.success ? 'Thành công' : 'Thất bại',
+                        title: data.success ? 'successg' : 'error',
                         text: data.message
                     }).then(() => {
                         // Xóa tham số userId và token khỏi URL mà không reload trang
@@ -158,8 +158,8 @@
                 error: function () {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Lỗi',
-                        text: 'Đã xảy ra lỗi trong quá trình xác nhận.'
+                        title: 'error',
+                        text: 'An error occurred during the verification process.'
                     }).then(() => {
                         const cleanUrl = window.location.origin + window.location.pathname;
                         window.history.replaceState({}, document.title, cleanUrl);
@@ -211,9 +211,9 @@
             console.error("❌ Load failed:", status, error);
 
             if (xhr.status === 401) {
-                $historyList.html('<div class="alert alert-warning text-center mt-3">Bạn cần đăng nhập để xem lịch sử.</div>');
+                $historyList.html('<div class="alert alert-warning text-center mt-3">You need to log in to view the history.</div>');
             } else {
-                $historyList.html('<div class="alert alert-danger text-center mt-3">Đã xảy ra lỗi khi tải lịch sử.</div>');
+                $historyList.html('<div class="alert alert-danger text-center mt-3">An error occurred while loading the history.</div>');
             }
 
             $clearBtn.hide();
@@ -251,9 +251,9 @@
             console.error("❌ Load failed:", status, error);
 
             if (xhr.status === 401) {
-                $historyList.html('<div class="alert alert-warning text-center mt-3">Bạn cần đăng nhập để xem lịch sử.</div>');
+                $historyList.html('<div class="alert alert-warning text-center mt-3">You need to log in to view the history..</div>');
             } else {
-                $historyList.html('<div class="alert alert-danger text-center mt-3">Đã xảy ra lỗi khi tải lịch sử.</div>');
+                $historyList.html('<div class="alert alert-danger text-center mt-3">An error occurred while loading the history.</div>');
             }
 
             $clearBtn.hide();
@@ -326,7 +326,7 @@
             console.log("📩 New message received:", message);
 
             if (!window.location.pathname.includes("/Chat")) {
-                showToastNotification(message.senderName + " vừa gửi: " + message.msg, message.from_id);
+                showToastNotification(message.senderName + " Just sent: " + message.msg, message.from_id);
 
                 // Nếu tab đang được focus và người dùng đã từng click => phát âm thanh
                 if (!document.hidden && soundAllowed) {
@@ -336,7 +336,7 @@
 
                 // Nếu tab bị ẩn, dùng Notification API
                 if (document.hidden && Notification.permission === "granted") {
-                    new Notification("💬 Tin nhắn mới từ " + message.senderName, {
+                    new Notification("💬 New message from" + message.senderName, {
                         body: message.msg,
                         icon: "/assetsAdmin/images/logo.png"
                     });
@@ -366,7 +366,7 @@
 
             fetch('/Home/GetCurrentUserRole')
                 .then(response => {
-                    if (!response.ok) throw new Error("Không thể lấy vai trò");
+                    if (!response.ok) throw new Error("Unable to retrieve role");
                     return response.json();
                 })
                 .then(data => {
