@@ -1,4 +1,7 @@
-﻿using BusinessLogic.Services.BalanceChanges;
+﻿using System.Net;
+using System.Reflection;
+using System.Security.Claims;
+using BusinessLogic.Services.BalanceChanges;
 using BusinessLogic.Services.Carts;
 using BusinessLogic.Services.ComplaintImages;
 using BusinessLogic.Services.Complaints;
@@ -22,25 +25,12 @@ using BusinessLogic.Services.VoucherServices;
 using Food_Haven.Web.Hubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Models;
 using Moq;
 using Moq.Protected;
 using Net.payOS;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
 using Repository.BalanceChange;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
-using System.Net.Http;
-using System.Reflection;
-using System.Security.Claims;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Food_Haven.UnitTest.User_Withdraw_Test
 {
@@ -247,11 +237,20 @@ namespace Food_Haven.UnitTest.User_Withdraw_Test
             _userManagerMock.Setup(x => x.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
                 .ReturnsAsync(user);
 
-            var result = await _controller.Withdraw(40000, "VCB", "0123456789", "Tran Gia Huy") as JsonResult;
+            // Không cần mock CheckMoney ở đây
+
+            var result = await _controller.Withdraw(4000, "VCB", "0123456789", "Tran Gia Huy") as JsonResult;
+
+            Assert.That(result, Is.Not.Null, "Withdraw should return a JsonResult");
+
             var obj = GetJsonObject(result);
 
-            Assert.IsFalse(obj["success"].Value<bool>());
-            Assert.AreEqual("Minimum withdrawal is 10,000 ₫", obj["msg"].Value<string>());
+            Assert.That(obj, Is.Not.Null, "JsonResult value should not be null");
+            Assert.That(obj["success"], Is.Not.Null, "Json should contain 'success'");
+            Assert.That(obj["msg"], Is.Not.Null, "Json should contain 'msg'");
+
+            Assert.That(obj["success"].Value<bool>(), Is.False);
+            Assert.That(obj["msg"].Value<string>(), Is.EqualTo("Minimum withdrawal is 10,000 ₫"));
         }
 
         [Test]
