@@ -1802,7 +1802,7 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAvailableIngredients()
         {
-            var allRecipes = await _expertRecipeServices.ListAsync(u=> u.IsActive);
+            var allRecipes = await _expertRecipeServices.ListAsync(u => u.IsActive);
             var ingredientFrequency = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var recipe in allRecipes)
@@ -1887,18 +1887,18 @@ namespace Food_Haven.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> FindRecipes()
         {
-         /* int skip = await _expertRecipeServices.CountAsync(); // bạn đã có 10000 bản
-            int limit = 100;
+            /* int skip = await _expertRecipeServices.CountAsync(); // bạn đã có 10000 bản
+               int limit = 100;
 
-            var recipes = _service.LoadRecipesFromCsv(0, limit);
+               var recipes = _service.LoadRecipesFromCsv(0, limit);
 
-            foreach (var recipe in recipes)
-            {
-                var entity = _service.MapToExpertRecipe(recipe);
-                await _expertRecipeServices.AddAsync(entity);
-            }
+               foreach (var recipe in recipes)
+               {
+                   var entity = _service.MapToExpertRecipe(recipe);
+                   await _expertRecipeServices.AddAsync(entity);
+               }
 
-            await _expertRecipeServices.SaveChangesAsync();*/
+               await _expertRecipeServices.SaveChangesAsync();*/
             return View();
         }
         public async Task<IActionResult> Index()
@@ -2515,7 +2515,10 @@ namespace Food_Haven.Web.Controllers
                 return StatusCode(500, "An error occurred while deleting all view history.");
             }
         }
-
+        public async Task<IActionResult> LearnMore()
+        {
+            return View();
+        }
 
     }
     public class HomeViewModel
