@@ -39,7 +39,7 @@ namespace BusinessLogic.Services.Products
         Task<List<Categories>> GetCategoriesAsync();
         Task<ProductUpdateViewModel> GetProductByIdAsync(Guid productId);
         Task<(bool Success, string? ErrorMessage)> UpdateProductAsync(ProductUpdateViewModel model, string webRootPath);
-        Task<bool> ToggleProductStatus(Guid productId);
+        Task<bool> ToggleProductStatus(Guid productId, bool isActive);
         List<ProductIndexViewModel> GetProductsByCurrentUser(string userId);
         Task<bool?> IsStoreActiveByProductIdAsync(Guid productId);
         Task<List<string>> GetImageUrlsByProductIdAsync(Guid productId);
@@ -50,6 +50,7 @@ namespace BusinessLogic.Services.Products
         Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId, Guid storeId);
         Task<bool> IsDuplicateProductNameAsync(string name, Guid storeId);
         Task<bool> IsTypeNameTakenAsync(Guid productId, string size);
+
 
     }
 }

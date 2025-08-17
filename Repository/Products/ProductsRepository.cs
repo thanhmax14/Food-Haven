@@ -322,9 +322,12 @@ namespace Repository.Products
             {
                 ID = product.ID,
                 Name = product.Name,
-                IsActive = product.IsActive
+                IsActive = product.IsActive,
+                ModifiedDate = product.ModifiedDate,       // NEW
+                IsProductBanned = product.IsProductBanned  // NEW
             };
         }
+
 
         public async Task<bool> UpdateStatusAsync(Guid productId, bool isActive)
         {
@@ -392,30 +395,51 @@ namespace Repository.Products
                 .Where(c => c.IsActive)
                 .ToListAsync();
         }
-        public async Task<bool> ToggleProductStatus(Guid productId)
+        public async Task<bool> ToggleProductStatus(Guid productId, bool isActive)
         {
-            var product = await GetByIdAsync(productId);
+            // Lấy Product (entity) để EF track
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.ID == productId);
             if (product == null) return false;
 
-            bool newStatus = !product.IsActive; // Đảo trạng thái Hide/Show
+            // Lấy toàn bộ ProductTypes thuộc Product
+            var variants = await _context.ProductTypes
+                .Where(v => v.ProductID == productId)
+                .ToListAsync();
 
-            // Nếu đang tắt sản phẩm => reset stock về 0 cho toàn bộ biến thể
-            if (!newStatus)
+            // → Set trạng thái theo tham số isActive
+            product.IsActive = isActive;
+            product.IsProductBanned = !isActive;          // bật => không ban, tắt => ban
+            product.ModifiedDate = DateTime.Now;
+
+            if (isActive)
             {
-                var variants = await _context.ProductTypes
-                    .Where(v => v.ProductID == productId)
-                    .ToListAsync();
-
+                // Product bật:
+                //  - IsProductTypeBanned == false => IsActive = true
+                //  - IsProductTypeBanned == true  => IsActive = false
+                foreach (var variant in variants)
+                {
+                    variant.IsActive = !(variant.IsProductTypeBanned == true);
+                    // Không đụng Stock
+                }
+            }
+            else
+            {
+                // Product tắt:
+                //  - Stock = 0
+                //  - Nếu hiện tại variant.IsActive == true  => IsProductTypeBanned = false
+                //    hiện tại variant.IsActive == false => IsProductTypeBanned = true
+                //  - Sau đó set toàn bộ IsActive = false
                 foreach (var variant in variants)
                 {
                     variant.Stock = 0;
-                    variant.IsActive = false; // cũng tắt biến thể nếu muốn đồng bộ
+                    variant.IsProductTypeBanned = !(variant.IsActive == true);
+                    variant.IsActive = false;
                 }
-
-                await _context.SaveChangesAsync();
             }
 
-            return await UpdateStatusAsync(productId, newStatus);
+            await _context.SaveChangesAsync();
+            return true;
         }
         public async Task<List<string>> GetGalleryImageUrlsByProductIdAsync(Guid productId)
         {

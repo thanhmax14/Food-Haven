@@ -106,9 +106,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
-                            <i class="ri-question-answer-line"></i> <span>Feedback</span>
-                        </a>
+                            <a class="nav-link menu-link" asp-controller="seller" asp-action="feedbacklist">
+                                <i class="ri-question-answer-line"></i> <span>Feedback</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" asp-controller="seller" asp-action="ManagerVoucher">
@@ -163,6 +163,13 @@
                     <div class="alert alert-danger text-center">
                         <p><strong>Your store has been rejected by admin!</strong></p>
                         <p>Please update your store information and register store again.</p>
+                    </div>
+                }
+                else if (storeStatusText == "Null")
+                {
+                    <div class="alert alert-info text-center">
+                        <p>You do not have a store yet. Register now to start selling!</p>
+                        <a href="/Seller/CreateStore" class="btn btn-success">Register Store</a>
                     </div>
                 }
                 else if (storeStatusText == "Pending")
@@ -263,14 +270,14 @@
                                                     : `<button class="btn btn-sm btn-success me-1" onclick="toggleProductStatus('${productId}', true)"><i class="ri-eye-line align-bottom me-1"></i> Show</button>`;
 
                                                 return gridjs.html(`
-                                                                                                                            <div class="d-flex flex-wrap gap-1">
+                                                                                                                                    <div class="d-flex flex-wrap gap-1">
 
-                                                                                                                                <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}"><i class="ri-pencil-fill align-bottom me-1"></i> Edit</a>
-                                                                                                                                <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}"><i class="ri-pencil-fill align-bottom me-1"></i> View Types</a>
+                                                                                                                                        <a class="btn btn-sm btn-primary" href="/Seller/UpdateProduct?productId=${productId}"><i class="ri-pencil-fill align-bottom me-1"></i> Edit</a>
+                                                                                                                                        <a class="btn btn-sm btn-info" href="/Seller/ViewProductType?productId=${productId}"><i class="ri-pencil-fill align-bottom me-1"></i> View Types</a>
 
-                                                                                                                                ${toggleButtonHtml}
-                                                                                                                            </div>
-                                                                                                                        `);
+                                                                                                                                        ${toggleButtonHtml}
+                                                                                                                                    </div>
+                                                                                                                                `);
                                             }
                                         }
                                     ],
