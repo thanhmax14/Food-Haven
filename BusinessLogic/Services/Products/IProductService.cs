@@ -50,7 +50,7 @@ namespace BusinessLogic.Services.Products
         Task<bool> IsProductNameTakenAsync(string name, Guid currentProductId, Guid storeId);
         Task<bool> IsDuplicateProductNameAsync(string name, Guid storeId);
         Task<bool> IsTypeNameTakenAsync(Guid productId, string size);
-        Task<bool> SyncProductTypesWithProductBanAsync(Guid productId);
+
 
     }
 }
