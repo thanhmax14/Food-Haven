@@ -209,9 +209,9 @@ namespace BusinessLogic.Services.Products
             return await _repositorys.UpdateProductAsync(model, webRootPath);
         }
 
-        public async Task<bool> ToggleProductStatus(Guid productId)
+        public async Task<bool> ToggleProductStatus(Guid productId, bool isActive)
         {
-            return await _repositorys.ToggleProductStatus(productId);
+            return await _repositorys.ToggleProductStatus(productId, isActive);
         }
 
         public List<ProductIndexViewModel> GetProductsByCurrentUser(string userId)

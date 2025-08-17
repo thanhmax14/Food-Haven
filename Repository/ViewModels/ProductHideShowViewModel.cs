@@ -11,5 +11,7 @@ namespace Repository.ViewModels
         public Guid ID { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
+        public DateTime? ModifiedDate { get; set; }   // dùng nullable để an toàn nếu dữ liệu cũ chưa có
+        public bool? IsProductBanned { get; set; }
     }
 }

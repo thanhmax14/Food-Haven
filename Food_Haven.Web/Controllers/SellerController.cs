@@ -436,7 +436,7 @@ namespace Food_Haven.Web.Controllers
 
             ViewBag.StoreId = products.FirstOrDefault()?.StoreId ?? Guid.Empty; // Lấy StoreId từ danh sách sản phẩm
             ViewBag.StoreStatus = store?.IsActive ?? false;
-            ViewBag.StoreStatusText = store?.Status ?? "Pending"; // 👈 Thêm dòng này
+            ViewBag.StoreStatusText = store?.Status ?? "Null"; // 👈 Thêm dòng này
 
             return View(products);
         }
@@ -702,7 +702,7 @@ namespace Food_Haven.Web.Controllers
         [Route("Seller/ToggleStatus")]
         public async Task<IActionResult> ToggleStatus(Guid productId, bool isActive)
         {
-            var success = await _productService.ToggleProductStatus(productId);
+            var success = await _productService.ToggleProductStatus(productId, isActive);
             if (!success) return NotFound(new { message = "Product not found" });
 
             return Ok(new { success = true, message = "Product status updated successfully!" });
@@ -2013,7 +2013,7 @@ namespace Food_Haven.Web.Controllers
                 var successOrderDetails = orderDetails.Where(od => successOrderIds.Contains(od.OrderID)).ToList();
 
 
-        
+
                 var orderDetailsOfSuccessOrders = await _orderDetail.ListAsync(od => successOrderIds.Contains(od.OrderID));
 
                 decimal commissionRevenue = orderDetailsOfSuccessOrders
@@ -2024,7 +2024,7 @@ namespace Food_Haven.Web.Controllers
                 totalEarnings = Math.Round(totalEarnings, 2);
 
 
-                    var today = DateTime.Now.Date;
+                var today = DateTime.Now.Date;
                 var recentOrderIds = successOrders
                .Where(o => (today - o.CreatedDate.Date).TotalDays < 3)
                .Select(o => o.ID)

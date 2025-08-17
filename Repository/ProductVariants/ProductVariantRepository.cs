@@ -102,6 +102,7 @@ namespace Repository.ProductVariants
                 return false;
 
             variant.IsActive = isActive;
+            variant.IsProductTypeBanned = !isActive;
 
             if (!isActive)
             {
