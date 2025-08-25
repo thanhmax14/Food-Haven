@@ -444,9 +444,10 @@
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <div class="caption">From: <strong id="display-min-price"
-                                            class="text-brand">$0</strong></div>
+                                            class="text-brand">0đ</strong></div>
                                     <div class="caption">To: <strong id="display-max-price"
-                                            class="text-brand">$1000</strong></div>
+                                                    class="text-brand">100000đ</strong>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -560,8 +561,8 @@
                 currentMaxPrice = maxPrice;
 
                 // Update display
-                $('#display-min-price').text('$' + (minPrice || 0));
-                $('#display-max-price').text('$' + (maxPrice || 1000));
+                $('#display-min-price').text('đ' + (minPrice || 0));
+                $('#display-max-price').text('đ' + (maxPrice || 1000));
 
                 $.ajax({
                     url: '@Url.Action("FilterProducts", "Home")',
@@ -586,8 +587,8 @@
 
                 $('#minPrice').val('');
                 $('#maxPrice').val('');
-                $('#display-min-price').text('$0');
-                $('#display-max-price').text('$1000');
+                $('#display-min-price').text('đ0');
+                $('#display-max-price').text('đ100000');
 
                 // Reset to all products
                 filterByCategory('all');
@@ -605,8 +606,8 @@
                     const minPrice = parseFloat($('#minPrice').val()) || 0;
                     const maxPrice = parseFloat($('#maxPrice').val()) || 1000;
 
-                    $('#display-min-price').text('$' + minPrice);
-                    $('#display-max-price').text('$' + maxPrice);
+                    $('#display-min-price').text('đ' + minPrice);
+                    $('#display-max-price').text('đ' + maxPrice);
                 });
             });
         </script>
